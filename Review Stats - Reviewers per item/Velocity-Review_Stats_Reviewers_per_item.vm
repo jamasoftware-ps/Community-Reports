@@ -1,0 +1,1277 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns:m="http://schemas.microsoft.com/office/2004/12/omml"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<BASE href="${baseUrl}">
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 14">
+<meta name=Originator content="Microsoft Word 14">
+<link rel=File-List href="Jama%20Review%20Center%20Report_files/filelist.xml">
+
+<title>Review Center Stats Report</title>
+
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>100</w:Zoom>
+<w:DoNoOptimizeForBrowser></w:WorldDocument>
+</xml>
+<!--[endif]>
+
+
+<link rel=dataStoreItem
+href="Jama%20Review%20Center%20Report_files/item0001.xml"
+target="Jama%20Review%20Center%20Report_files/props002.xml">
+<link rel=themeData href="Jama%20Review%20Center%20Report_files/themedata.thmx">
+<link rel=colorSchemeMapping
+href="Jama%20Review%20Center%20Report_files/colorschememapping.xml">
+<!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
+  <w:TrackMoves>false</w:TrackMoves>
+  <w:TrackFormatting/>
+  <w:PunctuationKerning/>
+  <w:ValidateAgainstSchemas/>
+  <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
+  <w:IgnoreMixedContent>false</w:IgnoreMixedContent>
+  <w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
+  <w:DoNotPromoteQF/>
+  <w:LidThemeOther>EN-US</w:LidThemeOther>
+  <w:LidThemeAsian>X-NONE</w:LidThemeAsian>
+  <w:LidThemeComplexScript>X-NONE</w:LidThemeComplexScript>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+   <w:DontGrowAutofit/>
+   <w:SplitPgBreakAndParaMark/>
+   <w:EnableOpenTypeKerning/>
+   <w:DontFlipMirrorIndents/>
+   <w:OverrideTableStyleHps/>
+  </w:Compatibility>
+  <m:mathPr>
+   <m:mathFont m:val="Cambria Math"/>
+   <m:brkBin m:val="before"/>
+   <m:brkBinSub m:val="&#45;-"/>
+   <m:smallFrac m:val="off"/>
+   <m:dispDef/>
+   <m:lMargin m:val="0"/>
+   <m:rMargin m:val="0"/>
+   <m:defJc m:val="centerGroup"/>
+   <m:wrapIndent m:val="1440"/>
+   <m:intLim m:val="subSup"/>
+   <m:naryLim m:val="undOvr"/>
+  </m:mathPr></w:WordDocument>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:LatentStyles DefLockedState="false" DefUnhideWhenUsed="true"
+  DefSemiHidden="true" DefQFormat="false" DefPriority="99"
+  LatentStyleCount="267">
+  <w:LsdException Locked="false" Priority="0" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Normal"/>
+  <w:LsdException Locked="false" Priority="9" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="heading 1"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 2"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 3"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 4"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 5"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 6"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 7"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 8"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 9"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 1"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 2"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 3"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 4"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 5"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 6"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 7"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 8"/>
+  <w:LsdException Locked="false" Priority="39" Name="toc 9"/>
+  <w:LsdException Locked="false" Priority="35" QFormat="true" Name="caption"/>
+  <w:LsdException Locked="false" Priority="10" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Title"/>
+  <w:LsdException Locked="false" Priority="1" Name="Default Paragraph Font"/>
+  <w:LsdException Locked="false" Priority="11" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Subtitle"/>
+  <w:LsdException Locked="false" Priority="22" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Strong"/>
+  <w:LsdException Locked="false" Priority="20" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Emphasis"/>
+  <w:LsdException Locked="false" Priority="59" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Table Grid"/>
+  <w:LsdException Locked="false" UnhideWhenUsed="false" Name="Placeholder Text"/>
+  <w:LsdException Locked="false" Priority="1" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="No Spacing"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 1"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 1"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 1"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 1"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 1"/>
+  <w:LsdException Locked="false" UnhideWhenUsed="false" Name="Revision"/>
+  <w:LsdException Locked="false" Priority="34" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="List Paragraph"/>
+  <w:LsdException Locked="false" Priority="29" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Quote"/>
+  <w:LsdException Locked="false" Priority="30" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Intense Quote"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 1"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 1"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 1"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 1"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 1"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 1"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 2"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 2"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 2"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 2"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 2"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 2"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 2"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 2"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 2"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 2"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 2"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 3"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 3"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 3"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 3"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 3"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 3"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 3"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 3"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 3"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 3"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 3"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 4"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 4"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 4"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 4"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 4"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 4"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 4"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 4"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 4"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 4"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 4"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 5"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 5"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 5"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 5"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 5"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 5"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 5"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 5"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 5"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 5"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 5"/>
+  <w:LsdException Locked="false" Priority="60" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Shading Accent 6"/>
+  <w:LsdException Locked="false" Priority="61" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light List Accent 6"/>
+  <w:LsdException Locked="false" Priority="62" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Light Grid Accent 6"/>
+  <w:LsdException Locked="false" Priority="63" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 1 Accent 6"/>
+  <w:LsdException Locked="false" Priority="64" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Shading 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="65" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 1 Accent 6"/>
+  <w:LsdException Locked="false" Priority="66" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium List 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="67" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 1 Accent 6"/>
+  <w:LsdException Locked="false" Priority="68" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="69" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Medium Grid 3 Accent 6"/>
+  <w:LsdException Locked="false" Priority="70" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Dark List Accent 6"/>
+  <w:LsdException Locked="false" Priority="71" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Shading Accent 6"/>
+  <w:LsdException Locked="false" Priority="72" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful List Accent 6"/>
+  <w:LsdException Locked="false" Priority="73" SemiHidden="false"
+   UnhideWhenUsed="false" Name="Colorful Grid Accent 6"/>
+  <w:LsdException Locked="false" Priority="19" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Subtle Emphasis"/>
+  <w:LsdException Locked="false" Priority="21" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Intense Emphasis"/>
+  <w:LsdException Locked="false" Priority="31" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Subtle Reference"/>
+  <w:LsdException Locked="false" Priority="32" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Intense Reference"/>
+  <w:LsdException Locked="false" Priority="33" SemiHidden="false"
+   UnhideWhenUsed="false" QFormat="true" Name="Book Title"/>
+  <w:LsdException Locked="false" Priority="37" Name="Bibliography"/>
+  <w:LsdException Locked="false" Priority="39" QFormat="true" Name="TOC Heading"/>
+ </w:LatentStyles>
+</xml><![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:roman;
+	mso-font-pitch:variable;
+	mso-font-signature:-536870145 1107305727 0 0 415 0;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:-536870145 1073786111 1 0 415 0;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-unhide:no;
+	mso-style-qformat:yes;
+	mso-style-parent:"";
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:10.0pt;
+	margin-left:0in;
+	line-height:115%;
+	mso-pagination:widow-orphan;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	mso-ascii-font-family:Calibri;
+	mso-ascii-theme-font:minor-latin;
+	mso-fareast-font-family:Calibri;
+	mso-fareast-theme-font:minor-latin;
+	mso-hansi-font-family:Calibri;
+	mso-hansi-theme-font:minor-latin;
+	mso-bidi-font-family:"Times New Roman";
+	mso-bidi-theme-font:minor-bidi;}
+p.MsoHeader, li.MsoHeader, div.MsoHeader
+	{mso-style-priority:99;
+	mso-style-link:"Header Char";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	tab-stops:center 3.25in right 6.5in;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	mso-ascii-font-family:Calibri;
+	mso-ascii-theme-font:minor-latin;
+	mso-fareast-font-family:Calibri;
+	mso-fareast-theme-font:minor-latin;
+	mso-hansi-font-family:Calibri;
+	mso-hansi-theme-font:minor-latin;
+	mso-bidi-font-family:"Times New Roman";
+	mso-bidi-theme-font:minor-bidi;}
+p.MsoFooter, li.MsoFooter, div.MsoFooter
+	{mso-style-priority:99;
+	mso-style-link:"Footer Char";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	tab-stops:center 3.25in right 6.5in;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	mso-ascii-font-family:Calibri;
+	mso-ascii-theme-font:minor-latin;
+	mso-fareast-font-family:Calibri;
+	mso-fareast-theme-font:minor-latin;
+	mso-hansi-font-family:Calibri;
+	mso-hansi-theme-font:minor-latin;
+	mso-bidi-font-family:"Times New Roman";
+	mso-bidi-theme-font:minor-bidi;}
+a:link, span.MsoHyperlink
+	{mso-style-noshow:yes;
+	mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-noshow:yes;
+	mso-style-priority:99;
+	color:purple;
+	mso-themecolor:followedhyperlink;
+	text-decoration:underline;
+	text-underline:single;}
+p
+	{mso-style-noshow:yes;
+	mso-style-priority:99;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";
+	mso-fareast-font-family:"Times New Roman";}
+span.j-review-comment-created-date
+	{mso-style-name:j-review-comment-created-date;
+	mso-style-unhide:no;}
+span.j-review-comment-action-bar
+	{mso-style-name:j-review-comment-action-bar;
+	mso-style-unhide:no;}
+span.HeaderChar
+	{mso-style-name:"Header Char";
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-style-locked:yes;
+	mso-style-link:Header;}
+span.FooterChar
+	{mso-style-name:"Footer Char";
+	mso-style-priority:99;
+	mso-style-unhide:no;
+	mso-style-locked:yes;
+	mso-style-link:Footer;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	mso-default-props:yes;
+	font-family:"Calibri","sans-serif";
+	mso-ascii-font-family:Calibri;
+	mso-ascii-theme-font:minor-latin;
+	mso-fareast-font-family:Calibri;
+	mso-fareast-theme-font:minor-latin;
+	mso-hansi-font-family:Calibri;
+	mso-hansi-theme-font:minor-latin;
+	mso-bidi-font-family:"Times New Roman";
+	mso-bidi-theme-font:minor-bidi;}
+.MsoPapDefault
+	{mso-style-type:export-only;
+	margin-bottom:10.0pt;
+	line-height:115%;}
+ /* Page Definitions */
+ @page
+	{mso-footnote-separator: fs;
+	mso-footnote-continuation-separator: fcs;
+	mso-endnote-separator: es;
+	mso-endnote-continuation-separator: ecs;}
+@page WordSection1
+	{size:11.0in 8.5in;
+	mso-page-orientation:landscape;
+	margin:.5in 1.0in .5in 1.0in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-even-header: eh1;
+	mso-header: h1;
+	mso-even-footer: ef1;
+	mso-footer: f1;
+	mso-first-header: fh1;
+	mso-first-footer: ff1;
+	mso-paper-source:0;}
+div.WordSection1
+	{page:WordSection1;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-priority:99;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin-top:0in;
+	mso-para-margin-right:0in;
+	mso-para-margin-bottom:10.0pt;
+	mso-para-margin-left:0in;
+	line-height:115%;
+	mso-pagination:widow-orphan;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	mso-ascii-font-family:Calibri;
+	mso-ascii-theme-font:minor-latin;
+	mso-hansi-font-family:Calibri;
+	mso-hansi-theme-font:minor-latin;}
+table.MsoTableGrid
+	{mso-style-name:"Table Grid";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-priority:59;
+	mso-style-unhide:no;
+	border:solid windowtext 1.0pt;
+	mso-border-alt:solid windowtext .5pt;
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-border-insideh:.5pt solid windowtext;
+	mso-border-insidev:.5pt solid windowtext;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	mso-ascii-font-family:Calibri;
+	mso-ascii-theme-font:minor-latin;
+	mso-hansi-font-family:Calibri;
+	mso-hansi-theme-font:minor-latin;}
+</style>
+<![endif]--><!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="1026"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+######3/28/2013 - Shawnna Williams - Jama Software
+######Review Center Stats Summary Report
+#####
+#####10/31/2014 - Update to make sure the variable doesn't print if values are null
+<body lang=EN-US link=blue vlink=purple style='tab-interval:.5in'>
+####################################
+#macro( getInfo $o)
+	<div style="margin: 30px; border: 1px solid black; width:50%;>"
+		<span style="font-weight: bolder;">
+			$o.class.simpleName<br>
+		</span>
+		<div style="margin-left: 20px">
+			#foreach( $method in $o.class.methods )
+				#if( !$method.name.startsWith("set"))
+					<span style="color:blue;">$method.returnType.simpleName &nbsp;</span>
+					<span style="color:black; font-weight:bold;">$method.name</span>
+					(
+					#set ( $firstTime = true)
+					#foreach( $arg in $method.parameterTypes)
+						#if( !$firstTime)
+							,&nbsp;
+						#else
+							#set( $firstTime = false)
+						#end
+						<span style="color:green;">$arg.simpleName</span>
+					#end
+					&nbsp;)
+					<br>
+				#end
+			#end
+		</div>
+	</div>
+#end
+######################################
+
+#set( $contourItemDao = $applicationContext.getBean("contourItemDao"))
+#set( $docDao = $applicationContext.getBean("documentDao"))
+#set( $reviewDao = $applicationContext.getBean("reviewDao"))
+#set( $revisionDao = $applicationContext.getBean("revisionDao"))
+#set( $revisionUserDao = $applicationContext.getBean("revisionUserDao"))
+#set( $revisionUserItemDao = $applicationContext.getBean("revisionUserItemDao"))
+#set( $revisionItemDao = $applicationContext.getBean("revisionItemDao"))
+#set( $revisionUserService = $applicationContext.getBean("revisionUserService"))
+#set( $review = $reviewDao.getReview($mathTool.toInteger($reviewId)))
+#set( $docNodeDao = $applicationContext.getBean("documentNodeDao"))
+#set( $signatureDao = $applicationContext.getBean("signatureDao"))
+
+##set( $reviewProgressDTO = $applicationContext.getBean("reviewProgressDTO"))
+
+#set( $jamaReviewURL = '')
+#set( $jamaReviewURL = $jamaReviewURL.concat($baseUrl) )
+#set( $jamaReviewURL = $jamaReviewURL.concat( 'review.req#/r:REV'))
+
+##getInfo( $revisionUserService)<br>
+##getInfo( $reviewProgressDTO)
+##Review - $review.id<br>
+#set( $revs = $review.getRevisions()) 
+##sort in the revs list by id ascending. This will be the bottom (highest) rev.
+#set( $i=0)
+#foreach( $r in $revs)
+	#set( $revision = $r)
+	#set( $revStatus = $r.status)
+	#set( $rs = $revStatus.name)
+	#set( $i=$i+1)
+	##Rev - $r.id, $revstatus<br>
+#end	
+
+#set( $revisionItems = $revision.revisionItems)
+#set( $iTotalRevItems = $revisionItems.size())
+##RevisionItems - $iTotalRevItems<br>
+<div class=WordSection1>
+
+<p class=MsoNormal align=center style='margin-bottom:0in;margin-bottom:.0001pt;
+text-align:center;line-height:normal;tab-stops:0in'><b style='mso-bidi-font-weight:
+normal'><span style='font-size:14.0pt'>Review Center Stats Report<o:p></o:p></span></b></p>
+
+#set( $jamaReviewURL = $jamaReviewURL.concat( '-'))
+#set( $jamaReviewURL = "$jamaReviewURL$review.sequence")
+<p class=MsoNormal align=center style='margin-bottom:0in;margin-bottom:.0001pt;
+text-align:center;line-height:normal;tab-stops:0in'><b style='mso-bidi-font-weight:
+normal'><span style='font-size:14.0pt'><a href="$jamaReviewURL">$review.name v.$i</a><o:p></o:p></span></b></p>
+
+<p class=MsoNormal align=center style='margin-bottom:0in;margin-bottom:.0001pt;
+text-align:center;line-height:normal;tab-stops:0in'><b style='mso-bidi-font-weight:
+normal'><span style='font-size:14.0pt'>Status: $rs<o:p></o:p></span></b></p>
+
+<p class=MsoNormal align=center style='margin-bottom:0in;margin-bottom:.0001pt;
+text-align:center;line-height:normal;tab-stops:0in'><b style='mso-bidi-font-weight:
+normal'><span style='font-size:14.0pt'>##&lt;Review URL&gt;<o:p></o:p></span></b></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt'><o:p>&nbsp;</o:p></p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
+ mso-yfti-tbllook:1184;mso-padding-alt:0in 5.4pt 0in 5.4pt'>
+ <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes'>
+  <td width=366 valign=top style='width:3.05in;border:solid windowtext 1.0pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Start Date:</b> #if( $revision.startDate) $dateTool.format( 'MMMM d, yyyy h:m a', $revision.startDate) #end</p>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>End Date:</b> #if( $revision.endDate) $dateTool.format('MMMM d, yyyy h:m a', $revision.endDate) #end</p>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Moderator(s):</b> 
+	#foreach( $a in $review.authors)
+		#if( $a.firstName) 
+			#if( $a.lastName)
+				$a.firstName $a.lastName<br>
+			#end
+		#end
+	#end
+  </p>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><o:p>&nbsp;</o:p></p>
+  </td>
+  #set( $approvers = [])
+  #set( $iApprovers = 0)
+  #set( $iApproved = 0)
+  #set( $iNeedsWork = 0)
+  #set( $iAppNotFinished = 0)
+  #set( $reviewers = [])
+  #set( $iReviewers = 0)
+  #set( $iRevNotFinished = 0)
+  #set( $iRevFinished = 0)
+  
+  ##Get the approvers
+  #foreach($ru in $revision.revisionUsers)
+	##Is Approver - $ru.isApprover
+	#if( $ru.isApprover=='true')
+		##$ru.user.firstName<br>
+		#if( $approvers.add($ru)) 
+			#set( $iApprovers = $iApprovers + 1)
+			#if( $ru.finishedRevision=='true')
+				#if( $ru.approvedRevision=='true')
+					#set( $iApproved = $iApproved + 1)
+				#else
+					#set( $iNeedsWork = $iNeedsWork + 1)
+				#end
+			#else
+				#set( $iAppNotFinished = $iAppNotFinished + 1)
+			#end
+		#end
+	#else ##Reviewer
+		##$ru.name<br>
+		#if( $reviewers.add($ru)) 
+			#set( $iReviewers = $iReviewers + 1)
+			#if( $ru.finishedRevision=='true')
+				#set( $iRevFinished = $iRevFinished + 1)
+			#else
+				#set( $iRevNotFinished = $iRevNotFinished + 1)
+			#end
+		#end
+	#end
+  #end
+  <td width=366 valign=top style='width:3.05in;border:solid windowtext 1.0pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+  solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Number of Approvers:</b> $approvers.size()</p>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Approved:</b> $iApproved</p>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Needs Work:</b> $iNeedsWork</p>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Not Finished:</b> $iAppNotFinished</p>
+  </td>
+  <td width=366 valign=top style='width:3.05in;border:solid windowtext 1.0pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+  solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Number of Reviewers:</b> $reviewers.size()</p>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Finished:</b> $iRevFinished</p>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Not Finished:</b> $iRevNotFinished</p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;text-indent:
+.5in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt'><b
+style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
+115%'>Approver Progress<o:p></o:p></span></b></p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
+ mso-yfti-tbllook:1184;mso-padding-alt:0in 5.4pt 0in 5.4pt'>
+ <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+  <td width=220 valign=top align=center style='width:131.75pt;border:solid windowtext 1.0pt;
+  mso-border-alt:solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:
+  background1;mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Approver Name<o:p></o:p></b></p>
+  </td>
+  <td width=344 valign=top align=center style='width:206.65pt;border:solid windowtext 1.0pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+  solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
+  mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Title<o:p></o:p></b></p>
+  </td>
+  <td width=150 valign=top align=center style='width:1.25in;border:solid windowtext 1.0pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+  solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
+  mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Percent Complete<o:p></o:p></b></p>
+  </td>
+  <td width=200 valign=top align=center style='width:1.65in;border:solid windowtext 1.0pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+  solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
+  mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Approval Date<o:p></o:p></b></p>
+  </td>
+  <td width=150 valign=top align=center style='width:.75in;border:solid windowtext 1.0pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+  solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
+  mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Signature<o:p></o:p></b></p>
+  </td>
+  <td width=150 valign=top align=center style='width:2.50in;border:solid windowtext 1.0pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+  solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
+  mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Signature Comments<o:p></o:p></b></p>
+  </td>
+ </tr>
+ 
+ ######################################Approver Signatures######################################3
+ #foreach( $a in $approvers)
+		 <tr style='mso-yfti-irow:1'>
+			  <td width=220 valign=top style='width:131.75pt;border:solid windowtext 1.0pt;
+			  border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
+			  padding:0in 5.4pt 0in 5.4pt'>
+			  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+			  normal'>#if( $a.user.firstName) 
+						#if( $a.user.lastName)
+							$a.user.firstName $a.user.LastName
+						#end
+					  #end </p>
+			  </td>
+			  <td width=344 valign=top style='width:206.65pt;border-top:none;border-left:
+			  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+			  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+			  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+			  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+			  normal'>#if( $a.user.title)
+						$a.user.title
+					  #end</p>
+			  </td>
+			  <td width=150 valign=top style='width:1.25in;border-top:none;border-left:
+			  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+			  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+			  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+			  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+			  normal'>
+				#set( $userItems = $a.revisionUserItems)
+				#set( $revSummaryProgressDTO = $revisionUserService.getUserRevisionSummary( $mathTool.toInteger($revision.id), $mathTool.toInteger($a.user.id)))
+				#set( $revProgressDTO = $revSummaryProgressDTO.getReviewProgress()) 
+				##getInfo( $revProgressDTO)
+				#if( $revProgressDTO.getPercentage())
+					$revProgressDTO.getPercentage()%
+				#end</p>
+			  </td>
+			  <td width=200 valign=top style='width:1.65in;border-top:none;border-left:
+			  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+			  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+			  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+			  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+			  normal'>
+			   #if( $revision.requireSignature == 'true')
+				#if( $a.finishedRevision =='true')
+					#if( $a.approvedRevision =='true')
+						#set( $signature = $signatureDao.getLatestSignatureForUserAndScopeRef( $a.user.id, 10, $revision.id, false)) 
+						$dateTool.format( 'MMMM d, yyyy h:m a', $signature.modifiedDate)<br>
+					#else
+						Requested New
+					#end
+				#else
+					Not completed
+				#end
+			  #else
+				#if( $a.finishedRevision =='true')
+					#if( $a.approvedRevision =='true')
+						$dateTool.format('MMMM d, yyyy h:m a', $a.modifiedDate)
+					#elseif( $a.approvedRevision =='false')
+						Not Approved
+					#end
+				#end
+			  #end
+				</p>
+			  </td>
+			  <td width=150 valign=top style='width:.75in;border-top:none;border-left:
+			  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+			  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+			  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+			  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+			  normal'>
+			    #if( $revision.requireSignature == 'true')
+					#if( $a.finishedRevision =='true')
+						#set( $signature = $signatureDao.getLatestSignatureForUserAndScopeRef( $a.user.id, 10, $revision.id, false)) 
+						#if( !$signature)
+							No
+						#else
+							Yes
+						#end
+					#else
+						N/A
+					#end
+				#else	##Don't require signatures
+					N/A
+				#end</p>
+			  </td>
+			  <td width=150 valign=top style='width:2.50in;border-top:none;border-left:
+			  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+			  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+			  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+			  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+			  normal'>
+			    #if( $revision.requireSignature == 'true')
+					#if( $a.finishedRevision =='true')
+						#set( $signature = $signatureDao.getLatestSignatureForUserAndScopeRef( $a.user.id, 10, $revision.id, false)) 
+						#if( $signature)
+							#if( $signature.comments != 'Signed Review')
+								#if( $signature.comments)
+									$signature.comments<br>
+								#end
+							#end
+						#end
+					#end
+				#end</p>
+			  </td>
+		 </tr>
+ #end
+ </table>
+ ########################################End of Approver Signatures###############################
+ 
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;text-indent:
+.5in'><o:p>&nbsp;</o:p></p>
+
+################################Begin Reviewer Progress#####################################################
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt'><b
+style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
+115%'>Reviewer Progress<o:p></o:p></span></b></p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
+ mso-yfti-tbllook:1184;mso-padding-alt:0in 5.4pt 0in 5.4pt'>
+ <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+  <td width=220 valign=top align=center style='width:131.75pt;border:solid windowtext 1.0pt;
+  mso-border-alt:solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:
+  background1;mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Reviewer Name<o:p></o:p></b></p>
+  </td>
+  <td width=344 valign=top align=center style='width:206.65pt;border:solid windowtext 1.0pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+  solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
+  mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Title<o:p></o:p></b></p>
+  </td>
+  <td width=150 valign=top align=center style='width:1.25in;border:solid windowtext 1.0pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+  solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
+  mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Percent Complete<o:p></o:p></b></p>
+  </td>
+   <td width=150 valign=top align=center style='width:1.65in;border:solid windowtext 1.0pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+  solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
+  mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Completed Date<o:p></o:p></b></p>
+  </td>
+ </tr>
+ 
+ #foreach( $rvu in $reviewers)
+	<tr style='mso-yfti-irow:2'>
+		  <td width=220 valign=top style='width:131.75pt;border:solid windowtext 1.0pt;
+		  border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
+		  padding:0in 5.4pt 0in 5.4pt'>
+		  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+		  normal'>
+		  #if( $rvu.user.firstName)
+				$rvu.user.firstName #if( $rvu.user.lastName) $rvu.user.lastName #end</p>
+		  #end
+		  </td>
+		  <td width=344 valign=top style='width:206.65pt;border-top:none;border-left:
+		  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+		  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+		  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+		  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+		  normal'>#if( $rvu.user.title) $rvu.user.title #end</p>
+		  </td>
+		  
+			#set( $revSummaryProgressDTO = $revisionUserService.getUserRevisionSummary( $mathTool.toInteger($revision.id), $mathTool.toInteger($rvu.user.id)))
+			#set( $revProgressDTO = $revSummaryProgressDTO.getReviewProgress()) 
+			##getInfo( $revProgressDTO)
+			
+		  <td width=150 valign=top style='width:1.25in;border-top:none;border-left:
+		  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+		  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+		  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+		  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+		  normal'>
+		  #if( $revProgressDTO.getPercentage())
+			$revProgressDTO.getPercentage()%
+		  #end</p>
+		  </td>  
+		  <td width=150 valign=top style='width:1.65in;border-top:none;border-left:
+		  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+		  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+		  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+		  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+		  normal'>				
+				#if( $rvu.finishedRevision =='true')
+					$dateTool.format('MMMM d, yyyy h:m a', $rvu.modifiedDate)
+				#elseif( $rvu.finishedRevision =='false')
+					Not Completed
+				#end</p>
+		  </td>
+	</tr>	 
+ #end
+</table>
+####################################End Reviewer Progress############################################
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;text-indent:
+.5in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt'><b
+style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
+115%'>Items in Review<o:p></o:p></span></b></p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
+ mso-yfti-tbllook:1184;mso-padding-alt:0in 5.4pt 0in 5.4pt'>
+ <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+  <td width=199 valign=top align=center style='width:.75in;border:solid windowtext 1.0pt;
+  mso-border-alt:solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:
+  background1;mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Item ID<o:p></o:p></b></p>
+  </td>
+  <td width=199 valign=top align=center style='width:.75in;border:solid windowtext 1.0pt;
+  mso-border-alt:solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:
+  background1;mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Review ID<o:p></o:p></b></p>
+  </td>
+  <td width=200 valign=top align=center style='width:3.0in;border:solid windowtext 1.0pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+  solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
+  mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Item Name<o:p></o:p></b></p>
+  </td>
+  <td width=109 valign=top align=center style='width:.75in;border:solid windowtext 1.0pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+  solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
+  mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Reviewed Version<o:p></o:p></b></p>
+  </td>
+  <td width=109 valign=top align=center style='width:.75in;border:solid windowtext 1.0pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+  solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
+  mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Current Version<o:p></o:p></b></p>
+  </td>
+  <td width=200 valign=top align=center style='width:1.5in;border:solid windowtext 1.0pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+  solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
+  mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Approved<o:p></o:p></b></p>
+  </td>
+  <td width=200 valign=top align=center style='width:1.5in;border:solid windowtext 1.0pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+  solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
+  mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Needs More Work<o:p></o:p></b></p>
+  </td>
+  <td width=200 valign=top align=center style='width:1.5in;border:solid windowtext 1.0pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+  solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
+  mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Reviewed<o:p></o:p></b></p>
+  </td>
+  <td width=200 valign=top align=center style='width:1.5in;border:solid windowtext 1.0pt;
+  border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
+  solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
+  mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><b style='mso-bidi-font-weight:normal'>Approvers - No Response<o:p></o:p></b></p>
+  </td>
+ </tr>
+ 
+ ##################################Begin Review Items###############################################
+ #set ( $revisionItems = $revisionItemDao.revision_ItemsInRevision( $r))
+ 
+ ##Count: $revisionItems.size()<br>
+ ####################Need to sort by global sort order######################################
+ #set( $riWithKey = [])
+ #foreach( $ri in $revisionItems)
+	
+	#set( $rv=$ri.version)
+	#set( $rvDoc = $rv.document) ##this is a version
+	#set( $origDoc = $rv.originDocument) ###This is a contour item
+	#set( $docId = $origDoc.id.toString())
+	##$origDoc.id
+	##$docId
+	#set( $revItemNode = $docNodeDao.getDocumentNode(5, $origDoc.id))
+	##$revItemNode
+	#set( $itemSortOrder = $revItemNode.getGlobalSortOrder())
+	##$itemSortOrder
+	
+	##Appending the docKey to the global sort order. Then will sort by that to get the correct sort
+	#set( $sortWithKey = $itemSortOrder.toString())
+	#set( $sortKey = $sortWithKey.concat("_"))
+	#set( $moreSortKey = $sortKey.concat($docId))
+	#set( $finalSortKey = $moreSortKey.concat("_"))
+	#set( $riSortKey = $finalSortKey.concat($ri.id.toString()))
+	##$riSortKey<br>
+	#if( $riWithKey.add( $riSortKey)) #end
+	##Item - $riSortKey<br>
+	
+#end
+
+#set( $revisionItemsSorted = [])
+#foreach( $ris in $sortTool.sort($riWithKey))
+	##$ris<br>
+	##Sorted Array - $ris<br>
+	##set( $riOrigDocId = $ris.split("_").get(1))
+	##$riOrigDocid<br>
+	#set( $riId = $ris.split("_").get(2))
+	##$riId<br>
+	####Will need to use the doc dao to get the document object based on the sorted docKey
+
+	#set( $ri = $revisionItemDao.getRevision_Item($mathTool.toInteger($riId)))
+	#if( $revisionItemsSorted.add($ri)) #end
+	
+#end
+
+ ###Make revisionItemsSorted the sorted one to use below 
+ ####################End Sort###############################################################
+ #foreach( $ri in $revisionItemsSorted)
+	##$revisionItemDao.getOriginalDocumentName( $ri.id)<br>
+
+	#set( $rv=$ri.version)
+	#set( $rvDoc = $rv.document) ##this is a version
+	#set( $origDoc = $rv.originDocument) ###This is a contour item
+	
+	##Get the stats for each item
+	#set( $ruItems = $ri.revisionUserItems)
+	#set( $iApproved = 0)
+	#set( $iNeedsWork = 0)
+	#set( $iReviewed = 0)
+	#set( $iVotes = 0)
+	#foreach( $rui in $ruItems)
+		#set( $status = $rui.status)
+		#if( $status.name == "Approved")
+			#set( $iApproved = $iApproved + 1)
+		#elseif( $status.name == "Needs More Work")
+			#set( $iNeedsWork = $iNeedsWork + 1)
+		#elseif( $status.name == "Reviewed")
+			#set( $iReviewed = $iReviewed + 1)
+		#end
+		#set( $iVotes = $iVotes + $rui.getVote())
+		##set( $iVotes = mathTool.add($iVotes, $rui.getVote()))
+		##$status - $rui.getVote()<br>
+		##getInfo( $rui)
+	#end
+
+ <tr style='mso-yfti-irow:1'>
+  <td width=199 valign=top style='width:.75in;border:solid windowtext 1.0pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><a href="perspective.req?projectId=$rvDoc.project.id&docId=$rvDoc.id" >$rvDoc.documentKey</a></p>
+  </td>
+  <td width=199 valign=top style='width:.75in;border:solid windowtext 1.0pt;
+  border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  #set( $href = $jamaReviewURL.concat('/rg:a,') )
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><a href="$href$ri.id" >$ri.id</a></p>
+  </td>
+  <td width=200 valign=top style='width:3.0in;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'>$rvDoc.name</p>
+  </td>
+  <td width=109 valign=top style='width:.75in;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><o:p>$rv.versionNumber</o:p></p>
+  </td>
+  <td width=109 valign=top style='width:.75in;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'><o:p>$origDoc.currentVersion.versionNumber</o:p></p>
+  </td>
+  <td width=200 valign=top style='width:1.5in;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'>
+
+#foreach( $rui in $ruItems)
+    #set( $status = $rui.status)
+    #if( $status.name == "Approved")
+      $rui.revisionUser.user.firstName #if($rui.revisionUser.user.lastName) $rui.revisionUser.user.lastName #end</br>
+    #end
+#end
+
+</p>
+  </td>
+  <td width=200 valign=top style='width:1.5in;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'>
+
+#foreach( $rui in $ruItems)
+    #set( $status = $rui.status)
+    #if( $status.name == "Needs More Work")
+      $rui.revisionUser.user.firstName #if($rui.revisionUser.user.lastName) $rui.revisionUser.user.lastName #end</br>
+    #end
+#end
+
+</p>
+  </td>
+  <td width=200 valign=top style='width:1.5in;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'>
+
+#foreach( $rui in $ruItems)
+    #set( $status = $rui.status)
+    #if( $status.name == "Reviewed")
+      $rui.revisionUser.user.firstName #if($rui.revisionUser.user.lastName) $rui.revisionUser.user.lastName #end</br>
+    #end
+#end
+
+</p>
+  </td>
+  <td width=200 valign=top style='width:1.5in;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
+  normal'>
+
+#foreach( $a in $approvers)
+  #set( $temp = 0)
+  #foreach( $rui in $ruItems)
+    #if ($a.user.id == $rui.revisionUser.user.id)
+      #set( $temp = 1)
+    #end
+  #end
+  #if ($temp == 0)
+    $a.user.firstName #if($a.user.lastName) $a.user.lastName #end</br>
+  #end
+#end
+
+</p>
+  </td>
+ </tr>
+  #end
+ 
+</table>
+
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;text-indent:
+.5in'><o:p>&nbsp;</o:p></p>
+
+##Next 2 lines help the header and footer stuff not appear at the bottom of the last page
+<table style="margin-left:10in;">
+<tr><td>
+
+<div style='mso-element:header' id=h1>
+
+<p class=MsoHeader><o:p>&nbsp;</o:p></p>
+
+</div>
+<div style='mso-element:footer' id=f1>			
+			<span lang=EN-GB>
+			<w:PTab Alignment="LEFT" RelativeTo="MARGIN" Leader="NONE">
+			<span lang=EN-GB>
+			Report Generated&nbsp;<span style='mso-field-code:" DATE "'></span>
+			</w:PTab>
+			</span>
+			</w:PTab>
+			<w:PTab Alignment="CENTER" RelativeTo="MARGIN" Leader="NONE"></w:PTab>
+			<w:PTab Alignment="RIGHT" RelativeTo="MARGIN" Leader="NONE">
+			Page&nbsp;<span style='mso-field-code:" PAGE "'></span>
+			<!--[if supportFields]>
+			<span style='mso-element:field-end'></span>
+			<![endif]--> of 
+			<!--[if supportFields]>
+			<span style='mso-element:field-begin'></span>
+			<span style='mso-spacerun:yes'> </span>NUMPAGES 
+			<span style='mso-element:field-separator'></span>
+			<![endif]-->
+			<span style='mso-field-code:" SECTIONPAGES "'></span>
+			<!--[if supportFields]>
+			<span style='mso-element:field-end'></span>
+			<![endif]-->
+			</w:PTab>
+			</span>
+
+
+<p class=MsoFooter><o:p>&nbsp;</o:p></p>
+
+</div>
+
+</div>
+##End of the table that helps the header and footer not repeat printing
+</td></tr>
+</table>
+
+</body>
+
+</html>

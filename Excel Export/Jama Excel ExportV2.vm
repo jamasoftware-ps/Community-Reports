@@ -1,0 +1,645 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+## ========================================================================== 
+## Name: Jama Excel Export.vm 
+## 
+## Description: Report displaying the items in a documentList object
+## 
+## =========================================================================== 
+## MODIFICATION HISTORY 
+## 
+## Date         Revision   Person            Comments 
+## -----------  ---------  ----------------  ---------------------------------- 
+## 30-AUG-2015  A          Shawnna Williams  Created. 
+##       
+##                                         
+##                                        
+##   
+##											 
+##
+## ========================================================================== 
+
+##<meta name="Excel Workbook Frameset">
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+##<link rel=File-List href="Jama%20Excel%20Export_files/filelist.xml">
+<link id=Main-File rel=Main-File href="../Jama%20Excel%20Export.htm">
+
+
+<title>Export to Excel Default</title>
+<!--[if gte mso 9]>
+
+<?xml  version="1.0" encoding="UTF-8"?>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>100</w:Zoom>
+<w:DoNotOptimizeForBrowser/>
+</w:WordDocument>
+</xml>
+<![endif]-->
+
+<!--[if !mso]>
+<style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+x\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style>
+<![endif]-->
+
+#*
+<!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>Sheet1</x:Name>
+    ##<x:WorksheetSource HRef="Jama%20Excel%20Export_files/sheet001.htm"/>
+   </x:ExcelWorksheet>
+   <x:ExcelWorksheet>
+    <x:Name>Sheet2</x:Name>
+    ##<x:WorksheetSource HRef="Jama%20Excel%20Export_files/sheet002.htm"/>
+   </x:ExcelWorksheet>
+   <x:ExcelWorksheet>
+    <x:Name>Sheet3</x:Name>
+    ##<x:WorksheetSource HRef="Jama%20Excel%20Export_files/sheet003.htm"/>
+   </x:ExcelWorksheet>
+   <x:ExcelWorksheet>
+    <x:Name>Sheet4</x:Name>
+    ##<x:WorksheetSource HRef="Jama%20Excel%20Export_files/sheet004.htm"/>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  ##<x:Stylesheet HRef="Jama%20Excel%20Export_files/stylesheet.css"/>
+  <x:WindowHeight>15156</x:WindowHeight>
+  <x:WindowWidth>0</x:WindowWidth>
+  <x:WindowTopX>156</x:WindowTopX>
+  <x:WindowTopY>2436</x:WindowTopY>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+</xml><![endif]-->
+*#
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:.75in .7in .75in .7in;
+	mso-header-margin:.3in;
+	mso-footer-margin:.3in;}
+tr
+	{mso-height-source:auto;}
+col
+	{mso-width-source:auto;}
+br
+	{mso-data-placement:same-cell;}
+.style79
+	{color:#0563C1;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:underline;
+	text-underline-style:single;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-style-name:Hyperlink;
+	mso-style-id:8;}
+a:link
+	{color:#0563C1;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:underline;
+	text-underline-style:single;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;}
+a:visited
+	{color:#954F72;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:underline;
+	text-underline-style:single;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;}
+.style0
+	{mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	mso-rotate:0;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	color:black;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:Normal;
+	mso-style-id:0;}
+td
+	{mso-style-parent:style0;
+	padding:0px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	border:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	mso-protection:locked visible;
+	white-space:nowrap;
+	mso-rotate:0;}
+.xl65
+	{mso-style-parent:style0;
+	font-size:10.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;}
+.xl66
+	{mso-style-parent:style0;
+	color:white;
+	font-size:10.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	background:#5B9BD5;
+	mso-pattern:black none;}
+.xl67
+	{mso-style-parent:style0;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:right;}
+.xl68
+	{mso-style-parent:style0;
+	font-size:10.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:left;}
+.xl69
+	{mso-style-parent:style0;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"Short Date";
+	text-align:right;}
+.xl70
+	{mso-style-parent:style0;
+	font-size:10.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:center;}
+.xl71
+	{mso-style-parent:style0;
+	font-size:20.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:left;}
+.xl72
+	{mso-style-parent:style0;
+	font-size:10.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:right;}
+.xl73
+	{mso-style-parent:style0;
+	font-size:12.0pt;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;
+	text-align:right;}
+.xl74
+	{mso-style-parent:style79;
+	color:#0563C1;
+	text-decoration:underline;
+	text-underline-style:single;}
+
+-->
+</style>
+
+</head>
+#######################################################################################################################
+## 		Helper: Removes breaks and HTML tags that cause problems in export 											  ###
+##		@sText - string: string you are searching in										      					  ###
+##		@return - string: string with new size image																  ###
+#########################################################################################################################
+#macro( removeJamaExportBreak4 $sText $return )	
+
+
+##Remove <br> from certain fields
+	#set ( $return = $sText)
+
+	#set( $return = $velocityReportUtil.replaceBreakForExcel($return))
+	
+	#set( $break = $return.indexOf('<br />'))
+	#set( $length = $return.length())
+	
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '<br />', ''))
+		#end
+	#end
+	
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('<td>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '<td>', ''))
+		#end
+	#end
+
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('</td>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '</td>', ''))
+		#end
+	#end
+	
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('<tr>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '<tr>', ''))
+		#end
+	#end
+
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('</tr>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '</tr>', ''))
+		#end
+	#end
+	
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('<th>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '<th>', ''))
+		#end
+	#end
+	
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('</th>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '</th>', ''))
+		#end
+	#end
+	
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('<table>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '<table>', ''))
+		#end
+	#end
+	
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('</table>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '</table>', ''))
+		#end
+	#end
+
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('<tbody>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '<tbody>', ''))
+		#end
+	#end
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('</tbody>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '</tbody>', ''))
+		#end
+	#end	
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('<ol>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '<ol>', ''))
+		#end
+	#end
+	
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('</ol>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$return] )
+			#set( $return = $return.replace( '</ol>', ''))
+		#end
+	#end
+	
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('<li>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '<li>', ''))
+		#end
+	#end
+	
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('</li>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '</li>', ''))
+		#end
+	#end
+	
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('<ul>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '<ul>', ''))
+		#end
+	#end
+	
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('</ul>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '</ul>', ''))
+		#end
+	#end
+	
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('<p>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '<p>', ''))
+		#end
+	#end
+	
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('</p>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '</p>', ''))
+		#end
+	#end
+	
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('<hr />'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '<hr />', ''))
+		#end
+	#end
+	
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('<div>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '<div>', ''))
+		#end
+	#end
+	
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('</div>'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '</div>', ''))
+		#end
+	#end
+	
+	#set( $length = $return.length())
+	#set( $break = $return.indexOf('<br style="mso-data-placement:same-cell;" />'))
+	#if( $break != -1)
+		#foreach( $i in [0..$length] )
+			#set( $return = $return.replace( '<br style="mso-data-placement:same-cell;" />', ''))
+		#end
+	#end
+#end
+######################################################################################################################
+
+#########################################################################################################################
+## 		Helper: Removes images in any string							 										  ###
+##		@sText - string: string you are searching in										      					  ###
+##		@return - string: string with images removed																	  ###
+#########################################################################################################################
+#macro( removeJamaExportImage $sText $return )	
+	#set ( $return = $sText)
+
+	#set( $length = $return.length())
+	
+	#foreach( $i in [0..$length] )
+		#set( $start = ( $return.indexOf("<img")))
+		
+		#if( $start >= 0)
+			#set( $end = $return.indexOf( "/>", $start)+1)
+			#if( $return.length == $end)
+				#set( $img = $return.substring( $start, $end))
+			#else
+				#set( $end = $end + 1)
+				#set( $img = $return.substring( $start, $end))
+			#end
+			##Image = $img<br>
+			#set( $return = $return.replace($img, ""))	
+			###set( $return = $return.replace( "</a>", ""))
+		#else
+			#break
+		#end
+	#end	
+#end
+######################################################################################################################
+#########################################################################################################################
+## 		Helper: Removes images in any string							 										  ###
+##		@sText - string: string you are searching in										      					  ###
+##		@return - string: string with images removed																	  ###
+#########################################################################################################################
+#macro( removeJamaExportTag4 $sText $sTag $return )	
+	#set ( $return = $sText)
+	
+	#set( $length = $return.length())
+	
+	#foreach( $i in [0..$length] )
+		#set( $start = ( $return.indexOf($sTag)))
+		
+		#if( $start >= 0)
+			#set( $end = $return.indexOf( ">", $start)+1)
+			##if( $return.length == $end)
+				#set( $tag = $return.substring( $start, $end))
+			#*#else
+				#set( $end = $end + 1)
+				#set( $tag = $return.substring( $start, $end))
+			#end*#
+			##Image = $tag<br>
+			#set( $return = $return.replace($tag, ""))	
+			
+		#else
+			#break
+		#end
+	#end	
+#end
+######################################################################################################################
+
+
+<body link="#0563C1" vlink="#954F72" class=xl65>
+#set($contourItemDao = $applicationContext.getBean("contourItemDao"))
+#set($docDao = $applicationContext.getBean("documentDao"))
+#set($relDao = $applicationContext.getBean("relationshipDao"))
+#set($documentNodeDao = $applicationContext.getBean("documentNodeDao"))
+#set($releaseDao = $applicationContext.getBean("releaseDao"))
+#set($projectDao = $applicationContext.getBean("projectDao"))
+
+
+<table border=0 cellpadding=0 cellspacing=0 width=1195 style='border-collapse:
+ collapse;table-layout:fixed;width:895pt'>
+ <col class=xl65 width=102 style='mso-width-source:userset;mso-width-alt:3612;
+ width:76pt'>
+ <col class=xl65 width=87 style='mso-width-source:userset;mso-width-alt:3100;
+ width:65pt'>
+ <col class=xl65 width=146 style='mso-width-source:userset;mso-width-alt:5176;
+ width:109pt'>
+ <col class=xl65 width=161 style='mso-width-source:userset;mso-width-alt:5717;
+ width:121pt'>
+ <col class=xl65 width=125 style='mso-width-source:userset;mso-width-alt:4437;
+ width:94pt'>
+ <col class=xl65 width=139 style='mso-width-source:userset;mso-width-alt:4949;
+ width:104pt'>
+ <col class=xl65 width=110 style='mso-width-source:userset;mso-width-alt:3925;
+ width:83pt'>
+ <col class=xl65 width=130 style='mso-width-source:userset;mso-width-alt:4608;
+ width:97pt'>
+ <col class=xl65 width=195 style='mso-width-source:userset;mso-width-alt:6940;
+ width:146pt'>
+ <col class=xl65 width=126 style='mso-width-source:userset;mso-width-alt:4465;
+ width:94pt'>
+ <col class=xl65 width=115 style='mso-width-source:userset;mso-width-alt:4096;
+ width:86pt'>
+ <col class=xl65 width=97 style='mso-width-source:userset;mso-width-alt:3441;
+ width:73pt'>
+ <tr height=18 style='height:13.2pt'>
+  <td height=18 class=xl65 width=102 style='height:13.2pt;width:76pt'></td>
+  <td class=xl65 width=87 style='width:65pt'></td>
+  <td class=xl65 width=146 style='width:109pt'></td>
+  <td class=xl65 width=161 style='width:121pt'></td>
+  <td class=xl65 width=125 style='width:94pt'></td>
+  <td class=xl65 width=139 style='width:104pt'></td>
+  <td class=xl65 width=110 style='width:83pt'></td>
+  <td class=xl65 width=130 style='width:97pt'></td>
+  <td rowspan=3 height=78 width=195 style='height:58.2pt;width:146pt'
+  align=left valign=top>
+  <table cellpadding=0 cellspacing=0>
+   <tr>
+    <td rowspan=3 height=78 class=xl70 width=195 style='height:58.2pt;
+    width:146pt'></td>
+   </tr>
+  </table>
+  </span></td>
+ </tr>
+ <tr class=xl65 height=30 style='mso-height-source:userset;height:22.5pt'>
+  ##<td colspan=3 height=30 class=xl71 style='height:22.5pt'>Item </td>
+  <td colspan=3 height=30 class=xl71 style='height:22.5pt'></td>
+  <td class=xl65></td>
+  ##<td class=xl67>Produced by:</td>
+  ##<td class=xl67>$user.name</td>
+  <td></td>
+  <td></td>
+  <td colspan=2 class=xl72>$project.name</td>
+ </tr>
+ <tr height=30 style='mso-height-source:userset;height:22.5pt'>
+  ##<td colspan=4 height=30 class=xl71 style='height:22.5pt'>Madeline1.0 Cooper</td>
+  <td colspan=4 height=30 class=xl71 style='height:22.5pt'></td>
+  <td class=xl67>Produced on:</td>
+  <td class=xl69>$dateTool.get('MM/dd/yyyy')</td>
+  <td colspan=2 class=xl73>$project.organization.name</td>
+ </tr>
+ Count of docs: $documentList.size()<bR>
+ ##Get list of fields
+ #set( $fieldList = [])
+ #set( $fieldNames = [])
+ #foreach( $vDoc in $documentList)
+	#foreach( $fieldDto in $vDoc.documentTypeDto.fieldList)
+		##$vDoc.document.documentKey $fieldDto.label $fieldDto.dataTypeId<br>
+		#if( !$fieldNames.contains( $fieldDto.label))
+			#if( $fieldList.add( $fieldDto)) #end
+			#if( $fieldNames.add( $fieldDto.label)) #end
+		#end
+	#end
+ #end
+ 
+#*#foreach( $f in $fieldList)
+	$f.field $f.label<br>
+#end*#
+
+ <tr class=xl66 height=18 style='height:13.2pt'>
+  <td height=18 class=xl66 style='height:13.2pt'>Item Type</td>
+  ##<td class=xl66>Locked</td>
+#foreach( $f in $fieldList)
+	#if( $f.field == 'documentKey')
+		<td class=xl66>$f.label</td>
+		#break
+	#end
+#end
+#foreach( $f in $fieldList)
+	#if( $f.field == 'name')
+		<td class=xl66>$f.label</td>
+		#break
+	#end
+#end  
+#foreach( $f in $fieldList)
+	#if( $f.field == 'description')
+		<td class=xl66>$f.label</td>
+		#break
+	#end
+#end 
+#foreach( $f in $fieldList)
+	#if( $f.field != 'description' && $f.field != 'name' && $f.field != 'description' && $f.field != 'globalId' && $f.field != 'documentKey')
+		<td class=xl66>$f.label</td>
+	#end
+#end 
+
+ </tr>
+ 
+ #foreach( $vDoc in $documentList)
+	#set( $doc = $vDoc.document)
+	
+		 <tr height=18 style='height:13.2pt'>
+		  <td height=18 class=xl65 style='height:13.2pt'>$doc.documentType.display</td>
+		  ##<td class=xl65 align=center>FALSE</td>
+		  #*<td class=xl65>
+		  <a href=$docUrl target="_parent"><span style='color:black;font-size:10.0pt;text-decoration:
+		  none;font-family:Arial, sans-serif;mso-font-charset:0'>$doc.documentKey</span></a></td>*#
+		  <td  class=xl65>$doc.documentKey</td>
+		  <td class=xl65>$doc.name</td>
+			#set( $value = $doc.description)
+			#set( $value = $velocityReportUtil.fromHtmlToRawText($value))
+			#set( $value = $textUtil.encodeTextForHTML( $value))
+			
+		  <td class=xl65>$!value</td>
+		  #foreach( $f in $fieldList)
+			#if( $f.field != 'description' && $f.field != 'name' && $f.field != 'description' && $f.field != 'globalId' && $f.field != 'documentKey')
+				#set( $fieldValue = $velocityReportUtil.getValueForField($doc, $f, $dateFormat ))
+				#set( $value = $velocityReportUtil.fromHtmlToRawText($fieldValue))
+				##set( $value = $value.replace( '<', 'less than '))
+				##set( $value = $value.replace( '>', 'greater than '))
+				<td class=xl65>#if( $!value) $textUtil.encodeTextForHTML($value) #end</td>
+			#end
+		  #end
+		  ##<td class=xl65></td>
+		  ##<td class=xl65></td>
+		  ##<td class=xl65></td>
+		 </tr>
+ #end
+ 
+</table>
+</html>

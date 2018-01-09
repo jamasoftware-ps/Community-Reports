@@ -1,0 +1,2008 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.22" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 2.6.2.r262_v20110209 Build &lt;2.6.2.v20110214-1523></property>
+    <list-property name="userProperties">
+        <structure>
+            <property name="name">ProjectsReviews.ProjectsReviews.x</property>
+            <property name="type">integer</property>
+            <property name="isVisible">false</property>
+        </structure>
+        <structure>
+            <property name="name">ProjectsReviews.ProjectsReviews.y</property>
+            <property name="type">integer</property>
+            <property name="isVisible">false</property>
+        </structure>
+        <structure>
+            <property name="name">Data Cube - ProjectsReviews.ProjectsReviews.x</property>
+            <property name="type">integer</property>
+            <property name="isVisible">false</property>
+        </structure>
+        <structure>
+            <property name="name">Data Cube - ProjectsReviews.ProjectsReviews.y</property>
+            <property name="type">integer</property>
+            <property name="isVisible">false</property>
+        </structure>
+    </list-property>
+    <property name="ProjectsReviews.ProjectsReviews.x">135</property>
+    <property name="ProjectsReviews.ProjectsReviews.y">80</property>
+    <property name="Data Cube - ProjectsReviews.ProjectsReviews.x">135</property>
+    <property name="Data Cube - ProjectsReviews.ProjectsReviews.y">80</property>
+    <property name="units">in</property>
+    <property name="iconFile">/templates/blank_report.gif</property>
+    <property name="bidiLayoutOrientation">ltr</property>
+    <property name="imageDPI">120</property>
+    <parameters>
+        <scalar-parameter name="begDate" id="1505">
+            <text-property name="promptText">Beginning Date</text-property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">1347433200000</value>
+            </simple-property-list>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="endDate" id="1506">
+            <text-property name="promptText">End Date</text-property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">1356940800000</value>
+            </simple-property-list>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="report_organizationId" id="1511">
+            <text-property name="promptText">orgId</text-property>
+            <property name="valueType">static</property>
+            <property name="dataType">integer</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">2</value>
+            </simple-property-list>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <data-sources>
+        <oda-data-source extensionID="org.eclipse.birt.report.data.oda.jdbc" name="Contour" id="144">
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>disabledMetadataBidiFormatStr</name>
+                </ex-property>
+                <ex-property>
+                    <name>disabledContentBidiFormatStr</name>
+                </ex-property>
+                <ex-property>
+                    <name>contentBidiFormatStr</name>
+                    <value>ILYNN</value>
+                </ex-property>
+                <ex-property>
+                    <name>metadataBidiFormatStr</name>
+                    <value>ILYNN</value>
+                </ex-property>
+            </list-property>
+            <property name="odaDriverClass">com.mysql.jdbc.Driver</property>
+            <property name="odaURL">jdbc:mysql://shark/na3_contour?useUnicode=true&amp;characterEncoding=UTF8</property>
+            <property name="odaUser">jamaro</property>
+            <encrypted-property name="odaPassword" encryptionID="base64">akBNQDUw</encrypted-property>
+        </oda-data-source>
+    </data-sources>
+    <data-sets>
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="License Key" id="148">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">propertyValue</property>
+                    <text-property name="displayName">propertyValue</text-property>
+                    <text-property name="heading">propertyValue</text-property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">propertyValue</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Contour</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">propertyValue</property>
+                    <property name="nativeName">propertyValue</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[Select propertyentry.propertyValue
+From propertyentry
+Where propertyentry.propertyName = 'jama.org.licenseData']]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>propertyValue</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>715827882</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>LicenseKey</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>LicenseKey</design:label>
+            <design:formattingHints>
+              <design:displaySize>715827882</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+      <design:criteria/>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="ContourVersion" id="788">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">propertyValue</property>
+                    <text-property name="displayName">propertyValue</text-property>
+                    <text-property name="heading">propertyValue</text-property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">propertyValue</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Contour</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">propertyValue</property>
+                    <property name="nativeName">propertyValue</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[Select propertyentry.propertyValue
+from propertyentry
+Where propertyentry.propertyName = 'jama.system.contour.version'
+]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>propertyValue</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>715827882</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>ContourVersion</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>ContourVersion</design:label>
+            <design:formattingHints>
+              <design:displaySize>715827882</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+      <design:criteria/>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="ProjectsReviews" id="1089">
+            <property name="nullsOrdering">nulls lowest</property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">ProjectsOrgId2</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">1</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">ProjectsBegDate</property>
+                    <property name="paramName">begDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">2</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">ProjectsEndDate</property>
+                    <property name="paramName">endDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">3</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">ProjectOrgId</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">4</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">ItemOrgId2</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">5</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">ItemBegDate</property>
+                    <property name="paramName">begDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">6</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">ItemEndDate</property>
+                    <property name="paramName">endDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">7</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">ItemOrgId</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">8</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">ReviewOrgId2</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">9</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">ReviewBegDate</property>
+                    <property name="paramName">begDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">10</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">ReviewEndDate</property>
+                    <property name="paramName">endDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">11</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">ReviewOrgId</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">12</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">TestOrgId1</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">13</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">TestBegDate</property>
+                    <property name="paramName">begDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">14</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">TestEndDate</property>
+                    <property name="paramName">endDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">15</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">TestOrgId</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">16</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">CommentsOrgId1</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">17</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">CommentsOrgId2</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">18</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">CommentsBegDate</property>
+                    <property name="paramName">begDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">19</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">CommentsEndDate</property>
+                    <property name="paramName">endDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">20</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">Item</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">ItemsAdded</property>
+                        <property name="dataType">decimal</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">createdDate</property>
+                        <property name="dataType">date</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">CumulativeItems</property>
+                        <property name="dataType">decimal</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Contour</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">Item</property>
+                    <property name="nativeName">Item</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">ItemsAdded</property>
+                    <property name="nativeName">ItemsAdded</property>
+                    <property name="dataType">decimal</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">createdDate</property>
+                    <property name="nativeName">createdDate</property>
+                    <property name="dataType">date</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">CumulativeItems</property>
+                    <property name="nativeName">CumulativeItems</property>
+                    <property name="dataType">decimal</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[Select 'Projects' as Item, count(p.id) as ItemsAdded, CAST(p.createdDate as Date) as createdDate, 
+  (Select count(p2.id) from project p2 
+  	where p2.active = 'T'
+  	and CAST(p2.createdDate as Date) <= CAST(p.createdDate as Date)
+  	and p2.organizationId = ?) as CumulativeItems 
+  from project p 
+  where p.active='T' and p.id <>1 and CAST(p.createdDate as Date) 
+  	between FROM_UNIXTIME(?/1000) and FROM_UNIXTIME(?/1000)
+  	and p.organizationId = ?
+  group by CAST(p.createdDate as Date)
+union
+Select 'Items', count(d.id) as ItemsAdded, CAST(d.createdDate as Date) as createdDate,
+  (Select count(d2.id) from document d2 where CAST(d2.createdDate as Date)<= CAST(d.createdDate as Date) 
+  	and d2.active = 'T' and d2.organizationId = ?) as CumulativeItems
+  from document d 
+  where d.active = 'T' and CAST(d.createdDate as Date) 
+  	between FROM_UNIXTIME(?/1000) and FROM_UNIXTIME(?/1000)
+  	and d.organizationId = ?
+  group by CAST(d.createdDate as Date)
+union
+Select 'Reviews' as Item, count(r.id) as ItemsAdded, CAST(r.createdDate as Date) as createdDate, 
+  (select count(r2.id) 
+  from review r2 
+  where CAST(r2.createdDate as Date)<= CAST(r.createdDate as Date)
+  	and r2.organizationId = ?) as CumulativeItems
+  from review r  
+  where CAST(r.createdDate as Date) 
+  	between FROM_UNIXTIME(?/1000) and FROM_UNIXTIME(?/1000)
+  	and r.organizationId = ?
+  group by CAST(r.createdDate as Date)
+union
+Select 'Test Plans', count(d.id) as TestPlansAdded, CAST(d.createdDate as Date) as CreatedDate,
+	(Select count(d2.id) from document d2 
+	where CAST(d2.createdDate as Date)<= CAST(d.createdDate as Date)
+    and d2.entityType = 'TestPlan' and d2.active = 'T' and d2.organizationId = ?) as CumulativeTestPlans 
+  from document d 
+  where d.active = 'T' and d.entityType = 'TestPlan' and CAST(d.createdDate as Date) 
+  	between FROM_UNIXTIME(?/1000) and FROM_UNIXTIME(?/1000)
+  	and d.organizationId = ?
+  group by CAST(d.createdDate as Date)
+union
+   Select 'Comments', count(e.id) as CommentsAdded, CAST(e.eventDate as Date) as createdDate, 
+  (Select count(e2.id) from evententry e2 
+  	where CAST(e2.createdDate as Date) <= CAST(e.eventDate as Date) and e2.objectType = 8 and e2.action = 'Comment added' 
+  	and e2.organization = ? ) as CumulativeComments
+  from evententry e 
+  where e.objectType = 8 and e.action = 'Comment added' and  e.organization = ? and 
+    CAST(e.eventDate as Date) 
+  	between FROM_UNIXTIME(?/1000) and FROM_UNIXTIME(?/1000)
+  group by CAST(e.eventDate as Date);
+ ]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>projectsadded</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>13</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>NotNullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>projectsadded</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>projectsadded</design:label>
+            <design:formattingHints>
+              <design:displaySize>13</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>ProjectsAdded</design:name>
+              <design:position>2</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>-5</design:nativeDataTypeCode>
+            <design:precision>21</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>NotNullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>ProjectsAdded</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>ProjectsAdded</design:label>
+            <design:formattingHints>
+              <design:displaySize>21</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>createdDate</design:name>
+              <design:position>3</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>91</design:nativeDataTypeCode>
+            <design:precision>10</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>createdDate</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>createdDate</design:label>
+            <design:formattingHints>
+              <design:displaySize>10</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>CumulativeProjects</design:name>
+              <design:position>4</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>-5</design:nativeDataTypeCode>
+            <design:precision>21</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>CumulativeProjects</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>CumulativeProjects</design:label>
+            <design:formattingHints>
+              <design:displaySize>21</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+      <design:criteria/>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="UserLogins" id="1172">
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">ActiveBegDate</property>
+                    <property name="paramName">begDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">1</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">ActiveEndDate</property>
+                    <property name="paramName">endDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">2</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">ActiveOrgId</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">3</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">TotalLoginsBegDate</property>
+                    <property name="paramName">begDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">4</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">TotalLoginsEndDate</property>
+                    <property name="paramName">endDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">5</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">TotalOrgId</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">6</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">FrequencyOrgId1</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">7</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">FrequencyBegDate</property>
+                    <property name="paramName">begDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">8</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">FrequencyEndDate</property>
+                    <property name="paramName">endDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">9</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">FrequencyOrgId2</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">10</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">LicensedOrgId2</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">11</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">LicensedBegDate</property>
+                    <property name="paramName">begDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">12</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">LicensedEndDate</property>
+                    <property name="paramName">endDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">13</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">UtilizationOrgId1</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">14</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">LicensedOrgId1</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">15</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">UtilizationBegDate</property>
+                    <property name="paramName">begDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">16</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">UtilizationEndDate</property>
+                    <property name="paramName">endDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">17</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">UtilizationOrgId</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">18</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">LoginType</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">DistinctLogin</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">licenseType</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">date</property>
+                        <property name="dataType">date</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Contour</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">LoginType</property>
+                    <property name="nativeName">LoginType</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">DistinctLogin</property>
+                    <property name="nativeName">DistinctLogin</property>
+                    <property name="dataType">float</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">licenseType</property>
+                    <property name="nativeName">licenseType</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">date</property>
+                    <property name="nativeName">date</property>
+                    <property name="dataType">date</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[Select 'Active Users' as LoginType, 
+	COUNT(distinct userid) as DistinctLogin,  
+	licenseType, date
+from (select distinct userId, licenseType, cast(loginTime as date) as date
+      from userlogentry where CAST(loginTime as Date) 
+      between FROM_UNIXTIME(?/1000) and FROM_UNIXTIME(?/1000)
+      and organizationId = ?) total
+group by CAST(date as Date)
+Union
+Select 'Total Logins', count(id) as TotalLogins, licenseType, CAST(loginTime as Date) as Date 
+from userlogentry 
+where CAST(loginTime as Date) 
+	between FROM_UNIXTIME(?/1000) and FROM_UNIXTIME(?/1000) 
+	and organizationId = ?
+group by CAST(loginTime as Date)
+Union
+Select 'Frequency', (TotalUsers.totalusers/DistinctTotal.distinctuser) as LicensedUsers,
+	null as licenseType, DistinctTotal.date 
+ from (select count(distinct userId) as distinctuser, cast(loginTime as date) as date
+      from userlogentry where organizationId = ? group by cast(loginTime as date)) DistinctTotal 
+      join 
+      (select count(id) as totalusers, cast(loginTime as date) as totaldate from userlogentry 
+      where cast(loginTime as date)  between FROM_UNIXTIME(?/1000) and FROM_UNIXTIME(?/1000)  
+      and organizationId = ? group by cast(loginTime as date)) TotalUsers
+      on cast(DistinctTotal.date as date) = cast(TotalUsers.totaldate as date)
+Union
+Select 'Licensed Users', (select count(id) from userbase where ifnull( disabled, 'F' ) = 'F' and organization = ?) as TotalLogins, 
+null as licenseType, cast(loginTime as date) as date  
+from userlogentry ule 
+where CAST(loginTime as Date) 
+	between FROM_UNIXTIME(?/1000) and FROM_UNIXTIME(?/1000) 
+	and organizationId = ?
+group by CAST(loginTime as Date)
+Union
+Select 'Utilization', (count(userid)/(select count(id) from userbase where ifnull(disabled, 'F') = 'F' and organization = ?)) as LicensedUsers,
+	null as licenseType, date 
+ from (select distinct userId, licenseType, cast(loginTime as date) as date
+      from userlogentry where CAST(loginTime as date) 
+      	between FROM_UNIXTIME(?/1000) and FROM_UNIXTIME(?/1000)
+      	and organizationId = ?) total  
+group by CAST(date as Date); ]]></xml-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="FrequencyTotal" id="1446">
+            <property name="nullsOrdering">nulls lowest</property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">param_1</property>
+                    <property name="paramName">begDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">1</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">param_2</property>
+                    <property name="paramName">endDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">2</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">param_5</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">3</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">param_3</property>
+                    <property name="paramName">begDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">4</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">param_4</property>
+                    <property name="paramName">endDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">5</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">param_6</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">6</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">Frequency</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Contour</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">Frequency</property>
+                    <property name="nativeName">Frequency</property>
+                    <property name="dataType">float</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[Select 	TotalUsers.TotalLogin/total.users as Frequency
+from (select COUNT(distinct userId) as users from userlogentry 
+	where CAST(loginTime as Date) 
+	between FROM_UNIXTIME(?/1000) and FROM_UNIXTIME(?/1000)
+	and organizationId = ?) total
+      join 
+      (Select count(id) as TotalLogin from userlogentry 
+      where CAST(loginTime as Date) 
+      between FROM_UNIXTIME(?/1000) and FROM_UNIXTIME(?/1000)
+      and organizationId = ?) TotalUsers
+      
+]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>Frequency</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>8</design:nativeDataTypeCode>
+            <design:precision>46</design:precision>
+            <design:scale>4</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>Frequency</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>Frequency</design:label>
+            <design:formattingHints>
+              <design:displaySize>48</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+      <design:criteria/>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="ActiveUserStat" id="1473">
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">param_1</property>
+                    <property name="paramName">begDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">1</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">param_2</property>
+                    <property name="paramName">endDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">2</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">param_3</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">3</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">users</property>
+                        <property name="dataType">decimal</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Contour</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">users</property>
+                    <property name="nativeName">users</property>
+                    <property name="dataType">decimal</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[select COUNT(distinct userId) as users 
+from userlogentry 
+where CAST(loginTime as Date)  
+between CAST(FROM_UNIXTIME(?/1000) as Date)
+ and cast(FROM_UNIXTIME(?/1000) as Date)
+ and organizationId = ?
+      ]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>users</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>-5</design:nativeDataTypeCode>
+            <design:precision>21</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>NotNullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>users</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>users</design:label>
+            <design:formattingHints>
+              <design:displaySize>21</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+      <design:criteria/>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="UtilizationStat" id="1476">
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">param_3</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">1</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">param_1</property>
+                    <property name="paramName">begDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">2</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">param_2</property>
+                    <property name="paramName">endDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">3</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">param_4</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">4</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">Utilization</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Contour</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">Utilization</property>
+                    <property name="nativeName">Utilization</property>
+                    <property name="dataType">float</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[Select 	activeusers.users/(select count(id) 
+from userbase where ifnull(disabled, 'F') = 'F' and organization = ?) as Utilization
+From 	
+(select COUNT(distinct userId) as users 
+from userlogentry where CAST(loginTime as Date) 
+between FROM_UNIXTIME(?/1000) and FROM_UNIXTIME(?/1000)
+and organizationId = ?) activeusers]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>Utilization</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>8</design:nativeDataTypeCode>
+            <design:precision>24</design:precision>
+            <design:scale>4</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>Utilization</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>Utilization</design:label>
+            <design:formattingHints>
+              <design:displaySize>26</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+      <design:criteria/>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="ParameterDS" id="1508">
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">begDate</property>
+                    <property name="paramName">begDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">1</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">endDate</property>
+                    <property name="paramName">endDate</property>
+                    <property name="dataType">string</property>
+                    <property name="position">2</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">BegDate</property>
+                        <property name="dataType">date-time</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">EndDate</property>
+                        <property name="dataType">date-time</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Contour</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">BegDate</property>
+                    <property name="nativeName">BegDate</property>
+                    <property name="dataType">date-time</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">EndDate</property>
+                    <property name="nativeName">EndDate</property>
+                    <property name="dataType">date-time</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[select FROM_UNIXTIME(?/1000) as BegDate, 
+	FROM_UNIXTIME(?/1000) as EndDate
+]]></xml-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="Organization Name" id="1512">
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">param_1</property>
+                    <property name="paramName">report_organizationId</property>
+                    <property name="dataType">string</property>
+                    <property name="position">1</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">name</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Contour</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">name</property>
+                    <property name="nativeName">name</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[select name
+from organization
+where id = ?]]></xml-property>
+        </oda-data-set>
+    </data-sets>
+    <cubes>
+        <tabular-cube name="Data Cube - ProjectsReviews" id="1095">
+            <property name="dimensions">
+                <tabular-dimension name="Created Date" id="1096">
+                    <property name="isTimeType">false</property>
+                    <property name="defaultHierarchy">NewTabularHierarchy</property>
+                    <property name="hierarchies">
+                        <tabular-hierarchy name="NewTabularHierarchy" id="1097">
+                            <property name="levels">
+                                <tabular-level name="createdDate" id="1151">
+                                    <property name="dataType">date</property>
+                                    <property name="columnName">createdDate</property>
+                                </tabular-level>
+                            </property>
+                        </tabular-hierarchy>
+                    </property>
+                </tabular-dimension>
+                <tabular-dimension name="Item" id="1102">
+                    <property name="defaultHierarchy">NewTabularHierarchy1</property>
+                    <property name="hierarchies">
+                        <tabular-hierarchy name="NewTabularHierarchy1" id="1103">
+                            <property name="levels">
+                                <tabular-level name="Item" id="1104">
+                                    <property name="dataType">string</property>
+                                    <property name="columnName">Item</property>
+                                </tabular-level>
+                            </property>
+                        </tabular-hierarchy>
+                    </property>
+                </tabular-dimension>
+            </property>
+            <property name="measureGroups">
+                <tabular-measure-group name="Summary Field" id="1099">
+                    <property name="measures">
+                        <tabular-measure name="ItemsAdded" id="1100">
+                            <expression name="measureExpression" type="javascript">dataSetRow["ItemsAdded"]</expression>
+                            <property name="dataType">decimal</property>
+                        </tabular-measure>
+                        <tabular-measure name="CumulativeItems" id="1101">
+                            <expression name="measureExpression" type="javascript">dataSetRow["CumulativeItems"]</expression>
+                            <property name="dataType">decimal</property>
+                        </tabular-measure>
+                    </property>
+                </tabular-measure-group>
+            </property>
+            <property name="dataSet">ProjectsReviews</property>
+        </tabular-cube>
+        <tabular-cube name="UserLogins" id="1220">
+            <property name="dimensions">
+                <tabular-dimension name="Login Type" id="1221">
+                    <property name="defaultHierarchy">NewTabularHierarchy2</property>
+                    <property name="hierarchies">
+                        <tabular-hierarchy name="NewTabularHierarchy2" id="1222">
+                            <property name="levels">
+                                <tabular-level name="LoginType" id="1223">
+                                    <property name="dataType">string</property>
+                                    <property name="columnName">LoginType</property>
+                                </tabular-level>
+                            </property>
+                        </tabular-hierarchy>
+                    </property>
+                </tabular-dimension>
+                <tabular-dimension name="Group" id="1224">
+                    <property name="isTimeType">false</property>
+                    <property name="defaultHierarchy">NewTabularHierarchy3</property>
+                    <property name="hierarchies">
+                        <tabular-hierarchy name="NewTabularHierarchy3" id="1225">
+                            <property name="levels">
+                                <tabular-level name="date" id="1226">
+                                    <property name="dataType">date</property>
+                                    <property name="columnName">date</property>
+                                </tabular-level>
+                            </property>
+                        </tabular-hierarchy>
+                    </property>
+                </tabular-dimension>
+            </property>
+            <property name="measureGroups">
+                <tabular-measure-group name="Summary Field1" id="1227">
+                    <property name="measures">
+                        <tabular-measure name="DistinctLogin" id="1228">
+                            <expression name="measureExpression" type="javascript">dataSetRow["DistinctLogin"]</expression>
+                            <property name="dataType">decimal</property>
+                        </tabular-measure>
+                    </property>
+                </tabular-measure-group>
+            </property>
+            <property name="dataSet">UserLogins</property>
+        </tabular-cube>
+    </cubes>
+    <styles>
+        <style name="report" id="4">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">10pt</property>
+        </style>
+        <style name="crosstab-cell" id="5">
+            <property name="borderBottomColor">#CCCCCC</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">1pt</property>
+            <property name="borderLeftColor">#CCCCCC</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">1pt</property>
+            <property name="borderRightColor">#CCCCCC</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">1pt</property>
+            <property name="borderTopColor">#CCCCCC</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">1pt</property>
+        </style>
+        <style name="crosstab" id="6">
+            <property name="borderBottomColor">#CCCCCC</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">1pt</property>
+            <property name="borderLeftColor">#CCCCCC</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">1pt</property>
+            <property name="borderRightColor">#CCCCCC</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">1pt</property>
+            <property name="borderTopColor">#CCCCCC</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">1pt</property>
+        </style>
+    </styles>
+    <page-setup>
+        <simple-master-page name="Simple MasterPage" id="2">
+            <page-footer>
+                <text id="1504">
+                    <property name="contentType">html</property>
+                    <text-property name="content"><![CDATA[Report Date: <value-of>new Date()</value-of>]]></text-property>
+                </text>
+            </page-footer>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <grid id="70">
+            <property name="height">0.6333333333333333in</property>
+            <column id="71"/>
+            <row id="72">
+                <cell id="73">
+                    <label id="74">
+                        <property name="fontSize">14pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="textAlign">center</property>
+                        <text-property name="text">Jama Utilization Statistics </text-property>
+                    </label>
+                </cell>
+            </row>
+            <row id="1513">
+                <property name="height">0.31666666666666665in</property>
+                <cell id="1514">
+                    <data id="1515">
+                        <property name="fontSize">14pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="textAlign">center</property>
+                        <property name="whiteSpace">nowrap</property>
+                        <property name="dataSet">Organization Name</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">name</property>
+                                <text-property name="displayName">name</text-property>
+                                <expression name="expression" type="javascript">dataSetRow["name"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">name</property>
+                    </data>
+                </cell>
+            </row>
+        </grid>
+        <grid id="75">
+            <property name="height">2.591666666666667in</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">Column Binding</property>
+                    <text-property name="displayName">ReportDate</text-property>
+                    <expression name="expression" type="javascript">new Date()</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">Column Binding_1</property>
+                    <text-property name="displayName">ReportDate</text-property>
+                    <expression name="expression" type="javascript">new Date()</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <column id="76"/>
+            <row id="78">
+                <property name="height">0.3333333333333333in</property>
+                <cell id="79">
+                    <grid id="1482">
+                        <property name="width">7.9in</property>
+                        <column id="1483">
+                            <property name="width">1.85in</property>
+                        </column>
+                        <column id="1484">
+                            <property name="width">6.05in</property>
+                        </column>
+                        <row id="1485">
+                            <cell id="1486">
+                                <label id="1490">
+                                    <text-property name="text">Beginning Date: </text-property>
+                                </label>
+                            </cell>
+                            <cell id="1488">
+                                <data id="1509">
+                                    <structure name="dateTimeFormat">
+                                        <property name="category">Long Date</property>
+                                        <property name="pattern">Long Date</property>
+                                    </structure>
+                                    <property name="whiteSpace">nowrap</property>
+                                    <property name="dataSet">ParameterDS</property>
+                                    <list-property name="boundDataColumns">
+                                        <structure>
+                                            <property name="name">BegDate</property>
+                                            <text-property name="displayName">BegDate</text-property>
+                                            <expression name="expression" type="javascript">dataSetRow["BegDate"]</expression>
+                                            <property name="dataType">date-time</property>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">BegDate</property>
+                                </data>
+                            </cell>
+                        </row>
+                    </grid>
+                </cell>
+            </row>
+            <row id="81">
+                <property name="height">0.2916666666666667in</property>
+                <cell id="82">
+                    <grid id="1495">
+                        <property name="width">7.9in</property>
+                        <column id="1496">
+                            <property name="width">1.85in</property>
+                        </column>
+                        <column id="1497">
+                            <property name="width">6.05in</property>
+                        </column>
+                        <row id="1498">
+                            <cell id="1499">
+                                <label id="1500">
+                                    <text-property name="text">End Date: </text-property>
+                                </label>
+                            </cell>
+                            <cell id="1501">
+                                <data id="1510">
+                                    <structure name="dateTimeFormat">
+                                        <property name="category">Long Date</property>
+                                        <property name="pattern">Long Date</property>
+                                    </structure>
+                                    <property name="whiteSpace">nowrap</property>
+                                    <property name="dataSet">ParameterDS</property>
+                                    <list-property name="boundDataColumns">
+                                        <structure>
+                                            <property name="name">EndDate</property>
+                                            <text-property name="displayName">EndDate</text-property>
+                                            <expression name="expression" type="javascript">dataSetRow["EndDate"]</expression>
+                                            <property name="dataType">date-time</property>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">EndDate</property>
+                                </data>
+                            </cell>
+                        </row>
+                    </grid>
+                </cell>
+            </row>
+            <row id="1493">
+                <property name="height">1.8916666666666666in</property>
+                <cell id="1494">
+                    <grid id="1363">
+                        <property name="height">1.8166666666666667in</property>
+                        <property name="width">5.108333333333333in</property>
+                        <column id="1364">
+                            <property name="width">1.8666666666666667in</property>
+                        </column>
+                        <column id="1365">
+                            <property name="width">3.2416666666666667in</property>
+                        </column>
+                        <row id="1366">
+                            <property name="height">0.30833333333333335in</property>
+                            <cell id="1367">
+                                <label id="1368">
+                                    <text-property name="text">Active Users</text-property>
+                                </label>
+                            </cell>
+                            <cell id="1369">
+                                <data id="1474">
+                                    <property name="whiteSpace">nowrap</property>
+                                    <property name="dataSet">ActiveUserStat</property>
+                                    <list-property name="boundDataColumns">
+                                        <structure>
+                                            <property name="name">users</property>
+                                            <text-property name="displayName">users</text-property>
+                                            <expression name="expression" type="javascript">dataSetRow["users"]</expression>
+                                            <property name="dataType">decimal</property>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">users</property>
+                                </data>
+                            </cell>
+                        </row>
+                        <row id="1375">
+                            <property name="height">0.26666666666666666in</property>
+                            <cell id="1376">
+                                <label id="1377">
+                                    <text-property name="text">Total Logins</text-property>
+                                </label>
+                            </cell>
+                            <cell id="1378">
+                                <table id="1379">
+                                    <property name="dataSet">UserLogins</property>
+                                    <list-property name="boundDataColumns">
+                                        <structure>
+                                            <property name="name">LoginType</property>
+                                            <text-property name="displayName">LoginType</text-property>
+                                            <expression name="expression" type="javascript">dataSetRow["LoginType"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">DistinctLogin</property>
+                                            <text-property name="displayName">DistinctLogin</text-property>
+                                            <expression name="expression" type="javascript">dataSetRow["DistinctLogin"]</expression>
+                                            <property name="dataType">float</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">licenseType</property>
+                                            <text-property name="displayName">licenseType</text-property>
+                                            <expression name="expression" type="javascript">dataSetRow["licenseType"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">date</property>
+                                            <text-property name="displayName">date</text-property>
+                                            <expression name="expression" type="javascript">dataSetRow["date"]</expression>
+                                            <property name="dataType">date</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">Aggregation</property>
+                                            <text-property name="displayName">SumTotalLogins</text-property>
+                                            <property name="dataType">float</property>
+                                            <property name="aggregateFunction">SUM</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value" type="javascript">row["DistinctLogin"]</expression>
+                                                </structure>
+                                            </list-property>
+                                            <expression name="filterExpr" type="javascript">dataSetRow["LoginType"]=='Total Logins'</expression>
+                                        </structure>
+                                    </list-property>
+                                    <column id="1383"/>
+                                    <footer>
+                                        <row id="1380">
+                                            <cell id="1381">
+                                                <data id="1382">
+                                                    <property name="resultSetColumn">Aggregation</property>
+                                                </data>
+                                            </cell>
+                                        </row>
+                                    </footer>
+                                </table>
+                            </cell>
+                        </row>
+                        <row id="1384">
+                            <property name="height">0.2833333333333333in</property>
+                            <cell id="1385">
+                                <label id="1386">
+                                    <text-property name="text">Total Active Licensed Users</text-property>
+                                </label>
+                            </cell>
+                            <cell id="1387">
+                                <table id="1388">
+                                    <property name="dataSet">UserLogins</property>
+                                    <list-property name="boundDataColumns">
+                                        <structure>
+                                            <property name="name">LoginType</property>
+                                            <text-property name="displayName">LoginType</text-property>
+                                            <expression name="expression" type="javascript">dataSetRow["LoginType"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">DistinctLogin</property>
+                                            <text-property name="displayName">DistinctLogin</text-property>
+                                            <expression name="expression" type="javascript">dataSetRow["DistinctLogin"]</expression>
+                                            <property name="dataType">float</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">licenseType</property>
+                                            <text-property name="displayName">licenseType</text-property>
+                                            <expression name="expression" type="javascript">dataSetRow["licenseType"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">date</property>
+                                            <text-property name="displayName">date</text-property>
+                                            <expression name="expression" type="javascript">dataSetRow["date"]</expression>
+                                            <property name="dataType">date</property>
+                                        </structure>
+                                        <structure>
+                                            <property name="name">Aggregation</property>
+                                            <text-property name="displayName">Total Licensed Users</text-property>
+                                            <property name="dataType">float</property>
+                                            <property name="aggregateFunction">FIRST</property>
+                                            <list-property name="arguments">
+                                                <structure>
+                                                    <property name="name">Expression</property>
+                                                    <expression name="value" type="javascript">row["DistinctLogin"]</expression>
+                                                </structure>
+                                            </list-property>
+                                            <expression name="filterExpr" type="javascript">dataSetRow["LoginType"]=='Licensed Users'</expression>
+                                        </structure>
+                                    </list-property>
+                                    <property name="isSummaryTable">true</property>
+                                    <column id="1392"/>
+                                    <footer>
+                                        <row id="1389">
+                                            <cell id="1390">
+                                                <data id="1391">
+                                                    <property name="resultSetColumn">Aggregation</property>
+                                                </data>
+                                            </cell>
+                                        </row>
+                                    </footer>
+                                </table>
+                            </cell>
+                        </row>
+                        <row id="1393">
+                            <property name="height">0.2916666666666667in</property>
+                            <cell id="1394">
+                                <label id="1395">
+                                    <text-property name="text">Frequency</text-property>
+                                </label>
+                            </cell>
+                            <cell id="1396">
+                                <data id="1475">
+                                    <structure name="numberFormat">
+                                        <property name="category">Fixed</property>
+                                        <property name="pattern">###0.0{RoundingMode=HALF_UP}</property>
+                                    </structure>
+                                    <property name="whiteSpace">nowrap</property>
+                                    <property name="dataSet">FrequencyTotal</property>
+                                    <list-property name="boundDataColumns">
+                                        <structure>
+                                            <property name="name">Frequency</property>
+                                            <text-property name="displayName">Frequency</text-property>
+                                            <expression name="expression" type="javascript">dataSetRow["Frequency"]</expression>
+                                            <property name="dataType">float</property>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">Frequency</property>
+                                </data>
+                            </cell>
+                        </row>
+                        <row id="1415">
+                            <property name="height">0.225in</property>
+                            <cell id="1416">
+                                <label id="1417">
+                                    <text-property name="text">Utilization</text-property>
+                                </label>
+                            </cell>
+                            <cell id="1418">
+                                <data id="1477">
+                                    <structure name="numberFormat">
+                                        <property name="category">Fixed</property>
+                                        <property name="pattern">###0.0{RoundingMode=HALF_UP}</property>
+                                    </structure>
+                                    <property name="whiteSpace">nowrap</property>
+                                    <property name="dataSet">UtilizationStat</property>
+                                    <list-property name="boundDataColumns">
+                                        <structure>
+                                            <property name="name">Utilization</property>
+                                            <text-property name="displayName">Utilization</text-property>
+                                            <expression name="expression" type="javascript">dataSetRow["Utilization"]</expression>
+                                            <property name="dataType">float</property>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">Utilization</property>
+                                </data>
+                            </cell>
+                        </row>
+                    </grid>
+                </cell>
+            </row>
+        </grid>
+        <extended-item extensionName="Crosstab" extensionVersion="2.5.0" id="1093">
+            <property name="cube">Data Cube - ProjectsReviews</property>
+            <property name="measures">
+                <extended-item extensionName="MeasureView" id="1162">
+                    <property name="measure">ItemsAdded</property>
+                    <property name="detail">
+                        <extended-item extensionName="AggregationCell" id="1163">
+                            <property name="aggregationOnRow">Created Date/createdDate</property>
+                            <property name="aggregationOnColumn">Item/Item</property>
+                            <property name="content">
+                                <data id="1195">
+                                    <property name="resultSetColumn">ItemsAdded_Created Date/createdDate_Item/Item</property>
+                                </data>
+                            </property>
+                            <property name="height">0.3416666666666667in</property>
+                        </extended-item>
+                    </property>
+                    <property name="header">
+                        <extended-item extensionName="CrosstabCell" id="1165">
+                            <property name="content">
+                                <label id="1166">
+                                    <text-property name="text">Added</text-property>
+                                </label>
+                            </property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+                <extended-item extensionName="MeasureView" id="1167">
+                    <property name="measure">CumulativeItems</property>
+                    <property name="detail">
+                        <extended-item extensionName="AggregationCell" id="1168">
+                            <property name="aggregationOnRow">Created Date/createdDate</property>
+                            <property name="aggregationOnColumn">Item/Item</property>
+                            <property name="content">
+                                <data id="1169">
+                                    <property name="resultSetColumn">CumulativeItems_Created Date/createdDate_Item/Item</property>
+                                </data>
+                            </property>
+                        </extended-item>
+                    </property>
+                    <property name="header">
+                        <extended-item extensionName="CrosstabCell" id="1170">
+                            <property name="content">
+                                <label id="1171">
+                                    <text-property name="text">Cumulative</text-property>
+                                </label>
+                            </property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+            </property>
+            <property name="rows">
+                <extended-item extensionName="CrosstabView" id="1152">
+                    <property name="views">
+                        <extended-item extensionName="DimensionView" id="1153">
+                            <property name="dimension">Created Date</property>
+                            <property name="levels">
+                                <extended-item extensionName="LevelView" name="NewLevel View" id="1154">
+                                    <property name="level">Created Date/createdDate</property>
+                                    <property name="member">
+                                        <extended-item extensionName="CrosstabCell" id="1155">
+                                            <property name="content">
+                                                <data name="createdDate" id="1156">
+                                                    <structure name="dateTimeFormat">
+                                                        <property name="category">Short Date</property>
+                                                        <property name="pattern">Short Date</property>
+                                                    </structure>
+                                                    <property name="resultSetColumn">createdDate</property>
+                                                </data>
+                                            </property>
+                                        </extended-item>
+                                    </property>
+                                </extended-item>
+                            </property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+            </property>
+            <property name="columns">
+                <extended-item extensionName="CrosstabView" id="1157">
+                    <property name="views">
+                        <extended-item extensionName="DimensionView" id="1158">
+                            <property name="dimension">Item</property>
+                            <property name="levels">
+                                <extended-item extensionName="LevelView" name="NewLevel View1" id="1159">
+                                    <property name="level">Item/Item</property>
+                                    <property name="member">
+                                        <extended-item extensionName="CrosstabCell" id="1160">
+                                            <property name="content">
+                                                <data name="Item" id="1161">
+                                                    <property name="resultSetColumn">Item</property>
+                                                </data>
+                                            </property>
+                                        </extended-item>
+                                    </property>
+                                </extended-item>
+                            </property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+            </property>
+            <property name="header">
+                <extended-item extensionName="CrosstabCell" id="1094">
+                    <property name="width">1.9in</property>
+                </extended-item>
+            </property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">createdDate</property>
+                    <expression name="expression">dimension["Created Date"]["createdDate"]</expression>
+                    <property name="dataType">date</property>
+                </structure>
+                <structure>
+                    <property name="name">Item</property>
+                    <expression name="expression">dimension["Item"]["Item"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">ItemsAdded_Created Date/createdDate_Item/Item</property>
+                    <expression name="expression">measure["ItemsAdded"]</expression>
+                    <property name="dataType">decimal</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Created Date/createdDate</value>
+                        <value>Item/Item</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                </structure>
+                <structure>
+                    <property name="name">CumulativeItems_Created Date/createdDate_Item/Item</property>
+                    <property name="dataType">decimal</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Created Date/createdDate</value>
+                        <value>Item/Item</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">LAST</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value" type="javascript">measure["CumulativeItems"]</expression>
+                        </structure>
+                    </list-property>
+                </structure>
+                <structure>
+                    <property name="name">ItemsAdded_Item/Item</property>
+                    <expression name="expression">measure["ItemsAdded"]</expression>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Item/Item</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+                <structure>
+                    <property name="name">CumulativeItems_Item/Item</property>
+                    <expression name="expression">measure["CumulativeItems"]</expression>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Item/Item</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+            </list-property>
+        </extended-item>
+        <extended-item extensionName="Crosstab" extensionVersion="2.5.0" id="1233">
+            <property name="cube">UserLogins</property>
+            <property name="measures">
+                <extended-item extensionName="MeasureView" id="1245">
+                    <property name="measure">DistinctLogin</property>
+                    <property name="detail">
+                        <extended-item extensionName="AggregationCell" id="1246">
+                            <property name="aggregationOnRow">Group/date</property>
+                            <property name="aggregationOnColumn">Login Type/LoginType</property>
+                            <property name="content">
+                                <data id="1247">
+                                    <structure name="numberFormat">
+                                        <property name="category">Fixed</property>
+                                        <property name="pattern">###0.0{RoundingMode=HALF_UP}</property>
+                                    </structure>
+                                    <property name="resultSetColumn">DistinctLogin_Group/date_Login Type/LoginType</property>
+                                </data>
+                            </property>
+                            <property name="width">1.025in</property>
+                        </extended-item>
+                    </property>
+                    <property name="header">
+                        <extended-item extensionName="CrosstabCell" id="1248"/>
+                    </property>
+                </extended-item>
+            </property>
+            <property name="rows">
+                <extended-item extensionName="CrosstabView" id="1235">
+                    <property name="views">
+                        <extended-item extensionName="DimensionView" id="1236">
+                            <property name="dimension">Group</property>
+                            <property name="levels">
+                                <extended-item extensionName="LevelView" name="NewLevel View2" id="1237">
+                                    <property name="level">Group/date</property>
+                                    <property name="member">
+                                        <extended-item extensionName="CrosstabCell" id="1238">
+                                            <property name="content">
+                                                <data name="date" id="1239">
+                                                    <structure name="dateTimeFormat">
+                                                        <property name="category">Short Date</property>
+                                                        <property name="pattern">Short Date</property>
+                                                    </structure>
+                                                    <property name="resultSetColumn">date</property>
+                                                </data>
+                                            </property>
+                                            <property name="width">1.125in</property>
+                                        </extended-item>
+                                    </property>
+                                </extended-item>
+                            </property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+            </property>
+            <property name="columns">
+                <extended-item extensionName="CrosstabView" id="1240">
+                    <property name="views">
+                        <extended-item extensionName="DimensionView" id="1241">
+                            <property name="dimension">Login Type</property>
+                            <property name="levels">
+                                <extended-item extensionName="LevelView" name="NewLevel View3" id="1242">
+                                    <property name="level">Login Type/LoginType</property>
+                                    <property name="member">
+                                        <extended-item extensionName="CrosstabCell" id="1243">
+                                            <property name="content">
+                                                <data name="LoginType" id="1244">
+                                                    <property name="resultSetColumn">LoginType</property>
+                                                </data>
+                                            </property>
+                                        </extended-item>
+                                    </property>
+                                </extended-item>
+                            </property>
+                        </extended-item>
+                    </property>
+                </extended-item>
+            </property>
+            <property name="header">
+                <extended-item extensionName="CrosstabCell" id="1234"/>
+            </property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">date</property>
+                    <expression name="expression">dimension["Group"]["date"]</expression>
+                    <property name="dataType">date</property>
+                </structure>
+                <structure>
+                    <property name="name">LoginType</property>
+                    <expression name="expression">dimension["Login Type"]["LoginType"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">DistinctLogin_Group/date_Login Type/LoginType</property>
+                    <expression name="expression">measure["DistinctLogin"]</expression>
+                    <property name="dataType">decimal</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Group/date</value>
+                        <value>Login Type/LoginType</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">SUM</property>
+                </structure>
+                <structure>
+                    <property name="name">Frequency</property>
+                    <expression name="expression" type="javascript">data["DistinctLogin_Group/date_Login Type/LoginType"]/data["DistinctLogin_Group/date_Login Type/LoginType"]</expression>
+                    <property name="dataType">decimal</property>
+                </structure>
+                <structure>
+                    <property name="name">DistinctLogin_Login Type/LoginType</property>
+                    <expression name="expression">measure["DistinctLogin"]</expression>
+                    <property name="dataType">float</property>
+                    <simple-property-list name="aggregateOn">
+                        <value>Login Type/LoginType</value>
+                    </simple-property-list>
+                    <property name="aggregateFunction">sum</property>
+                </structure>
+            </list-property>
+        </extended-item>
+        <grid id="1072">
+            <property name="width">7.9in</property>
+            <column id="1073">
+                <property name="width">1.8833333333333333in</property>
+            </column>
+            <column id="1074">
+                <property name="width">6.016666666666667in</property>
+            </column>
+            <row id="1075">
+                <cell id="1076">
+                    <label id="142">
+                        <text-property name="text">Jama Version</text-property>
+                    </label>
+                </cell>
+                <cell id="1077">
+                    <data id="1086">
+                        <structure name="numberFormat">
+                            <property name="category">Unformatted</property>
+                        </structure>
+                        <property name="whiteSpace">nowrap</property>
+                        <property name="dataSet">ContourVersion</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">propertyValue</property>
+                                <text-property name="displayName">propertyValue</text-property>
+                                <expression name="expression" type="javascript">dataSetRow["propertyValue"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">propertyValue</property>
+                    </data>
+                </cell>
+            </row>
+        </grid>
+    </body>
+</report>

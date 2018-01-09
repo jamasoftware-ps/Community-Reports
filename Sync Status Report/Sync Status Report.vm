@@ -1,0 +1,57 @@
+<html>
+## ========================================================================== 
+## Name: Sync Status Report.vm 
+## 
+## Description: Report displaying items in a documentList and their sync'd items/status
+## 
+## =========================================================================== 
+## MODIFICATION HISTORY 
+## 
+## Date         Revision   Person            Comments 
+## -----------  ---------  ----------------  ---------------------------------- 
+## 31-JUL-2015   A          Shawnna Williams  Created with Preston. 
+## 31-JUL-2015	 B          Preston Mitchell  Formatted so that parent item data repeats in each row to allow filtering in Excel
+##   
+## 
+## 
+##											 
+##
+## ========================================================================== 
+#set($docDao = $applicationContext.getBean("documentDao"))
+#set($itemDao = $applicationContext.getBean("contourItemDao"))
+#set($syncService = $applicationContext.getBean("syncStatusService"))
+<table>
+	<tr>
+		<td style="border:solid .5pt"><b>ID</b></td>
+		<td style="border:solid .5pt"><b>Global ID</b></td>
+		<td style="border:solid .5pt"><b>Name</b></td>
+		<td style="border:solid .5pt"><b>Synced Item</b></td>
+		<td style="border:solid .5pt"><b>Synced Project</b></td>
+		<td style="border:solid .5pt"><b>In Sync?</b></td>
+	</tr>
+	
+#foreach ($doc in $documentList)				
+	#set( $syncDocs = [])
+	#set( $syncDocs = $itemDao.getDocumentsWithGlobalId( $doc.document.globalId, $mathTool.toInteger($project.organizationId)))
+	##$syncDocs will print all docs that are synced with this document
+		#foreach( $s in $syncDocs)
+			#set( $inSync = $syncService.areItemsInSync( $mathTool.toInteger( $doc.document.id), $mathTool.toInteger( $s.id)))
+			#if($doc.document.documentKey != $s.documentKey)
+			<tr>
+				<td style="border:solid .5pt">$doc.document.documentKey</td>
+				<td style="border:solid .5pt">$doc.document.globalId</td>
+				<td style="border:solid .5pt">$doc.document.name</td>
+				<td style="border:solid .5pt">$s.documentKey</td>
+				<td style="border:solid .5pt">$s.project.name</td>
+				<td style="border:solid .5pt">#if ($!inSync == false)
+												No
+											  #else
+												Yes
+											  #end
+				</td>
+			</tr>
+			#end
+		#end
+#end 
+</table>
+</html>

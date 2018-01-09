@@ -1,0 +1,575 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 11">
+<style>
+<!--table @page{} --> </style> <!--[if gte mso 9]>
+<xml>
+  <x:ExcelWorkbook>
+    <x:ExcelWorksheets>
+      <x:ExcelWorksheet>
+      <x:Name>UpstreamTraceability</x:Name>
+      <x:WorksheetOptions>
+	<x:Panes>
+	</x:Panes>
+	</x:WorksheetOptions>
+      </x:ExcelWorksheet>
+    </x:ExcelWorksheets>
+  </ x:ExcelWorkbook>
+</xml> <![endif]-->
+<title>Upstream Traceability</title>
+<style>
+
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:.75in .7in .75in .7in;
+	mso-header-margin:.3in;
+	mso-footer-margin:.3in;}
+.xl68
+	{mso-style-parent:style0;
+	font-size:16.0pt;
+	font-weight:700;}	
+.xl67
+	{mso-style-parent:style0;
+	font-size:12.0pt;
+	font-weight:700;
+	text-align:center;
+	white-space:normal;}	
+-->
+</style>
+</head>
+<BASE href="${baseUrl}">
+
+
+#set($docDao = $applicationContext.getBean("documentDao"))
+#set($relDao = $applicationContext.getBean("relationshipDao"))
+
+#set($one = '')
+#set($two = '')
+#set($three = '')
+#set($four = '')
+#set($five = '')
+#set($six = '')
+#set($seven = '')
+#set($eight = '')
+
+#set($onecount = 0)
+#set($twocount = 0)
+#set($threecount = 0)
+#set($fourcount = 0)
+#set($fivecount = 0)
+#set($sixcount = 0)
+#set($sevencount = 0)
+#set($eigthcount = 0)
+
+<table>
+	<tr>
+		<td class=xl68 colspan=6>Impact Analysis & Traceability for $documentList.get(0).document.project.name</td>
+		<td class=xl68>Run on: $dateTool.format('M/d/yyyy',$dateTool.getDate())</td>
+	</tr>
+	<tr>
+		<td class=xl67>Base ID</td>
+		<td class=xl67>Base Name</td>
+		<td class=xl67>Base Status</td>
+		<td class=xl67>1 Degree <br style="mso-data-placement:same-cell;" />Separation ID</td>
+		<td class=xl67>1 Degree <br style="mso-data-placement:same-cell;" />Separation Name</td>
+		<td class=xl67>1 Degree <br style="mso-data-placement:same-cell;" />Separation Status</td>
+		<td class=xl67>2 Degrees <br style="mso-data-placement:same-cell;" />Separation ID</td>
+		<td class=xl67>2 Degrees <br style="mso-data-placement:same-cell;" />Separation Name</td>
+		<td class=xl67>2 Degrees <br style="mso-data-placement:same-cell;" />Separation Status</td>
+		<td class=xl67>3 Degrees <br style="mso-data-placement:same-cell;" />Separation ID</td>
+		<td class=xl67>3 Degrees <br style="mso-data-placement:same-cell;" />Separation Name</td>
+		<td class=xl67>3 Degrees <br style="mso-data-placement:same-cell;" />Separation Status</td>
+		<td class=xl67>4 Degrees <br style="mso-data-placement:same-cell;" />Separation ID</td>
+		<td class=xl67>4 Degrees <br style="mso-data-placement:same-cell;" />Separation Name</td>
+		<td class=xl67>4 Degrees <br style="mso-data-placement:same-cell;" />Separation Status</td>
+		<td class=xl67>5 Degrees <br style="mso-data-placement:same-cell;" />Separation ID</td>
+		<td class=xl67>5 Degrees <br style="mso-data-placement:same-cell;" />Separation Name</td>
+		<td class=xl67>5 Degrees <br style="mso-data-placement:same-cell;" />Separation Status</td>
+		<td class=xl67>6 Degrees <br style="mso-data-placement:same-cell;" />Separation ID</td>
+		<td class=xl67>6 Degrees <br style="mso-data-placement:same-cell;" />Separation Name</td>
+		<td class=xl67>6 Degrees <br style="mso-data-placement:same-cell;" />Separation Status</td>
+		<td class=xl67>7 Degrees <br style="mso-data-placement:same-cell;" />Separation ID</td>
+		<td class=xl67>7 Degrees <br style="mso-data-placement:same-cell;" />Separation Name</td>
+		<td class=xl67>7 Degrees <br style="mso-data-placement:same-cell;" />Separation Status</td>
+	</tr>
+#foreach( $vDoc in $documentList )
+	#set($onesize = $relDao.getUpstreamDocumentIds($vDoc.document.id).size())
+	#if($onesize > $onecount)
+		#foreach($h1 in $relDao.getUpstreamDocumentIds($vDoc.document.id))
+			#set($onecount = $onecount + 1)		
+			#set($twosize = $relDao.getUpstreamDocumentIds($h1).size())
+			#if($twosize > $twocount)
+				#foreach($h2 in $relDao.getUpstreamDocumentIds($h1))
+					#set($twocount = $twocount + 1)				
+					#set($threesize = $relDao.getUpstreamDocumentIds($h2).size())
+					#if($threesize > $threecount)
+						#foreach($h3 in $relDao.getUpstreamDocumentIds($h2))
+						#set($threecount = $threecount + 1)	
+							#set($foursize = $relDao.getUpstreamDocumentIds($h3).size())								
+							#if($foursize > $fourcount)
+								#foreach($h4 in $relDao.getUpstreamDocumentIds($h3))
+									#set($fourcount = $fourcount + 1)									
+									#set($fivesize = $relDao.getUpstreamDocumentIds($h4).size())
+									#if($fivesize > $fivecount)
+										#foreach($h5 in $relDao.getUpstreamDocumentIds($h4))
+											#set($fivecount = $fivecount + 1)														
+											#set($sixsize = $relDao.getUpstreamDocumentIds($h5).size())
+											#if($sixsize > $sixcount)
+												#foreach($h6 in $relDao.getUpstreamDocumentIds($h5))
+													#set($sixcount = $sixcount + 1)														
+													#set($sevensize = $relDao.getUpstreamDocumentIds($h6).size())
+													#if($sevensize > $sevencount)
+														#foreach($h7 in $relDao.getUpstreamDocumentIds($h6))
+															#set($sevencount = $sevencount + 1)														
+															#set($eightsize = $relDao.getUpstreamDocumentIds($h7).size())
+																<tr>
+																	<td><a href="perspective.req?projectId=$vDoc.document.project.id&docId=$vDoc.document.id" >$vDoc.document.documentKey</a></td>
+																	<td>$vDoc.document.name</td>
+																	<td>
+																		#if($vDoc.document.documentType.display == 'Test Case')
+																			$velocityReportUtil.getValueForField($vDoc.document,"testCaseStatus",$dateFormat)
+																		#elseif($vDoc.document.documentType.display == 'Folder')
+																			n/a
+																		#else
+																			$vDoc.document.status.name
+																		#end
+																	</td>															
+																	<td><a href="perspective.req?projectId=$docDao.getDocument($h1).project.id&docId=$h1" >$docDao.getDocument($h1).documentKey</a></td>
+																	<td>$docDao.getDocument($h1).name</td>
+																	<td>
+																		#if($docDao.getDocument($h1).documentType.display == 'Test Case')
+																			$velocityReportUtil.getValueForField($docDao.getDocument($h1),"testCaseStatus",$dateFormat)
+																		#elseif($docDao.getDocument($h1).documentType.display == 'Folder')
+																			n/a
+																		#else
+																			$docDao.getDocument($h1).status.name
+																		#end
+																	</td>
+																	<td><a href="perspective.req?projectId=$docDao.getDocument($h2).project.id&docId=$h2" >$docDao.getDocument($h2).documentKey</a></td>
+																	<td>$docDao.getDocument($h2).name</td>
+																	<td>
+																		#if($docDao.getDocument($h2).documentType.display == 'Test Case')
+																			$velocityReportUtil.getValueForField($docDao.getDocument($h2),"testCaseStatus",$dateFormat)
+																		#elseif($docDao.getDocument($h2).documentType.display == 'Folder')
+																			n/a
+																		#else
+																			$docDao.getDocument($h2).status.name
+																		#end
+																	</td>
+																	<td><a href="perspective.req?projectId=$docDao.getDocument($h3).project.id&docId=$h3" >$docDao.getDocument($h3).documentKey</a></td>
+																	<td>$docDao.getDocument($h3).name</td>
+																	<td>
+																		#if($docDao.getDocument($h3).documentType.display == 'Test Case')
+																			$velocityReportUtil.getValueForField($docDao.getDocument($h3),"testCaseStatus",$dateFormat)
+																		#elseif($docDao.getDocument($h3).documentType.display == 'Folder')
+																			n/a
+																		#else
+																			$docDao.getDocument($h3).status.name
+																		#end
+																	</td>
+																	<td><a href="perspective.req?projectId=$docDao.getDocument($h4).project.id&docId=$h4" >$docDao.getDocument($h4).documentKey</a></td>
+																	<td>$docDao.getDocument($h4).name</td>
+																	<td>
+																		#if($docDao.getDocument($h4).documentType.display == 'Test Case')
+																			$velocityReportUtil.getValueForField($docDao.getDocument($h4),"testCaseStatus",$dateFormat)
+																		#elseif($docDao.getDocument($h4).documentType.display == 'Folder')
+																			n/a
+																		#else
+																			$docDao.getDocument($h4).status.name
+																		#end
+																	</td>
+																	<td><a href="perspective.req?projectId=$docDao.getDocument($h5).project.id&docId=$h5" >$docDao.getDocument($h5).documentKey</a></td>
+																	<td>$docDao.getDocument($h5).name</td>
+																	<td>
+																		#if($docDao.getDocument($h5).documentType.display == 'Test Case')
+																			$velocityReportUtil.getValueForField($docDao.getDocument($h5),"testCaseStatus",$dateFormat)
+																		#elseif($docDao.getDocument($h5).documentType.display == 'Folder')
+																			n/a
+																		#else
+																			$docDao.getDocument($h5).status.name
+																		#end
+																	</td>
+																	<td><a href="perspective.req?projectId=$docDao.getDocument($h6).project.id&docId=$h6" >$docDao.getDocument($h6).documentKey</a></td>
+																	<td>$docDao.getDocument($h6).name</td>
+																	<td>
+																		#if($docDao.getDocument($h6).documentType.display == 'Test Case')
+																			$velocityReportUtil.getValueForField($docDao.getDocument($h6),"testCaseStatus",$dateFormat)
+																		#elseif($$docDao.getDocument($h6).documentType.display == 'Folder')
+																			n/a
+																		#else
+																			$docDao.getDocument($h6).status.name
+																		#end
+																	</td>
+																	<td><a href="perspective.req?projectId=$docDao.getDocument($h7).project.id&docId=$h7" >$docDao.getDocument($h7).documentKey</a></td>
+																	<td>$docDao.getDocument($h7).name</td>
+																	<td>
+																		#if($docDao.getDocument($h7).documentType.display == 'Test Case')
+																			$velocityReportUtil.getValueForField($docDao.getDocument($h7),"testCaseStatus",$dateFormat)
+																		#elseif($docDao.getDocument($h7).documentType.display == 'Folder')
+																			n/a
+																		#else
+																			$docDao.getDocument($h7).status.name
+																		#end
+																	</td>
+																	#if($eightsize > 0)
+																		<td><b>TOO Many Relationships</b></td>
+																	#end	
+																</tr>									
+														#end
+														#set($sevencount = 0)
+													#else
+														<tr>
+															<td><a href="perspective.req?projectId=$vDoc.document.project.id&docId=$vDoc.document.id" >$vDoc.document.documentKey</a></td>
+															<td>$vDoc.document.name</td>
+															<td>
+																#if($vDoc.document.documentType.display == 'Test Case')
+																	$velocityReportUtil.getValueForField($vDoc.document,"testCaseStatus",$dateFormat)
+																#elseif($vDoc.document.documentType.display == 'Folder')
+																	n/a
+																#else
+																	$vDoc.document.status.name
+																#end
+															</td>															
+															<td><a href="perspective.req?projectId=$docDao.getDocument($h1).project.id&docId=$h1" >$docDao.getDocument($h1).documentKey</a></td>
+															<td>$docDao.getDocument($h1).name</td>
+															<td>
+																#if($docDao.getDocument($h1).documentType.display == 'Test Case')
+																	$velocityReportUtil.getValueForField($docDao.getDocument($h1),"testCaseStatus",$dateFormat)
+																#elseif($docDao.getDocument($h1).documentType.display == 'Folder')
+																	n/a
+																#else
+																	$docDao.getDocument($h1).status.name
+																#end
+															</td>
+															<td><a href="perspective.req?projectId=$docDao.getDocument($h2).project.id&docId=$h2" >$docDao.getDocument($h2).documentKey</a></td>
+															<td>$docDao.getDocument($h2).name</td>
+															<td>
+																#if($docDao.getDocument($h2).documentType.display == 'Test Case')
+																	$velocityReportUtil.getValueForField($docDao.getDocument($h2),"testCaseStatus",$dateFormat)
+																#elseif($docDao.getDocument($h2).documentType.display =='Folder')
+																	n/a
+																#else
+																	$docDao.getDocument($h2).status.name
+																#end
+															</td>
+															<td><a href="perspective.req?projectId=$docDao.getDocument($h3).project.id&docId=$h3" >$docDao.getDocument($h3).documentKey</a></td>
+															<td>$docDao.getDocument($h3).name</td>
+															<td>
+																#if($docDao.getDocument($h3).documentType.display == 'Test Case')
+																	$velocityReportUtil.getValueForField($docDao.getDocument($h3),"testCaseStatus",$dateFormat)
+																#elseif($docDao.getDocument($h3).documentType.display == 'Folder')
+																	n/a
+																#else
+																	$docDao.getDocument($h3).status.name
+																#end
+															</td>
+															<td><a href="perspective.req?projectId=$docDao.getDocument($h4).project.id&docId=$h4" >$docDao.getDocument($h4).documentKey</a></td>
+															<td>$docDao.getDocument($h4).name</td>
+															<td>
+																#if($docDao.getDocument($h4).documentType.display == 'Test Case')
+																	$velocityReportUtil.getValueForField($docDao.getDocument($h4),"testCaseStatus",$dateFormat)
+																#elseif($docDao.getDocument($h4).documentType.display == 'Folder')
+																	n/a
+																#else
+																	$docDao.getDocument($h4).status.name
+																#end
+															</td>
+															<td><a href="perspective.req?projectId=$docDao.getDocument($h5).project.id&docId=$h5" >$docDao.getDocument($h5).documentKey</a></td>
+															<td>$docDao.getDocument($h5).name</td>
+															<td>
+																#if($docDao.getDocument($h5).documentType.display == 'Test Case')
+																	$velocityReportUtil.getValueForField($docDao.getDocument($h5),"testCaseStatus",$dateFormat)
+																#elseif($docDao.getDocument($h5).documentType.display == 'Folder')
+																	n/a
+																#else
+																	$docDao.getDocument($h5).status.name
+																#end
+															</td>
+															<td><a href="perspective.req?projectId=$docDao.getDocument($h6).project.id&docId=$h6" >$docDao.getDocument($h6).documentKey</a></td>
+															<td>$docDao.getDocument($h6).name</td>
+															<td>
+																#if($docDao.getDocument($h6).documentType.display == 'Test Case')
+																	$velocityReportUtil.getValueForField($docDao.getDocument($h6),"testCaseStatus",$dateFormat)
+																#elseif($docDao.getDocument($h6).documentType.display == 'Folder')
+																	n/a
+																#else
+																	$docDao.getDocument($h6).status.name
+																#end
+															</td>
+														</tr>									
+													#end
+												#end
+												#set($sixcount = 0)
+											#else
+												<tr>
+													<td><a href="perspective.req?projectId=$vDoc.document.project.id&docId=$vDoc.document.id" >$vDoc.document.documentKey</a></td>
+													<td>$vDoc.document.name</td>
+													<td>
+														#if($vDoc.document.documentType.display == 'Test Case')
+															$velocityReportUtil.getValueForField($vDoc.document,"testCaseStatus",$dateFormat)
+														#elseif($vDoc.document.documentType.display == 'Folder')
+															n/a
+														#else
+															$vDoc.document.status.name
+														#end
+													</td>															
+													<td><a href="perspective.req?projectId=$docDao.getDocument($h1).project.id&docId=$h1" >$docDao.getDocument($h1).documentKey</a></td>
+													<td>$docDao.getDocument($h1).name</td>
+													<td>
+														#if($docDao.getDocument($h1).documentType.display == 'Test Case')
+															$velocityReportUtil.getValueForField($docDao.getDocument($h1),"testCaseStatus",$dateFormat)
+														#elseif($docDao.getDocument($h1).documentType.display == 'Folder')
+															n/a
+														#else
+															$docDao.getDocument($h1).status.name
+														#end
+													</td>
+													<td><a href="perspective.req?projectId=$docDao.getDocument($h2).project.id&docId=$h2" >$docDao.getDocument($h2).documentKey</a></td>
+													<td>$docDao.getDocument($h2).name</td>
+													<td>
+														#if($docDao.getDocument($h2).documentType.display == 'Test Case')
+															$velocityReportUtil.getValueForField($docDao.getDocument($h2),"testCaseStatus",$dateFormat)
+														#elseif($docDao.getDocument($h2).documentType.display == 'Folder')
+															n/a
+														#else
+															$docDao.getDocument($h2).status.name
+														#end
+													</td>
+													<td><a href="perspective.req?projectId=$docDao.getDocument($h3).project.id&docId=$h3" >$docDao.getDocument($h3).documentKey</a></td>
+													<td>$docDao.getDocument($h3).name</td>
+													<td>
+														#if($docDao.getDocument($h3).documentType.display == 'Test Case')
+															$velocityReportUtil.getValueForField($docDao.getDocument($h3),"testCaseStatus",$dateFormat)
+														#elseif($docDao.getDocument($h3).documentType.display == 'Folder')
+															n/a
+														#else
+															$docDao.getDocument($h3).status.name
+														#end
+													</td>
+													<td><a href="perspective.req?projectId=$docDao.getDocument($h4).project.id&docId=$h4" >$docDao.getDocument($h4).documentKey</a></td>
+													<td>$docDao.getDocument($h4).name</td>
+													<td>
+														#if($docDao.getDocument($h4).documentType.display == 'Test Case')
+															$velocityReportUtil.getValueForField($docDao.getDocument($h4),"testCaseStatus",$dateFormat)
+														#elseif($docDao.getDocument($h4).documentType.display == 'Folder')
+															n/a
+														#else
+															$docDao.getDocument($h4).status.name
+														#end
+													</td>
+													<td><a href="perspective.req?projectId=$docDao.getDocument($h5).project.id&docId=$h5" >$docDao.getDocument($h5).documentKey</a></td>
+													<td>$docDao.getDocument($h5).name</td>
+													<td>
+														#if($docDao.getDocument($h5).documentType.display == 'Test Case')
+															$velocityReportUtil.getValueForField($docDao.getDocument($h5),"testCaseStatus",$dateFormat)
+														#elseif($docDao.getDocument($h5).documentType.display == 'Folder')
+															n/a
+														#else
+															$docDao.getDocument($h5).status.name
+														#end
+													</td>
+												</tr>									
+											#end
+										#end
+										#set($fivecount = 0)
+									#else
+										<tr>
+											<td><a href="perspective.req?projectId=$vDoc.document.project.id&docId=$vDoc.document.id" >$vDoc.document.documentKey</a></td>
+											<td>$vDoc.document.name</td>
+											<td>
+												#if($vDoc.document.documentType.display == 'Test Case')
+													$velocityReportUtil.getValueForField($vDoc.document,"testCaseStatus",$dateFormat)
+												#elseif($vDoc.document.documentType.display == 'Folder')
+													n/a
+												#else
+													$vDoc.document.status.name
+												#end
+											</td>															
+											<td><a href="perspective.req?projectId=$docDao.getDocument($h1).project.id&docId=$h1" >$docDao.getDocument($h1).documentKey</a></td>
+											<td>$docDao.getDocument($h1).name</td>
+											<td>
+												#if($docDao.getDocument($h1).documentType.display == 'Test Case')
+													$velocityReportUtil.getValueForField($docDao.getDocument($h1),"testCaseStatus",$dateFormat)
+												#elseif($docDao.getDocument($h1).documentType.display == 'Folder')
+													n/a
+												#else
+													$docDao.getDocument($h1).status.name
+												#end
+											</td>
+											<td><a href="perspective.req?projectId=$docDao.getDocument($h2).project.id&docId=$h2" >$docDao.getDocument($h2).documentKey</a></td>
+											<td>$docDao.getDocument($h2).name</td>
+											<td>
+												#if($docDao.getDocument($h2).documentType.display == 'Test Case')
+													$velocityReportUtil.getValueForField($docDao.getDocument($h2),"testCaseStatus",$dateFormat)
+												#elseif($docDao.getDocument($h2).documentType.display == 'Folder')
+													n/a
+												#else
+													$docDao.getDocument($h2).status.name
+												#end
+											</td>
+											<td><a href="perspective.req?projectId=$docDao.getDocument($h3).project.id&docId=$h3" >$docDao.getDocument($h3).documentKey</a></td>
+											<td>$docDao.getDocument($h3).name</td>
+											<td>
+												#if($docDao.getDocument($h3).documentType.display == 'Test Case')
+													$velocityReportUtil.getValueForField($docDao.getDocument($h3),"testCaseStatus",$dateFormat)
+												#elseif($docDao.getDocument($h3).documentType.display == 'Folder')
+													n/a
+												#else
+													$docDao.getDocument($h3).status.name
+												#end
+											</td>
+											<td><a href="perspective.req?projectId=$docDao.getDocument($h4).project.id&docId=$h4" >$docDao.getDocument($h4).documentKey</a></td>
+											<td>$docDao.getDocument($h4).name</td>
+											<td>
+												#if($docDao.getDocument($h4).documentType.display == 'Test Case')
+													$velocityReportUtil.getValueForField($docDao.getDocument($h4),"testCaseStatus",$dateFormat)
+												#elseif($docDao.getDocument($h4).documentType.display == 'Folder')
+													n/a
+												#else
+													$docDao.getDocument($h4).status.name
+												#end
+											</td>
+										</tr>									
+									#end
+								#end
+								#set($fourcount = 0)
+							#else
+								<tr>
+									<td><a href="perspective.req?projectId=$vDoc.document.project.id&docId=$vDoc.document.id" >$vDoc.document.documentKey</a></td>
+									<td>$vDoc.document.name</td>
+									<td>
+										#if($vDoc.document.documentType.display == 'Test Case')
+											$velocityReportUtil.getValueForField($vDoc.document,"testCaseStatus",$dateFormat)
+										#elseif($vDoc.document.documentType.display == 'Folder')
+											n/a
+										#else
+											$vDoc.document.status.name
+										#end
+									</td>															
+									<td><a href="perspective.req?projectId=$docDao.getDocument($h1).project.id&docId=$h1" >$docDao.getDocument($h1).documentKey</a></td>
+									<td>$docDao.getDocument($h1).name</td>
+									<td>
+										#if($docDao.getDocument($h1).documentType.display == 'Test Case')
+											$velocityReportUtil.getValueForField($docDao.getDocument($h1),"testCaseStatus",$dateFormat)
+										#elseif($docDao.getDocument($h1).documentType.display == 'Folder')
+											n/a
+										#else
+											$docDao.getDocument($h1).status.name
+										#end
+									</td>
+									<td><a href="perspective.req?projectId=$docDao.getDocument($h2).project.id&docId=$h2" >$docDao.getDocument($h2).documentKey</a></td>
+									<td>$docDao.getDocument($h2).name</td>
+									<td>
+										#if($docDao.getDocument($h2).documentType.display == 'Test Case')
+											$velocityReportUtil.getValueForField($docDao.getDocument($h2),"testCaseStatus",$dateFormat)
+										#elseif($docDao.getDocument($h2).documentType.display == 'Folder')
+											n/a
+										#else
+											$docDao.getDocument($h2).status.name
+										#end
+									</td>
+									<td><a href="perspective.req?projectId=$docDao.getDocument($h3).project.id&docId=$h3" >$docDao.getDocument($h3).documentKey</a></td>
+									<td>$docDao.getDocument($h3).name</td>
+									<td>
+										#if($docDao.getDocument($h3).documentType.display == 'Test Case')
+											$velocityReportUtil.getValueForField($docDao.getDocument($h3),"testCaseStatus",$dateFormat)
+										#elseif($docDao.getDocument($h3).documentType.display == 'Folder')
+											n/a
+										#else
+											$docDao.getDocument($h3).status.name
+										#end
+									</td>
+								</tr>										
+							#end
+						#end
+						#set($threecount = 0)
+					#else
+						<tr>
+							<td><a href="perspective.req?projectId=$vDoc.document.project.id&docId=$vDoc.document.id" >$vDoc.document.documentKey</a></td>
+							<td>$vDoc.document.name</td>
+							<td>
+								#if($vDoc.document.documentType.display == 'Test Case')
+									$velocityReportUtil.getValueForField($vDoc.document,"testCaseStatus",$dateFormat)
+								#elseif($vDoc.document.documentType.display == 'Folder')
+									n/a
+								#else
+									$vDoc.document.status.name
+								#end
+							</td>															
+							<td><a href="perspective.req?projectId=$docDao.getDocument($h1).project.id&docId=$h1" >$docDao.getDocument($h1).documentKey</a></td>
+							<td>$docDao.getDocument($h1).name</td>
+							<td>
+								#if($docDao.getDocument($h1).documentType.display == 'Test Case')
+									$velocityReportUtil.getValueForField($docDao.getDocument($h2),"testCaseStatus",$dateFormat)
+								#elseif($docDao.getDocument($h1).documentType.display == 'Folder')
+									n/a
+								#else
+									$docDao.getDocument($h1).status.name
+								#end
+							</td>
+							<td><a href="perspective.req?projectId=$docDao.getDocument($h2).project.id&docId=$h2" >$docDao.getDocument($h2).documentKey</a></td>
+							<td>$docDao.getDocument($h2).name</td>
+							<td>
+								#if($docDao.getDocument($h2).documentType.display == 'Test Case')
+									$velocityReportUtil.getValueForField($docDao.getDocument($h1),"testCaseStatus",$dateFormat)
+								#elseif($docDao.getDocument($h2).documentType.display == 'Folder')
+									n/a
+								#else
+									$docDao.getDocument($h2).status.name
+								#end
+							</td>
+
+						</tr>			
+					#end
+				#end
+				#set($twocount = 0)
+			#else
+				<tr>
+					<td><a href="perspective.req?projectId=$vDoc.document.project.id&docId=$vDoc.document.id" >$vDoc.document.documentKey</a></td>
+					<td>$vDoc.document.name</td>
+					<td>
+						#if($vDoc.document.documentType.display == 'Test Case')
+							$velocityReportUtil.getValueForField($vDoc.document,"testCaseStatus",$dateFormat)
+						#elseif($vDoc.document.documentType.display == 'Folder')
+							n/a
+						#else
+							$vDoc.document.status.name
+						#end
+					</td>															
+					<td><a href="perspective.req?projectId=$docDao.getDocument($h1).project.id&docId=$h1" >$docDao.getDocument($h1).documentKey</a></td>
+					<td>$docDao.getDocument($h1).name</td>
+					<td>
+						#if($docDao.getDocument($h1).documentType.display == 'Test Case')
+							$velocityReportUtil.getValueForField($docDao.getDocument($h1),"testCaseStatus",$dateFormat)
+						#elseif($docDao.getDocument($h1).documentType.display == 'Folder')
+							n/a
+						#else
+							$docDao.getDocument($h1).status.name
+						#end
+					</td>
+				</tr>			
+			#end
+		#end
+		#set($onecount = 0)
+	#else
+		<tr>
+			<td><a href="perspective.req?projectId=$vDoc.document.project.id&docId=$vDoc.document.id" >$vDoc.document.documentKey</a></td>
+			<td>$vDoc.document.name</td>
+			<td>
+				#if($vDoc.document.documentType.display == 'Test Case')
+					$velocityReportUtil.getValueForField($vDoc.document,"testCaseStatus",$dateFormat)
+				#elseif($vDoc.document.documentType.display == 'Folder')
+					n/a
+				#else
+					$vDoc.document.status.name
+				#end
+			</td>															
+		</tr>
+	#end	
+#end
+</table>
+</body>
+</html>

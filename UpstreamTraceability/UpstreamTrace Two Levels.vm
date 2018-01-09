@@ -1,0 +1,198 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 11">
+<style>
+<!--table @page{} --> </style> <!--[if gte mso 9]>
+<xml>
+  <x:ExcelWorkbook>
+    <x:ExcelWorksheets>
+      <x:ExcelWorksheet>
+      <x:Name>UpstreamTraceability</x:Name>
+      <x:WorksheetOptions>
+	<x:Panes>
+	</x:Panes>
+	</x:WorksheetOptions>
+      </x:ExcelWorksheet>
+    </x:ExcelWorksheets>
+  </ x:ExcelWorkbook>
+</xml> <![endif]-->
+<title>Upstream Traceability</title>
+## ========================================================================== 
+## Name: Workforce Upstream Traceability report 
+## 
+## Description: Report displaying 2 levels of upstream items 
+## 
+## =========================================================================== 
+## MODIFICATION HISTORY 
+## 
+## Date         Revision   Person            Comments 
+## -----------  ---------  ----------------  ---------------------------------- 
+## 27-JUL-2015   A          Shawnna Williams  Created. Based off of free Upstream Trace report.
+## 											  Commented out much of the higher levels of code.
+##                                           
+##                                          
+## 
+##											
+##											 
+##
+## ========================================================================== 
+
+<style>
+
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:.75in .7in .75in .7in;
+	mso-header-margin:.3in;
+	mso-footer-margin:.3in;}
+.xl68
+	{mso-style-parent:style0;
+	font-size:16.0pt;
+	font-weight:700;}	
+.xl67
+	{mso-style-parent:style0;
+	font-size:12.0pt;
+	font-weight:700;
+	text-align:center;
+	white-space:normal;}	
+-->
+</style>
+</head>
+<BASE href="${baseUrl}">
+
+
+#set($docDao = $applicationContext.getBean("documentDao"))
+#set($relDao = $applicationContext.getBean("relationshipDao"))
+
+#set($one = '')
+#set($two = '')
+#set($three = '')
+#set($four = '')
+#set($five = '')
+#set($six = '')
+#set($seven = '')
+#set($eight = '')
+
+#set($onecount = 0)
+#set($twocount = 0)
+#set($threecount = 0)
+#set($fourcount = 0)
+#set($fivecount = 0)
+#set($sixcount = 0)
+#set($sevencount = 0)
+#set($eigthcount = 0)
+
+<table>
+	<tr>
+		<td class=xl68 colspan=6>Impact Analysis & Traceability for $documentList.get(0).document.project.name</td>
+		<td class=xl68>Run on: $dateTool.format('M/d/yyyy',$dateTool.getDate())</td>
+	</tr>
+	<tr>
+		<td class=xl67>Base ID</td>
+		<td class=xl67>Base Name</td>
+		<td class=xl67>Base Status</td>
+		<td class=xl67>1 Degree <br style="mso-data-placement:same-cell;" />Separation ID</td>
+		<td class=xl67>1 Degree <br style="mso-data-placement:same-cell;" />Separation Name</td>
+		<td class=xl67>1 Degree <br style="mso-data-placement:same-cell;" />Separation Status</td>
+		<td class=xl67>2 Degrees <br style="mso-data-placement:same-cell;" />Separation ID</td>
+		<td class=xl67>2 Degrees <br style="mso-data-placement:same-cell;" />Separation Name</td>
+		<td class=xl67>2 Degrees <br style="mso-data-placement:same-cell;" />Separation Status</td>
+	</tr>
+#foreach( $vDoc in $documentList )
+	#set($onesize = $relDao.getUpstreamDocumentIds($vDoc.document.id).size())
+	#if($onesize > $onecount)
+		#foreach($h1 in $relDao.getUpstreamDocumentIds($vDoc.document.id))
+			#set($onecount = $onecount + 1)		
+			#set($twosize = $relDao.getUpstreamDocumentIds($h1).size())
+			#if($twosize > $twocount)
+				#foreach($h2 in $relDao.getUpstreamDocumentIds($h1))
+					#set($twocount = $twocount + 1)				
+					
+						<tr>
+							<td><a href="perspective.req?projectId=$vDoc.document.project.id&docId=$vDoc.document.id" >$vDoc.document.documentKey</a></td>
+							<td>$vDoc.document.name</td>
+							<td>
+								#if($vDoc.document.documentType.display == 'Test Case')
+									$velocityReportUtil.getValueForField($vDoc.document,"testCaseStatus",$dateFormat)
+								#elseif($vDoc.document.documentType.display == 'Folder' || $vDoc.document.documentType.display == 'Set')
+									n/a
+								#else
+									#set( $status = $!vDoc.document.status.name)
+									#if($status) $status #end
+								#end
+							</td>															
+							<td><a href="perspective.req?projectId=$docDao.getDocument($h1).project.id&docId=$h1" >$docDao.getDocument($h1).documentKey</a></td>
+							<td>$docDao.getDocument($h1).name</td>
+							<td>
+								#if($docDao.getDocument($h1).documentType.display == 'Test Case')
+									$velocityReportUtil.getValueForField($docDao.getDocument($h2),"testCaseStatus",$dateFormat)
+								#elseif($docDao.getDocument($h1).documentType.display == 'Folder' || $vDoc.document.documentType.display == 'Set')
+									n/a
+								#else
+									#if($!docDao.getDocument($h1).status.name) $docDao.getDocument($h1).status.name #end
+								#end
+							</td>
+							<td><a href="perspective.req?projectId=$docDao.getDocument($h2).project.id&docId=$h2" >$docDao.getDocument($h2).documentKey</a></td>
+							<td>$docDao.getDocument($h2).name</td>
+							<td>
+								#if($docDao.getDocument($h2).documentType.display == 'Test Case')
+									$velocityReportUtil.getValueForField($docDao.getDocument($h1),"testCaseStatus",$dateFormat)
+								#elseif($docDao.getDocument($h2).documentType.display == 'Folder' || $vDoc.document.documentType.display == 'Set')
+									n/a
+								#else
+									#if($!docDao.getDocument($h2).status.name) $docDao.getDocument($h2).status.name #end
+								#end
+							</td>
+
+						</tr>			
+				#end ###End two 
+				#set($twocount = 0)
+			#else
+				<tr>
+					<td><a href="perspective.req?projectId=$vDoc.document.project.id&docId=$vDoc.document.id" >$vDoc.document.documentKey</a></td>
+					<td>$vDoc.document.name</td>
+					<td>
+						#if($vDoc.document.documentType.display == 'Test Case')
+							$velocityReportUtil.getValueForField($vDoc.document,"testCaseStatus",$dateFormat)
+						#elseif($vDoc.document.documentType.display == 'Folder' || $vDoc.document.documentType.display == 'Set')
+							n/a
+						#else
+							#if( $vDoc.document.status.name) $vDoc.document.status.name #end
+						#end
+					</td>															
+					<td><a href="perspective.req?projectId=$docDao.getDocument($h1).project.id&docId=$h1" >$docDao.getDocument($h1).documentKey</a></td>
+					<td>$docDao.getDocument($h1).name</td>
+					<td>
+						#if($docDao.getDocument($h1).documentType.display == 'Test Case')
+							$velocityReportUtil.getValueForField($docDao.getDocument($h1),"testCaseStatus",$dateFormat)
+						#elseif($docDao.getDocument($h1).documentType.display == 'Folder' || $vDoc.document.documentType.display == 'Set')
+							n/a
+						#else
+							#if($docDao.getDocument($h1).status.name) $docDao.getDocument($h1).status.name #end
+						#end
+					</td>
+				</tr>			
+			#end
+		#end
+		#set($onecount = 0)
+	#else
+		<tr>
+			<td><a href="perspective.req?projectId=$vDoc.document.project.id&docId=$vDoc.document.id" >$vDoc.document.documentKey</a></td>
+			<td>$vDoc.document.name</td>
+			<td>
+				#if($vDoc.document.documentType.display == 'Test Case')
+					$velocityReportUtil.getValueForField($vDoc.document,"testCaseStatus",$dateFormat)
+				#elseif($vDoc.document.documentType.display == 'Folder' || $vDoc.document.documentType.display == 'Set')
+					n/a
+				#else
+					#if($vDoc.document.status.name) $vDoc.document.status.name #end
+				#end
+			</td>															
+		</tr>
+	#end	
+#end
+</table>
+</body>
+</html>
