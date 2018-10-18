@@ -240,11 +240,39 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
         </oda-data-set>
         <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="ProjectsReviews" id="1089">
             <property name="nullsOrdering">nulls lowest</property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">Item</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="displayName">Item</text-property>
+                    <text-property name="heading">Item</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">ItemsAdded</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">ItemsAdded</text-property>
+                    <text-property name="heading">ItemsAdded</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">createdDate</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="displayName">createdDate</text-property>
+                    <text-property name="heading">createdDate</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">CumulativeItems</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">CumulativeItems</text-property>
+                    <text-property name="heading">CumulativeItems</text-property>
+                </structure>
+            </list-property>
             <list-property name="parameters">
                 <structure>
                     <property name="name">ProjectsOrgId2</property>
                     <property name="paramName">report_organizationId</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">1</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -252,7 +280,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">ProjectsBegDate</property>
                     <property name="paramName">begDate</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">float</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">2</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -260,7 +290,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">ProjectsEndDate</property>
                     <property name="paramName">endDate</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">float</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">3</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -268,7 +300,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">ProjectOrgId</property>
                     <property name="paramName">report_organizationId</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">4</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -276,7 +310,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">ItemOrgId2</property>
                     <property name="paramName">report_organizationId</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">5</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -284,7 +320,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">ItemBegDate</property>
                     <property name="paramName">begDate</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">6</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -292,7 +330,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">ItemEndDate</property>
                     <property name="paramName">endDate</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">7</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -300,7 +340,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">ItemOrgId</property>
                     <property name="paramName">report_organizationId</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">8</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -308,7 +350,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">ReviewOrgId2</property>
                     <property name="paramName">report_organizationId</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">9</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -316,7 +360,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">ReviewBegDate</property>
                     <property name="paramName">begDate</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">10</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -324,7 +370,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">ReviewEndDate</property>
                     <property name="paramName">endDate</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">11</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -332,7 +380,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">ReviewOrgId</property>
                     <property name="paramName">report_organizationId</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">12</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -340,7 +390,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">TestOrgId1</property>
                     <property name="paramName">report_organizationId</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">13</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -348,7 +400,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">TestBegDate</property>
                     <property name="paramName">begDate</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">14</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -356,7 +410,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">TestEndDate</property>
                     <property name="paramName">endDate</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">15</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -364,7 +420,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">TestOrgId</property>
                     <property name="paramName">report_organizationId</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">16</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -372,7 +430,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">CommentsOrgId1</property>
                     <property name="paramName">report_organizationId</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">17</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -380,7 +440,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">CommentsOrgId2</property>
                     <property name="paramName">report_organizationId</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">18</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -388,7 +450,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">CommentsBegDate</property>
                     <property name="paramName">begDate</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">19</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -396,7 +460,9 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                 <structure>
                     <property name="name">CommentsEndDate</property>
                     <property name="paramName">endDate</property>
+                    <property name="nativeName"></property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">20</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -433,24 +499,28 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="name">Item</property>
                     <property name="nativeName">Item</property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
                 </structure>
                 <structure>
                     <property name="position">2</property>
                     <property name="name">ItemsAdded</property>
                     <property name="nativeName">ItemsAdded</property>
                     <property name="dataType">decimal</property>
+                    <property name="nativeDataType">-5</property>
                 </structure>
                 <structure>
                     <property name="position">3</property>
                     <property name="name">createdDate</property>
                     <property name="nativeName">createdDate</property>
                     <property name="dataType">date</property>
+                    <property name="nativeDataType">91</property>
                 </structure>
                 <structure>
                     <property name="position">4</property>
                     <property name="name">CumulativeItems</property>
                     <property name="nativeName">CumulativeItems</property>
                     <property name="dataType">decimal</property>
+                    <property name="nativeDataType">-5</property>
                 </structure>
             </list-property>
             <xml-property name="queryText"><![CDATA[Select 'Projects' as Item, count(p.id) as ItemsAdded, CAST(p.createdDate as Date) as createdDate, 
@@ -467,10 +537,11 @@ union
 Select 'Items', count(d.id) as ItemsAdded, CAST(d.createdDate as Date) as createdDate,
   (Select count(d2.id) from document d2 where CAST(d2.createdDate as Date)<= CAST(d.createdDate as Date) 
   	and d2.active = 'T' and d2.organizationId = ?) as CumulativeItems
-  from document d 
+  from document d join documenttype dt on d.documenttypeid = dt.id
   where d.active = 'T' and CAST(d.createdDate as Date) 
   	between FROM_UNIXTIME(?/1000) and FROM_UNIXTIME(?/1000)
   	and d.organizationId = ?
+  	and dt.display not in ('Attachment', 'Test Plan', 'Test Cycle', 'Test Run')
   group by CAST(d.createdDate as Date)
 union
 Select 'Reviews' as Item, count(r.id) as ItemsAdded, CAST(r.createdDate as Date) as createdDate, 

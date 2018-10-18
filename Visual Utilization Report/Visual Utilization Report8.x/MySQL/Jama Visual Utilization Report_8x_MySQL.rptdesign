@@ -29,6 +29,7 @@
             <simple-property-list name="defaultValue">
                 <value type="constant">2</value>
             </simple-property-list>
+            <list-property name="selectionList"/>
             <property name="paramType">simple</property>
             <property name="concealValue">false</property>
             <property name="controlType">text-box</property>
@@ -514,13 +515,51 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
         </oda-data-set>
         <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="Project Reviews" id="101">
             <property name="nullsOrdering">nulls lowest</property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">Items</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="displayName">Items</text-property>
+                    <text-property name="heading">Items</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">ItemsAdded</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">ItemsAdded</text-property>
+                    <text-property name="heading">ItemsAdded</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">createdDate</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="displayName">createdDate</text-property>
+                    <text-property name="heading">createdDate</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">projectId</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">projectId</text-property>
+                    <text-property name="heading">projectId</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">name</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="displayName">name</text-property>
+                    <text-property name="heading">name</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">CumulativeItems</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">CumulativeItems</text-property>
+                    <text-property name="heading">CumulativeItems</text-property>
+                </structure>
+            </list-property>
             <list-property name="parameters">
                 <structure>
                     <property name="name">param_1</property>
                     <property name="paramName">begDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">1</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -530,7 +569,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">endDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">2</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -540,7 +579,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">report_organizationId</property>
                     <property name="nativeName"></property>
                     <property name="dataType">integer</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">3</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -550,7 +589,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">endDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">4</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -560,7 +599,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">report_organizationId</property>
                     <property name="nativeName"></property>
                     <property name="dataType">integer</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">5</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -570,7 +609,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">begDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">6</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -580,7 +619,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">endDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">7</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -590,7 +629,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">report_organizationId</property>
                     <property name="nativeName"></property>
                     <property name="dataType">integer</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">8</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -600,7 +639,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">endDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">9</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -610,7 +649,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">report_organizationId</property>
                     <property name="nativeName"></property>
                     <property name="dataType">integer</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">10</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -620,7 +659,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">begDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">11</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -630,7 +669,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">endDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">12</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -640,7 +679,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">report_organizationId</property>
                     <property name="nativeName"></property>
                     <property name="dataType">integer</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">13</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -650,7 +689,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">endDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">14</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -660,7 +699,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">report_organizationId</property>
                     <property name="nativeName"></property>
                     <property name="dataType">integer</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">15</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -670,7 +709,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">begDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">16</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -680,7 +719,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">endDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">17</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -690,7 +729,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">report_organizationId</property>
                     <property name="nativeName"></property>
                     <property name="dataType">integer</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">18</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -700,7 +739,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">endDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">19</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -710,7 +749,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">report_organizationId</property>
                     <property name="nativeName"></property>
                     <property name="dataType">integer</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">20</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -720,7 +759,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">begDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">21</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -730,7 +769,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">endDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">22</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -740,7 +779,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">report_organizationId</property>
                     <property name="nativeName"></property>
                     <property name="dataType">integer</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">23</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -750,7 +789,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">endDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">24</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -760,7 +799,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">report_organizationId</property>
                     <property name="nativeName"></property>
                     <property name="dataType">integer</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">25</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -770,7 +809,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">begDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">26</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -780,7 +819,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">endDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">27</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -790,7 +829,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">report_organizationId</property>
                     <property name="nativeName"></property>
                     <property name="dataType">integer</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">28</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -800,7 +839,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">endDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">29</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -810,7 +849,7 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="paramName">report_organizationId</property>
                     <property name="nativeName"></property>
                     <property name="dataType">integer</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">30</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
@@ -857,56 +896,66 @@ Where propertyentry.propertyName = 'jama.system.contour.version'
                     <property name="name">Items</property>
                     <property name="nativeName">Items</property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
                 </structure>
                 <structure>
                     <property name="position">2</property>
                     <property name="name">ItemsAdded</property>
                     <property name="nativeName">ItemsAdded</property>
                     <property name="dataType">decimal</property>
+                    <property name="nativeDataType">-5</property>
                 </structure>
                 <structure>
                     <property name="position">3</property>
                     <property name="name">createdDate</property>
                     <property name="nativeName">createdDate</property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
                 </structure>
                 <structure>
                     <property name="position">4</property>
                     <property name="name">projectId</property>
                     <property name="nativeName">projectId</property>
                     <property name="dataType">integer</property>
+                    <property name="nativeDataType">4</property>
                 </structure>
                 <structure>
                     <property name="position">5</property>
                     <property name="name">name</property>
                     <property name="nativeName">name</property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
                 </structure>
                 <structure>
                     <property name="position">6</property>
                     <property name="name">CumulativeItems</property>
                     <property name="nativeName">CumulativeItems</property>
                     <property name="dataType">decimal</property>
+                    <property name="nativeDataType">-5</property>
                 </structure>
             </list-property>
             <xml-property name="queryText"><![CDATA[  Select 'Items' as Items, count(d.id) as ItemsAdded, CAST(d.createdDate as Date) as createdDate, projectId, p.name,
   null as CumulativeItems
   from document d join project p on d.projectId = p.id
+  	join documenttype dt on d.documenttypeid = dt.id
   where d.active = 'T'  
   	and p.name not like ('%CoveragePlus%')
   	and CAST(d.createdDate as Date) 
   	between CAST(FROM_UNIXTIME(?/1000) as Date) 
 		and CAST(FROM_UNIXTIME(?/1000) as Date)
    	and d.organizationId = ?
+   	and dt.display not in ('Attachment', 'Test Plan', 'Test Cycle', 'Test Run')
  group by CAST(d.createdDate as Date), p.name, d.projectId, d.organizationId
  union
  Select 'Items' as Items, 0 as ItemsAdded, CAST('1970/1/1' as Date) as createdDate, projectId, p.name,
   count(d.id) as CumulativeItems
   from document d join project p on d.projectId = p.id
+  	join documenttype dt on d.documenttypeid = dt.id
   where d.active = 'T'  
   	and p.name not like ('%CoveragePlus%')
   	and CAST(d.createdDate as Date) <= CAST(FROM_UNIXTIME(?/1000) as Date)
    	and d.organizationId = ?
+   	and dt.display not in ('Attachment', 'Test Plan', 'Test Cycle', 'Test Run')
  group by p.name, d.projectId, d.organizationId
  union
   Select 'Reviews' as Item, count(r.id) as ItemsAdded, CAST(r.createdDate as Date) as createdDate, projectId, p.name,
@@ -1019,8 +1068,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>1</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1034,8 +1083,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>2</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1049,8 +1098,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>3</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1064,8 +1113,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>4</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1079,8 +1128,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>5</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1094,8 +1143,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>6</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1109,8 +1158,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>7</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1124,8 +1173,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>8</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1139,8 +1188,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>9</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1154,8 +1203,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>10</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1169,8 +1218,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>11</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1184,8 +1233,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>12</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1199,8 +1248,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>13</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1214,8 +1263,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>14</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1229,8 +1278,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>15</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1244,8 +1293,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>16</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1259,8 +1308,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>17</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1274,8 +1323,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>18</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1289,8 +1338,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>19</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1304,8 +1353,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>20</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1319,8 +1368,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>21</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1334,8 +1383,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>22</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1349,8 +1398,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>23</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1364,8 +1413,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>24</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1379,8 +1428,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>25</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1394,8 +1443,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>26</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1409,8 +1458,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>27</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1424,8 +1473,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>28</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1439,8 +1488,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>29</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1454,8 +1503,8 @@ Select 'ActiveUsers', 0 as Users, CAST('1970/1/5' as date) as CreatedDate, e.pro
             <design:name></design:name>
             <design:position>30</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
@@ -1659,15 +1708,40 @@ where IFNULL(disabled, 'F') = 'F'
 </model:DesignValues>]]></xml-property>
         </oda-data-set>
         <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="Items" id="250">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">Items</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="displayName">Items</text-property>
+                    <text-property name="heading">Items</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">ItemsAdded</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">ItemsAdded</text-property>
+                    <text-property name="heading">ItemsAdded</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">CreatedDate</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="displayName">CreatedDate</text-property>
+                    <text-property name="heading">CreatedDate</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">CumulativeItems</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">CumulativeItems</text-property>
+                    <text-property name="heading">CumulativeItems</text-property>
+                </structure>
+            </list-property>
             <list-property name="parameters">
                 <structure>
                     <property name="name">param_1</property>
                     <property name="paramName">begDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">1</property>
-                    <property name="isOptional">false</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
                 </structure>
@@ -1676,9 +1750,8 @@ where IFNULL(disabled, 'F') = 'F'
                     <property name="paramName">endDate</property>
                     <property name="nativeName"></property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">2</property>
-                    <property name="isOptional">false</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
                 </structure>
@@ -1687,9 +1760,8 @@ where IFNULL(disabled, 'F') = 'F'
                     <property name="paramName">report_organizationId</property>
                     <property name="nativeName"></property>
                     <property name="dataType">integer</property>
-                    <property name="nativeDataType">1</property>
+                    <property name="nativeDataType">-1</property>
                     <property name="position">3</property>
-                    <property name="isOptional">false</property>
                     <property name="isInput">true</property>
                     <property name="isOutput">false</property>
                 </structure>
@@ -1725,24 +1797,28 @@ where IFNULL(disabled, 'F') = 'F'
                     <property name="name">Items</property>
                     <property name="nativeName">Items</property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
                 </structure>
                 <structure>
                     <property name="position">2</property>
                     <property name="name">ItemsAdded</property>
                     <property name="nativeName">ItemsAdded</property>
                     <property name="dataType">decimal</property>
+                    <property name="nativeDataType">-5</property>
                 </structure>
                 <structure>
                     <property name="position">3</property>
                     <property name="name">CreatedDate</property>
                     <property name="nativeName">CreatedDate</property>
                     <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
                 </structure>
                 <structure>
                     <property name="position">4</property>
                     <property name="name">CumulativeItems</property>
                     <property name="nativeName">CumulativeItems</property>
                     <property name="dataType">decimal</property>
+                    <property name="nativeDataType">-5</property>
                 </structure>
             </list-property>
             <xml-property name="queryText"><![CDATA[ Select 'Items' as Items, count(d.id) as ItemsAdded, 
@@ -1752,8 +1828,10 @@ where IFNULL(disabled, 'F') = 'F'
 	DATE_FORMAT( d2.createdDate, '%Y-%m') <= 
 	DATE_FORMAT( d.createdDate, '%Y-%m')) as CumulativeItems
   from document d join project p on d.projectId = p.id
+  	join documenttype dt on d.documenttypeid = dt.id
   where d.active = 'T'  
   	and p.name not like ('%CoveragePlus%')
+  	and dt.display not in ('Attachment', 'Test Plan', 'Test Cycle', 'Test Run')
   	and  CAST(d.createdDate as Date) 
 	between CAST(FROM_UNIXTIME(?/1000) as Date) 
 	and CAST(FROM_UNIXTIME(?/1000) as Date)
@@ -1774,14 +1852,11 @@ where IFNULL(disabled, 'F') = 'F'
             <design:name></design:name>
             <design:position>1</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
-        <design:inputAttributes>
-          <design:elementAttributes/>
-        </design:inputAttributes>
       </design:ParameterDefinition>
     </parameter>
     <parameter>
@@ -1792,14 +1867,11 @@ where IFNULL(disabled, 'F') = 'F'
             <design:name></design:name>
             <design:position>2</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
-        <design:inputAttributes>
-          <design:elementAttributes/>
-        </design:inputAttributes>
       </design:ParameterDefinition>
     </parameter>
     <parameter>
@@ -1810,14 +1882,11 @@ where IFNULL(disabled, 'F') = 'F'
             <design:name></design:name>
             <design:position>3</design:position>
           </design:identifier>
-          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
-          <design:precision>38</design:precision>
+          <design:nativeDataTypeCode>-1</design:nativeDataTypeCode>
+          <design:precision>0</design:precision>
           <design:scale>0</design:scale>
           <design:nullability>Unknown</design:nullability>
         </design:attributes>
-        <design:inputAttributes>
-          <design:elementAttributes/>
-        </design:inputAttributes>
       </design:ParameterDefinition>
     </parameter>
   </DataSetParameters>
