@@ -1,4 +1,4 @@
-# Visual Utilization Report
+# Review Center Stats Report - Reviewers per Item
 ## Preview Image
 ![alt tag](https://github.com/JamaSoftware/Community-Reports/blob/master/Review%20Stats%20-%20Reviewers%20per%20item/preview.png)
 

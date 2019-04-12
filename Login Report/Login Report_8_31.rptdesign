@@ -56,7 +56,7 @@
                 </ex-property>
             </list-property>
             <property name="odaDriverClass">com.mysql.jdbc.Driver</property>
-            <property name="odaURL">jdbc:mysql://localhost/contour1?useUnicode=true&amp;characterEncoding=UTF8</property>
+            <property name="odaURL">jdbc:mysql://localhost/jama?useUnicode=true&amp;characterEncoding=UTF8</property>
             <property name="odaUser">user</property>
             <encrypted-property name="odaPassword" encryptionID="base64">cGFzc3dvcmQ=</encrypted-property>
         </oda-data-source>
@@ -652,7 +652,7 @@ order by ule.loginTime
                         <property name="fontSize">18pt</property>
                         <property name="textAlign">center</property>
                         <property name="contentType">auto</property>
-                        <text-property name="content"><![CDATA[Usage Report]]></text-property>
+                        <text-property name="content"><![CDATA[Login Report]]></text-property>
                     </text>
                 </cell>
             </row>
@@ -1801,7 +1801,7 @@ order by ule.loginTime
   </Rotation>
 </model:ChartWithAxes>
 ]]></xml-property>
-                        <property name="outputFormat">SVG</property>
+                        <property name="outputFormat">PNG</property>
                         <property name="inheritColumns">false</property>
                         <property name="height">3.4166666666666665in</property>
                         <property name="width">13.15in</property>
