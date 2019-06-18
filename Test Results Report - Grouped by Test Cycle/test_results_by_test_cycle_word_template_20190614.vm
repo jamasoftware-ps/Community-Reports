@@ -1135,7 +1135,7 @@ p.MsoHeader, li.MsoHeader, div.MsoHeader
 	margin-bottom:.0001pt;
 	mso-pagination:widow-orphan;
 	tab-stops:center 3.25in right 6.5in;
-	font-size:11.0pt;
+	font-size:10.0pt;
 	font-family:"Calibri",sans-serif;
 	mso-fareast-font-family:"Calibri";
 	mso-bidi-font-family:"Calibri";}
@@ -1146,7 +1146,7 @@ p.MsoFooter, li.MsoFooter, div.MsoFooter
 	margin-bottom:.0001pt;
 	mso-pagination:widow-orphan;
 	tab-stops:center 3.25in right 6.5in;
-	font-size:11.0pt;
+	font-size:10.0pt;
 	font-family:"Calibri",sans-serif;
 	mso-fareast-font-family:"Calibri";
 	mso-bidi-font-family:"Calibri";}
@@ -1803,7 +1803,7 @@ table.Table
 
 #set( $projectDocs = [])
 #####Get the docs in the project
-#set($projectDocIds = $contourItemDao.getContourItemIdsForProject($mathTool.toInteger($project.id))) 
+#set($projectDocIds = $contourItemDao.getContourItemIdsForProject($mathTool.toInteger($project.id)))
 
 ##Get the Contour Items by DocId and add to the ProjectDocs array
 #foreach ($projectDocId in $projectDocIds)
@@ -1864,14 +1864,14 @@ table.Table
             #if( $tRunIds.add( $tId)) #end
         #end
     #end
-    
+
     ##Convert the Ids to documents
     #set( $testRuns = [])
     #foreach( $tRId in $tRunIds)
         #set( $tr = $tRunDao.getTestRun( $tRId))
         #if( $testRuns.add( $tr)) #end
     #end
-    
+
     ##Make Sure the Test Runs are Active and sorted
     #foreach( $str in $sortTool.sort($testRuns, "sortOrder:asc"))
         #if( $str.active == true )
@@ -1889,7 +1889,7 @@ table.Table
 ## Create list of Test Cycles that is active
 ##
 #foreach( $testCycleId in $testCycleIds)
-        
+
     #if( $testCycleDao.getTestCycle($testCycleId).active == true )
         #if( $activeTestCycleIds.add( $testCycleId)) #end
     #end
@@ -1942,7 +1942,7 @@ table.Table
       minor-latin;mso-bidi-font-family:Arial'><br
       clear=all style='page-break-before:always'></span>
 
-  <p class=MsoTocHeading>Table of Contents</p>    
+  <p class=MsoTocHeading>Table of Contents</p>
   <!--[if supportFields]> <span style=3D'mso-element:field-begin'></span>
     <span style='mso-field-code:" TOC \\o 1-5 "'>Click here and F9 to generate the Table of Contents</span><![endif]-->
   <!--[if supportFields]><span style='mso-element:field-end'></span> <![endif]-->
@@ -1963,32 +1963,61 @@ table.Table
 <h1>Detailed Results</h1>
 
 #foreach ($testCycleId in $activeTestCycleIds)
-    <h2>$testCycleDao.getTestCycle( $testCycleId ).name ($testCycleDao.getTestCycle( $testCycleId ).documentKey)</h2>
+    <h2>$testCycleDao.getTestCycle( $testCycleId ).name [$testCycleDao.getTestCycle( $testCycleId ).documentKey]</h2>
 
 
     #foreach( $testRun in $activeTestRuns)
         #if( $testRun.getTestCycle().id == $testCycleId )
-          
-            <h3>$testRun.name ($testRun.documentKey)</h3>
-            <table class=MsoNormalTable cellpadding="0" cellspacing="0" border="1" width="100%" style='border-collapse:collapse;border:none;mso-border-alt:solid black .5pt; mso-yfti-tbllook:1184;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:.5pt solid black;mso-border-insidev:.5pt solid black'>
+
+
+            <table class=MsoNormalTable cellpadding="0" cellspacing="0" border="1" width="100%"
+							style='border-collapse:collapse;border:none; m s o - t a b l e - l a y o u t - a l t : f i x e d ;mso-border-alt:solid black .5pt; mso-yfti-tbllook:1184;
+								mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:.5pt solid black;mso-border-insidev:.5pt solid black'>
+                <tr bgcolor="D9D9D9">
+                  <td colspan="6"><h3>$testRun.name [$testRun.documentKey]</h3></td>
+                </tr>
                 <tr bgcolor="ffffff">
                     <td colspan="6"><p class=MsoNormal><b>Description:</b></p><p class=MsoNormal>$testRun.description</p></td>
                 </tr>
+								<tr bgcolor="ffffff">
+									<td colspan="2" width="30%"><p class=MsoNormal><b>Requirement(s) Covered:</b></p></td>
+									<td colspan="4" width="70%">
+										<p class=MsoNormal>
+											#set( $testCase = $tRunDao.getTestCaseForTestRun( $testRun.id))
+											#set ($upstream_item_ids = $relDao.getUpstreamDocumentIds($mathTool.toInteger($testCase.id)))
+											#set ($requirement_count = $upstream_item_ids.size())
+											#if($upstream_item_ids.size() != 0)
+												#foreach( $upstream_item_id in $upstream_item_ids)
+													#set ($upstream_item = $docDao.getDocument($upstream_item_id))
+													#if( !$covered_requirements.contains( $upstream_item))
+														#if( $covered_requirements.add( $upstream_item )) #end
+													#end
+													#if($requirement_count == 1)
+														$upstream_item.documentKey
+													#else
+														$upstream_item.documentKey,
+														#set($requirement_count = $requirement_count - 1)
+													#end
+												#end
+											#end
+										</p>
+									</td>
+								</tr>
                 <tr bgcolor="ffffff">
-                    <td width="15%"><p class=MsoNormal><b>Test Group:</b></p></td>
-                    <td colspan="5" width="85%"><p class=MsoNormal>$testRun.getTestRunSet().name</p></td>
+                    <td colspan="2" width="30%"><p class=MsoNormal><b>Test Group:</b></p></td>
+                    <td colspan="4" width="70%"><p class=MsoNormal>$testRun.getTestRunSet().name</p></td>
                 </tr>
                 <tr bgcolor="ffffff">
-                    <td width="15%"><p class=MsoNormal><b>Test Case:</b></p></td>
-                    <td colspan="5" width="85%"><p class=MsoNormal>$testRun.getTestCase().name ($testRun.getTestCase().documentKey)</p></td>
+                    <td colspan="2" width="30%"><p class=MsoNormal><b>Test Case:</b></p></td>
+                    <td colspan="4" width="70%"><p class=MsoNormal>$testRun.getTestCase().name [$testRun.getTestCase().documentKey]</p></td>
                 </tr>
                 <tr bgcolor="ffffff">
-                    <td width="15%"><p class=MsoNormal><b>Run Created on:</b></p></td>
-                    <td colspan="5" width="85%"><p class=MsoNormal>$dateTool.format('MMM d, yyyy, h:mm a z', $testRun.getCreatedDate())</p></td>
+                    <td colspan="2" width="30%"><p class=MsoNormal><b>Run Created on:</b></p></td>
+                    <td colspan="4" width="70%"><p class=MsoNormal>$dateTool.format('MMM d, yyyy, h:mm a z', $testRun.getCreatedDate())</p></td>
                 </tr>
                 <tr bgcolor="ffffff">
-                    <td width="15%"><p class=MsoNormal><b>Created By:</b></p></td>
-                    <td colspan="5" width="85%"><p class=MsoNormal>$userDao.getUser($testRun.createdBy).firstName $userDao.getUser($testRun.createdBy).lastName</p></td>
+                    <td colspan="2" width="30%"><p class=MsoNormal><b>Created By:</b></p></td>
+                    <td colspan="4" width="70%"><p class=MsoNormal>$userDao.getUser($testRun.createdBy).firstName $userDao.getUser($testRun.createdBy).lastName</p></td>
                 </tr>
                 <tr bgcolor="ffffff">
                     <td colspan="6"><p class=MsoNormal><b>Steps</b></p></td>
@@ -2012,30 +2041,30 @@ table.Table
                     </tr>
                 #end
                 <tr bgcolor="ffffff">
-                    <td width="15%"><p class=MsoNormal><b>Actual Results:</b></p></td>
-                    <td colspan="5" width="85%"><p class=MsoNormal>#if($testRun.getActualResults()) $testRun.getActualResults() #end</p></td>
+                    <td colspan="2" width="30%"><p class=MsoNormal><b>Actual Results:</b></p></td>
+                    <td colspan="4" width="70%"><p class=MsoNormal>#if($testRun.getActualResults()) $testRun.getActualResults() #end</p></td>
                 </tr>
                 <tr bgcolor="ffffff">
-                    <td width="15%"><p class=MsoNormal><b>Executed on:</b></p></td>
-                    <td colspan="5" width="85%"><p class=MsoNormal>#if($testRun.getExecutionDate()) $dateTool.format('MMM d, yyyy, h:mm a z', $testRun.getExecutionDate()) #end</p></td>
+                    <td colspan="2" width="30%"><p class=MsoNormal><b>Executed on:</b></p></td>
+                    <td colspan="4" width="70%"><p class=MsoNormal>#if($testRun.getExecutionDate()) $dateTool.format('MMM d, yyyy, h:mm a z', $testRun.getExecutionDate()) #end</p></td>
                 </tr>
                 <tr bgcolor="ffffff">
-                    <td width="15%"><p class=MsoNormal><b>Test Executed By:</b></p></td>
-                    <td colspan="5" width="85%"><p class=MsoNormal>#if($testRun.assignedTo) $testRun.getAssignedTo().getFirstName() $testRun.getAssignedTo().getLastName() #end</p></td>
+                    <td colspan="2" width="30%"><p class=MsoNormal><b>Test Executed By:</b></p></td>
+                    <td colspan="4" width="70%"><p class=MsoNormal>#if($testRun.assignedTo) $testRun.getAssignedTo().getFirstName() $testRun.getAssignedTo().getLastName() #end</p></td>
                 </tr>
                 <tr bgcolor="ffffff">
-                    <td width="15%"><p class=MsoNormal><b>Test Status:</b></p></td>
-                    <td colspan="5" width="85%"><p class=MsoNormal>#if($testRun.getTestRunStatus()) $testRun.getTestRunStatus() #end</p></td>
+                    <td colspan="2" width="30%"><p class=MsoNormal><b>Test Status:</b></p></td>
+                    <td colspan="4" width="70%"><p class=MsoNormal>#if($testRun.getTestRunStatus()) $testRun.getTestRunStatus() #end</p></td>
                 </tr>
                 <tr bgcolor="ffffff">
-                    <td width="15%"><p class=MsoNormal><b>Pass with Errors:</b></p></td>
-                    <td colspan="5" width="85%"><p class=MsoNormal>#if($testRun.getForcePassed()) $testRun.getForcePassed() #end</p></td>
+                    <td colspan="2" width="30%"><p class=MsoNormal><b>Pass with Errors:</b></p></td>
+                    <td colspan="4" width="70%"><p class=MsoNormal>#if($testRun.getForcePassed()) $testRun.getForcePassed() #end</p></td>
                 </tr>
             </table>
-            <p class=MsoNormal></p>
+            <p class=MsoNormal>&nbsp;</p>
         #end
     #end
-    
+
 #end
 
 ########### End Display Test Results #########################
@@ -2097,18 +2126,16 @@ normal'><span style='mso-special-character:footnote-continuation-separator'><![i
 <div align=center>
 
 <table class=MsoTableGrid border=0 cellspacing=0 cellpadding=0 width="100%"
- style='width:100.0%;background:#44546A;mso-background-themecolor:text2;
- border-collapse:collapse;border:none;mso-yfti-tbllook:1184;mso-padding-alt:
- 0in 5.75pt 0in 5.75pt;mso-border-insideh:none;mso-border-insidev:none'>
+ style='width:100.0%;border-collapse:collapse;border:none;mso-yfti-tbllook:
+ 1184;mso-padding-alt:0in 5.75pt 0in 5.75pt;mso-border-insideh:none;mso-border-insidev:
+ none'>
  <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes;
   height:22.3pt'>
   <td width=288 style='width:4.0in;padding:0in 5.75pt 0in 5.75pt;height:22.3pt'>
-  <p class=MsoNormal><span style='mso-bidi-font-family:Calibri;color:white;mso-themecolor:background1'>$project.name</span></p>
+  <p class=MsoNormal>$project.name</p>
   </td>
   <td width=288 style='width:4.0in;padding:0in 5.75pt 0in 5.75pt;height:22.3pt'>
-  <p class=MsoNormal align=right style='text-align:right'><span
-  style='mso-bidi-font-family:Calibri;color:white;mso-themecolor:background1'>
-  Test Report: $testPlan.name</span></p>
+  <p class=MsoNormal align=right style='text-align:right'>Test Plan: $testPlan.name</p>
   </td>
  </tr>
 </table>
@@ -2121,29 +2148,34 @@ normal'><span style='mso-special-character:footnote-continuation-separator'><![i
 
 <div style='mso-element:footer' id=f1>
 
-<div style='mso-element:para-border-div;border:none;border-top:solid windowtext 1.0pt;
-mso-border-top-alt:solid windowtext .5pt;padding:1.0pt 0in 0in 0in;margin-left:
-0in;margin-right:.25in'>
+<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0 width=522
+ style='width:7.25in;margin-left:-27.1pt;border-collapse:collapse;mso-yfti-tbllook:
+ 1184;mso-padding-alt:0in 5.4pt 0in 5.4pt'>
+ <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes'>
+  <td width=311 valign=top style='width:310.5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoFooter>Test Plan: $testPlan.name</p>
+  </td>
+  <td width=212 valign=top style='width:211.5pt;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal align=right style='text-align:right'><span
+  style='font-family:"Calibri",sans-serif'>Page </span><!--[if supportFields]><span
+  style='font-family:"Calibri",sans-serif'><span style='mso-element:field-begin'></span><span
+  style='mso-spacerun:yes'> </span>PAGE <span style='mso-element:field-separator'></span></span><![endif]--><span
+  style='font-family:"Calibri",sans-serif'><span style='mso-no-proof:yes'>3</span></span><!--[if supportFields]><span
+  style='font-family:"Calibri",sans-serif;mso-no-proof:yes'><span
+  style='mso-element:field-end'></span></span><![endif]--><span
+  style='font-family:"Calibri",sans-serif'> of </span><!--[if supportFields]><span
+  style='font-family:"Calibri",sans-serif'><span style='mso-element:field-begin'></span><span
+  style='mso-spacerun:yes'> </span>NUMPAGES<span style='mso-spacerun:yes'> 
+  </span><span style='mso-element:field-separator'></span></span><![endif]--><span
+  style='font-family:"Calibri",sans-serif'><span style='mso-no-proof:yes'>3</span></span><!--[if supportFields]><span
+  style='font-family:"Calibri",sans-serif;mso-no-proof:yes'><span
+  style='mso-element:field-end'></span></span><![endif]--><span
+  style='font-family:"Calibri",sans-serif'><o:p></o:p></span></p>
+  </td>
+ </tr>
+</table>
 
-<p class=MsoNormal style='tab-stops:center 3.25in right 6.5in;border:none;
-mso-border-top-alt:solid windowtext .5pt;padding:0in;mso-padding-alt:1.0pt 0in 0in 0in'>$organization<span
-style='font-size:10.0pt'><span style='mso-tab-count:1'>                                  </span>CONFIDENTIAL<span
-style='mso-tab-count:1'>                                               </span>Page
-</span><!--[if supportFields]><span style='font-size:10.0pt'><span
-style='mso-element:field-begin'></span><span
-style='mso-spacerun:yes'> </span>PAGE<span style='mso-spacerun:yes'>  </span>\*
-MERGEFORMAT <span style='mso-element:field-separator'></span></span><![endif]--><span
-style='font-size:10.0pt'><span style='mso-no-proof:yes'>3</span></span><!--[if supportFields]><span
-style='font-size:10.0pt'><span style='mso-element:field-end'></span></span><![endif]--><span
-style='font-size:10.0pt'> of </span><!--[if supportFields]><span
-style='font-size:10.0pt'><span style='mso-element:field-begin'></span><span
-style='mso-spacerun:yes'> </span>NUMPAGES<span style='mso-spacerun:yes'> 
-</span>\* MERGEFORMAT <span style='mso-element:field-separator'></span></span><![endif]--><span
-style='font-size:10.0pt'><span style='mso-no-proof:yes'>3</span></span><!--[if supportFields]><span
-style='font-size:10.0pt'><span style='mso-element:field-end'></span></span><![endif]--><span
-style='font-size:10.0pt'><o:p></o:p></span></p>
-
-</div>
+<p class=MsoFooter align=center style='text-align:center'>Confidential. Copyright 2017 © $organization</p>
 
 </div>
 
