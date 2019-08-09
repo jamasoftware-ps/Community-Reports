@@ -16,7 +16,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
 ## Date         Revision   Person            Comments 
 ## -----------  ---------  ----------------  ---------------------------------- 
 ## 8-SEPT-2017   A          Shawnna Williams  Created. 
-## 
+## 8-AUG-2019    B          Shawnna Williams  Changed for velocity 3.0 upgrade
 ##                                          
 ##                                         
 ## 
@@ -41,6 +41,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
 
 
 <link rel=dataStoreItem
+href="Jama%20Review%20Center%20Report_files/item0001.xml"
 href="Jama%20Review%20Center%20Report_files/item0001.xml"
 target="Jama%20Review%20Center%20Report_files/props002.xml">
 <link rel=themeData href="Jama%20Review%20Center%20Report_files/themedata.thmx">
@@ -1052,7 +1053,9 @@ style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
  </tr>
  
  ##################################Begin Review Items###############################################
- #set ( $revisionItems = $revisionItemDao.revision_ItemsInRevision( $r))
+ #if( $r)
+	#set ( $revisionItems = $revisionItemDao.revision_ItemsInRevision( $r))
+ #end
  
  ##Count: $revisionItems.size()<br>
  ####################Need to sort by global sort order######################################

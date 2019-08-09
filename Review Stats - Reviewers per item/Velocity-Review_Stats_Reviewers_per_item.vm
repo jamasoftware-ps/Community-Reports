@@ -1040,7 +1040,9 @@ style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
  </tr>
  
  ##################################Begin Review Items###############################################
- #set ( $revisionItems = $revisionItemDao.revision_ItemsInRevision( $r))
+ #if( $r)
+	#set ( $revisionItems = $revisionItemDao.revision_ItemsInRevision( $r))
+ #end
  
  ##Count: $revisionItems.size()<br>
  ####################Need to sort by global sort order######################################

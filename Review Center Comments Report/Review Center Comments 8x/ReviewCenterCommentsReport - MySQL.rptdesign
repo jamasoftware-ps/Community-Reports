@@ -9,10 +9,11 @@
         <scalar-parameter name="report_reviewId" id="8">
             <text-property name="promptText">ReviewId</text-property>
             <property name="valueType">static</property>
+            <property name="isRequired">true</property>
             <property name="dataType">string</property>
             <property name="distinct">true</property>
             <simple-property-list name="defaultValue">
-                <value type="constant">46</value>
+                <value type="constant">49</value>
             </simple-property-list>
             <list-property name="selectionList"/>
             <property name="paramType">simple</property>
@@ -41,7 +42,7 @@
                 </ex-property>
             </list-property>
             <property name="odaDriverClass">com.mysql.jdbc.Driver</property>
-            <property name="odaURL">jdbc:mysql://localhost/contour1?useUnicode=true&amp;characterEncoding=UTF8</property>
+            <property name="odaURL">jdbc:mysql://localhost/jama?useUnicode=true&amp;characterEncoding=UTF8</property>
             <property name="odaUser">user</property>
             <encrypted-property name="odaPassword" encryptionID="base64">cGFzc3dvcmQ=</encrypted-property>
         </oda-data-source>
@@ -693,6 +694,48 @@ order by rv.createddate, rv.endDate]]></xml-property>
                     <text-property name="displayName">globalSortOrder</text-property>
                     <text-property name="heading">globalSortOrder</text-property>
                 </structure>
+                <structure>
+                    <property name="columnName">numHeaders</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">numHeaders</text-property>
+                    <text-property name="heading">numHeaders</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">header1</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">header1</text-property>
+                    <text-property name="heading">header1</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">header2</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">header2</text-property>
+                    <text-property name="heading">header2</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">header3</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">header3</text-property>
+                    <text-property name="heading">header3</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">header4</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">header4</text-property>
+                    <text-property name="heading">header4</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">header5</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">header5</text-property>
+                    <text-property name="heading">header5</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">header6</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">header6</text-property>
+                    <text-property name="heading">header6</text-property>
+                </structure>
             </list-property>
             <list-property name="parameters">
                 <structure>
@@ -782,6 +825,41 @@ order by rv.createddate, rv.endDate]]></xml-property>
                         <property name="position">15</property>
                         <property name="name">globalSortOrder</property>
                         <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">16</property>
+                        <property name="name">numHeaders</property>
+                        <property name="dataType">decimal</property>
+                    </structure>
+                    <structure>
+                        <property name="position">17</property>
+                        <property name="name">header1</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">18</property>
+                        <property name="name">header2</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">19</property>
+                        <property name="name">header3</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">20</property>
+                        <property name="name">header4</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">21</property>
+                        <property name="name">header5</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">22</property>
+                        <property name="name">header6</property>
+                        <property name="dataType">float</property>
                     </structure>
                 </list-property>
             </structure>
@@ -892,6 +970,55 @@ order by rv.createddate, rv.endDate]]></xml-property>
                     <property name="dataType">integer</property>
                     <property name="nativeDataType">4</property>
                 </structure>
+                <structure>
+                    <property name="position">16</property>
+                    <property name="name">numHeaders</property>
+                    <property name="nativeName">numHeaders</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">-5</property>
+                </structure>
+                <structure>
+                    <property name="position">17</property>
+                    <property name="name">header1</property>
+                    <property name="nativeName">header1</property>
+                    <property name="dataType">float</property>
+                    <property name="nativeDataType">8</property>
+                </structure>
+                <structure>
+                    <property name="position">18</property>
+                    <property name="name">header2</property>
+                    <property name="nativeName">header2</property>
+                    <property name="dataType">float</property>
+                    <property name="nativeDataType">8</property>
+                </structure>
+                <structure>
+                    <property name="position">19</property>
+                    <property name="name">header3</property>
+                    <property name="nativeName">header3</property>
+                    <property name="dataType">float</property>
+                    <property name="nativeDataType">8</property>
+                </structure>
+                <structure>
+                    <property name="position">20</property>
+                    <property name="name">header4</property>
+                    <property name="nativeName">header4</property>
+                    <property name="dataType">float</property>
+                    <property name="nativeDataType">8</property>
+                </structure>
+                <structure>
+                    <property name="position">21</property>
+                    <property name="name">header5</property>
+                    <property name="nativeName">header5</property>
+                    <property name="dataType">float</property>
+                    <property name="nativeDataType">8</property>
+                </structure>
+                <structure>
+                    <property name="position">22</property>
+                    <property name="name">header6</property>
+                    <property name="nativeName">header6</property>
+                    <property name="dataType">float</property>
+                    <property name="nativeDataType">8</property>
+                </structure>
             </list-property>
             <xml-property name="queryText"><![CDATA[select dn.sequence, d.id, d.documentKey, d.name, d.description, 
 	IFNULL(j.parentId, j.id) as ParentId, j.id, IFNULL(j.threadid, j.id) as ThreadId,
@@ -899,7 +1026,14 @@ order by rv.createddate, rv.endDate]]></xml-property>
 	 as Parent, j.commentText, 
 	ub.firstName, ub.lastName,
 	j.createdDate,
-  ct.name commentType, dn.globalSortOrder
+  ct.name commentType, dn.globalSortOrder,
+   @headers := 1 + LENGTH(dn.sequence) - LENGTH(REPLACE(dn.sequence, '.', '')) AS numHeaders,
+    (SUBSTRING_INDEX(dn.sequence, '.', 1)*1) AS header1,
+    (IF(@headers > 1, SUBSTRING_INDEX(SUBSTRING_INDEX(dn.sequence, '.', 2), '.', -1), '')*1) AS header2,
+    (IF(@headers > 2, SUBSTRING_INDEX(SUBSTRING_INDEX(dn.sequence, '.', 3), '.', -1), '')*1) AS header3,
+    (IF(@headers > 3, SUBSTRING_INDEX(SUBSTRING_INDEX(dn.sequence, '.', 4), '.', -1), '')*1) AS header4,
+    (IF(@headers > 4, SUBSTRING_INDEX(SUBSTRING_INDEX(dn.sequence, '.', 5), '.', -1), '')*1) AS header5,
+    (IF(@headers > 5, SUBSTRING_INDEX(SUBSTRING_INDEX(dn.sequence, '.', 6), '.', -1), '')*1) AS header6
 from review rv join revision r on rv.id = r.reviewId
        join revision_item ri on ri.revisionId = r.id
        join version v on v.id = ri.versionId
@@ -911,7 +1045,8 @@ from review rv join revision r on rv.id = r.reviewId
        left join userbase ub on j.userId = ub.id
        left join commenttype ct on j.commenttype = ct.id
 where rv.id = ? and r.id =  (select MAX(id) from revision where revision.reviewId = rv.id)
-order by dn.globalSortOrder, dn.sequence, d.documentKey, IFNULL(j.threadId, j.id), j.createdDate]]></xml-property>
+order by header1, header2, header3, header4, header5, header6, dn.sequence, d.documentKey, IFNULL(j.threadId, j.id), j.createdDate
+/*order by dn.globalSortOrder, dn.sequence, d.documentKey, IFNULL(j.threadId, j.id), j.createdDate*/]]></xml-property>
         </oda-data-set>
     </data-sets>
     <styles>
@@ -1978,12 +2113,23 @@ else &#13;
                                 <expression name="expression" type="javascript">dataSetRow["firstName"]</expression>
                                 <property name="dataType">string</property>
                             </structure>
-                        </list-property>
-                        <list-property name="sort">
                             <structure>
-                                <expression name="key" type="javascript">row["globalSortOrder"]</expression>
-                                <property name="direction">asc</property>
-                                <property name="strength">-1</property>
+                                <property name="name">Header1</property>
+                                <expression name="expression" type="javascript">dataSetRow["header1"]</expression>
+                                <property name="dataType">integer</property>
+                                <property name="allowExport">true</property>
+                            </structure>
+                            <structure>
+                                <property name="name">Header2</property>
+                                <expression name="expression" type="javascript">dataSetRow["header2"]</expression>
+                                <property name="dataType">integer</property>
+                                <property name="allowExport">true</property>
+                            </structure>
+                            <structure>
+                                <property name="name">Header3</property>
+                                <expression name="expression" type="javascript">dataSetRow["header3"]</expression>
+                                <property name="dataType">integer</property>
+                                <property name="allowExport">true</property>
                             </structure>
                         </list-property>
                         <column id="428">
@@ -2003,6 +2149,7 @@ else &#13;
                         </column>
                         <header>
                             <row id="410">
+                                <property name="pageBreakInside">auto</property>
                                 <list-property name="visibility">
                                     <structure>
                                         <property name="format">all</property>
@@ -2086,14 +2233,29 @@ else &#13;
                         </header>
                         <group id="469">
                             <property name="groupName">NewTableGroup1</property>
-                            <expression name="keyExpr" type="javascript">row["documentKey"]</expression>
+                            <expression name="keyExpr" type="javascript">row["id"]</expression>
                             <structure name="toc">
-                                <expression name="expressionValue" type="javascript">row["documentKey"]</expression>
+                                <expression name="expressionValue" type="javascript">row["id"]</expression>
                             </structure>
                             <property name="hideDetail">false</property>
                             <list-property name="sort">
                                 <structure>
-                                    <expression name="key" type="javascript">row["globalSortOrder"]</expression>
+                                    <expression name="key" type="javascript">row["Header1"]</expression>
+                                    <property name="direction">asc</property>
+                                    <property name="strength">-1</property>
+                                </structure>
+                                <structure>
+                                    <expression name="key" type="javascript">row["Header2"]</expression>
+                                    <property name="direction">asc</property>
+                                    <property name="strength">-1</property>
+                                </structure>
+                                <structure>
+                                    <expression name="key" type="javascript">row["Header3"]</expression>
+                                    <property name="direction">asc</property>
+                                    <property name="strength">-1</property>
+                                </structure>
+                                <structure>
+                                    <expression name="key" type="javascript">row["sequence"]</expression>
                                     <property name="direction">asc</property>
                                     <property name="strength">-1</property>
                                 </structure>
@@ -2101,6 +2263,7 @@ else &#13;
                             <header>
                                 <row id="470">
                                     <property name="backgroundColor">#C0C0C0</property>
+                                    <property name="pageBreakInside">auto</property>
                                     <cell id="471">
                                         <property name="borderBottomColor">#000000</property>
                                         <property name="borderBottomStyle">solid</property>
@@ -2171,6 +2334,7 @@ else &#13;
                                     </cell>
                                 </row>
                                 <row id="497">
+                                    <property name="pageBreakInside">auto</property>
                                     <cell id="498">
                                         <property name="colSpan">5</property>
                                         <property name="rowSpan">1</property>
@@ -2187,6 +2351,7 @@ else &#13;
                                         <property name="borderTopStyle">solid</property>
                                         <property name="borderTopWidth">thin</property>
                                         <text-data id="503">
+                                            <property name="whiteSpace">normal</property>
                                             <property name="pageBreakInside">avoid</property>
                                             <expression name="valueExpr">row["description"]</expression>
                                             <property name="contentType">html</property>
@@ -2204,6 +2369,7 @@ else &#13;
                             <property name="hideDetail">false</property>
                             <header>
                                 <row id="484">
+                                    <property name="pageBreakInside">auto</property>
                                     <list-property name="visibility">
                                         <structure>
                                             <property name="format">all</property>
@@ -2288,6 +2454,7 @@ else &#13;
                         </group>
                         <detail>
                             <row id="416">
+                                <property name="pageBreakInside">auto</property>
                                 <cell id="417">
                                     <property name="borderBottomColor">#000000</property>
                                     <property name="borderBottomStyle">solid</property>
