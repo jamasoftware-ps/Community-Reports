@@ -13,7 +13,7 @@
             <property name="dataType">string</property>
             <property name="distinct">true</property>
             <simple-property-list name="defaultValue">
-                <value type="constant">49</value>
+                <value type="constant">40</value>
             </simple-property-list>
             <list-property name="selectionList"/>
             <property name="paramType">simple</property>
@@ -599,7 +599,7 @@ From review rw join revision rv on rw.id = rv.reviewId
   join organization o ON o.id = p.organizationId
   join revisionstatus rvs on rvs.id = rv.status
 Where  rw.id = ? and rv.createdDate = (select MAX(rv2.createdDate) from revision rv2 where rv2.reviewId = rw.id)
-group by rw.id, o.name, p.name, rw.name, rv.status, rvs.name, rv.createdDate, rv.endDate
+group by rw.id, o.name, p.name, rw.name, rv.sequence, rv.status, rvs.name, rv.createdDate, rv.endDate
 order by rv.createddate, rv.endDate]]></xml-property>
         </oda-data-set>
         <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="Item Comments with Thread" id="408">
@@ -736,6 +736,12 @@ order by rv.createddate, rv.endDate]]></xml-property>
                     <text-property name="displayName">header6</text-property>
                     <text-property name="heading">header6</text-property>
                 </structure>
+                <structure>
+                    <property name="columnName">header7</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="displayName">header7</text-property>
+                    <text-property name="heading">header7</text-property>
+                </structure>
             </list-property>
             <list-property name="parameters">
                 <structure>
@@ -859,6 +865,11 @@ order by rv.createddate, rv.endDate]]></xml-property>
                     <structure>
                         <property name="position">22</property>
                         <property name="name">header6</property>
+                        <property name="dataType">float</property>
+                    </structure>
+                    <structure>
+                        <property name="position">23</property>
+                        <property name="name">header7</property>
                         <property name="dataType">float</property>
                     </structure>
                 </list-property>
@@ -1019,6 +1030,13 @@ order by rv.createddate, rv.endDate]]></xml-property>
                     <property name="dataType">float</property>
                     <property name="nativeDataType">8</property>
                 </structure>
+                <structure>
+                    <property name="position">23</property>
+                    <property name="name">header7</property>
+                    <property name="nativeName">header7</property>
+                    <property name="dataType">float</property>
+                    <property name="nativeDataType">8</property>
+                </structure>
             </list-property>
             <xml-property name="queryText"><![CDATA[select dn.sequence, d.id, d.documentKey, d.name, d.description, 
 	IFNULL(j.parentId, j.id) as ParentId, j.id, IFNULL(j.threadid, j.id) as ThreadId,
@@ -1033,7 +1051,8 @@ order by rv.createddate, rv.endDate]]></xml-property>
     (IF(@headers > 2, SUBSTRING_INDEX(SUBSTRING_INDEX(dn.sequence, '.', 3), '.', -1), '')*1) AS header3,
     (IF(@headers > 3, SUBSTRING_INDEX(SUBSTRING_INDEX(dn.sequence, '.', 4), '.', -1), '')*1) AS header4,
     (IF(@headers > 4, SUBSTRING_INDEX(SUBSTRING_INDEX(dn.sequence, '.', 5), '.', -1), '')*1) AS header5,
-    (IF(@headers > 5, SUBSTRING_INDEX(SUBSTRING_INDEX(dn.sequence, '.', 6), '.', -1), '')*1) AS header6
+    (IF(@headers > 5, SUBSTRING_INDEX(SUBSTRING_INDEX(dn.sequence, '.', 6), '.', -1), '')*1) AS header6,
+    (IF(@headers > 6, SUBSTRING_INDEX(SUBSTRING_INDEX(dn.sequence, '.', 7), '.', -1), '')*1) AS header7
 from review rv join revision r on rv.id = r.reviewId
        join revision_item ri on ri.revisionId = r.id
        join version v on v.id = ri.versionId
@@ -1045,7 +1064,7 @@ from review rv join revision r on rv.id = r.reviewId
        left join userbase ub on j.userId = ub.id
        left join commenttype ct on j.commenttype = ct.id
 where rv.id = ? and r.id =  (select MAX(id) from revision where revision.reviewId = rv.id)
-order by header1, header2, header3, header4, header5, header6, dn.sequence, d.documentKey, IFNULL(j.threadId, j.id), j.createdDate
+order by header1, header2, header3, header4, header5, header6, header7, dn.sequence, d.documentKey, IFNULL(j.threadId, j.id), j.createdDate
 /*order by dn.globalSortOrder, dn.sequence, d.documentKey, IFNULL(j.threadId, j.id), j.createdDate*/]]></xml-property>
         </oda-data-set>
     </data-sets>
