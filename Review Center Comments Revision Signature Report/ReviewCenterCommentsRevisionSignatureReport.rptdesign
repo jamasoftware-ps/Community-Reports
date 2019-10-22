@@ -2337,7 +2337,7 @@ where r.reviewid = ? and r.sequence = ? and ru.isApprover = 'T' ]]></xml-propert
                         <property name="fontSize">14pt</property>
                         <property name="fontWeight">bold</property>
                         <property name="textAlign">center</property>
-                        <text-property name="text">Review Center Comments Report by Revision</text-property>
+                        <text-property name="text">Review Center Comments Report by Revision with Signature</text-property>
                     </label>
                 </cell>
             </row>
