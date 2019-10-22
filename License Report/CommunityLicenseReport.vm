@@ -1,0 +1,47 @@
+#set($org=$project.getOrganization().getId())<html>
+<head1>Daily Usage of Jama Licenses usage last 30 days</head1>
+<br><br>
+Started print $dateTool 
+<br><br>
+<table border=1 cellspacing=0 cellpadding=0>
+<tr>
+<td>Date</td>
+<td>Used</td>
+<td>Failed Logins</td>
+<td>Max Available</td>
+<td>Used Named</td>
+<td>Assigned Named</td>
+</tr>
+#set($licSvc = $applicationContext.getBean("dwrLicenseService"))
+#set($LicLastDays =$licSvc.getLicenseDataForLastNDays("last30Days",$org,"FLOAT"))
+#set($NamedLastDays =$licSvc.getLicenseDataForLastNDays("last30Days",$org,"NAMED"))
+#set($cnt=0)
+#foreach($LicDay in $LicLastDays)
+	#set($NamedDay = $listTool.get($NamedLastDays,$cnt))
+	<tr>
+	<td>
+	$dateTool.format('yyyy-M-d',$LicDay.getIntervalStart())
+	</td>
+	<td>
+	$LicDay.getNonReservedActiveLicenseCount()
+	</td>
+	<td>
+	$LicDay.getNumberRejected()
+	</td>
+	<td>
+	$LicDay.getMaxLicenseCount()
+	</td>
+	<td>
+	$NamedDay.getNonReservedActiveLicenseCount()
+	</td>
+	<td>
+	$NamedDay.getReservedLicenseCount()
+	</td>
+	</tr>
+	#set($cnt=$cnt+1)
+#end
+</table>
+<br><br>
+Finished print $dateTool 
+<br><br>
+</html>

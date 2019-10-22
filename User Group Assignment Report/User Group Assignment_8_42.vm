@@ -1,0 +1,54 @@
+<html>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 14">
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{mso-header-data:"&LUser Group Assignment Report";
+	mso-footer-data:"&L$dateTool.format('MMM dd, yyyy',$dateTool.getDate())";
+	margin:1.0in .5in .5in .5in;
+	mso-header-margin:0in;
+	mso-footer-margin:0in;
+	mso-page-orientation:landscape;}
+-->
+</style>
+
+<body>
+#*
+#set($docDao = $applicationContext.getBean("documentDao"))
+#set($roleDao = $applicationContext.getBean("roleDao"))
+*#
+#set($docDao = $applicationContext.getBean("DocumentSource"))
+#set($roleDao = $applicationContext.getBean("UserSource"))
+
+<table>
+	<tr bgcolor=silver>
+		<td>User Group</td>
+		<td>User Name</td>
+		<td>Email Address</td>
+		<td>License</td>
+	</tr>
+	#set( $roles = [])
+	#set( $roles = $roleDao.getRoleList())
+	
+	##Roles: $roles
+	#foreach( $r in $roles)
+		#set( $users = [])
+		#set( $users = $r.getUsers())
+		#foreach( $u in $users)
+			<tr>
+				<td style='border:.5pt solid black'>$r.name</td>
+				<td style='border:.5pt solid black'>$!u.fullName</td>
+				<td style='border:.5pt solid black'>$!u.email</td
+				<td style='border:.5pt solid black'>$!u.LicenseType</td>
+			</tr>
+		#end
+	#end
+</table>
+
+</body>
+</html>
+

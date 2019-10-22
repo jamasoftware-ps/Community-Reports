@@ -1059,7 +1059,9 @@ from review rv join revision r on rv.id = r.reviewId
        join document d on d.id = v.originDocumentId
        left join jamacomment j on j.documentId = v.originDocumentId and j.refId in 
           (select ri2.id from revision_item ri2 join revision r2 on ri2.revisionId = r2.id
-            where r2.reviewID = rv.id) and j.status<>2
+            where r2.reviewID = rv.id) 
+             -- and j.status <>2 //
+         and j.active = 'T'
        left join documentnode dn on dn.refId =  v.DocumentId and dn.baselineId = r.baselineId
        left join userbase ub on j.userId = ub.id
        left join commenttype ct on j.commenttype = ct.id
@@ -1899,7 +1901,6 @@ order by header1, header2, header3, header4, header5, header6, header7, dn.seque
                 <property name="borderTopColor">#000000</property>
                 <property name="borderTopStyle">solid</property>
                 <property name="borderTopWidth">thin</property>
-                <property name="height">0.5666666666666667in</property>
                 <cell id="38">
                     <property name="backgroundColor">#FFFFFF</property>
                     <property name="borderBottomColor">#000000</property>

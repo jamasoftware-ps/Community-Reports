@@ -1,0 +1,1294 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+      xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns:m="http://schemas.microsoft.com/office/2004/12/omml"
+      xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+    <BASE href="${baseUrl}">
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <meta name=ProgId content=Word.Document>
+    <meta name=Generator content="Microsoft Word 12">
+    <meta name=Originator content="Microsoft Word 12">
+
+    <title>Baseline to Baseline Compare</title>
+####3/24/2015 - Shawnna Williams - Fixed blank fields that were causing the variables to appear and breaking Word. 
+####10/20/2016 - Shawnna Williams - Added versioned relationships
+####10/2/2019 - Shawnna Williams - changed data sources over for 8.42
+    <!--[if gte mso 9]>
+    <?xml  version="1.0" encoding="UTF-8"?>
+    <xml>
+        <w:WordDocument>
+            <w:View>Print</w:View>
+            <w:Zoom>100</w:Zoom>
+            <w:DoNotOptimizeForBrowser/></w:WordDocument>
+    </xml>
+    <![endif]-->
+
+    <style>
+        <!--
+        /* Font Definitions */
+        @font-face
+        {font-family:"Cambria Math";
+            panose-1:2 4 5 3 5 4 6 3 2 4;
+            mso-font-charset:0;
+            mso-generic-font-family:roman;
+            mso-font-pitch:variable;
+            mso-font-signature:-536870145 1107305727 0 0 415 0;}
+        @font-face
+        {font-family:Cambria;
+            panose-1:2 4 5 3 5 4 6 3 2 4;
+            mso-font-charset:0;
+            mso-generic-font-family:roman;
+            mso-font-pitch:variable;
+            mso-font-signature:-536870145 1073743103 0 0 415 0;}
+        @font-face
+        {font-family:Calibri;
+            panose-1:2 15 5 2 2 2 4 3 2 4;
+            mso-font-charset:0;
+            mso-generic-font-family:swiss;
+            mso-font-pitch:variable;
+            mso-font-signature:-520092929 1073786111 9 0 415 0;}
+        /* Style Definitions */
+        p.MsoNormal, li.MsoNormal, div.MsoNormal
+        {mso-style-unhide:no;
+            mso-style-qformat:yes;
+            mso-style-parent:"";
+            margin-top:0in;
+            margin-right:0in;
+            margin-bottom:6.0pt;
+            margin-left:.5in;
+            line-height:115%;
+            mso-pagination:widow-orphan;
+            font-size:10.0pt;
+            mso-bidi-font-size:10.0pt;
+            font-family:"Arial","sans-serif";
+            mso-fareast-font-family:"Times New Roman";
+            mso-bidi-font-family:"Times New Roman";
+            mso-bidi-language:EN-US;}
+        h1
+        {mso-style-priority:9;
+            mso-style-unhide:no;
+            mso-style-qformat:yes;
+            mso-style-link:"Heading 1 Char";
+            mso-style-next:Normal;
+            margin-top:12.0pt;
+            margin-right:0in;
+            margin-bottom:6.0pt;
+            margin-left:.3in;
+            text-indent:-.3in;
+            line-height:115%;
+            mso-pagination:widow-orphan;
+            mso-outline-level:1;
+            mso-list:l3 level1 lfo49;
+            font-size:12.0pt;
+            mso-bidi-font-size:10.0pt;
+            font-family:"Arial","sans-serif";
+            mso-bidi-font-family:"Times New Roman";
+            mso-font-kerning:0pt;
+            mso-bidi-language:EN-US;
+            font-weight:bold;
+            mso-bidi-font-weight:normal;}
+        h2
+        {mso-style-priority:9;
+            mso-style-unhide:no;
+            mso-style-qformat:yes;
+            mso-style-link:"Heading 2 Char";
+            mso-style-next:Normal;
+            margin-top:10.0pt;
+            margin-right:0in;
+            margin-bottom:6.0pt;
+            margin-left:.4in;
+            text-indent:-.4in;
+            line-height:115%;
+            mso-pagination:widow-orphan lines-together;
+            page-break-after:avoid;
+            mso-outline-level:2;
+            mso-list:l3 level2 lfo49;
+            font-size:12.0pt;
+            font-family:"Arial","sans-serif";
+            color:#0D0D0D;
+            mso-bidi-language:EN-US;
+            font-weight:normal;
+            mso-bidi-font-weight:bold;}
+        h3
+        {mso-style-priority:9;
+            mso-style-unhide:no;
+            mso-style-qformat:yes;
+            mso-style-link:"Heading 3 Char";
+            mso-style-next:Normal;
+            margin-top:10.0pt;
+            margin-right:0in;
+            margin-bottom:6.0pt;
+            margin-left:.5in;
+            text-indent:-.5in;
+            line-height:115%;
+            mso-pagination:widow-orphan lines-together;
+            page-break-after:avoid;
+            mso-outline-level:3;
+            mso-list:l3 level3 lfo49;
+            font-size:12.0pt;
+            font-family:"Arial","sans-serif";
+            color:#262626;
+            mso-bidi-language:EN-US;
+            font-weight:normal;
+            mso-bidi-font-weight:bold;}
+        h4
+        {mso-style-priority:9;
+            mso-style-unhide:no;
+            mso-style-qformat:yes;
+            mso-style-link:"Heading 4 Char";
+            mso-style-next:Normal;
+            margin-top:10.0pt;
+            margin-right:0in;
+            margin-bottom:0in;
+            margin-left:.6in;
+            margin-bottom:.0001pt;
+            text-indent:-.6in;
+            line-height:115%;
+            mso-pagination:widow-orphan lines-together;
+            page-break-after:avoid;
+            mso-outline-level:4;
+            mso-list:l3 level4 lfo49;
+            font-size:12.0pt;
+            mso-bidi-font-size:10.0pt;
+            font-family:"Arial","sans-serif";
+            mso-bidi-language:AR-SA;
+            font-weight:normal;
+            mso-bidi-font-weight:bold;
+            font-style:italic;}
+        p.MsoToc1, li.MsoToc1, div.MsoToc1
+        {mso-style-update:auto;
+            mso-style-priority:39;
+            mso-style-unhide:no;
+            mso-style-next:Normal;
+            margin-top:0in;
+            margin-right:0in;
+            margin-bottom:5.0pt;
+            margin-left:0in;
+            line-height:115%;
+            mso-pagination:widow-orphan;
+            font-size:12.0pt;
+            mso-bidi-font-size:10.0pt;
+            font-family:"Arial","sans-serif";
+            mso-fareast-font-family:"Times New Roman";
+            mso-bidi-font-family:"Times New Roman";
+            mso-bidi-language:EN-US;}
+        p.MsoToc2, li.MsoToc2, div.MsoToc2
+        {mso-style-update:auto;
+            mso-style-priority:39;
+            mso-style-unhide:no;
+            mso-style-next:Normal;
+            margin-top:0in;
+            margin-right:0in;
+            margin-bottom:5.0pt;
+            margin-left:12.0pt;
+            line-height:115%;
+            mso-pagination:widow-orphan;
+            font-size:12.0pt;
+            mso-bidi-font-size:10.0pt;
+            font-family:"Arial","sans-serif";
+            mso-fareast-font-family:"Times New Roman";
+            mso-bidi-font-family:"Times New Roman";
+            mso-bidi-language:EN-US;}
+        p.MsoCommentText, li.MsoCommentText, div.MsoCommentText
+        {mso-style-unhide:no;
+            mso-style-link:"Comment Text Char";
+            margin-top:0in;
+            margin-right:0in;
+            margin-bottom:6.0pt;
+            margin-left:.5in;
+            line-height:115%;
+            mso-pagination:widow-orphan;
+            font-size:12.0pt;
+            mso-bidi-font-size:10.0pt;
+            font-family:"Arial","sans-serif";
+            mso-fareast-font-family:"Times New Roman";
+            mso-bidi-font-family:"Times New Roman";
+            mso-bidi-language:EN-US;}
+        p.MsoHeader, li.MsoHeader, div.MsoHeader
+        {mso-style-unhide:no;
+            mso-style-link:"Header Char";
+            margin-top:0in;
+            margin-right:0in;
+            margin-bottom:6.0pt;
+            margin-left:.5in;
+            line-height:115%;
+            mso-pagination:widow-orphan;
+            tab-stops:right 6.5in;
+            font-size:8.0pt;
+            mso-bidi-font-size:10.0pt;
+            font-family:"Arial";
+            mso-bidi-language:EN-US;}
+        p.MsoFooter, li.MsoFooter, div.MsoFooter
+        {mso-style-update:auto;
+            mso-style-priority:99;
+            mso-style-unhide:no;
+            mso-style-link:"Footer Char";
+            margin-top:0in;
+            margin-right:0in;
+            margin-bottom:6.0pt;
+            margin-left:.5in;
+            line-height:115%;
+            mso-pagination:widow-orphan;
+            tab-stops:3.0in right 6.5in;
+            border:none;
+            mso-border-top-alt:solid #333333 .5pt;
+            padding:0in;
+            mso-padding-alt:1.0pt 0in 0in 0in;
+            font-size:8.0pt;
+            mso-bidi-font-size:10.0pt;
+            font-family:"Arial";
+            mso-bidi-language:EN-US;}
+        span.MsoCommentReference
+        {mso-style-unhide:no;
+            mso-style-parent:"";
+            mso-ansi-font-size:8.0pt;
+            mso-bidi-font-size:8.0pt;}
+        p.MsoListNumber4, li.MsoListNumber4, div.MsoListNumber4
+        {mso-style-unhide:no;
+            mso-style-parent:"Heading 2";
+            margin-top:10.0pt;
+            margin-right:0in;
+            margin-bottom:6.0pt;
+            margin-left:0in;
+            line-height:115%;
+            mso-pagination:widow-orphan lines-together;
+            mso-outline-level:2;
+            font-size:12.0pt;
+            font-family:"Arial","sans-serif";
+            mso-fareast-font-family:"Times New Roman";
+            color:#0D0D0D;
+            mso-bidi-language:EN-US;
+            mso-bidi-font-weight:bold;}
+        p.MsoTitle, li.MsoTitle, div.MsoTitle
+        {mso-style-priority:10;
+            mso-style-unhide:no;
+            mso-style-qformat:yes;
+            mso-style-link:"Title Char";
+            mso-style-next:Normal;
+            margin-top:0in;
+            margin-right:0in;
+            margin-bottom:6.0pt;
+            margin-left:0in;
+            line-height:115%;
+            mso-pagination:widow-orphan;
+            border:none;
+            mso-border-bottom-alt:solid windowtext .5pt;
+            padding:0in;
+            mso-padding-alt:0in 0in 1.0pt 0in;
+            font-size:12.0pt;
+            mso-bidi-font-size:10.0pt;
+            font-family:"Arial";
+            mso-bidi-font-weight:normal;}
+        p.MsoBodyTextIndent, li.MsoBodyTextIndent, div.MsoBodyTextIndent
+        {mso-style-name:"Body Text Indent\,Instruction 2\,Example questions - no hanging indent";
+            mso-style-unhide:no;
+            mso-style-link:"Body Text Indent Char\,Instruction 2 Char\,Example questions - no hanging indent Char";
+            margin-top:0in;
+            margin-right:0in;
+            margin-bottom:6.0pt;
+            margin-left:.25in;
+            line-height:115%;
+            mso-pagination:widow-orphan;
+            font-size:12.0pt;
+            mso-bidi-font-size:10.0pt;
+            font-family:"Arial";
+            mso-fareast-font-family:Times;
+            mso-bidi-language:EN-US;}
+        a:link, span.MsoHyperlink
+        {mso-style-priority:99;
+            mso-style-parent:"";
+            color:blue;
+            text-decoration:underline;
+            text-underline:single;}
+        a:visited, span.MsoHyperlinkFollowed
+        {mso-style-unhide:no;
+            color:purple;
+            mso-themecolor:followedhyperlink;
+            text-decoration:underline;
+            text-underline:single;}
+        p
+        {mso-style-unhide:no;
+            margin-top:0in;
+            margin-right:0in;
+            margin-bottom:6.0pt;
+            margin-left:.5in;
+            line-height:115%;
+            mso-pagination:widow-orphan;
+            font-size:10.0pt;
+            font-family:"Arial";
+            mso-bidi-language:EN-US;}
+        p.MsoTocHeading, li.MsoTocHeading, div.MsoTocHeading
+        {mso-style-noshow:yes;
+            mso-style-priority:39;
+            mso-style-qformat:yes;
+            mso-style-next:Normal;
+            margin-top:24.0pt;
+            margin-right:0in;
+            margin-bottom:0in;
+            margin-left:.3in;
+            margin-bottom:.0001pt;
+            text-indent:-.3in;
+            line-height:115%;
+            mso-pagination:widow-orphan lines-together;
+            page-break-after:avoid;
+            font-size:14.0pt;
+            font-family:"Arial";
+            mso-ascii-font-family:Cambria;
+            mso-ascii-theme-font:major-latin;
+            color:#365F91;
+            mso-themecolor:accent1;
+            mso-themeshade:191;
+            mso-bidi-language:AR-SA;
+            font-weight:bold;}
+        span.Heading1Char
+        {mso-style-name:"Heading 1 Char";
+            mso-style-priority:9;
+            mso-style-unhide:no;
+            mso-style-locked:yes;
+            mso-style-link:"Heading 1";
+            mso-ansi-font-size:12.0pt;
+            mso-bidi-language:EN-US;
+            font-weight:bold;
+            mso-bidi-font-weight:normal;}
+        span.Heading2Char
+        {mso-style-name:"Heading 2 Char";
+            mso-style-priority:9;
+            mso-style-unhide:no;
+            mso-style-locked:yes;
+            mso-style-link:"Heading 2";
+            mso-ansi-font-size:12.0pt;
+            mso-bidi-font-size:12.0pt;
+            font-family:"Arial","sans-serif";
+            mso-bidi-font-family:Arial;
+            color:#0D0D0D;
+            mso-bidi-language:EN-US;
+            mso-bidi-font-weight:bold;}
+        span.Heading3Char
+        {mso-style-name:"Heading 3 Char";
+            mso-style-priority:9;
+            mso-style-unhide:no;
+            mso-style-locked:yes;
+            mso-style-link:"Heading 3";
+            mso-ansi-font-size:12.0pt;
+            mso-bidi-font-size:12.0pt;
+            font-family:"Arial","sans-serif";
+            mso-bidi-font-family:Arial;
+            color:#262626;
+            mso-bidi-language:EN-US;
+            mso-bidi-font-weight:bold;}
+        span.Heading4Char
+        {mso-style-name:"Heading 4 Char";
+            mso-style-priority:9;
+            mso-style-unhide:no;
+            mso-style-locked:yes;
+            mso-style-link:"Heading 4";
+            mso-ansi-font-size:12.0pt;
+            font-family:"Arial","sans-serif";
+            mso-bidi-font-family:Arial;
+            mso-bidi-font-weight:bold;
+            font-style:italic;}
+        span.Heading5Char
+        {mso-style-name:"Heading 5 Char";
+            mso-style-priority:9;
+            mso-style-unhide:no;
+            mso-style-locked:yes;
+            mso-style-link:"Heading 5";
+            mso-ansi-font-size:12.0pt;
+            mso-bidi-font-size:12.0pt;
+            font-family:"Arial","sans-serif";
+            mso-bidi-font-family:Arial;
+            color:#0D0D0D;}
+        span.Heading6Char
+        {mso-style-name:"Heading 6 Char";
+            mso-style-priority:9;
+            mso-style-unhide:no;
+            mso-style-locked:yes;
+            mso-style-link:"Heading 6";
+            mso-ansi-font-size:12.0pt;
+            font-family:"Cambria","serif";
+            mso-ascii-font-family:Cambria;
+            mso-hansi-font-family:Cambria;
+            mso-bidi-font-style:italic;}
+        span.Heading7Char
+        {mso-style-name:"Heading 7 Char";
+            mso-style-priority:9;
+            mso-style-unhide:no;
+            mso-style-locked:yes;
+            mso-style-link:"Heading 7";
+            mso-ansi-font-size:12.0pt;
+            font-style:italic;}
+        span.Heading8Char
+        {mso-style-name:"Heading 8 Char";
+            mso-style-priority:9;
+            mso-style-unhide:no;
+            mso-style-locked:yes;
+            mso-style-link:"Heading 8";
+            mso-ansi-font-size:12.0pt;
+            font-family:"Cambria","serif";
+            mso-ascii-font-family:Cambria;
+            mso-hansi-font-family:Cambria;}
+        span.Heading9Char
+        {mso-style-name:"Heading 9 Char";
+            mso-style-priority:9;
+            mso-style-unhide:no;
+            mso-style-locked:yes;
+            mso-style-link:"Heading 9";
+            mso-ansi-font-size:12.0pt;
+            font-family:"Cambria","serif";
+            mso-ascii-font-family:Cambria;
+            mso-hansi-font-family:Cambria;
+            font-style:italic;}
+        span.CommentTextChar
+        {mso-style-name:"Comment Text Char";
+            mso-style-unhide:no;
+            mso-style-locked:yes;
+            mso-style-link:"Comment Text";
+            mso-ansi-font-size:12.0pt;
+            mso-bidi-language:EN-US;}
+        span.HeaderChar
+        {mso-style-name:"Header Char";
+            mso-style-unhide:no;
+            mso-style-locked:yes;
+            mso-style-link:Header;
+            mso-ansi-font-size:8.0pt;
+            mso-bidi-language:EN-US;}
+        span.FooterChar
+        {mso-style-name:"Footer Char";
+            mso-style-priority:99;
+            mso-style-unhide:no;
+            mso-style-locked:yes;
+            mso-style-link:Footer;
+            mso-ansi-font-size:8.0pt;
+            font-family:"Zurich Cn BT","sans-serif";
+            mso-ascii-font-family:"Zurich Cn BT";
+            mso-hansi-font-family:"Zurich Cn BT";
+            mso-bidi-language:EN-US;}
+        .MsoChpDefault
+        {mso-style-type:export-only;
+            mso-default-props:yes;
+            font-size:10.0pt;
+            mso-ansi-font-size:10.0pt;
+            mso-bidi-font-size:10.0pt;
+            mso-ascii-font-family:Arial;
+            mso-hansi-font-family:Arial;}
+        @page WordSection1
+        {size:11.0in 8.5in;
+            mso-page-orientation:landscape;
+            mso-header:h1;
+            mso-footer:f1;
+            margin:1.0in 1.0in 1.0in 1.0in;
+            mso-header-margin:.5in;
+            mso-footer-margin:.5in;
+            mso-paper-source:0;}
+        div.WordSection1
+        {page:WordSection1;}
+        /* List Definitions */
+        @list l0
+        {mso-list-id:-131;
+            mso-list-type:simple;
+            mso-list-template-ids:1808975034;}
+        @list l0:level1
+        {mso-level-tab-stop:1.0in;
+            mso-level-number-position:left;
+            margin-left:1.0in;
+            text-indent:-.25in;}
+        @list l1
+        {mso-list-id:676617754;
+            mso-list-template-ids:695355158;}
+        @list l1:level1
+        {mso-level-style-link:"Style Header 2 + Top\: \(Single solid line Violet  1 pt Line width\)1";
+            mso-level-tab-stop:.25in;
+            mso-level-number-position:left;
+            margin-left:.25in;
+            text-indent:-.25in;}
+        @list l1:level2
+        {mso-level-text:"%1\.%2\.";
+            mso-level-tab-stop:.55in;
+            mso-level-number-position:left;
+            margin-left:.55in;
+            text-indent:-.3in;}
+        @list l1:level3
+        {mso-level-text:"%1\.%2\.%3\.";
+            mso-level-tab-stop:.85in;
+            mso-level-number-position:left;
+            margin-left:.85in;
+            text-indent:-.35in;}
+        @list l1:level4
+        {mso-level-text:"%1\.%2\.%3\.%4\.";
+            mso-level-tab-stop:1.25in;
+            mso-level-number-position:left;
+            margin-left:1.2in;
+            text-indent:-.45in;}
+        @list l1:level5
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.";
+            mso-level-tab-stop:1.75in;
+            mso-level-number-position:left;
+            margin-left:1.55in;
+            text-indent:-.55in;}
+        @list l1:level6
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.";
+            mso-level-tab-stop:2.0in;
+            mso-level-number-position:left;
+            margin-left:1.9in;
+            text-indent:-.65in;}
+        @list l1:level7
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.";
+            mso-level-tab-stop:2.5in;
+            mso-level-number-position:left;
+            margin-left:2.25in;
+            text-indent:-.75in;}
+        @list l1:level8
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.%8\.";
+            mso-level-tab-stop:2.75in;
+            mso-level-number-position:left;
+            margin-left:2.6in;
+            text-indent:-.85in;}
+        @list l1:level9
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.%8\.%9\.";
+            mso-level-tab-stop:3.25in;
+            mso-level-number-position:left;
+            margin-left:3.0in;
+            text-indent:-1.0in;}
+        @list l2
+        {mso-list-id:1517887597;
+            mso-list-template-ids:-1791729342;}
+        @list l2:level1
+        {mso-level-text:%1;
+            mso-level-tab-stop:none;
+            mso-level-number-position:left;
+            margin-left:.3in;
+            text-indent:-.3in;}
+        @list l2:level2
+        {mso-level-text:"%1\.%2";
+            mso-level-tab-stop:none;
+            mso-level-number-position:left;
+            margin-left:.4in;
+            text-indent:-.4in;}
+        @list l2:level3
+        {mso-level-text:"%1\.%2\.%3";
+            mso-level-tab-stop:none;
+            mso-level-number-position:left;
+            margin-left:.5in;
+            text-indent:-.5in;}
+        @list l2:level4
+        {mso-level-text:"%1\.%2\.%3\.%4";
+            mso-level-tab-stop:none;
+            mso-level-number-position:left;
+            margin-left:.6in;
+            text-indent:-.6in;}
+        @list l2:level5
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5";
+            mso-level-tab-stop:none;
+            mso-level-number-position:left;
+            margin-left:.7in;
+            text-indent:-.7in;}
+        @list l2:level6
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6";
+            mso-level-tab-stop:none;
+            mso-level-number-position:left;
+            margin-left:.8in;
+            text-indent:-.8in;}
+        @list l2:level7
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7";
+            mso-level-tab-stop:none;
+            mso-level-number-position:left;
+            margin-left:.9in;
+            text-indent:-.9in;}
+        @list l2:level8
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.%8";
+            mso-level-tab-stop:none;
+            mso-level-number-position:left;
+            margin-left:1.0in;
+            text-indent:-1.0in;}
+        @list l2:level9
+        {mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.%8\.%9";
+            mso-level-tab-stop:none;
+            mso-level-number-position:left;
+            margin-left:1.1in;
+            text-indent:-1.1in;}
+        @list l3
+        {mso-list-id:2138137811;
+            mso-list-template-ids:67698725;}
+        @list l3:level1
+        {mso-level-style-link:"Heading 1";
+            mso-level-text:%1;
+            mso-level-tab-stop:none;
+            mso-level-number-position:left;
+            margin-left:.3in;
+            text-indent:-.3in;}
+        @list l3:level2
+        {mso-level-style-link:"Heading 2";
+            mso-level-text:"%1\.%2";
+            mso-level-tab-stop:none;
+            mso-level-number-position:left;
+            margin-left:.4in;
+            text-indent:-.4in;}
+        @list l3:level3
+        {mso-level-style-link:"Heading 3";
+            mso-level-text:"%1\.%2\.%3";
+            mso-level-tab-stop:none;
+            mso-level-number-position:left;
+            margin-left:.5in;
+            text-indent:-.5in;}
+        @list l3:level4
+        {mso-level-style-link:"Heading 4";
+            mso-level-text:"%1\.%2\.%3\.%4";
+            mso-level-tab-stop:none;
+            mso-level-number-position:left;
+            margin-left:.6in;
+            text-indent:-.6in;}
+        @list l3:level5
+        {mso-level-style-link:"Heading 5";
+            mso-level-text:"%1\.%2\.%3\.%4\.%5";
+            mso-level-tab-stop:none;
+            mso-level-number-position:left;
+            margin-left:.7in;
+            text-indent:-.7in;}
+        @list l3:level6
+        {mso-level-style-link:"Heading 6";
+            mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6";
+            mso-level-tab-stop:none;
+            mso-level-number-position:left;
+            margin-left:.8in;
+            text-indent:-.8in;}
+        @list l3:level7
+        {mso-level-style-link:"Heading 7";
+            mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7";
+            mso-level-tab-stop:none;
+            mso-level-number-position:left;
+            margin-left:.9in;
+            text-indent:-.9in;}
+        @list l3:level8
+        {mso-level-style-link:"Heading 8";
+            mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.%8";
+            mso-level-tab-stop:none;
+            mso-level-number-position:left;
+            margin-left:1.0in;
+            text-indent:-1.0in;}
+        @list l3:level9
+        {mso-level-style-link:"Heading 9";
+            mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.%8\.%9";
+            mso-level-tab-stop:none;
+            mso-level-number-position:left;
+            margin-left:1.1in;
+            text-indent:-1.1in;}
+        ol
+        {margin-bottom:0in;}
+        ul
+        {margin-bottom:0in;}
+        -->
+    </style>
+    <!--[if gte mso 10]>
+    <style>
+        /* Style Definitions */
+        table.MsoNormalTable
+        {mso-style-name:"Table Normal";
+            mso-tstyle-rowband-size:0;
+            mso-tstyle-colband-size:0;
+            mso-style-noshow:yes;
+            mso-style-priority:99;
+            mso-style-qformat:yes;
+            mso-style-parent:"";
+            mso-padding-alt:0in 5.4pt 0in 5.4pt;
+            mso-para-margin:0in;
+            mso-para-margin-bottom:.0001pt;
+            mso-pagination:widow-orphan;
+            font-size:10.0pt;
+            font-family:"Arial","sans-serif";
+            mso-bidi-font-family:"Times New Roman";}
+        table.MsoTableGrid
+        {mso-style-name:"Table Grid";
+            mso-tstyle-rowband-size:0;
+            mso-tstyle-colband-size:0;
+            mso-style-priority:59;
+            mso-style-unhide:no;
+            border:solid windowtext 1.0pt;
+            mso-border-alt:solid windowtext .5pt;
+            mso-padding-alt:0in 5.4pt 0in 5.4pt;
+            mso-border-insideh:.5pt solid windowtext;
+            mso-border-insidev:.5pt solid windowtext;
+            mso-para-margin:0in;
+            mso-para-margin-bottom:.0001pt;
+            mso-pagination:widow-orphan;
+            font-size:10.0pt;
+            font-family:"Arial","sans-serif";
+            mso-bidi-font-family:"Times New Roman";}
+    </style>
+    <![endif]-->
+
+</head>
+
+<body bgcolor=white lang=EN-US link=blue vlink=purple style='tab-interval:.5in' leftmargin=0 topmargin=0 marginwidth=0 marginheight=0 alink="#660000">
+
+   #* #set($baseDao = $applicationContext.getBean("baseLineDao"))
+    #set($docNodeDao = $applicationContext.getBean("documentNodeService"))
+    #set($docDao = $applicationContext.getBean("documentDao"))
+    #set($verDao = $applicationContext.getBean("versionDao"))
+    #set($userDao = $applicationContext.getBean("userDao"))
+    #set($documentNodeManager = $applicationContext.getBean("documentNodeService"))
+    #set($releaseDao = $applicationContext.getBean("releaseDao"))
+    #set($dtDao = $applicationContext.getBean("documentTypeFieldDao"))
+    #set($documentService = $applicationContext.getBean("documentService")) *#
+	
+	#set($baseDao = $baselineSource)
+	#set($docNodeDao = $documentSource)
+    #set($docDao = $documentSource)
+    #set($verDao = $documentSource)
+    #set($userDao = $userSource)
+    #set($documentNodeManager = $documentSource)
+    #set($releaseDao = $releaseSource)
+    #set($dtDao = $documentSource)
+	
+    #set($baseDocNodes = [] )
+    #set($baseOrgIds = [])
+    #set($compareOriginIds = [])
+    #set($compareDocIds = [])
+    #set($deleted = [] )
+    #set($docList = [] )
+    #set($found = 'no')
+    #set($count=0)
+    #set($r1 = $mathTool.toInteger($report_baseline1))
+    #set($r2 = $mathTool.toInteger($report_baseline2))
+    #if($r1 > $r2)
+        #set($r1 = $r2)
+        #set($r2 = $mathTool.toInteger($report_baseline1))
+    #end
+
+
+#################### Load list of first baseline document nodes - nodes so can sort on global ID #################
+    #foreach($doc1 in $baseDao.getDocumentIds($r1))
+        #set($dN1=$docNodeDao.getDocumentNodeForBaseLine( 5, $doc1, $r1))
+        #if($dN1.scopeId == 5)
+            #if( $baseDocNodes.add($dN1))#end
+        ###################### check to see if item type field's have been collected ###################
+            #foreach($a in $docList)
+                #if($a.get(0) == $docDao.getDocument($dN1.refId).documentType.id)
+                    #set($found = 'yes')
+                    #break
+                #end
+                #set($count=$count+1)
+            #end
+        ###################### load item type fields ###################
+            #if($found == 'no')
+                #set($docField = [] )
+                #if($docField.add($docDao.getDocument($dN1.refId).documentType.id))#end
+                #foreach($d in $dtDao.getDocumentTypeFieldListByType($docDao.getDocument($dN1.refId).documentType.id))
+                    #if($docField.add($d.documentField.name))#end
+                #end
+                #if($docList.add($docField))#end
+                #set($count=$count+1)
+            #end
+            #set($found = 'no')
+        #end
+    #end
+
+#################### Load list of original IDs of first baseline ids for update & deletion check #################
+    #foreach($dn in $baseDocNodes)
+        #if($baseOrgIds.add($verDao.getVersionByDocumentId($dn.refId).originDocument.id))#end
+    #end
+
+#################### Load list of original IDs of second baseline ids for update & deletion check #################
+    #foreach($cmp in $baseDao.getDocumentIds( $r2))
+        #set($dN2=$docNodeDao.getDocumentNodeForBaseLine(5,$cmp,$r2))
+        #if($dN2.scopeId == 5)
+            #if($compareOriginIds.add($verDao.getVersionByDocumentId($dN2.refId).originDocument.id))#end
+            #if($compareDocIds.add($dN2.refId))#end
+        #end
+    #end
+
+    #set($bData1 = $baseDao.getBaseLine( $mathTool.toInteger( $report_baseline1 )))
+    #set($bData2 = $baseDao.getBaseLine( $mathTool.toInteger( $report_baseline2 )))
+<div class=WordSection1>
+
+    <p class=MsoNormal style='margin-left:0in'><span style='font-size:24.0pt;line-height:115%'>Jama</span></p>
+    <p class=MsoNormal style='margin-left:0in'><span style='font-size:16.0pt;line-height:115%'>Baseline to Baseline Comparison Report</span></p>
+    <p class=MsoNormal style='margin-left:0in'><span style='font-size:16.0pt;line-height:115%'>&nbsp;</span></p>
+    <p class=MsoNormal style='margin-left:0in'><span style='font-size:16.0pt;line-height:115%'>&nbsp;</span></p>
+    <p class=MsoNormal style='margin-left:0in'><span style='font-size:16.0pt;line-height:115%'>&nbsp;</span></p>
+    <p class=MsoNormal style='margin-left:0in'><span style='font-size:16.0pt;line-height:115%'>Baseline 1 - $bData1.name</span></p>
+    <p class=MsoNormal style='margin-left:0in'><span style='font-size:12.0pt;line-height:115%'>Created by $userDao.getUser($bData1.createdBy).firstName $userDao.getUser($bData1.createdBy).lastName
+								on $dateTool.format('MMM d, yyyy',$bData1.createdDate)</span></p>
+    <p class=MsoNormal style='margin-left:0in'><span style='font-size:16.0pt;line-height:115%'>Baseline 2 - $bData2.name</span></p>
+    <p class=MsoNormal style='margin-left:0in'><span style='font-size:12.0pt;line-height:115%'>Created by $userDao.getUser($bData2.createdBy).firstName $userDao.getUser($bData2.createdBy).lastName
+								on $dateTool.format('MMM d, yyyy',$bData2.createdDate)</span></p>
+    <p class=MsoNormal>&nbsp;
+
+<p class=MsoNormal>&nbsp;
+    #if ($format == "doc")
+        <p class=MsoNormal>&nbsp;
+            <span style='mso-break-type:section-break'></span>
+            <br clear=all style='page-break-before:always;'>
+        </p>
+
+        <p class=MsoNormal style='margin-left:0in'><span style='font-size:16.0pt;line-height:115%'>Contents</span></p>
+        <span style='mso-break-type:section-break'></span>
+        <div>
+        <p class=MsoNormal><!--[if supportFields]><span style='mso-element:field-begin'></span><span
+          style='mso-spacerun:yes'> </span>TOC \h \o 1-5 \* MERGEFORMAT <span
+          style='mso-element:field-separator'></span><![endif]--><span
+          style='color:red;mso-no-proof:yes'>Right Click Here and Select Update Field</span><!--[if supportFields]><span
+          style='mso-element:field-end'></span><![endif]--></p>
+      </div>
+        <p class=MsoNormal>&nbsp;
+            <span style='mso-break-type:section-break'></span>
+            <br clear=all style='page-break-before:always;'></p>
+    #end
+
+
+################### get baseline 1 & baseline 2 items to compare #################
+    <h1>UPDATED ITEMS</h1>
+    #foreach($node1 in $sortTool.sort($baseDocNodes,"globalSortOrder") )
+        #set($baseDoc = $docDao.getDocument($node1.refId))
+    ################### output updated fields#################
+        #set($baseOrigin = $verDao.getVersionByDocumentId($baseDoc.id).originDocument.id)
+        #set($orginDoc = $docDao.getDocument($baseOrigin))
+        #if($compareOriginIds.contains($baseOrigin))
+            #set($baseDN2 = $docNodeDao.getDocumentNodeForBaseLine(5,$compareDocIds.get($compareOriginIds.indexOf($baseOrigin)),$r2))
+            #set($compareDoc = $docDao.getDocument($baseDN2.refId))
+            #set($bVer = $verDao.getVersionByDocumentId($baseDoc.id))
+            #set($aVer = $verDao.getVersionByDocumentId($compareDoc.id))
+
+            #if( $includeRelationships == true)
+            ##Get relationship changes
+                #set($start = 0)
+                #set($count = 20)
+                #set( $base1Rels = [])
+                #set( $base2Rels = [])
+                #set( $pageSize = 20)
+            ##Baseline id: $r1, item id: $baseDoc.id, Origin Doc: $orginDoc.id
+            ##Baseline id 2: $r2, itemid: $orginDoc.id<br>
+                #set($base1RelsPage = $velocityServiceWrapper.getRelationships($orginDoc.id,$r1,$start,$count))
+                #set($base2RelsPage = $velocityServiceWrapper.getRelationships($orginDoc.id,$r2,$start,$count))
+
+                #set( $relsMatch = false)
+                #set( $totalRels1 = [])
+                #set( $totalRels1 = $base1RelsPage.getPageInfo().getTotalResults())
+
+                #set( $totalRels2 = [])
+                #set( $totalRels2 = $base2RelsPage.getPageInfo().getTotalResults())
+
+            ##Total Rels 1: $totalRels1 TotalRels2: $totalRels2<br>
+                #if( $totalRels1 > 0)
+                    #set( $page_count = $mathTool.floor($mathTool.div($totalRels1,$pageSize)) )
+                ##set( $page_count = $page_count + 1)
+                ##Page Count1: $page_count<br>
+                    #foreach( $page in [0..$page_count])
+                        #set($base1RelsPage = $velocityServiceWrapper.getRelationships($orginDoc.id,$r1,$start,$count))
+                    ##Base1RelsPage: $base1RelsPage.getResults().size()<br>
+                        #set( $addIsSuccessful = $base1Rels.addAll($base1RelsPage.getResults()))
+                    ##Base1Rels: $base1Rels<br>
+                        #set( $start = $start + $count)
+                    #end
+                #end
+
+                #set( $start = 0)
+                #if( $totalRels2 > 0)
+                    #set( $page_count = $mathTool.floor($mathTool.div($totalRels2,$pageSize)) )
+                    #set( $page_count = $page_count + 1)
+                    #foreach( $page in [0..$page_count])
+                        #set($base2RelsPage = $velocityServiceWrapper.getRelationships($orginDoc.id,$r2,$start,$count))
+                        #set( $addIsSuccessful = $base2Rels.addAll($base2RelsPage.getResults()) )
+                        #set( $start = $start + $count)
+                    #end
+                #end
+
+                #if( !$base1Rels.size())
+                    #set( $base1RelsSize = 0)
+                #else
+                    #set( $base1RelsSize = $base1Rels.size())
+                #end
+
+                #if( !$base2Rels.size())
+                    #set( $base2RelsSize = 0)
+                #else
+                    #set( $base2RelsSize = $base2Rels.size())
+                #end
+
+            ##Baseline1size: $base1Rels $base1Rels.size(), Baseline 2 size: $base2Rels $base2Rels.size()<br>
+                #if( $base1RelsSize == $base2RelsSize)
+                    #if( $base1RelsSize == 0 && $base2RelsSize == 0)
+                        #set( $relsMatch = true)
+                    #else
+                    ##The size might match, but the relationship numbers might not, so need to check each rel.
+                        #set( $sameRel = 0)
+                        #foreach( $rel1 in $base1Rels)
+                            #set( $rel1Id = $rel1.id)
+                            #foreach( $rel2 in $base2Rels)
+                                #set( $rel2Id = $rel2.id)
+                            ##Rel1id: $rel1Id Rel2id: $rel2Id<br>
+                                #if( $rel1Id == $rel2Id)
+                                    #set( $sameRel = $sameRel + 1)
+                                    #break
+                                #end
+                            #end
+                        ##SameRel: $sameRel<br>
+                        #end
+                        #if( $base1Rels.size() == $sameRel)
+                            #set( $relsMatch = true)
+                        #end
+                    #end
+                #elseif( $base1RelsSize != $base2RelsSize )
+                ##rels don't match, so keep the $relsMatch == false
+                #end
+            #end
+
+            #if($baseDoc.id != $compareDoc.id || $relsMatch == false)
+
+
+                #set($index = $count - 1)
+                #set($spot = 0)
+                #set ($firstChange = true)
+                #set ( $foundRelChg = false )
+                
+                ################### got through list of item types and find the one that matched the item being checked #################
+                    #set($foundChg = 0)
+                    #foreach($dl in	$docList)
+                        #if($dl.get(0) == $baseDoc.documentType.id)
+                        ################### once you have the item type, loop through its fields #################
+                            #foreach($b in $dl)
+                                #if($spot != 0 && $b != "status")
+                                ################### check to see if the field for the b1 is different than same field in b2 #################
+                                    #if($velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat) != $velocityReportUtil.getValueForField($compareDoc, $b, $dateFormat))
+                                        #set($foundChg = 1)
+                                        #if ( $firstChange )
+                                            <h2><a href="perspective.req?projectId=$orginDoc.project.id&docId=$orginDoc.id" >$baseDoc.documentKey</a> $baseDoc.name</h2>
+                                            <table class="MsoTableGrid" border="1" cellspacing="0" cellpadding="0" style='margin-left:.5in;border-collapse:collapse;border:none;mso-border-alt: solid windowtext .5pt;mso-yfti-tbllook:1184;padding:.05in 5.75pt 0in 5.75pt'>
+                                                <thead>
+                                                <tr>
+                                                    <td width=96 style='width:1.0in;background:#CCCCCC;padding:.05in 5.75pt 0in 5.75pt'><p class=MsoNormal align=center style='margin-left:0in;text-align:center'>Field Label</p></td>
+                                                    <td width=365 style='width:3.8in;background:#CCCCCC;padding:.05in 5.75pt 0in 5.75pt'><p class=MsoNormal align=center>Version v$bVer.versionNumber</p></td>
+                                                    <td width=365 style='width:3.8in;background:#CCCCCC;padding:.05in 5.75pt 0in 5.75pt'><p class=MsoNormal align=center>Version v$aVer.versionNumber</p></td>
+                                                </tr>
+                                                </thead>
+                                            #set ($firstChange = false)
+                                        #end
+                                        <tr>
+                                            <td width=96 valign=top style='width:1.0in;border:solid windowtext 1.0pt;border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt; padding:5.4pt 5.4pt 0in 4.05pt'>
+                                                <p class="MsoNormal" style='margin-left:0in'>
+                                                    $dtDao.getDocumentTypeFieldByName($b,$baseDoc.documentType.id).label
+                                                </p>
+                                            </td>
+                                            <td width=365 valign=top style='width:3.8in;border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;padding:5.4pt 5.4pt 0in 5.4pt;width:4.0n'>
+                                            <p class="MsoNormal" style='margin-left:0in;'>
+                                            ################### testCaseSteps is 1 field of everything concat together, we want to output each field #################
+                                                #if($b != "testCaseSteps")
+                                                    #if( $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat))
+                                                        $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat)
+                                                    #end
+                                                #else
+                                                    #set($i = 1)
+                                                    #foreach($baseTS in $baseDoc.testCaseSteps)
+                                                        <p class="MsoNormal" style='margin-left:0in'><b>$i.</b> #if( $baseTS.action)  $baseTS.action #end</p>
+                                                        <p class="MsoNormal" style='margin-left:8pt'><b>Expected Results:</b> #if( $baseTS.expectedResult) $baseTS.expectedResult #end</p>
+                                                        <p class="MsoNormal" style='margin-left:8pt'><b>Notes:</b> #if( $baseTS.notes) $baseTS.notes #end</p>
+                                                        #set($i = $i + 1)
+                                                    #end
+                                                #end
+                                                </p>
+                                            </td>
+                                            <td width=365 valign=top style='width:3.8in;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;padding:5.4pt 5.4pt 0in 4.05pt'>
+                                            <p class="MsoNormal" style='margin-left:0in'>
+                                                #if($b != "testCaseSteps")
+                                                    #if( $velocityReportUtil.getValueForField($compareDoc, $b, $dateFormat))
+                                                        $velocityReportUtil.getValueForField($compareDoc, $b, $dateFormat)
+                                                    #end
+                                                #else
+                                                    #set($i = 1)
+                                                    #foreach($compareTS in $compareDoc.testCaseSteps)
+                                                        <p class="MsoNormal" style='margin-left:0in'><b>$i.</b> #if( $compareTS.action) $compareTS.action #end</p>
+                                                        <p class="MsoNormal" style='margin-left:8pt'><b>Expected Results:</b> #if( $compareTS.expectedResult) $compareTS.expectedResult #end</p>
+                                                        <p class="MsoNormal" style='margin-left:8pt'><b>Notes:</b> #if( $compareTS.notes) $compareTS.notes #end</p>
+                                                        #set($i = $i + 1)
+                                                    #end
+                                                #end
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    #end
+                                #end
+                                #set($spot = 1)
+                            #end
+                            #*
+                            #if($foundChg == 0)
+                                <tr>
+                                    <td colspan="3" valign=top style='border:solid windowtext 1.0pt;border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt; padding:5.4pt 5.4pt 0in 4.05pt'>
+                                        <p class="MsoNormal" style='margin-left:0in'>
+                                            All item fields have been reset to the Baseline 1 state or have not been changed. Refer to version comments for history. If no version comments exist, the fields have not changed.
+                                        </p>
+                                    </td>
+                                </tr>
+                            #end
+                            *#
+
+                            #if( $includeRelationships == true)
+                            ##Base1RelsSize: $base1RelsSize Base2RelsSize: $base2RelsSize RelsMatch: $relsMatch<br>
+                                #if( $base1RelsSize != 0 || $base2RelsSize != 0)
+                                    #if( $relsMatch == false)
+                                        #set ( $foundRelChg = true )
+                                        #if ( $foundChg == 0 )
+                                            <h2><a href="perspective.req?projectId=$orginDoc.project.id&docId=$orginDoc.id" >$baseDoc.documentKey</a> $baseDoc.name</h2>
+                                            <table class="MsoTableGrid" border="1" cellspacing="0" cellpadding="0" style='margin-left:.5in;border-collapse:collapse;border:none;mso-border-alt: solid windowtext .5pt;mso-yfti-tbllook:1184;padding:.05in 5.75pt 0in 5.75pt'>
+                                                <thead>
+                                                <tr>
+                                                    <td width=96 style='width:1.0in;background:#CCCCCC;padding:.05in 5.75pt 0in 5.75pt'><p class=MsoNormal align=center style='margin-left:0in;text-align:center'>Field Label</p></td>
+                                                    <td width=365 style='width:3.8in;background:#CCCCCC;padding:.05in 5.75pt 0in 5.75pt'><p class=MsoNormal align=center>Version v$bVer.versionNumber</p></td>
+                                                    <td width=365 style='width:3.8in;background:#CCCCCC;padding:.05in 5.75pt 0in 5.75pt'><p class=MsoNormal align=center>Version v$aVer.versionNumber</p></td>
+                                                </tr>
+                                                </thead>
+                                        #end
+
+                                        <tr>
+                                            <td width=96 valign=top style='width:1.0in;border:solid windowtext 1.0pt;border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt; padding:5.4pt 5.4pt 0in 4.05pt'>
+                                                <p class="MsoNormal" style='margin-left:0in'>
+                                                    Relationships
+                                                </p>
+                                            </td>
+                                            <td width=365 valign=top style='width:3.8in;border-top:none;border-left:none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;padding:5.4pt 5.4pt 0in 5.4pt;width:4.0n'>
+                                            <p class="MsoNormal" style='margin-left:0in;'>
+                                                #foreach( $versionedRelationship in $base1Rels )
+												##<h4>Relationship ID: $versionedRelationship.getId()</h4>
+                                                    <p>
+                                                    ##suspect: $versionedRelationship.getSuspect() <br><br>
+                                                        #set($fromItemId = $versionedRelationship.getFromItem().getValue().get(0))
+                                                        #set($fromItemVersion = $versionedRelationship.getFromItem().getValue().get(1))
+                                                        #set($toItemId = $versionedRelationship.getToItem().getValue().get(0))
+                                                        #set($toItemVersion = $versionedRelationship.getToItem().getValue().get(1))
+
+                                                    #*From ItemId: $fromItemId, To docID: $toItemId BaseDocid: $baseDoc.id Compare Doc ID: $compareDoc.id OriginDoc: $originDoc.id<br>
+                                                    #if( $fromItemId == $baseDoc.id)
+                                                        #set( $fromItem = $baseDoc)
+                                                        #set($toItemId = $versionedRelationship.getToItem().getValue().get(0))
+                                                        #set($toItemVersion = $versionedRelationship.getToItem().getValue().get(1))
+                                                        #set($toItem = $velocityServiceWrapper.getItem($toItemId , $toItemVersion))
+                                                    #elseif( $toItemId == $baseDoc.id)
+                                                        #set( $toItem = $baseDoc)
+                                                        #set($fromItemId = $versionedRelationship.getFromItem().getValue().get(0))
+                                                        #set($fromItemVersion = $versionedRelationship.getFromItem().getValue().get(1))
+                                                        #set($fromItem = $velocityServiceWrapper.getItem($fromItemId , $fromItemVersion))
+                                                    #end*#
+
+                                                        #set($fromItem = $velocityServiceWrapper.getItem($fromItemId , $fromItemVersion))
+                                                    ##fromItem ID: $fromItem.getId() <br>
+                                                    ##fromItem DocKey: $fromItem.getDocumentKey() <br>
+                                                    ##fromItem Version: $fromItemVersion <br><br>
+
+                                                        #set($toItem = $velocityServiceWrapper.getItem($toItemId , $toItemVersion))
+                                                    ##toItem ID: $toItem.getId() <br>
+                                                    ##toItem DocKey: $toItem.getDocumentKey() <br>
+                                                    ##toItem Version: $toItemVersion <br><br>
+
+                                                    ##From Item: $fromItem<br>
+                                                    ##ToItem: $toItem<br>
+                                                        <a href="perspective.req?projectId=$fromItem.project.id&docId=$fromItem.id" >$fromItem.documentKey</a> --> <a href="perspective.req?projectId=$toItem.project.id&docId=$toItem.id" >$toItem.documentKey</a>
+                                                        <br> <br>
+                                                    </p>
+                                                #end
+                                                </p>
+                                            </td>
+                                            <td width=365 valign=top style='width:3.8in;border-top:none;border-left:none; border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;padding:5.4pt 5.4pt 0in 4.05pt'>
+                                            <p class="MsoNormal" style='margin-left:0in'>
+                                                #foreach( $versionedRelationship in $base2Rels )
+												##<h4>Relationship ID: $versionedRelationship.getId()</h4>
+                                                    <p>
+                                                    ##suspect: $versionedRelationship.getSuspect() <br><br>
+                                                        #set($fromItemId = $versionedRelationship.getFromItem().getValue().get(0))
+                                                    ##set($fromItemVersion = $versionedRelationship.getFromItem().getValue().get(1))
+                                                        #set($toItemId = $versionedRelationship.getToItem().getValue().get(0))
+                                                    ##set($toItemVersion = $versionedRelationship.getToItem().getValue().get(1))
+
+                                                    ##From ItemId2: $fromItemId, To docID: $toItemId BaseDocid: $baseDoc.id Compare Doc ID: $compareDoc.id<br>
+                                                        #if( $fromItemId == $compareDoc.id)
+                                                            #set( $fromItem = $compareDoc)
+                                                            #set($toItemId = $versionedRelationship.getToItem().getValue().get(0))
+                                                            #set($toItemVersion = $versionedRelationship.getToItem().getValue().get(1))
+                                                            #set($toItem = $velocityServiceWrapper.getItem($toItemId , $toItemVersion))
+                                                        #elseif( $toItemId == $compareDoc.id)
+                                                            #set( $toItem = $compareDoc)
+                                                            #set($fromItemId = $versionedRelationship.getFromItem().getValue().get(0))
+                                                            #set($fromItemVersion = $versionedRelationship.getFromItem().getValue().get(1))
+                                                            #set($fromItem = $velocityServiceWrapper.getItem($fromItemId , $fromItemVersion))
+                                                        #end
+
+                                                    ##set($fromItem = $velocityServiceWrapper.getItem($fromItemId , $fromItemVersion))
+                                                    ##fromItem ID: $fromItem.getId() <br>
+                                                    ##fromItem DocKey: $fromItem.getDocumentKey() <br>
+                                                    ##fromItem Version: $fromItemVersion <br><br>
+
+                                                    ##set($toItem = $velocityServiceWrapper.getItem($toItemId , $toItemVersion))
+                                                    ##toItem ID: $toItem.getId() <br>
+                                                    ##toItem DocKey: $toItem.getDocumentKey() <br>
+                                                    ##toItem Version: $toItemVersion <br><br>
+
+                                                        <a href="perspective.req?projectId=$fromItem.project.id&docId=$fromItem.id" >$fromItem.documentKey</a> --> <a href="perspective.req?projectId=$toItem.project.id&docId=$toItem.id" >$toItem.documentKey</a>
+                                                        <br> <br>
+                                                    </p>
+                                                #end
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    #end
+                                #end ##end include relationships
+                            #end
+                        #end
+                    #end
+                    #set($count=0)
+                ########### output the version comments  ####################
+                    #if($baseDoc.id != $compareDoc.id)
+                        #set($next = $mathTool.toInteger($bVer.versionNumber)+1)
+                        #set($total = $mathTool.toInteger($aVer.versionNumber)+1)
+                        #if($report_showComment == true && $foundChg == 1)
+                            <thead>
+                            <tr bgcolor='#CCCCCC'>
+                                <td colspan="3" style='padding:.05in 5.75pt 0in 5.75pt'> <p class=MsoNormal align=center>Version Details</p></td>
+                            </tr>
+                            </thead>
+                            <tr>
+                                <td width="9in" valign="top" colspan="3" style='border:solid windowtext 1.0pt; mso-border-alt:solid windowtext .5pt;padding:5.4pt 5.4pt 0in 5.4pt ;width:9in;'>
+                                    #foreach($n in [1..$total])
+                                    <p class="MsoNormal" style='margin-left:0.0in;'>
+                                        #set($v = $verDao.getVersionByDocAndVersionNumber($baseOrigin,$next))
+
+                                        #if( $v)
+                                            <b>Version: </b>v$v.versionNumber - $userDao.getUser($v.createdBy).firstName $userDao.getUser($v.createdBy).lastName - $dateTool.format('MMM d, yyyy',$v.createdDate)
+                                        </p>
+                                            <p class="MsoNormal" style='margin-left:0.5in;'>
+                                                <b>Change Details: </b>#if($v.comments)$v.comments #end
+                                            </p>
+                                        <p class="MsoNormal" style='margin-left:0.5in;'>
+                                            #if($v.userComment)
+                                                <b>User Comment: </b>$v.userComment
+                                            </p>
+                                            #else
+                                                </p>
+                                            #end
+                                        #end
+                                        #set($next = $next + 1)
+                                        #if($next == $total)
+                                            #break
+                                        #end
+                                    #end
+                                    </p>
+                                </td>
+                            </tr>
+                        #end
+                    #end
+                </table>
+
+            #end
+        #else
+            #if($deleted.add($baseDoc))#end
+        #end
+    #end
+
+##################### List of Deleted Items ##################################
+    <h1 style='page-break-after:avoid'>DELETED ITEMS</h1>
+    <table class="MsoTableGrid" border="1" cellspacing="0" cellpadding="0" style='margin-left:.5in;border-collapse:collapse;border:none;'>
+        #foreach($k in $deleted)
+            <tr>
+                <td width="9in" valign="top" style='border:solid windowtext 1.0pt; mso-border-alt:solid windowtext .5pt;padding:5.4pt 5.4pt 0in 5.4pt ;width:9in;'>
+                    <p class="MsoNormal" style='margin-left:0in'>
+                    <h2>$k.documentKey $k.name</h2>
+                    </p>
+                    <p class="MsoNormal" style='margin-left:0in'>
+                        #if( $k.description) $k.description #end
+                    </p>
+                </td>
+            </tr>
+        #end
+    </table>
+
+##################### List of Added Items ##################################
+    <h1 style='page-break-after:avoid'>ADDED ITEMS</h1>
+    <table class="MsoTableGrid" border="1" cellspacing="0" cellpadding="0" style='margin-left:.5in;border-collapse:collapse;border:none;'>
+        #foreach($aa in $compareOriginIds)
+            #set($cDoc = $docDao.getDocument($aa))
+            #if(!$baseOrgIds.contains($aa))
+                <tr>
+                    <td width="9in" valign="top" style='border:solid windowtext 1.0pt; mso-border-alt:solid windowtext .5pt;padding:5.4pt 5.4pt 0in 5.4pt ;width:9in;'>
+                        <p class="MsoNormal" style='margin-left:0in'>
+                        <h2><a href="perspective.req?projectId=$cDoc.project.id&docId=$cDoc.id" >$cDoc.documentKey</a> $cDoc.name</h2>
+                        </p>
+                        <p class="MsoNormal" style='margin-left:0in'>
+                            #if( $cDoc.description) $cDoc.description #end
+                        </p>
+                    </td>
+                </tr>
+                #if( $includeRelationships == true)
+                    <tr>
+                        <td width="9in" valign="top" style='border:solid windowtext 1.0pt; mso-border-alt:solid windowtext .5pt;padding:5.4pt 5.4pt 0in 5.4pt ;width:9in;'>
+                            <p class="MsoNormal" style='margin-left:0in'>
+                                Relationships
+                            </p>
+                            <p class="MsoNormal" style='margin-left:0in'>
+                                #set( $start = 0)
+                                #set( $i = 20)
+                            ##CDocId: $cDoc.id, AA: $aa Start: $start, Count: $count, B2: $r2<br>
+                                #set($addedRels = $velocityServiceWrapper.getRelationships($aa,$r2,$start,$i))
+                            ##AddedRels: $addedRels<br>
+                                #foreach( $versionedRelationship in $addedRels.getResults() )
+
+                                    #set($fromItemId = $versionedRelationship.getFromItem().getValue().get(0))
+                                    #set($fromItemVersion = $versionedRelationship.getFromItem().getValue().get(1))
+                                    #set($toItemId = $versionedRelationship.getToItem().getValue().get(0))
+                                    #set($toItemVersion = $versionedRelationship.getToItem().getValue().get(1))
+
+                                    #set($fromItem = $velocityServiceWrapper.getItem($fromItemId , $fromItemVersion))
+                                    #set($toItem = $velocityServiceWrapper.getItem($toItemId , $toItemVersion))
+
+                                    <a href="perspective.req?projectId=$fromItem.project.id&docId=$fromItem.id" >$fromItem.documentKey</a> --> <a href="perspective.req?projectId=$toItem.project.id&docId=$toItem.id" >$toItem.documentKey</a>
+                                    <br> <br>
+                                #end
+                            </p>
+                        </td>
+                    </tr>
+                #end
+            #end
+        #end
+    </table>
+    #if ($format == "doc")
+    ###################### Header & Footer #################################
+        <p class=MsoBodyText><o:p>&nbsp;</o:p></p>
+        <table style="float:right; margin: 0 0 0 10in;" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td>
+                    <div style='mso-element:header' id=h1>
+                    </div>
+                    <div style='mso-element:footer' id=f1>
+                        <div style='mso-element:para-border-div;border:none;border-bottom:solid windowtext 1.0pt;mso-border-bottom-alt:solid windowtext .5pt;padding:0in 0in 1.0pt 0in'>
+                            <p class=MsoNormal style="margin-bottom:0.0pt;">
+								<span lang=EN-GB>
+									<w:PTab Alignment="LEFT" RelativeTo="MARGIN" Leader="NONE"></w:PTab>
+									<w:PTab Alignment="CENTER" RelativeTo="MARGIN" Leader="NONE"></w:PTab>
+									<w:PTab Alignment="RIGHT" RelativeTo="MARGIN" Leader="NONE">
+										Page&nbsp;<span style='mso-field-code:" PAGE "'></span>
+                                        <!--[if supportFields]>
+                                        <span style='mso-element:field-end'></span>
+                                        <![endif]--> of
+                                        <!--[if supportFields]>
+                                        <span style='mso-element:field-begin'></span>
+                                        <span style='mso-spacerun:yes'> </span>NUMPAGES
+                                        <span style='mso-element:field-separator'></span>
+                                        <![endif]-->
+                                        <span style='mso-field-code:" SECTIONPAGES "'></span>
+                                        <!--[if supportFields]>
+                                        <span style='mso-element:field-end'></span>
+                                        <![endif]-->
+									</w:PTab>
+								</span>
+                            </p>
+                            <p class=Header-TitlePage><span style='mso-no-proof:yes'></span><span style='mso-tab-count:1'></span>
+
+                            </p>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    #end
+</div>
+
+</body>
+
+</html>
