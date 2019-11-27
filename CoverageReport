@@ -1,0 +1,490 @@
+##############################################################################
+## Name : Testplan coverage
+##
+## description : for each item (requirement) in the documentList, prints the
+##               verifying Test Cases and the last executed related Test Run. 
+##               To be used to check for requirement coverage.
+##               To be used as context-sensitive report (uses documentList)
+##				 
+##
+## parameters  : sReportTitle (String; String added to title)
+##				 no effect: sTestplanFilterVariant (String; only use Testplans that include the given string, like PRIME)
+##				 no effect: bIncludeInternalTestplans (boolean; if TRUE also include Testplans that include INTERNAL string)
+##
+##############################################################################
+## MODIFICATION HISTORY
+## Date        Version  	Author            	Comment
+## 2019-10-08  V1.1     	Sebastian Merz   	use tables in tables in tables
+##
+##############################################################################
+
+############
+##        ##
+## MACROS ##
+##        ##
+############
+#macro(additemURLtoHTMLblank $flag $jamaurl $itemid $projectid $text)
+	#if($flag == true)
+		<a href="http://$jamaurl/jama/perspective.req#/items/$itemid?projectId=$projectid" target="_blank">$text</a>
+	#else
+		$text
+	#end
+#end
+
+#macro(addURLtoHTMLblank $flag $url $text)
+	#if($flag == true)
+		<a href="$url" target="_blank">$text</a>
+	#else
+		$text
+	#end
+#end
+############
+############
+
+
+#set($docDao = $applicationContext.getBean("documentDao"))
+#set($relDao = $applicationContext.getBean("relationshipDao"))
+#set($testRunDao = $applicationContext.getBean("testRunDao"))
+#set($userDao = $applicationContext.getBean("userDao"))
+
+#set($securityContextHolder = $applicationContext.getClassLoader().loadClass("org.springframework.security.core.context.SecurityContextHolder"))
+#set($actualUser = $userDao.getUserByUserName($securityContextHolder.getContext().getAuthentication().getPrincipal().Username).getFullName())
+
+## add your jama URL here
+#set($jamaurl = "yourjama.company.net")
+#set($testrunstatushelpurl = "http://yourjama.company.net/jama/help/ah/en/test/test-runs/test-run-status.html")
+
+## sTestplanFilterVariant shall be defined in the report UI. Otherwise use empty string as default (for all testplans)
+#if(!$sTestplanFilterVariant)
+	#set($sTestplanFilterVariant = "")
+#end
+
+## bIncludeInternalTestplans shall be defined in the report UI. Otherwise use 0 as default.
+#if($bIncludeInternalTestplans)
+	#set($sInternalTestplan = "INTERNAL")
+#else
+	#set($bIncludeInternalTestplans = false)
+	#set($sInternalTestplan = "")
+#end
+
+
+## bAddURL shall be defined in the Report GUI. Otherwise use 1 as default
+#if(!$bAddURL)
+	#set($bAddURL = true)
+#end
+
+## bStatistics shall be defined in the Report GUI. Otherwise use 1 as default
+#if(!$bStatistics)
+	#set($bStatistics = true)
+#end
+
+## bNoDetailedList shall be defined in the Report GUI. Otherwise use 0 as default
+#if(!$bNoDetailedList)
+	#set($bNoDetailedList = false)
+#end
+
+## sReportTitle shall be defined in the Report GUI. Otherwise use an empty string as default
+#if(!$sReportTitle)
+	#set($sReportTitle = "")
+#end
+
+#set($doctypeFirstElement = $documentList[0].document.getDocumentType())
+#if($doctypeFirstElement.documentTypeKey == "SET" || $doctypeFirstElement.documentTypeKey == "CMP" || $doctypeFirstElement.documentTypeKey == "FLD")
+	#set($sReportTitle = "$documentList[0].document.name ($documentList[0].document.documentKey) : $sReportTitle")
+#end
+
+
+
+
+<html>
+<head>
+<style>
+a:link {
+	color: black; 
+	background-color: transparent; 
+	text-decoration: none;
+}
+a:visited {
+	color: black;
+	background-color: transparent;
+	text-decoration: none;
+}
+
+a:hover {
+	color: red;
+	background-color: transparent;
+	text-decoration: none;
+}
+
+a:active {
+	color: yellow;
+	background-color: transparent;
+	text-decoration: none;
+}
+</style> 
+</head>
+<body>
+
+
+<h1>Report on Requirement - Test Case - Test Run Coverage</h1>
+<h1>$sReportTitle</h1>
+
+#if($bNoDetailedList == false)
+	<h2>Detailed List</h2>
+	<table border="1" cellpadding="1" cellspacing="0" style="border-collapse:collapse">
+	<thead>
+	<th>Requirement</th>
+	<th>Suspect?</th>
+	<th>Test Cases</th>
+	<th>Suspect?</th>
+	<th>Test Run Results</th>
+	<th>Pass with Error?</th>
+	<th>Test Cycle</th>
+	<th>Test Plan</th>
+	</thead>
+	<tbody>
+#end
+
+#set($nReq = 0)
+#set($nReqNoTestCase = 0)
+#set($nReqWithTestCaseNoTestRun = 0)
+#set($nReqWithTestCaseWithBlockedTestRun = 0)
+#set($nReqWithTestCaseWithFailedTestRun = 0)
+#set($nReqWithTestCaseWithPassedTestRun = 0)
+#set($nReqWithTestCaseWithNotRunOrInprogressTestRun = 0)
+#set($numTestCases = 0)
+
+## Loop over all given items (should be requirements)
+#foreach($vdoc in $documentList)
+	#set($doctype = $vdoc.document.getDocumentType())
+	#if($bNoDetailedList == false)
+		<tr>
+		<td>#additemURLtoHTMLblank($bAddURL $jamaurl $vdoc.document.id $projectid $vdoc.document.documentKey)
+		</td>
+	#end
+	#set($cellcontent = "")
+	#set($sTestCase = "")
+	#set($bgcolortable1 = "white")
+	#set($bAnyTestCaseWithoutTestRun = false)
+	#set($bFirstTestCaseLoop = true)
+	#set($bTestCaseExisting = false)
+	
+	## Marker to detect if line feed for table must be made
+	#set($oFirstTestForReq = true)
+	
+	## ***********************************************
+	## Loop over each downstream from the current item
+	## ***********************************************
+	#foreach($leaf in $relDao.getDownstreamDocumentIds($vdoc.document.id))
+								
+		#if($docDao.getDocument($leaf).getActive() == true)
+			#set($doctype = $docDao.getDocument($leaf).getDocumentType())
+			
+			## Only select the related Verification items (TEST_CASE type)
+			#if($doctype.getCategory() == "TEST_CASE")
+				#set($numTestCases = $numTestCases + 1)
+				
+				## mark that a test for the item exists
+				#set($bTestCaseExisting = true)
+				
+				## This block checks if more tests for the same requirement come and adds a needed empty table cell
+				#if ($oFirstTestForReq == true)
+					#set($oFirstTestForReq = false)
+				#else	
+					## Add empty table row cell
+					<td></td>
+				#end
+				
+
+				## *****************************************************************
+				##                Check if the Test case is suspect
+				## *****************************************************************
+				#set($bSuspect = $relDao.getRelationshipBetweenDocuments($vdoc.document.id, $docDao.getDocument($leaf).getId() ).getSuspect() )
+				#if($bSuspect == true)
+					#set($bgcolor = "red")
+					<td bgcolor="$bgcolor">suspect</td>
+				#else
+				#set($bgcolor = "white")
+					<td></td>
+				#end
+				
+				#set($sTestCase = "#additemURLtoHTMLblank($bAddURL $jamaurl $docDao.getDocument($leaf).getId() $projectid $docDao.getDocument($leaf).getDocumentKey())")
+				
+
+				<td bgcolor="$bgcolor">$sTestCase</td>
+
+			
+				
+				
+				## **********************************************
+				## Now find the last test run for this test case!
+				## **********************************************
+				#set($bFirst = true)
+				## Reset temp variables
+				#if($bFirstTestCaseLoop == true)
+					#set($bAnyTestCaseWithBlockedTestRun = false)
+					#set($bAnyTestCaseWithFailedTestRun = false)
+					#set($bAnyTestCaseWithPassedTestRun = false)
+					#set($bAnyTestCaseWithNotRunOrInprogressTestRun = false)
+					#set($bFirstTestCaseLoop = false)
+				#end
+				#set($latestTestRunId = "")
+				##set($cellcontentAllTestRuns = "")
+				#set($cellcontentLastTestRun = "")
+				
+				## Loop over all test runs for the test case
+				#foreach ($testRunLoop in $testRunDao.getTestRunIdsForTestCases([$mathTool.toInteger($leaf)]))
+					#set($testRun = $testRunDao.getTestRun($testRunLoop))
+					#if($testRun.getActive() == true)
+						#if($bFirst == true)
+							#set($latestTestRunId = $testRun.id)
+							#set($bFirst = false)
+						#else
+							#if($comparisonDateTool.difference($testRunDao.getTestRun($latestTestRunId).getModifiedDate(), $testRun.getModifiedDate()).getSeconds() > 0)
+								## case newer test run
+								#set($latestTestRunId = $testRun.id)
+							#end
+							#set($n = $docDao.getDocument($leaf).getDocumentKey().length())
+							##foreach($i in [1..$n])
+							##	#set($cellcontentAllTestRuns = "$cellcontentAllTestRuns&nbsp;")
+							##end
+						#end
+						
+						
+						#if($testRun.getTestRunStatus() == "BLOCKED")
+							#set($bAnyTestCaseWithBlockedTestRun = true)
+						#elseif($testRun.getTestRunStatus() == "FAILED")
+							#set($bAnyTestCaseWithFailedTestRun = true)
+						#elseif($testRun.getTestRunStatus() == "PASSED")
+							#set($bAnyTestCaseWithPassedTestRun = true)
+						#else
+							## either INPROGRESS or NOT_RUN
+							#set($bAnyTestCaseWithNotRunOrInprogressTestRun = true)
+						#end
+					#end
+				#end ##/ Testrun loop
+				
+			
+				
+				## ***************************************************************************************************
+				##                                Check if Testrun is suspect
+				## ****************************************************************************************************
+				
+				## Only compare Testcase Version with Testrun's testcase version (== suspect check) if a Testrun exists
+				#if($bFirst == true)
+					## Add empty cell if no testrun exists
+					<td></td>
+				#else
+					#set($testRunVersion = $mathTool.toInteger($testRunDao.getTestRun($latestTestRunId).getTestCaseVersionNumber()) ) 
+					#set($testCaseVersion = $mathTool.toInteger($docDao.getDocument($leaf).getCurrentVersion().getVersionNumber()))
+					
+					 
+					#if ($testCaseVersion > $testRunVersion)
+						#set($bgcolor = "red")
+						<td bgcolor="$bgcolor">suspect:V = $testRunVersion </td>
+					#else
+						#set($bgcolor = "white")
+						<td></td>
+					#end
+				
+				#end
+
+				#if($latestTestRunId != "")
+
+					
+					#set($testPlan = $testRunDao.getTestRun($latestTestRunId).getTestCaseVersionNumber()) 
+					
+					#set($cellcontentLastTestRun = "#additemURLtoHTMLblank($bAddURL $jamaurl $latestTestRunId $projectid $testRunDao.getTestRun($latestTestRunId).getDocumentKey())&nbsp;(#addURLtoHTMLblank($bAddURL $testcasestatushelpurl $testRunDao.getTestRun($latestTestRunId).getTestRunStatus()))")
+	
+				#else 
+					#set($cellcontentLastTestRun = "not run")
+				#end
+				#set($cellcontent = "$cellcontentLastTestRun")
+
+
+				
+				##********************************************************************
+				## ****** Show current TestRun and feed statistics *******************
+				##********************************************************************
+				
+				#set($bgcolortestrunstatus = "white")
+				#if($testRunDao.getTestRun($latestTestRunId).getTestRunStatus() == "BLOCKED")
+					#set($bgcolortestrunstatus = "yellow")
+					#set($nReqWithTestCaseWithBlockedTestRun = $nReqWithTestCaseWithBlockedTestRun + 1)
+					
+				#elseif($testRunDao.getTestRun($latestTestRunId).getTestRunStatus() == "FAILED")
+					#set($bgcolortestrunstatus = "red")
+					#set($nReqWithTestCaseWithFailedTestRun = $nReqWithTestCaseWithFailedTestRun + 1)
+					
+				#elseif($testRunDao.getTestRun($latestTestRunId).getTestRunStatus() == "PASSED")
+					#set($bgcolortestrunstatus = "lime")
+					#set($nReqWithTestCaseWithPassedTestRun = $nReqWithTestCaseWithPassedTestRun +1)
+				#else
+					## NOT_RUN or INPROGRESS
+					#set($bgcolortestrunstatus = "white")
+					#set($nReqWithTestCaseWithNotRunOrInprogressTestRun = $nReqWithTestCaseWithNotRunOrInprogressTestRun +1)
+      			#end
+				
+				#if($bFirst == true)
+					## case no Test Runs
+					#set($bgcolortestrunstatus = "ORANGE")
+					#set($cellcontent = "No TestRun yet!")
+					#set($nReqWithTestCaseNoTestRun = $nReqWithTestCaseNoTestRun + 1)
+				#end
+
+				<td bgcolor="$bgcolortestrunstatus">$cellcontent</td>
+				
+				##********************************************************************
+				## *********Show Force pass*******************************************
+				##********************************************************************
+				#if ($testRunDao.getTestRun($latestTestRunId).getForcePassed() == true)
+					<td>PassWithError</td>
+				#else
+					<td></td>
+				#end
+				
+				
+				
+				##********************************************************************
+				##**************** Show associated Testcycle **************************
+				##********************************************************************
+				#if($bFirst == false)
+					#set($testCycleContent = "#additemURLtoHTMLblank($bAddURL $jamaurl $testRunDao.getTestRun($latestTestRunId).getTestCycle().getId() $projectid $testRunDao.getTestRun($latestTestRunId).getTestCycle().getDocumentKey())")
+					#set($testCycleContent = "$testCycleContent $testRunDao.getTestRun($latestTestRunId).getTestCycle().getName()")
+					
+					<td bgcolor="white">$testCycleContent</td>
+				#end
+				##********************************************************************
+				##**************** Show associated Testplan **************************
+				##********************************************************************
+				#if($bFirst == false)
+					#set($testPlanContent = "#additemURLtoHTMLblank($bAddURL $jamaurl $testRunDao.getTestRun($latestTestRunId).getTestPlan().getId() $projectid $testRunDao.getTestRun($latestTestRunId).getTestPlan().getDocumentKey())")
+					#set($testPlanContent = "$testPlanContent $testRunDao.getTestRun($latestTestRunId).getTestPlan().getName()")
+					
+					<td bgcolor="white">$testPlanContent</td>
+				#end
+
+				
+				</tr>
+				
+			#end ##/ if testcase
+		#end ## / if active item
+	#end ## /Loop over every downstream
+		
+		
+	
+	#set($nReq = $nReq + 1)
+	
+	## If no testcase for the given item exists increase the no testcase counter
+	#if ($bTestCaseExisting == false)
+		#set($nReqNoTestCase = $nReqNoTestCase +1)
+		#set($bgcolor = "red")
+		<td bgcolor="$bgcolor"></td> ## red empty suspect cell
+		<td bgcolor="$bgcolor">NO-TEST</td> ## red  TC cell
+		<td bgcolor="$bgcolor"></td> ## red empty Testrun suspect cell
+		<td bgcolor="$bgcolor"></td> ## red empty Testrun cell
+	#else 
+		#set($bTestCaseExisting = false)
+	#end
+		
+#end ##/Loop over every given item
+
+#if($bNoDetailedList == false)
+	</tbody>
+	</table>
+#end
+
+#if($bStatistics == true)
+	<h2>Statistics</h2>
+	<table border="1" cellpadding="1" cellspacing="0" style="border-collapse:collapse">
+	<thead>
+	<th>Cumulative Statistic</th>
+	<th>Value</th>
+	</thead>
+	<tbody>
+	
+	#if ($numReqSuspect > 0)
+		#set($bcColorSuspectReq = "red")
+	#else
+		#set($bcColorSuspectReq = "white")
+	#end
+	
+	#if ($numReqBadCoverage > 0)
+		#set($bcColorReqCover = "red")
+	#else
+		#set($bcColorReqCover = "white")
+	#end
+	
+	
+	
+	#if ($nReqNoTestCase > 0)
+		#set($bcColorNoTestscase = "red")
+	#else
+		#set($bcColorNoTestscase = "white")
+	#end
+	
+	
+	#if ($numTestCasesSuspect > 0)
+		#set($bcColorTcSuspect = "red")
+	#else
+		#set($bcColorTcSuspect = "white")
+	#end
+	
+	#if ($nTestCaseNoRun > 0)
+		#set($bcColorTcNoRun = "orange")
+	#else
+		#set($bcColorTcNoRun = "white")
+	#end
+	
+	#if ($numTestRunsSuspect > 0)
+		#set($bcColorTrSuspect = "red")
+	#else
+		#set($bcColorTrSuspect = "white")
+	#end
+	
+	#if ($nTestCaseBlocked > 0)
+		#set($bcColorTrBlocked = "yellow")
+	#else
+		#set($bcColorTrBlocked = "white")
+	#end
+	
+	#if ($nTestCaseFailed > 0)
+		#set($bcColorTrFailed = "red")
+	#else
+		#set($bcColorTrFailed = "white")
+	#end
+	
+	#if ($nTestCasePass > 0)
+		#set($bcColorTrPass = "lime")
+	#else
+		#set($bcColorTrPass = "white")
+	#end
+	
+	
+	
+	<tr><td>Number of Requirements</td><td bgcolor="white">$nReq</td></tr>
+	<tr><td>Number of suspect Requirements</td><td bgcolor="$bcColorSuspectReq">$numReqSuspect</td></tr>
+	<tr><td>Number of Requirements with bad coverage</td><td bgcolor="$bcColorReqCover">$numReqBadCoverage</td></tr>
+	
+
+	<tr><td>Number of Requirements w/o any Test Case</td><td bgcolor="$bcColorNoTestscase">$nReqNoTestCase</td></tr>
+	<tr><td>Number of Tests </td><td bgcolor="white">$numTestCases</td></tr>
+	<tr><td>Number of suspect Tests</td><td bgcolor="$bcColorTcSuspect">$numTestCasesSuspect</td></tr>
+	<tr><td>Number of Tests without Testrun</td><td bgcolor="$bcColorTcNoRun">$nTestCaseNoRun</td></tr>
+	<tr><td>Number of suspect Testruns</td><td bgcolor="$bcColorTrSuspect">$numTestRunsSuspect</td></tr>
+	<tr><td>Number of Tests BLOCKED</td><td bgcolor="$bcColorTrBlocked">$nTestCaseBlocked</td></tr>
+	<tr><td>Number of Tests FAILED</td><td bgcolor="$bcColorTrFailed">$nTestCaseFailed</td></tr>
+	<tr><td>Number of Tests PASS</td><td bgcolor="$bcColorTrPass">$nTestCasePass</td></tr>
+	<tr><td>Number of Tests that are in progress or not executed yet.</td><td bgcolor="white">$nTestCaseInProgress</td></tr>
+	</tbody>
+	</table>
+#end
+
+#if($bStatistics == false && $bNoDetailedList == true)
+	<h2>Dear user $actualUser,</h2>
+	<h2>your selected options are possible, but make no sense : an empty page is the result. Please make sure to selected the desired options.</h2>	
+	<h2>Best regards from your favorite JAMA admin.</h2>
+#end
+
+</body>
+</html>
