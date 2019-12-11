@@ -17,7 +17,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
 ## -----------  ---------  ----------------  ---------------------------------- 
 ## 8-SEPT-2017   A          Shawnna Williams  Created. 
 ## 8-AUG-2019    B          Shawnna Williams  Changed for velocity 3.0 upgrade
-## 2-OCT-2019    C          Shawnna Williams  Changed over for new velocity services                                         
+## 11-DEC-2019   C          Shawnna Williams  Fixed date that was cut off.                                         
 ##                                         
 ## 
 ## 
@@ -582,34 +582,34 @@ table.MsoTableGrid
 	</div>
 #end
 ######################################
-#*
-#set( $contourItemDao = $applicationContext.getBean("contourItemDao"))
-#set( $docDao = $applicationContext.getBean("documentDao"))
-#set( $reviewDao = $applicationContext.getBean("reviewDao"))
-#set( $revisionDao = $applicationContext.getBean("revisionDao"))
-#set( $revisionUserDao = $applicationContext.getBean("revisionUserDao"))
-#set( $revisionUserItemDao = $applicationContext.getBean("revisionUserItemDao"))
-#set( $revisionItemDao = $applicationContext.getBean("revisionItemDao"))
-#set( $revisionUserService = $applicationContext.getBean("revisionUserService"))
-#set( $review = $reviewDao.getReview($mathTool.toInteger($reviewId)))
-#set( $docNodeDao = $applicationContext.getBean("documentNodeDao"))
-#set( $signatureDao = $applicationContext.getBean("signatureDao"))
-#set( $commentDao = $applicationContext.getBean("commentDao"))*#
 
-#set( $contourItemDao = $documentSource)
-#set( $docDao = $documentSource)
-#set( $reviewDao = $reviewSource)
-#set( $revisionDao = $reviewSource)
-#set( $revisionUserDao = $reviewSource)
-#set( $revisionUserItemDao = $reviewSource)
-#set( $revisionItemDao = $reviewSource)
-#set( $revisionUserService = $reviewSource)
-#set( $review = $reviewDao.getReview($mathTool.toInteger($reviewId)))
-#set( $docNodeDao = $documentSource)
-#set( $signatureDao = $reviewSource)
-#set( $commentDao = $commentSource)
-
-##set( $reviewProgressDTO = $reviewSource)
+#if( $documentSource)
+	#set( $contourItemDao = $documentSource)
+	#set( $docDao = $documentSource)
+	#set( $reviewDao = $reviewSource)
+	#set( $revisionDao = $reviewSource)
+	#set( $revisionUserDao = $reviewSource)
+	#set( $revisionUserItemDao = $reviewSource)
+	#set( $revisionItemDao = $reviewSource)
+	#set( $revisionUserService = $reviewSource)
+	#set( $docNodeDao = $documentSource)
+	#set( $signatureDao = $reviewSource)
+	#set( $commentDao = $commentSource)
+#else
+	#set( $contourItemDao = $applicationContext.getBean("contourItemDao"))
+	#set( $docDao = $applicationContext.getBean("documentDao"))
+	#set( $reviewDao = $applicationContext.getBean("reviewDao"))
+	#set( $revisionDao = $applicationContext.getBean("revisionDao"))
+	#set( $revisionUserDao = $applicationContext.getBean("revisionUserDao"))
+	#set( $revisionUserItemDao = $applicationContext.getBean("revisionUserItemDao"))
+	#set( $revisionItemDao = $applicationContext.getBean("revisionItemDao"))
+	#set( $revisionUserService = $applicationContext.getBean("revisionUserService"))
+	#set( $docNodeDao = $applicationContext.getBean("documentNodeDao"))
+	#set( $signatureDao = $applicationContext.getBean("signatureDao"))
+	#set( $commentDao = $applicationContext.getBean("commentDao"))
+#end
+	#set( $review = $reviewDao.getReview($mathTool.toInteger($reviewId)))
+##set( $reviewProgressDTO = $applicationContext.getBean("reviewProgressDTO"))
 
 ##getInfo( $revisionUserService)<br>
 ##getInfo( $reviewProgressDTO)
@@ -655,9 +655,15 @@ normal'><span style='font-size:14.0pt'>##&lt;Review URL&gt;<o:p></o:p></span></b
   <td width=366 valign=top style='width:3.05in;border:solid windowtext 1.0pt;
   mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'>Start Date:</b> #if( $revision.startDate) $dateTool.format( 'MMMM d, yyyy h:m a', $revision.startDate) #end</p>
+  normal'><b style='mso-bidi-font-weight:normal'>Start Date:</b> 
+  ##if( $revision.startDate) $dateTool.format( 'MMMM d, yyyy h:m a', $revision.startDate) #end
+  #if( $revision.startDate) $dateTool.format( 'long', $revision.startDate) #end
+  </p>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'>End Date:</b> #if( $revision.endDate) $dateTool.format('MMMM d, yyyy h:m a', $revision.endDate) #end</p>
+  normal'><b style='mso-bidi-font-weight:normal'>End Date:</b> 
+  ##if( $revision.endDate) $dateTool.format('MMMM d, yyyy h:m a', $revision.endDate) #end
+  #if( $revision.endDate) $dateTool.format('long', $revision.endDate) #end
+  </p>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
   normal'><b style='mso-bidi-font-weight:normal'>Moderator(s):</b> 
 	#foreach( $a in $review.authors)
@@ -835,7 +841,8 @@ style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
 				#if( $a.finishedRevision =='true')
 					#if( $a.approvedRevision =='true')
 						#set( $signature = $signatureDao.getLatestSignatureForUserAndScopeRef( $a.user.id, 10, $revision.id, false)) 
-						$dateTool.format( 'MMMM d, yyyy h:m a', $signature.modifiedDate)<br>
+						##$dateTool.format( 'MMMM d, yyyy h:m a', $signature.modifiedDate)<br>
+						$dateTool.format( 'long', $signature.modifiedDate)<br>
 					#else
 						Requested New
 					#end
@@ -845,7 +852,8 @@ style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
 			  #else
 				#if( $a.finishedRevision =='true')
 					#if( $a.approvedRevision =='true')
-						$dateTool.format('MMMM d, yyyy h:m a', $a.modifiedDate)
+						##$dateTool.format('MMMM d, yyyy h:m a', $a.modifiedDate)
+						$dateTool.format('long', $a.modifiedDate)
 					#elseif( $a.approvedRevision =='false')
 						Not Approved
 					#end
@@ -980,7 +988,8 @@ style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
 		  <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
 		  normal'>				
 				#if( $rvu.finishedRevision =='true')
-					$dateTool.format('MMMM d, yyyy h:m a', $rvu.modifiedDate)
+					##$dateTool.format('MMMM d, yyyy h:m a', $rvu.modifiedDate)
+					$dateTool.format('long', $rvu.modifiedDate)
 				#elseif( $rvu.finishedRevision =='false')
 					Not Completed
 				#end</p>
