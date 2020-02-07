@@ -1780,26 +1780,27 @@ table.Table
  </o:shapelayout></xml><![endif]-->
 </head>
 
-#*
-#set($contourItemDao = $applicationContext.getBean("contourItemDao"))
-#set($docDao = $applicationContext.getBean("documentDao"))
-#set($relDao = $applicationContext.getBean("relationshipDao"))
-#set($documentNodeDao = $applicationContext.getBean("documentNodeDao"))
-#set($tRunDao = $applicationContext.getBean("testRunDao"))
-#set($testPlanDao = $applicationContext.getBean("testPlanDao"))
-#set($testSetDao = $applicationContext.getBean("testSetDao"))
-#set($testCycleDao = $applicationContext.getBean("testCycleDao"))
-#set($userDao = $applicationContext.getBean("userDao")) *#
-
-#set($contourItemDao = $applicationContext.getBean("DocumentSource"))
-#set($docDao = $applicationContext.getBean("DocumentSource"))
-#set($relDao = $applicationContext.getBean("DocumentSource"))
-#set($documentNodeDao = $applicationContext.getBean("DocumentSource"))
-#set($tRunDao = $applicationContext.getBean("TestSource"))
-#set($testPlanDao = $applicationContext.getBean("TestSource"))
-#set($testSetDao = $applicationContext.getBean("TestSource"))
-#set($testCycleDao = $applicationContext.getBean("TestSource"))
-#set($userDao = $applicationContext.getBean("UserSource")) 
+#if( $documentSource)
+	#set($contourItemDao = $documentSource)
+	#set($docDao = $documentSource)
+	#set($relDao = $documentSource)
+	#set($documentNodeDao = $documentSource)
+	#set($tRunDao = $testSource)
+	#set($testPlanDao = $testSource)
+	#set($testSetDao = $testSource)
+	#set($testCycleDao = $testSource)
+	#set($userDao = $userSource) 
+#else
+	#set($contourItemDao = $applicationContext.getBean("contourItemDao"))
+	#set($docDao = $applicationContext.getBean("documentDao"))
+	#set($relDao = $applicationContext.getBean("relationshipDao"))
+	#set($documentNodeDao = $applicationContext.getBean("documentNodeDao"))
+	#set($tRunDao = $applicationContext.getBean("testRunDao"))
+	#set($testPlanDao = $applicationContext.getBean("testPlanDao"))
+	#set($testSetDao = $applicationContext.getBean("testSetDao"))
+	#set($testCycleDao = $applicationContext.getBean("testCycleDao"))
+	#set($userDao = $applicationContext.getBean("userDao")) 
+#end
 
 #if( !$report_testPlanId)
     Please select a Test Plan
