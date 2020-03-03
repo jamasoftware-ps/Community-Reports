@@ -12,12 +12,34 @@ Started print $dateTool
 <td>Used Named</td>
 <td>Assigned Named</td>
 </tr>
-#set($licSvc = $applicationContext.getBean("dwrLicenseService"))
-#set($LicLastDays =$licSvc.getLicenseDataForLastNDays("last30Days",$org,"FLOAT"))
-#set($NamedLastDays =$licSvc.getLicenseDataForLastNDays("last30Days",$org,"NAMED"))
+#if( $documentSource)
+	#set($licSvc = $adminSource)
+#else
+	#set($licSvc = $applicationContext.getBean("dwrLicenseService"))
+#end
+
+#set( $licTypes = [])
+#set( $licTypes = $licSvc.getAllOrgLicenseTypes())
+##ORG: $org, <br>
+#foreach( $l in $licTypes)
+	##$l.name<br>
+	#if ($l.name == "NAMED")
+		#set($namedLicense = $l)
+	#end
+	#if ($l.name == "FLOATING")
+		#set($floatingLicense = $l)
+	#end
+
+#end
+
+#set($LicLastDays =$licSvc.getLicenseDataForLastNDays("last30Days", $org, $floatingLicense))
+#set($NamedLastDays =$licSvc.getLicenseDataForLastNDays("last30Days",$org, $namedLicense))
+##LI:$LicLastDays.size(), Named: $NamedLastDays.size()<br>
+
+
 #set($cnt=0)
 #foreach($LicDay in $LicLastDays)
-	#set($NamedDay = $listTool.get($NamedLastDays,$cnt))
+	#set($NamedDay = $NamedLastDays.get($cnt))
 	<tr>
 	<td>
 	$dateTool.format('yyyy-M-d',$LicDay.getIntervalStart())
