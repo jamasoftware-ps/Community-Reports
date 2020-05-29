@@ -906,6 +906,12 @@ order by rv.createddate, rv.endDate]]></xml-property>
                     <text-property name="heading">ThreadId</text-property>
                 </structure>
                 <structure>
+                    <property name="columnName">ThreadParent</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="displayName">ThreadParent</text-property>
+                    <text-property name="heading">ThreadParent</text-property>
+                </structure>
+                <structure>
                     <property name="columnName">Parent</property>
                     <property name="analysis">dimension</property>
                     <text-property name="displayName">Parent</text-property>
@@ -936,7 +942,7 @@ order by rv.createddate, rv.endDate]]></xml-property>
                     <text-property name="heading">createdDate</text-property>
                 </structure>
                 <structure>
-                    <property name="columnName">name_14</property>
+                    <property name="columnName">name_15</property>
                     <property name="analysis">dimension</property>
                     <text-property name="displayName">commentType</text-property>
                     <text-property name="heading">commentType</text-property>
@@ -1074,86 +1080,91 @@ order by rv.createddate, rv.endDate]]></xml-property>
                     </structure>
                     <structure>
                         <property name="position">9</property>
-                        <property name="name">Parent</property>
+                        <property name="name">ThreadParent</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">10</property>
-                        <property name="name">commentText</property>
+                        <property name="name">Parent</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">11</property>
-                        <property name="name">firstName</property>
+                        <property name="name">commentText</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">12</property>
-                        <property name="name">lastName</property>
+                        <property name="name">firstName</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
                         <property name="position">13</property>
+                        <property name="name">lastName</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">14</property>
                         <property name="name">createdDate</property>
                         <property name="dataType">date-time</property>
                     </structure>
                     <structure>
-                        <property name="position">14</property>
-                        <property name="name">name_14</property>
+                        <property name="position">15</property>
+                        <property name="name">name_15</property>
                         <property name="dataType">string</property>
                     </structure>
                     <structure>
-                        <property name="position">15</property>
+                        <property name="position">16</property>
                         <property name="name">globalSortOrder</property>
                         <property name="dataType">integer</property>
                     </structure>
                     <structure>
-                        <property name="position">16</property>
+                        <property name="position">17</property>
                         <property name="name">status</property>
                         <property name="dataType">integer</property>
                     </structure>
                     <structure>
-                        <property name="position">17</property>
+                        <property name="position">18</property>
                         <property name="name">numHeaders</property>
                         <property name="dataType">decimal</property>
                     </structure>
                     <structure>
-                        <property name="position">18</property>
+                        <property name="position">19</property>
                         <property name="name">header1</property>
                         <property name="dataType">float</property>
                     </structure>
                     <structure>
-                        <property name="position">19</property>
+                        <property name="position">20</property>
                         <property name="name">header2</property>
                         <property name="dataType">float</property>
                     </structure>
                     <structure>
-                        <property name="position">20</property>
+                        <property name="position">21</property>
                         <property name="name">header3</property>
                         <property name="dataType">float</property>
                     </structure>
                     <structure>
-                        <property name="position">21</property>
+                        <property name="position">22</property>
                         <property name="name">header4</property>
                         <property name="dataType">float</property>
                     </structure>
                     <structure>
-                        <property name="position">22</property>
+                        <property name="position">23</property>
                         <property name="name">header5</property>
                         <property name="dataType">float</property>
                     </structure>
                     <structure>
-                        <property name="position">23</property>
+                        <property name="position">24</property>
                         <property name="name">header6</property>
                         <property name="dataType">float</property>
                     </structure>
                     <structure>
-                        <property name="position">24</property>
+                        <property name="position">25</property>
                         <property name="name">header7</property>
                         <property name="dataType">float</property>
                     </structure>
                     <structure>
-                        <property name="position">25</property>
+                        <property name="position">26</property>
                         <property name="name">commentrevisionNumber</property>
                         <property name="dataType">integer</property>
                     </structure>
@@ -1219,118 +1230,125 @@ order by rv.createddate, rv.endDate]]></xml-property>
                 </structure>
                 <structure>
                     <property name="position">9</property>
+                    <property name="name">ThreadParent</property>
+                    <property name="nativeName">ThreadParent</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">10</property>
                     <property name="name">Parent</property>
                     <property name="nativeName">Parent</property>
                     <property name="dataType">string</property>
                     <property name="nativeDataType">12</property>
                 </structure>
                 <structure>
-                    <property name="position">10</property>
+                    <property name="position">11</property>
                     <property name="name">commentText</property>
                     <property name="nativeName">commentText</property>
                     <property name="dataType">string</property>
                     <property name="nativeDataType">12</property>
                 </structure>
                 <structure>
-                    <property name="position">11</property>
+                    <property name="position">12</property>
                     <property name="name">firstName</property>
                     <property name="nativeName">firstName</property>
                     <property name="dataType">string</property>
                     <property name="nativeDataType">12</property>
                 </structure>
                 <structure>
-                    <property name="position">12</property>
+                    <property name="position">13</property>
                     <property name="name">lastName</property>
                     <property name="nativeName">lastName</property>
                     <property name="dataType">string</property>
                     <property name="nativeDataType">12</property>
                 </structure>
                 <structure>
-                    <property name="position">13</property>
+                    <property name="position">14</property>
                     <property name="name">createdDate</property>
                     <property name="nativeName">createdDate</property>
                     <property name="dataType">date-time</property>
                     <property name="nativeDataType">93</property>
                 </structure>
                 <structure>
-                    <property name="position">14</property>
-                    <property name="name">name_14</property>
+                    <property name="position">15</property>
+                    <property name="name">name_15</property>
                     <property name="nativeName">name</property>
                     <property name="dataType">string</property>
                     <property name="nativeDataType">12</property>
                 </structure>
                 <structure>
-                    <property name="position">15</property>
+                    <property name="position">16</property>
                     <property name="name">globalSortOrder</property>
                     <property name="nativeName">globalSortOrder</property>
                     <property name="dataType">integer</property>
                     <property name="nativeDataType">4</property>
                 </structure>
                 <structure>
-                    <property name="position">16</property>
+                    <property name="position">17</property>
                     <property name="name">status</property>
                     <property name="nativeName">status</property>
                     <property name="dataType">integer</property>
                     <property name="nativeDataType">4</property>
                 </structure>
                 <structure>
-                    <property name="position">17</property>
+                    <property name="position">18</property>
                     <property name="name">numHeaders</property>
                     <property name="nativeName">numHeaders</property>
                     <property name="dataType">decimal</property>
                     <property name="nativeDataType">-5</property>
                 </structure>
                 <structure>
-                    <property name="position">18</property>
+                    <property name="position">19</property>
                     <property name="name">header1</property>
                     <property name="nativeName">header1</property>
                     <property name="dataType">float</property>
                     <property name="nativeDataType">8</property>
                 </structure>
                 <structure>
-                    <property name="position">19</property>
+                    <property name="position">20</property>
                     <property name="name">header2</property>
                     <property name="nativeName">header2</property>
                     <property name="dataType">float</property>
                     <property name="nativeDataType">8</property>
                 </structure>
                 <structure>
-                    <property name="position">20</property>
+                    <property name="position">21</property>
                     <property name="name">header3</property>
                     <property name="nativeName">header3</property>
                     <property name="dataType">float</property>
                     <property name="nativeDataType">8</property>
                 </structure>
                 <structure>
-                    <property name="position">21</property>
+                    <property name="position">22</property>
                     <property name="name">header4</property>
                     <property name="nativeName">header4</property>
                     <property name="dataType">float</property>
                     <property name="nativeDataType">8</property>
                 </structure>
                 <structure>
-                    <property name="position">22</property>
+                    <property name="position">23</property>
                     <property name="name">header5</property>
                     <property name="nativeName">header5</property>
                     <property name="dataType">float</property>
                     <property name="nativeDataType">8</property>
                 </structure>
                 <structure>
-                    <property name="position">23</property>
+                    <property name="position">24</property>
                     <property name="name">header6</property>
                     <property name="nativeName">header6</property>
                     <property name="dataType">float</property>
                     <property name="nativeDataType">8</property>
                 </structure>
                 <structure>
-                    <property name="position">24</property>
+                    <property name="position">25</property>
                     <property name="name">header7</property>
                     <property name="nativeName">header7</property>
                     <property name="dataType">float</property>
                     <property name="nativeDataType">8</property>
                 </structure>
                 <structure>
-                    <property name="position">25</property>
+                    <property name="position">26</property>
                     <property name="name">commentrevisionNumber</property>
                     <property name="nativeName">commentrevisionNumber</property>
                     <property name="dataType">integer</property>
@@ -1339,6 +1357,7 @@ order by rv.createddate, rv.endDate]]></xml-property>
             </list-property>
             <xml-property name="queryText"><![CDATA[select dn.sequence, d.id, d.documentKey, d.name, d.description, 
 	IFNULL(j.parentId, j.id) as ParentId, j.id, IFNULL(j.threadid, j.id) as ThreadId,
+	CONCAT(IFNULL(j.threadid, j.id), '-', IFNULL(j.parentId, j.id)) as ThreadParent,
 	CASE  WHEN IFNULL(j.threadId, j.id)=j.id THEN 'Parent Comment' ELSE '' END
 	 as Parent, j.commentText, 
 	ub.firstName, ub.lastName,
@@ -1352,7 +1371,7 @@ order by rv.createddate, rv.endDate]]></xml-property>
     (IF(@headers > 4, SUBSTRING_INDEX(SUBSTRING_INDEX(dn.sequence, '.', 5), '.', -1), '')*1) AS header5,
     (IF(@headers > 5, SUBSTRING_INDEX(SUBSTRING_INDEX(dn.sequence, '.', 6), '.', -1), '')*1) AS header6,
     (IF(@headers > 6, SUBSTRING_INDEX(SUBSTRING_INDEX(dn.sequence, '.', 7), '.', -1), '')*1) AS header7,
-    (select r4.sequence from revision r4 join revision_item ri3 on r4.id = ri3.revisionId where ri3.id = j.refId ) as commentrevisionNumber
+    ((select MAX(r4.sequence) from revision r4 where r4.reviewId = rv.id and j.createdDate >= r4.createdDate ) ) as commentrevisionNumber
 from review rv join revision r on rv.id = r.reviewId
        join revision_item ri on ri.revisionId = r.id
        join version v on v.id = ri.versionId
@@ -1365,7 +1384,7 @@ from review rv join revision r on rv.id = r.reviewId
        left join userbase ub on j.userId = ub.id
        left join commenttype ct on j.commenttype = ct.id
 where rv.id = ? and r.sequence = ? 
-order by header1, header2, header3, header4, header5, header6, header7
+order by header1, header2, header3, header4, header5, header6, header7, ThreadParent
 /*order by dn.globalSortOrder, dn.sequence, d.documentKey, IFNULL(j.threadId, j.id), j.createdDate*/
 
 ]]></xml-property>
@@ -3889,8 +3908,9 @@ else &#13;
                             <structure>
                                 <property name="name">name_14</property>
                                 <text-property name="displayName">name_14</text-property>
-                                <expression name="expression" type="javascript">dataSetRow["name_14"]</expression>
+                                <expression name="expression" type="javascript">dataSetRow["name_15"]</expression>
                                 <property name="dataType">string</property>
+                                <property name="allowExport">true</property>
                             </structure>
                             <structure>
                                 <property name="name">globalSortOrder</property>
@@ -3949,6 +3969,25 @@ else&#13;
 	'NO COMMENTS'</expression>
                                 <property name="dataType">string</property>
                                 <property name="allowExport">true</property>
+                            </structure>
+                            <structure>
+                                <property name="name">ThreadParent</property>
+                                <text-property name="displayName">ThreadParent</text-property>
+                                <expression name="expression" type="javascript">dataSetRow["ThreadParent"]</expression>
+                                <property name="dataType">string</property>
+                                <property name="allowExport">true</property>
+                            </structure>
+                        </list-property>
+                        <list-property name="sort">
+                            <structure>
+                                <expression name="key" type="javascript">row["ThreadId"]</expression>
+                                <property name="direction">asc</property>
+                                <property name="strength">-1</property>
+                            </structure>
+                            <structure>
+                                <expression name="key" type="javascript">row["ThreadParent"]</expression>
+                                <property name="direction">asc</property>
+                                <property name="strength">-1</property>
                             </structure>
                         </list-property>
                         <column id="428">
