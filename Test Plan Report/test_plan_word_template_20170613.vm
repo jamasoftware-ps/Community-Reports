@@ -1780,16 +1780,27 @@ table.Table
  </o:shapelayout></xml><![endif]-->
 </head>
 
-
-#set($contourItemDao = $applicationContext.getBean("contourItemDao"))
-#set($docDao = $applicationContext.getBean("documentDao"))
-#set($relDao = $applicationContext.getBean("relationshipDao"))
-#set($documentNodeDao = $applicationContext.getBean("documentNodeDao"))
-#set($tRunDao = $applicationContext.getBean("testRunDao"))
-#set($testPlanDao = $applicationContext.getBean("testPlanDao"))
-#set($testSetDao = $applicationContext.getBean("testSetDao"))
-#set($testCycleDao = $applicationContext.getBean("testCycleDao"))
-#set($userDao = $applicationContext.getBean("userDao"))
+#if( $documentSource)
+	#set($contourItemDao = $documentSource)
+	#set($docDao = $documentSource)
+	#set($relDao = $documentSource)
+	#set($documentNodeDao = $documentSource)
+	#set($tRunDao = $testSource)
+	#set($testPlanDao = $testSource)
+	#set($testSetDao = $testSource)
+	#set($testCycleDao = $testSource)
+	#set($userDao = $userSource)
+#else
+	#set($contourItemDao = $applicationContext.getBean("contourItemDao"))
+	#set($docDao = $applicationContext.getBean("documentDao"))
+	#set($relDao = $applicationContext.getBean("relationshipDao"))
+	#set($documentNodeDao = $applicationContext.getBean("documentNodeDao"))
+	#set($tRunDao = $applicationContext.getBean("testRunDao"))
+	#set($testPlanDao = $applicationContext.getBean("testPlanDao"))
+	#set($testSetDao = $applicationContext.getBean("testSetDao"))
+	#set($testCycleDao = $applicationContext.getBean("testCycleDao"))
+	#set($userDao = $applicationContext.getBean("userDao"))
+#end
 
 #set($report_testCycle = "")
 
