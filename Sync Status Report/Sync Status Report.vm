@@ -11,9 +11,9 @@
 ## -----------  ---------  ----------------  ---------------------------------- 
 ## 31-JUL-2015   A          Shawnna Williams  Created with Preston. 
 ## 31-JUL-2015	 B          Preston Mitchell  Formatted so that parent item data repeats in each row to allow filtering in Excel
-##   
-## 
-## 
+## 29-MAR-2018   C          Kris Stephen      Prevent checking sync status on the syncDoc 
+##                             				  is the same as the documentListDoc or if the
+## 											  documentListDoc is not synced at all
 ##											 
 ##
 ## ========================================================================== 
@@ -34,24 +34,31 @@
 	#set( $syncDocs = [])
 	#set( $syncDocs = $itemDao.getDocumentsWithGlobalId( $doc.document.globalId, $mathTool.toInteger($project.organizationId)))
 	##$syncDocs will print all docs that are synced with this document
-		#foreach( $s in $syncDocs)
-			#set( $inSync = $syncService.areItemsInSync( $mathTool.toInteger( $doc.document.id), $mathTool.toInteger( $s.id)))
-			#if($doc.document.documentKey != $s.documentKey)
-			<tr>
-				<td style="border:solid .5pt">$doc.document.documentKey</td>
-				<td style="border:solid .5pt">$doc.document.globalId</td>
-				<td style="border:solid .5pt">$doc.document.name</td>
-				<td style="border:solid .5pt">$s.documentKey</td>
-				<td style="border:solid .5pt">$s.project.name</td>
-				<td style="border:solid .5pt">#if ($!inSync == false)
-												No
-											  #else
-												Yes
-											  #end
-				</td>
-			</tr>
+		
+	#if ( $syncDocs.size() > 1 )
+		#set( $docId = $mathTool.toInteger($doc.document.id) )
+		#foreach( $s in $syncDocs)	
+			#set( $inSync = true )			
+			#set( $syncDocId = $mathTool.toInteger( $s.id) )
+			#if ( $docId != $syncDocId )
+				#set( $inSync = $syncService.areItemsInSync( $docId, $syncDocId) )
+				<tr>
+					<td style="border:solid .5pt">$doc.document.documentKey</td>
+					<td style="border:solid .5pt">$doc.document.globalId</td>
+					<td style="border:solid .5pt">$doc.document.name</td>
+					<td style="border:solid .5pt">$s.documentKey</td>
+					<td style="border:solid .5pt">$s.project.name</td>
+					<td style="border:solid .5pt">
+						#if ($!inSync == false)
+							No
+						#else
+							Yes
+						#end
+					</td>
+				</tr>
 			#end
 		#end
+	#end
 #end 
 </table>
 </html>
