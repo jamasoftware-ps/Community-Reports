@@ -7,10 +7,10 @@
 
 ## Installation Instructions
 1. Go to the Admin section of Jama
-1. Click the Reports tab
-1. Click Add Report
-1. Fill in the Add/Edit Report form as shown below.
-1. Click Save
+2. Click the Reports tab
+3. Click Add Report
+4. Fill in the Add/Edit Report form as shown below.
+5. Click Save
 
 ![Report Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Test%20Plan%20-%20Test%20Cycle%20Report/config.png)
 
@@ -21,7 +21,8 @@
 
 ## Running the Report
 1. Go to the Project section of Jama
-1. Click Reports
-1. Select the report name you specified when installing the report.
-1 Select a test plan (the test plans in the list will be all of those  associated with the current project)
-1. Click Run Report
+2. Select a Test Plan in its Overview Tab, a Test Plan in its Test Runs tab for the Test Cycle, or Basline
+3. Click the export drop down and select Office Template
+4. Select the report name you've specfied when uploading the report in the admin section 
+5. If the export is on a baseline be sure to check the box stating that it's a baselin
+6. Run the report
