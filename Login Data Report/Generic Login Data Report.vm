@@ -1,0 +1,537 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+################################################################################################################
+################################################################################################################
+## 
+##  NAME: Generic Login Data Report.vm 
+## 
+##  Description: This report collects the data from all logins to generate a spreadsheet of login status results
+## ============================================================================================================##
+##  HISTORY
+##--------------------------------------------------------------------------------------------------------------
+## 
+##  Date         Revision   Person            Comments 
+##  -----------  ---------  ----------------  ---------------------------------- 
+##  03-29-21     0.1        Liam Rotchford    Initial Build Out
+##
+################################################################################################################
+################################################################################################################
+
+
+
+
+################################################################################################################
+##
+##  API KEYS or ITEM KEY?
+##
+################################################################################################################
+##
+##  ITEM KEYS 
+##--------------------------------------------------------------------------------------------------------------
+##
+
+o Note: Item keys are the same across my local and client instances (** Unless they have made a custom item type)
+
+##-------------------------------------##
+## Collection Keys
+##-------------------------------------##
+
+#set( $component_Key = "CMP") 
+#set( $folder_Key = "FLD") 
+#set( $set_Key = "SET") 
+
+
+##-------------------------------------##
+## Requirment Keys
+##-------------------------------------##
+
+#set( $req_Key = "REQ")
+#set( $sysReq_Key = "SRS")
+#set( $businessReq_Key = "BR") 
+#set( $funcReq_Key = "FR")
+#set( $solution_Key = "SR")
+
+##-------------------------------------##
+## General Keys
+##-------------------------------------##
+
+#set( $text_Key = "TXT")
+#set( $useCase_Key = "UC")
+#set( $userNeed_Key = "UN")
+
+##-------------------------------------##
+## Agile Keys
+##-------------------------------------##
+
+#set( $epic_Key = "EP")
+#set( $feature_Key = "FEAT")
+#set( $userStory_Key = "STY")
+
+##-------------------------------------##
+## Test Keys
+##-------------------------------------##
+
+#set( $testCase_Key = "TC")
+#set( $testCycle_Key = "TSTCY")
+#set( $testPlan_Key = "TSTPL")
+#set( $testRun_Key = "TSTRN")
+
+##-------------------------------------##
+## MISC. Keys
+##-------------------------------------##
+
+#set( $field_Key = "FLD")
+#set( $defect_Key = "BUG")
+#set( $risk_Key = "RSK")
+
+
+
+
+################################################################################################################
+################################################################################################################
+##
+##  LOCAL INSTANCE FIELD API KEYS (COMMENT OUT WHEN WORKING ON CLIENT REPORT)
+##--------------------------------------------------------------------------------------------------------------
+##
+##
+## This is because API keys for items are all unique per instances.
+## This is why we ask for the API keys #’s for the clients desired Item types. 
+
+## #set( $reqType = 24)
+## #set( $sysReqType = 86)
+## #set( $storyType = 145)
+## #set( $defectType = 27)
+## #set( $testCaseType = 26)
+## #set( $uatTestCaseType = 42)
+## #set( $setType = 31)
+## #set( $componentType = 30)
+## #set( $textType = 33)
+## #set( $folderType = 32)
+
+
+################################################################################################################
+################################################################################################################
+##
+##  CLIENT INSTANCE FIELD API KEYS
+##--------------------------------------------------------------------------------------------------------------
+##
+## Ensure that at the end of testing while building the report I comment out my local instance API KEYS and un-comment out the clients here.
+
+## #set( $reqType = )
+## #set( $sysReqType = )
+## #set( $storyType = )
+## #set( $defectType = )
+## #set( $testCaseType = )
+## #set( $uatTestCaseType = )
+## #set( $setType = )
+## #set( $componentType = )
+## #set( $textType = )
+## #set( $folderType = )
+
+################################################################################################################
+################################################################################################################
+
+
+
+
+
+
+
+
+
+
+################################################################################################################
+##
+##  DATA_SOURCES
+##
+################################################################################################################
+##
+## Data Sources available without declaration
+##-------------------------------------------
+## $project
+## $documentList
+## $baseUrl
+##
+## Data Sources loaded for this report ## DAO's ##
+##-------------------------------------------
+#if( $documentSource ) ##
+  ## Jama 8.44 or greater
+  ## Jama 8.42 if New Velocity Feature Flag Enabled
+  #set( $docDao = $documentSource )
+  #set( $documentNodeDao = $documentSource )
+  #set( $attachmentDao = $documentSource )
+  #set( $attachmentService = $documentSource )
+  #set( $relDao = $documentSource )
+  #set( $versionDao = $documentSource )
+  #set( $testRunDao = $testSource )
+  #set( $velocityServiceWrapper = $documentSource )
+  #set( $baselineDao = $baselineSource )
+  #set( $userDao = $userSource )
+##
+#else
+  ## Jama 8.43 or older
+  #set( $docDao = $applicationContext.getBean("documentDao"))
+  #set( $documentNodeDao = $applicationContext.getBean("documentNodeDao"))
+  #set( $attachmentDao = $applicationContext.getBean("attachmentDao"))
+  #set( $attachmentService = $applicationContext.getBean("attachmentService"))
+  #set( $relDao = $applicationContext.getBean("relationshipDao") )
+  #set( $versionDao = $applicationContext.getBean("versionDao") )
+  #set( $testRunDao = $applicationContext.getBean("testRunDao") )
+  #set( $baselineDao = $applicationContext.getBean("baseLineDao") )
+  #set( $userDao = $applicationContext.getBean("userDao") )
+#end
+
+
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link rel=File-List href="Generic%20Login%20Data%20Report.fld/filelist.xml">
+<style id="Generic Login Data Report_18863_Styles">
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:.75in .7in .75in .7in;
+	mso-header-margin:.3in;
+	mso-footer-margin:.3in;}
+tr
+	{mso-height-source:auto;}
+col
+	{mso-width-source:auto;}
+br
+	{mso-data-placement:same-cell;}
+.style16
+	{background:#8EA9DB;
+	mso-pattern:black none;
+	color:black;
+	font-size:12.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-style-name:"60% - Accent1";
+	mso-style-id:32;}
+.style17
+  {background:#D9E1F2;
+  mso-pattern:black none;
+  color:black;
+  font-size:12.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:none;
+  font-family:Calibri, sans-serif;
+  mso-font-charset:0;
+  mso-style-name:"20% - Accent1";
+  mso-style-id:30;}
+.style39
+	{background:#D9E1F2;
+	mso-pattern:black none;
+	color:black;
+	font-size:12.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-style-name:"20% - Accent1";
+	mso-style-id:30;}
+.style0
+	{mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	mso-rotate:0;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	color:black;
+	font-size:12.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:Normal;
+	mso-style-id:0;}
+td
+	{mso-style-parent:style0;
+	padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:black;
+	font-size:12.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	border:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	mso-protection:locked visible;
+	white-space:nowrap;
+	mso-rotate:0;}
+.xl63
+	{mso-style-parent:style0;
+	font-weight:700;}
+.xl64
+	{mso-style-parent:style16;
+	border:.5pt solid windowtext;
+	background:#8EA9DB;
+	mso-pattern:black none;}
+.xl65
+	{mso-style-parent:style16;
+	font-weight:700;
+	border:.5pt solid windowtext;
+	background:#8EA9DB;
+	mso-pattern:black none;}
+.xl66
+	{mso-style-parent:style16;
+	font-weight:700;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	background:#8EA9DB;
+	mso-pattern:black none;}
+.xl67
+	{mso-style-parent:style16;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	background:#8EA9DB;
+	mso-pattern:black none;}
+.xl68
+  {mso-style-parent:style17;
+  border:.5pt solid windowtext;
+  mso-pattern:black none;}
+.xl74
+	{mso-style-parent:style39;
+	mso-number-format:"\[$-409\]m\/d\/yy\\ h\:mm\\ AM\/PM\;\@";
+	border:.5pt solid windowtext;
+	mso-background-source:auto;
+	mso-pattern:black none;
+	text-align:right;}
+-->
+</style>
+</head>
+
+
+
+#########################################################################################################################
+#########################################################################################################################
+#########################################################################################################################
+##                                                                                                                     ##
+##   VELOCITY CONTENT START                                                                                            ##
+##                                                                                                                     ##
+#########################################################################################################################
+#########################################################################################################################
+#########################################################################################################################
+
+
+
+<body link="#0563C1" vlink="#954F72">
+<!--[if !excel]>&nbsp;&nbsp;<![endif]-->
+<!--The following information was generated by Microsoft Excel's Publish as Web
+Page wizard.-->
+<!--If the same item is republished from Excel, all information between the DIV
+tags will be replaced.-->
+<!----------------------------->
+<!--START OF OUTPUT FROM EXCEL PUBLISH AS WEB PAGE WIZARD -->
+<!----------------------------->
+
+<div id="Generic Login Data Report_18863" align=center x:publishsource="Excel">
+
+
+#########################################################################################################################
+##  TABLE HEADER                                                                                                      ###
+#########################################################################################################################
+
+<table border=0 cellpadding=0 cellspacing=0 width=1205 style='border-collapse:
+ collapse;table-layout:fixed;width:904pt'>
+ <col width=201 style='mso-width-source:userset;mso-width-alt:6442;width:151pt'>
+ <col width=164 style='mso-width-source:userset;mso-width-alt:5248;width:123pt'>
+ <col width=215 style='mso-width-source:userset;mso-width-alt:6869;width:161pt'>
+ <col width=203 style='mso-width-source:userset;mso-width-alt:6485;width:152pt'>
+ <col width=213 style='mso-width-source:userset;mso-width-alt:6826;width:160pt'>
+ <col width=209 style='mso-width-source:userset;mso-width-alt:6698;width:157pt'>
+ <tr class=xl63 height=21 style='height:16.0pt'>
+  <td colspan=2 height=21 class=xl66 width=365 style='border-right:.5pt solid black;
+  height:16.0pt;width:274pt'>Login Data Report:</td>
+  <td class=xl64 width=215 style='border-left:none;width:161pt'>&nbsp;</td>
+  <td class=xl64 width=203 style='border-left:none;width:152pt'>&nbsp;</td>
+  <td class=xl64 width=213 style='border-left:none;width:160pt'>&nbsp;</td>
+  <td class=xl64 width=209 style='border-left:none;width:157pt'>&nbsp;</td>
+ </tr>
+ <tr height=21 style='height:16.0pt'>
+  <td height=21 class=xl65 style='height:16.0pt;border-top:none'>Login Result</td>
+  <td class=xl65 style='border-top:none;border-left:none'>Login User ID</td>
+  <td class=xl65 style='border-top:none;border-left:none'>License Type</td>
+  <td class=xl65 style='border-top:none;border-left:none'>Login Time ( UTC )</td>
+  <td class=xl65 style='border-top:none;border-left:none'>Logoff Time ( UTC )</td>
+  <td class=xl65 style='border-top:none;border-left:none'>Session Duration, minutes</td>
+ </tr>
+
+
+#########################################################################################################################
+##  DATA-ROWS                                                                                                         ###
+#########################################################################################################################
+
+## Login Codes ##
+#set($code1 = "NORMAL")
+#set($code2 = "NORMAL_LICENSE_SWITCHED")
+#set($code3 = "REJECTED_LICENSE_MAXED")
+#set($code4 = "REJECTED_LICENSE_EXPIRED")
+#set($code5 = "REJECTED_NO_USER_LICENSE_TYPE")
+#set($code6 = "REJECTED_OUT_OF_COMPLIANCE_LICENSE")
+
+## License type ##
+#set($N = "Named Creator")
+#set($C = "Float Creator")
+#set($FC = "Float Collaborator")
+#set($S = "Stakeholder")
+#set($R = "Reserved Collaborator")
+#set($V = "Float Reviewer")
+#set($RV = "Reserved Reviewer")
+#set($NV = "Named Reviewer")
+#set($TR = "Test Runner")
+
+
+################################################################################################################################################
+
+
+
+## Since I can gather failed login code cases on my own instance with my report then something is wrong with the license stuff on the thermo Fisher instance. 
+
+## I've raised a support ticket for them on the issue: https://jamasoftware.zendesk.com/agent/tickets/58192
+
+## Thermo Fisher Contact: Kean Stump,  <kean.stump@thermofisher.com>
+##
+## Accounts:
+##
+## TestTime TestTime123
+## Test2 TestTime456
+## Test3 TestTime789
+## Test4 TestTime000
+## Test5 TestTime111
+## Test6 TestTime222
+## Test7 TestTime333
+
+
+################################################################################################################################################
+
+#set($orgID = $project.getOrganizationId())
+#set($uSource = $userDao.getLoginsForLastHours​(2160, $orgID) )  ##Currently set for 90 Days
+
+#foreach( $user in $uSource)
+	
+	#set($loginCode = $user.getLoginCode())
+	#set($username = $user.getUser().getUserName())
+	#set($licenseType = $user.getActualLicenseType())
+	#set($loginTime = $user.getLoginTime())
+	#set($logoffTime = $user.getLogoutTime())
+	#set($sessionTime = $comparisonDateTool.difference($loginTime, $logoffTime).getMinutes())
+
+	
+	<tr height=21 style='height:16.0pt'>
+	<td class=xl68 height=21 style='height:16.0pt'>
+		$loginCode
+		#if($loginCode == 1 || $loginCode == 2)
+			Success
+		#elseif($loginCode == 3 || $loginCode == 4 || $loginCode == 5 || $loginCode == 6)
+			Failure
+		#else
+		#end
+	</td>
+	<td class=xl68>$username</td>
+	<td class=xl68>
+		#if($licenseType == "N")
+			$N
+		#elseif($licenseType == "C")
+			$C
+		#elseif($licenseType == "FC")
+			$FC
+		#elseif($licenseType == "S")
+			$S
+		#elseif($licenseType == "R")
+			$R
+		#elseif($licenseType == "V")
+			$V
+		#elseif($licenseType == "RV")
+			$RV
+		#elseif($licenseType == "NV")
+			$NV
+		#elseif($licenseType == "TR")
+			$TR
+		#else
+		#end
+
+	</td>
+	<td class=xl74>$loginTime</td>
+	<td class=xl74>
+		#if(!$logoffTime)
+			Session Active
+		#else
+			$logoffTime
+		#end
+	</td>
+	<td class=xl74>
+		#if(!$logoffTime)
+			Session Active
+		#else
+			#if($sessionTime != 0)
+				$sessionTime
+			#else
+				60 seconds
+			#end
+		#end
+	</td>
+	</tr>
+
+#end
+
+
+
+ <![if supportMisalignedColumns]>
+ <tr height=0 style='display:none'>
+  <td width=201 style='width:151pt'></td>
+  <td width=164 style='width:123pt'></td>
+  <td width=215 style='width:161pt'></td>
+  <td width=203 style='width:152pt'></td>
+  <td width=213 style='width:160pt'></td>
+  <td width=209 style='width:157pt'></td>
+ </tr>
+ <![endif]>
+</table>
+
+</div>
+
+
+#########################################################################################################################
+#########################################################################################################################
+#########################################################################################################################
+##                                                                                                                     ##
+##   VELOCITY CONTENT END                                                                                              ##
+##                                                                                                                     ##
+#########################################################################################################################
+#########################################################################################################################
+#########################################################################################################################
+
+
+<!----------------------------->
+<!--END OF OUTPUT FROM EXCEL PUBLISH AS WEB PAGE WIZARD-->
+<!----------------------------->
+</body>
+
+</html>
