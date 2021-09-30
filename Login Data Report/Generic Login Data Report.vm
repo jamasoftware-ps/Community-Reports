@@ -15,6 +15,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
 ##  Date         Revision   Person            Comments 
 ##  -----------  ---------  ----------------  ---------------------------------- 
 ##  03-29-21     0.1        Liam Rotchford    Initial Build Out
+##  09-30-21     0.2        Liam Rotchford    Updated duration column data formatting to only be time values
 ##
 ################################################################################################################
 ################################################################################################################
@@ -323,6 +324,11 @@ td
 	mso-background-source:auto;
 	mso-pattern:black none;
 	text-align:right;}
+.xl75
+	{mso-style-parent:style0;
+	 mso-number-format:"h\:mm\:ss";
+	 border:.5pt solid windowtext;
+	 text-align: right;}
 -->
 </style>
 </head>
@@ -380,7 +386,7 @@ tags will be replaced.-->
   <td class=xl65 style='border-top:none;border-left:none'>License Type</td>
   <td class=xl65 style='border-top:none;border-left:none'>Login Time ( UTC )</td>
   <td class=xl65 style='border-top:none;border-left:none'>Logoff Time ( UTC )</td>
-  <td class=xl65 style='border-top:none;border-left:none'>Session Duration, minutes</td>
+  <td class=xl65 style='border-top:none;border-left:none'>Session Duration</td>
  </tr>
 
 
@@ -408,26 +414,6 @@ tags will be replaced.-->
 #set($TR = "Test Runner")
 
 
-################################################################################################################################################
-
-
-
-## Since I can gather failed login code cases on my own instance with my report then something is wrong with the license stuff on the thermo Fisher instance. 
-
-## I've raised a support ticket for them on the issue: https://jamasoftware.zendesk.com/agent/tickets/58192
-
-## Thermo Fisher Contact: Kean Stump,  <kean.stump@thermofisher.com>
-##
-## Accounts:
-##
-## TestTime TestTime123
-## Test2 TestTime456
-## Test3 TestTime789
-## Test4 TestTime000
-## Test5 TestTime111
-## Test6 TestTime222
-## Test7 TestTime333
-
 
 ################################################################################################################################################
 
@@ -441,12 +427,23 @@ tags will be replaced.-->
 	#set($licenseType = $user.getActualLicenseType())
 	#set($loginTime = $user.getLoginTime())
 	#set($logoffTime = $user.getLogoutTime())
-	#set($sessionTime = $comparisonDateTool.difference($loginTime, $logoffTime).getMinutes())
+	
+	#set($sessionTime = $comparisonDateTool.difference($loginTime, $logoffTime))
+	
+	#set($sessionTimeMinutes = $sessionTime.getMinutes())
 
+	#if($sessionTimeMinutes == 0)
+		#set($seconds = $sessionTime.getSeconds())
+		#set($sessionTimeResult = "00:00:$seconds")
+	#else
+		#set($hours = $mathTool.floor($mathTool.div($sessionTimeMinutes, 60)))
+		#set($minutes = $mathTool.floor($mathTool.mod($sessionTimeMinutes, 60)))
+		#set($sessionTimeResult = "$hours:$minutes:00")
+	#end
+	
 	
 	<tr height=21 style='height:16.0pt'>
 	<td class=xl68 height=21 style='height:16.0pt'>
-		$loginCode
 		#if($loginCode == 1 || $loginCode == 2)
 			Success
 		#elseif($loginCode == 3 || $loginCode == 4 || $loginCode == 5 || $loginCode == 6)
@@ -486,15 +483,11 @@ tags will be replaced.-->
 			$logoffTime
 		#end
 	</td>
-	<td class=xl74>
+	<td class=xl75>
 		#if(!$logoffTime)
 			Session Active
 		#else
-			#if($sessionTime != 0)
-				$sessionTime
-			#else
-				60 seconds
-			#end
+			$sessionTimeResult
 		#end
 	</td>
 	</tr>
