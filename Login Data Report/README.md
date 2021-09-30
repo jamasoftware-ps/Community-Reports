@@ -1,7 +1,7 @@
 # Login Data Report
 
 ## Details
-- Report compiles login data over the past 90 days into an excel export
+- This is a non-context sensitive report that builds a single sheet excel file of user login data over the past 90 days. The report gathers infomation such as the login attempt status, the login attempts username, the liscense type of said user, the login and logoff time in UTC timem and the logged in session duration. The time duration of how far the report will check can be modified by adjusting the hours values on line 421. 
 
 ## Preview Image
 ![Report Preview](https://github.com/JamaSoftware/Community-Reports/blob/master/Login%20Data%20Report/Preview.png)
