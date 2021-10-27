@@ -4,7 +4,7 @@
 This report constructs a non-context sensitive test results report generating the information in your selected test plan. This includes the test plan overview then each inactive / deleted test run result grouped by each test cycle present in the test plan. 
 
 ## Preview Image
-![Report Preview](https://github.com/JamaSoftware/Community-Reports/blob/master/Test%20Results%20Report%20-%20Inactive%20Runs%20Grouped%20by%20Test%20Cycle/preview.png)
+![Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Test%20Results%20Report%20-%20Inactive%20Runs%20Grouped%20by%20Test%20Cycle%20/preview.png)
 
 ## Installation Instructions
 1. Go to the Admin section of Jama
@@ -12,7 +12,7 @@ This report constructs a non-context sensitive test results report generating th
 1. Click Add Report
 1. Fill in the Add/Edit Report form as shown below.
 1. Click Save
-![Report Configuration](https://github.com/JamaSoftware/Community-Reports/blob/master/Test%20Results%20Report%20-%20Inactive%20Runs%20Grouped%20by%20Test%20Cycle/config.png)
+![Report Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Test%20Results%20Report%20-%20Inactive%20Runs%20Grouped%20by%20Test%20Cycle%20/config.png)
 
 ## NOTES: 
 - Your Organization field will have a different value.  
