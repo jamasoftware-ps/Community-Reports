@@ -1,0 +1,770 @@
+<html>
+
+<head>
+    <BASE href="${baseUrl}"/>
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+
+    <title>Baseline to Current</title>
+    <style>
+
+        @page {
+            size: A4 landscape;
+
+            @bottom-right {
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 10.0pt;
+                content: "Page " counter(page) " of " counter(pages);
+            }
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin-left: 10px;
+        }
+
+        .title {
+            font-size: 24.0pt;
+            line-height: 115%;
+        }
+
+        .subtitle {
+            font-size: 16.0pt;
+            line-height: 115%;
+        }
+
+        .details {
+            padding: 10px;
+            border: solid 1px black;
+            border-collapse: collapse;
+            table-layout: fixed;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            width: 975px;
+        }
+
+        th {
+            background-color: #cccccc;
+            text-align: center;
+            font-size: 10.0pt;
+            font-weight: normal;
+            border: solid 1px black;
+        }
+
+        td, tr {
+            border: solid 1px black;
+            padding: 5px;
+        }
+
+        table table {
+            font-size: 5pt;
+            display: block;
+            height: auto;
+            width: 100%;
+        }
+
+        table table img {
+            display: block;
+            height: auto;
+            max-width: 50px;
+            max-height: 50px;
+        }
+
+        .details .label {
+            width: 75px;
+            font-size: 10pt;
+        }
+
+        .details .baselinediff {
+            width: 450px;
+            font-size: 10pt;
+            vertical-align: text-top;
+        }
+
+        .details .relations {
+            width: 450px;
+            font-size: 10pt;
+            vertical-align: text-top;
+        }
+
+
+        .version {
+            font-size: 10.0pt;
+        }
+
+        .version-details {
+            margin-left: 40px;
+            font-size: 10.0pt;
+        }
+
+        .version-cell {
+            line-height: 1.1;
+        }
+
+        h1 {
+            font-size: 12.0pt;
+            font-weight: bold;
+        }
+
+        h2 {
+            font-size: 12.0pt;
+            font-weight: normal;
+            color: #0D0D0D;
+        }
+
+        .step-expected {
+            margin-left: 40px;
+        }
+
+        .step-notes {
+            margin-left: 40px;
+        }
+
+        img {
+            display: block;
+            height:auto;
+            max-height: 500px;
+            max-width: 800px;
+        }
+
+        figure {
+            max-width: 800px;
+        }
+
+        figure img {
+            max-width: 750px;
+        }
+
+        .missingImage {
+            border: 1px solid red;
+            font-size: 10px;
+            color: rgb(100, 100, 100);
+        }
+
+        p.toobig {
+            text-align: center;
+        }
+
+
+        /*
+      * DIFF Service Styles
+      *
+     */
+
+        /*
+         * Styles for the Tag Diff
+         */
+        span.diff-tag-html {
+            font-family: "Andale Mono" monospace;
+            font-size: 80%;
+        }
+
+        span.diff-tag-removed {
+            font-size: 100%;
+            text-decoration: line-through;
+            background-color: #fdc6c6; /* light red */
+        }
+
+        span.diff-tag-added {
+            font-size: 100%;
+            background-color: #ccffcc; /* light green */
+        }
+
+        span.diff-tag-conflict {
+            font-size: 100%;
+            background-color: #f781be; /* light rose */
+        }
+
+        /*
+         * Styles for the HTML Diff
+         */
+        span.diff-html-added {
+            font-size: 100%;
+            color: #00a551;
+            border-bottom: 1px dotted #00a551;
+        }
+
+        span.diff-html-removed {
+            font-size: 100%;
+            background-color: #fcddde; /* light red */
+            color: #ec1c24
+        }
+
+        .inline-diffs span.diff-html-added {
+            background-repeat: no-repeat;
+        }
+
+        .inline-diffs span.diff-html-added, .inline-diffs span.diff-html-removed {
+            font-size: 100%;
+            cursor: pointer;
+            padding: 0 0 0 18px;
+            margin-right: 0.2em;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .inline-diffs span.diff-html-removed {
+            background-repeat: no-repeat;
+        }
+
+        span.diff-html-removed.closed {
+            width: 0;
+            overflow: hidden;
+            display: inline-block;
+            height: 1em;
+        }
+
+        span.diff-html-added.closed {
+            color: inherit;
+            overflow: inherit;
+            display: inline;
+            height: auto;
+            width: auto;
+            border-bottom: inherit;
+            display: inline;
+        }
+
+        span.diff-html-changed {
+            *background-color: #c6c6fd; /* light blue */
+            cursor: pointer;
+        }
+
+        span.diff-html-conflict {
+            background-color: #f781be; /* light rose */
+        }
+
+        span.diff-html-selected {
+            background-color: #FF8800; /* light orange */
+            cursor: pointer;
+        }
+
+        span.diff-html-selected img {
+            border: 2px solid #FF8800; /* light orange */
+        }
+
+        span.diff-html-added img {
+            border: 2px solid #ccffcc;
+        }
+
+        span.diff-html-removed img {
+            border: 2px solid #fdc6c6;
+            border-bottom-width: 0;
+            border-top-width: 0;
+        }
+
+        span.diff-html-changed img {
+            border: 2px dotted #000099;
+
+        }
+
+        div.diff-removed-image, div.diff-added-image, div.diff-conflict-image {
+            height: 300px;
+            width: 200px;
+            position: absolute;
+            opacity: 0.55;
+            filter: alpha(opacity=55);
+            -moz-opacity: 0.55;
+        }
+
+        div.diff-removed-image, div.diff-added-image, div.diff-conflict-image {
+            margin-top: 2px;
+            margin-bottom: 2px;
+            margin-right: 2px;
+            margin-left: 2px;
+        }
+
+        div.diff-removed-image {
+            background-color: #fdc6c6;
+        }
+
+        div.diff-added-image {
+            background-color: #ccffcc;
+            background-repeat: no-repeat;
+        }
+
+        div.diff-conflict-image {
+            background-color: #f781be;
+            background-repeat: no-repeat;
+        }
+
+        img.diff-icon {
+            background-color: #FF8800;
+            width: 16px;
+            height: 16px;
+            border: 0 none;
+        }
+
+        table.diff-tooltip-link, table.diff-tooltip-link-changed {
+            width: 100%;
+            text-align: center;
+            Vertical-align: middle;
+        }
+
+        table.diff-tooltip-link-changed {
+            border-top: thin dashed #000000;
+            margin-top: 3px;
+            padding-top: 3px
+        }
+
+        td.diff-tooltip-prev {
+            text-align: left;
+        }
+
+        td.diff-tooltip-next {
+            text-align: right;
+        }
+
+        table.diffpage-html-firstlast {
+            width: 100%;
+            Vertical-align: middle;
+        }
+
+        div.diff-topbar {
+            border-bottom: 2px solid #FF8800;
+            border-left: 1px solid #FF8800;
+            border-right: 1px solid #FF8800;
+            background-color: #FFF5F5;
+        }
+
+        a.diffpage-html-a, a.diffpage-html-a:hover, a.diffpage-html-a:link, a.diffpage-html-a:visited, a.diffpage-html-a:active {
+            text-decoration: none;
+            color: #FF8800;
+        }
+
+        .diffpage-html-firstlast a img, .dsydiff-prevnextnav a img {
+            vertical-align: middle;
+        }
+
+
+    </style>
+</head>
+
+<body>
+
+    #set($docNodes = [] )
+    #set($deleted = [] )
+    #set($allActives = [])
+    #set($dnIdList = [])
+    #set($docList = [] )
+    #set($found = 'no')
+    #set($count=0)
+    #set($maxDiff = 10000)
+    #set($maxedOut="Field is too large for comparison. Maximum number of characters is")
+    #set($BASELINE_ID = $mathTool.toInteger( $report_baseline ))
+
+    #################### Load list of first baseline document nodes so can sort on global ID #################
+    #foreach($doc in $baselineSource.getDocumentIds( $BASELINE_ID ))
+        #set($dN=$documentSource.getDocumentNodeForBaseLine( 5, $doc, $BASELINE_ID))
+        #if($dN.scopeId == 5)
+            #if( $docNodes.add($dN))#end
+        #end
+    #end
+
+    #################### get data about first baseline #################
+    #set($baseData = $baselineSource.getBaseLine($BASELINE_ID) )
+
+    #################### if first baseline created from release, go get all current versions for said release
+    #################
+    #if($baseData.scopeId == 9)
+        #set($firstItem = $documentSource.getDocument($docNodes.get(0).refId))
+        #foreach($r in $releaseSource.getDocumentsForRelease( $firstItem.release.id ) )
+            #if( $allActives.add($r.id))#end
+        #end
+    #end
+
+<div class="main">
+    #################### output cover page #################
+    <p><span class="title"> Jama</span></p>
+    <p><span class="subtitle">Baseline to Current Comparison Report</span></p>
+    <p><span class="subtitle">&nbsp;</span></p>
+    <p><span class="subtitle">&nbsp;</span></p>
+    <p><span class="subtitle">&nbsp;</span></p>
+    <p><span class="subtitle">Baseline $baseData.name</span></p>
+    <p><span
+            style='font-size:12.0pt;line-height:115%'>Created by $userSource.getUserFullName($baseData.createdBy) on $dateTool.format(
+        'MMM d, yyyy',$baseData.createdDate)</span></p>
+    <p>&nbsp;
+
+    <div style="page-break-after: always"/>
+
+    ################### output updated fields#################
+    <h1>UPDATED ITEMS</h1>
+
+    #foreach($node in $sortTool.sort($docNodes,"globalSortOrder"))
+        #set($baseDoc = $documentSource.getDocument($node.refId))
+        #set($activeId = $documentSource.getVersionByDocumentId($baseDoc.id).originDocument.id)
+        #set($activeDoc = $documentSource.getDocument($activeId))
+        #set($actDN = $documentSource.getDocumentNode(5,$activeDoc.id))
+        #################### look for containers and load active versions into list of all active version of baselined items
+        #################
+        #if(($activeDoc.documentType.display == "Set" || $activeDoc.documentType.display ==
+            "Component" || $activeDoc.documentType.display == "Folder")
+        && ($baseData.scopeId != 9)
+        && (!$allActives.contains($activeDoc.id)))
+            #foreach($act in $documentSource.getSubTreeIds($mathTool.toInteger($report_project), 5, $activeDoc.id, null))
+                #if( $allActives.add($act))#end
+            #end
+        #end
+        ###################### check to see if item type field's have been collected ###################
+        #foreach($a in $docList)
+            #if($a.get(0) == $baseDoc.documentType.id)
+                #set($found = 'yes')
+                #break
+            #end
+            #set($count=$count+1)
+        #end
+        ###################### load item type fields ###################
+        #if($found == 'no')
+            #set($docField = [] )
+            #if($docField.add($baseDoc.documentType.id))#end
+            #foreach($d in $documentSource.getDocumentTypeFieldListByType($baseDoc.documentType.id))
+                #if($docField.add($d.documentField.name))#end
+            #end
+            #if($docList.add($docField))#end
+            #set($count=$count+1)
+        #end
+        #set($found = 'no')
+        ###################### find deleted items - scopeId means baseline created from a release ###################
+        #set($relChg = false)
+        #if(($baseData.scopeId == 9) && ($baseDoc.release.name != $activeDoc.release.name))
+            #if( $deleted.add( $activeDoc ) )#end
+            #set($relChg = true)
+        #elseif(!$activeDoc.active)
+            #if( $deleted.add( $baseDoc ) )#end
+        #end
+
+        #if( $includeRelationships == true)
+            ##Get relationship changes
+            #set($start = 0)
+            #set($count = 20)
+            #set( $pageSize = 20)
+            #set( $base1Rels = [])
+            #set( $base1RelsPage = [])
+            #set( $activeRelsDown = [])
+            #set( $activeRelsUp = [])
+
+            #set($activeRelsDown = $documentSource.getRelationshipsForDocument($activeId, true))
+            #set($activeRelsUp = $documentSource.getRelationshipsForDocument($activeId, false))
+
+            #set($base1RelsPage = $documentSource.getRelationships($activeId,$mathTool.toInteger(
+                $report_baseline),$start,$count))
+            #set( $totalRels1 = [])
+            #set( $totalRels1 = $base1RelsPage.getPageInfo().getTotalResults())
+
+            #if( $totalRels1)
+                #set( $page_count = $mathTool.floor($mathTool.div($totalRels1,$pageSize)) )
+                #foreach( $page in [0..$page_count])
+                    #set($base1RelsPage = $documentSource.getRelationships($activeId,$mathTool.toInteger(
+                        $report_baseline),$start,$count))
+                    #if( $base1RelsPage.getResults())
+                        #set( $addIsSuccessful = $base1Rels.addAll( $base1RelsPage.getResults()) )
+                    #end
+                    #set( $start = $start + $count)
+                #end
+            #end
+
+            #set( $relsMatch = false)
+
+            #if( !$base1Rels.size())
+                #set( $base1RelsSize = 0)
+            #else
+                #set( $base1RelsSize = $base1Rels.size())
+            #end
+
+            #if( $base1RelsSize == ($activeRelsDown.size() + $activeRelsUp.size()))
+
+                #if( $base1RelsSize == 0 && $activeRelsDown.size() == 0 && $activeRelsUp.size() == 0)
+                    #set( $relsMatch = true)
+                #else
+                    ##The size might match, but the relationship numbers might not, so need to check each rel.
+                    #set( $sameRel = 0)
+                    #foreach( $rel1 in $base1Rels)
+                        #foreach( $rel2 in $activeRelsDown)
+                            #if( $rel2.id == $rel1.id)
+                                #set( $sameRel = $sameRel + 1)
+                                #break
+                            #end
+                        #end
+                        #foreach( $rel2 in $activeRelsUp)
+                            #if( $rel2.id == $rel1.id)
+                                #set( $sameRel = $sameRel + 1)
+                                #break
+                            #end
+                        #end
+                    #end
+
+                    #if( $base1RelsSize == $sameRel)
+                        #set( $relsMatch = true)
+                    #end
+                #end
+            #elseif( $base1RelsSize != ($activeRelsDown.size() + $activeRelsUp.size()) )
+                ##rels don't match, so keep the $relsMatch == false
+            #end
+        #else
+            ##Making it so the report thinks the relationships match (because the user doesn't care about relationships)
+            #set( $relsMatch = true)
+        #end ##End checking the relationships
+
+        #set($bVer = $documentSource.getVersionByDocumentId($baseDoc.id))
+        #set($aVer = $documentSource.getVersionByDocumentId($activeId))
+        #if((($baseDoc.id != $activeId) && $activeDoc.active) || ($relsMatch == false && $activeDoc.active))
+            #if(!$relChg)
+                #if( $dnIdList.add( $activeDoc.id))#end
+                #set($index = $count - 1)
+                #set($spot = 0)
+
+                <h2>
+                    <a href="${baseUrl}/perspective.req?projectId=$activeDoc.project.id&docId=$activeDoc.id">$baseDoc.documentKey</a>
+                    $baseDoc.name
+                </h2>
+            <table class="details">
+                <thead>
+                <tr>
+                    <th class="label">Field Label</th>
+                    <th class="baselinediff" colspan="2">Differences</th>
+                </tr>
+                </thead>
+            <tbody>
+                #set($foundChg = 0)
+                #foreach($dl in $docList)
+                    #if($dl.get(0) == $baseDoc.documentType.id)
+                        #foreach($b in $dl)
+                            #if($spot != 0)
+                                #set( $baselineValue = $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat))
+                                #set( $currentValue = $velocityReportUtil.getValueForField($activeDoc, $b, $dateFormat))
+
+                                #if($baselineValue != $currentValue)
+                                    #set($foundChg = 1)
+                                <tr>
+                                    <td class="label">
+                                        $documentSource.getDocumentTypeFieldByName($b,$baseDoc.documentType.id).label
+                                    </td>
+                                    <td class="baselinediff" colspan="2">
+                                        #if($b != "testCaseSteps")
+                                            #if( $baselineValue)
+                                                #set($beforeVal = $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat))
+                                                #set($afterVal = $velocityReportUtil.getValueForField($activeDoc, $b, $dateFormat))
+                                                #if($beforeVal.length() > $maxDiff || $afterVal.length() > $maxDiff)
+                                                    <p class="toobig">$maxedOut $maxDiff.</p>
+                                                #else
+                                                    $diffService.getDiff($beforeVal, $afterVal)
+                                                #end
+                                            #end
+                                        #else
+                                            #set($baseSteps = $baseDoc.testCaseSteps)
+                                            #set($activeSteps = $activeDoc.testCaseSteps)
+                                            #set($length = $mathTool.max($baseSteps.size(), $activeSteps.size()))
+                                            #set($stepNum = [1..$length])
+                                            #foreach($i in $stepNum)
+                                                #set($beforeStep = "")
+                                                #set($afterStep = "")
+                                                #set($index = $i - 1)
+                                                #if($i <= $baseSteps.size())
+                                                    #set($beforeStep = $baseSteps.get($index))
+                                                    #set($beforeStepText =
+                                                        "<p><b>" + $i
+                                                    +".</b> " + $!beforeStep.action
+                                                    + "<p><b>Expected Results:</b> " + $beforeStep.expectedResult
+                                                    + "<p><b>Notes:</b> " + $beforeStep.notes)
+                                                #else
+                                                    #set($beforeStepText =
+                                                        "<p><b>"+ $i +
+                                                        ".</b> ")
+                                                #end
+                                                #if($i <= $activeSteps.size())
+                                                    #set($afterStep = $activeSteps.get($index))
+                                                    #set($afterStepText =
+                                                        "<p><b>" + $i
+                                                    + ".</b> " + $afterStep.action
+                                                    + "<p><b>Expected Results:</b> " + $afterStep.expectedResult
+                                                    + "<p><b>Notes:</b> " + $afterStep.notes)
+                                                #else
+                                                    #set($afterStepText =
+                                                        "<p><b>"+ $i +
+                                                        ".</b> ")
+                                                #end
+                                                #if($beforeStepText.length() > $maxDiff || $afterStepText.length() > $maxDiff)
+                                                    <p class="toobig">$maxedOut $maxDiff.</p>
+                                                #else
+                                                    $diffService.getDiff($beforeStepText, $afterStepText)
+                                                #end
+                                            #end
+                                        #end
+                                    </td>
+                                </tr>
+                                #end
+                            #end
+                            #set($spot = 1)
+                        #end
+                        #if($foundChg == 0)
+                        <tr>
+                            <td class="baselinediff" colspan="3">
+                                All item fields have been reset to the Baseline 1 state or have not been changed.
+                                Refer to version comments for history. If no version comments exist, the fields have
+                                not changed.
+                            </td>
+                        </tr>
+                        #end
+                        #if( $includeRelationships == true)
+                            #if( $relsMatch == false)
+                            <tr>
+                                <td rowspan="2" class="label">
+                                    Relationships
+                                </td>
+                                <td class="relations">
+                                    <p class=MsoNormal align=center>Baseline v$bVer.versionNumber</p>
+                                </td>
+                                <td class="relations">
+                                    <p>Baseline v$aVer.versionNumber</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="relations">
+
+                                    #foreach( $versionedRelationship in $base1Rels )
+
+                                        #set($fromItemId = $versionedRelationship.getFromItem().getValue().get(0))
+                                        #set($toItemId = $versionedRelationship.getToItem().getValue().get(0))
+                                        #if( $fromItemId == $activeDoc.id)
+                                            #set( $fromItem = $activeDoc)
+                                            #set($toItemId = $versionedRelationship.getToItem().getValue().get(0))
+                                            #set($toItemVersion = $versionedRelationship.getToItem().getValue().get(1))
+                                            #set($toItem = $documentSource.getItem($toItemId , $toItemVersion))
+                                        #elseif( $toItemId == $activeDoc.id)
+                                            #set( $toItem = $activeDoc)
+                                            #set($fromItemId = $versionedRelationship.getFromItem().getValue().get(0))
+                                            #set($fromItemVersion = $versionedRelationship.getFromItem().getValue().get(1))
+                                            #set($fromItem = $documentSource.getItem($fromItemId , $fromItemVersion))
+                                        #end
+                                        <a href="${baseUrl}/perspective.req?projectId=$fromItem.project.id&docId=$fromItem.id">$fromItem.documentKey</a>
+                                        --> <a
+                                            href="${baseUrl}/perspective.req?projectId=$toItem.project.id&docId=$toItem.id">$toItem.documentKey</a>
+                                    <p>
+                                    #end
+                                </td>
+                                <td class="relations">
+
+                                    #foreach( $rel in $activeRelsUp )
+
+                                        #set( $fromItem = $rel.fromDocument)
+                                        #set( $toItem = $rel.toDocument)
+                                        <a href="${baseUrl}/perspective.req?projectId=$fromItem.project.id&docId=$fromItem.id">$fromItem.documentKey</a>
+                                        --> <a
+                                            href="${baseUrl}/perspective.req?projectId=$toItem.project.id&docId=$toItem.id">$toItem.documentKey</a>
+                                    <p>
+
+                                    #end
+                                    #foreach( $rDown in $activeRelsDown )
+
+                                        #set( $fromItemDown = $rDown.fromDocument)
+                                        #set( $toItemDown = $rDown.toDocument)
+                                        <a href="${baseUrl}/perspective.req?projectId=$fromItemDown.project.id&docId=$fromItemDown.id">$fromItemDown.documentKey</a>
+                                        --> <a
+                                            href="${baseUrl}/perspective.req?projectId=$toItemDown.project.id&docId=$toItemDown.id">$toItemDown.documentKey</a>
+                                    <p>
+
+                                    #end
+                                </td>
+                            </tr>
+                            </tbody>
+                            </table>
+                            #end
+                        #end ##end include relationships check
+                    #end
+                #end
+                #set($count=0)
+                ########### output the version comments ####################
+                #set($next = $mathTool.toInteger($bVer.versionNumber) + 1)
+                #set($total = $mathTool.toInteger($aVer.versionNumber) + 1)
+                #if($report_showComment == true)
+                <table class="details">
+                    <thead class="details">
+                    <tr bgcolor='#CCCCCC'>
+                        <td>Version Details</td>
+                    </tr>
+                    </thead>
+                    <tr>
+                        <td class="version-cell" valign="top">
+                            #set( $x = $next)
+                            #if( $next != $total) ##If the baseline and current versions are the same, don't print
+                                #foreach($n in [$x..$total])
+                                <p class="version">
+                                    #set($v = $documentSource.getVersionByDocAndVersionNumber($activeId,$next))
+                                    #if( $v)
+                                        <b>Version: </b>v$v.versionNumber
+                                        - $userSource.getUserFullName($v.createdBy)
+                                        - $dateTool.format('MMM d, yyyy',$v.createdDate)
+                                    </p>
+                                        <p class="version-details">
+                                            <b>Change Details: </b>#if($v.comments)$v.comments #end
+                                        </p>
+                                        <p class="version-details">
+                                            #if($v.userComment)
+                                                <b>User Comment: </b>$v.userComment
+                                            #end
+                                        </p>
+                                    #end
+                                    #set($next = $next + 1)
+                                    #if($next >= $total)
+                                        #break
+                                    #end
+                                #end
+                            #end
+                        </td>
+                    </tr>
+                #end
+            </table>
+            #end
+        #end
+    #end
+
+    ##################### List of Deleted Items ##################################
+    <h1>DELETED ITEMS</h1>
+    <table class="details" border="1" cellspacing="0" cellpadding="0">
+        #foreach($k in $deleted)
+            <tr>
+                <td class="contentcell" valign="top">
+                    <h2>$k.documentKey $k.name</h2>
+                    #if($baseData.scopeId == 9 && $k.active)
+                        <p>
+                            <font color="red">Not Deleted but Moved to Release $k.release.name
+                                <a href="${baseUrl}/perspective.req?projectId=$activeDoc.project.id&docId=$k.id">$k.documentKey</a></font>
+                        </p>
+                    #end
+                    <p>
+                        #if ( $k.description) $k.description #end
+                    </p>
+                </td>
+            </tr>
+        #end
+    </table>
+    #foreach($dn in $docNodes)
+        #if($dnIdList.add($dn.refId))#end
+    #end
+    ##################### List of Added Items ##################################
+    <p>
+    <h1>ADDED ITEMS</h1>
+    #if(($baseData.scopeId != 8) && ($baseData.scopeId != 14))
+        <table class="details" border="1" cellspacing="0" cellpadding="0">
+            #foreach($aa in $allActives)
+                #set($cDoc = $documentSource.getDocument($aa))
+                #if(!$dnIdList.contains($aa) && $cDoc.active)
+                    <tr>
+                        <td class="contentcell" valign="top">
+                            <h2>
+                                <a href="${baseUrl}/perspective.req?projectId=$cDoc.project.id&docId=$cDoc.id">$cDoc.documentKey</a>
+                                $cDoc.name
+                            </h2>
+                            <p>
+                                #if ( $cDoc.description) $cDoc.description #end
+                            </p>
+                        </td>
+                    </tr>
+                #end
+            #end
+        </table>
+    #else
+        <h2>Baselines created from filters or individual items will not include added items</h2>
+    #end
+</div>
+</body>
+</html>
