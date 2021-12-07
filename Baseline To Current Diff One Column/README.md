@@ -1,4 +1,7 @@
 # Baseline to Current Diff - One Column
+
+### *Note: The Baseline diff reports work with Connect versions 8.68 or later.*
+
 ### Installation Instructions
 
 #### Word and HTML reports:
