@@ -14,9 +14,14 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 
 ## Date         Revision   Person            Comments 
 ## -----------  ---------  ----------------  ---------------------------------- 
-## 2021-08-30   1.0        Liam Rotchford    -Intial Build updating the Test Results - Grouped By Test Cycle Report to use
-##                                            the master template due to errors in test run steps having images.
-##                                           -Report also handles upstream requirements for the test cases and runs. 
+## 2021-08-30   1.0        Liam Rotchford    - Intial Build updating the Test Results - Grouped By Test Cycle Report to use
+##                                             the master template due to errors in test run steps having images.
+##                                           - Report also handles upstream requirements for the test cases and runs. 
+##
+## 2021-12-09   1.1        Liam Rotchford    - Minor adjustment to test run gathering logic to ensure test runs are properly 
+##                                             grouped by test cycle if there are multiple test case groups on test plan.
+##                                           - Updated test run gathering logic to ensure test runs are sorted by test case
+##                                             order per test cycle.
 ##
 ##
 ## ======================================================================================================================
@@ -3739,6 +3744,7 @@ $string
 ## Organize test runs into a final data list to be used for test run tables
 #set($finalTestResultsPerCycle = [])
 #set($finalTestRuns = [])
+#set($sortedTestRuns = [])
 
 ## Loop through each item in our created array
   ## Cycle through each test run set per array index gathering only active test runs
@@ -3751,7 +3757,7 @@ $string
 
   #foreach($testRun in $item.get("TestRuns"))
     #if($testRun.active)
-      #set($success = $finalTestRuns.add($testRun))
+      #set($success = $finalTestRuns.add({"TestCaseID": $testRun.testCase.id, "TestRun": $testRun}))
     #end
   #end
 
@@ -3762,9 +3768,17 @@ $string
     #set( $nextCycle = false )
   #end
 
-  #if($cycle.id != $nextCycle.get("TestCycle").id || $!nextCycle)
-    #set($success = $finalTestResultsPerCycle.add({"TestCycle": $cycle, "TestRuns": $finalTestRuns}))
+  #if($cycle.id != $nextCycle.get("TestCycle").id || !$nextCycle)
+    #set( $finalTestRuns = $sortTool.sort($finalTestRuns, "TestCaseID:asc"))
+
+    #foreach($testRunData in $finalTestRuns)
+      #set($sortedTestRun = $testRunData.get("TestRun"))
+      #set($success = $sortedTestRuns.add($sortedTestRun))
+    #end
+
+    #set($success = $finalTestResultsPerCycle.add({"TestCycle": $cycle, "TestRuns": $sortedTestRuns}))
     #set($finalTestRuns = [])
+    #set($sortedTestRuns = [])
   #end
 
 #end
