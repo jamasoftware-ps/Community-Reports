@@ -24,7 +24,7 @@
 ##  Date         Revision    Person            Comments
 ##  -----------  ---------   ----------------  ----------------------------------
 ##  2022-01-13   1.0         Liam Rotchford    - Report based upon specifications as shown in the description above.
-##
+##  2022-01-14   1.1         Liam Rotchford    - Added Item type key column per item after the ID column.
 ##
 #########################################################################################################################
 #########################################################################################################################
@@ -817,27 +817,27 @@
 #########################################################################################################################
 ## Row Builder (Style Selector)
 
-#macro( rowBuilder $doc $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck $currentItem $prevItem $prevStyle)
+#macro( rowBuilder $doc $docTypeKey $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck $currentItem $prevItem $prevStyle)
 
   ## Row building (Alternating styles per item group)
     #if($currentItem != $prevItem) ## Check if the next item we bring up is a different ID, if it is then move to alternate style
 
       #if($prevStyle == "Light")
         #set($prevStyle = "Dark")
-        #rowStyleDark($doc $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
+        #rowStyleDark($doc $docTypeKey $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
 
       #else
         #set($prevStyle = "Light")
-        #rowStyleLight($doc $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
+        #rowStyleLight($doc $docTypeKey $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
 
       #end
 
     #else
       #if($reportLatestReview == false)
         #if($prevStyle == "Light")
-          #rowStyleLight($doc $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
+          #rowStyleLight($doc $docTypeKey $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
         #else
-          #rowStyleDark($doc $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
+          #rowStyleDark($doc $docTypeKey $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
         #end
       #end
 
@@ -852,12 +852,15 @@
 
 ## Darker Style
 
-#macro( rowStyleDark $doc $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
+#macro( rowStyleDark $doc $docTypeKey $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
 
   <Row ss:AutoFitHeight="1" ss:StyleID="s72"> ## Print Review details
 
     ## ITEM ID
     <Cell ss:StyleID="s73"><Data ss:Type="Number">$doc.id</Data></Cell>
+
+    ## ITEM TYPE KEY
+    <Cell ss:StyleID="s74"><Data ss:Type="String">$docTypeKey</Data></Cell>
 
     ## ITEM NAME
     <Cell ss:StyleID="s74"><Data ss:Type="String">$doc.name</Data></Cell>
@@ -919,12 +922,15 @@
 #########################################################################################################################
 ## Lighter Style
 
-#macro( rowStyleLight $doc $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
+#macro( rowStyleLight $doc $docTypeKey $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
 
   <Row ss:AutoFitHeight="1"> ## Print Review details
 
     ## ITEM ID
     <Cell ss:StyleID="s67"><Data ss:Type="Number">$doc.id</Data></Cell>
+
+    ## ITEM TYPE KEY
+    <Cell ss:StyleID="s68"><Data ss:Type="String">$docTypeKey</Data></Cell>
 
     ## ITEM NAME
     <Cell ss:StyleID="s68"><Data ss:Type="String">$doc.name</Data></Cell>
@@ -983,12 +989,14 @@
 #########################################################################################################################
 #########################################################################################################################
 
-#macro( emptyRow $style)
+#macro( emptyRow $doc $docTypeKey $style)
 
   #if($style == "Dark")
-    <Row ss:Height="17" ss:StyleID="s72"> ## Print Review details
+    <Row ss:StyleID="s72"> ## Print Review details
       ## ITEM ID
       <Cell ss:StyleID="s73"><Data ss:Type="Number">$doc.id</Data></Cell>
+      ## ITEM TYPE KEY
+      <Cell ss:StyleID="s74"><Data ss:Type="String">$docTypeKey</Data></Cell>
       ## ITEM NAME
       <Cell ss:StyleID="s74"><Data ss:Type="String">$doc.name</Data></Cell>
       ## REVIEW ID
@@ -1017,9 +1025,11 @@
       <Cell ss:StyleID="s74"/>
     </Row>
   #else
-    <Row ss:Height="17"> ## Print Review details
+    <Row> ## Print Review details
       ## ITEM ID
       <Cell ss:StyleID="s67"><Data ss:Type="Number">$doc.id</Data></Cell>
+      ## ITEM TYPE KEY
+      <Cell ss:StyleID="s68"><Data ss:Type="String">$docTypeKey</Data></Cell>
       ## ITEM NAME
       <Cell ss:StyleID="s68"><Data ss:Type="String">$doc.name</Data></Cell>
        ## REVIEW ID
@@ -1150,21 +1160,25 @@
 
 <Worksheet ss:Name="Review_Status_Details_Report">
  ## TABLE DEFINITION
-  <Table ss:ExpandedColumnCount="14" ss:ExpandedRowCount="$rowLength" x:FullColumns="1"
+  <Table ss:ExpandedColumnCount="43" ss:ExpandedRowCount="$rowLength" x:FullColumns="1"
    x:FullRows="1" ss:StyleID="s64" ss:DefaultColumnWidth="65">
 
-   <Column ss:Index="2" ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="245"/>
-   <Column ss:Index="4" ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="245"/>
+   <Column ss:Index="2" ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="95"/>
+   <Column ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="245"/>
+   <Column ss:Index="5" ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="245"/>
    <Column ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="95"/>
-   <Column ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="125" ss:Span="1"/>
-   <Column ss:Index="8" ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="116"/>
+   <Column ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="125"/>
+   <Column ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="116"/>
+   <Column ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="109"/>
    <Column ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="95"/>
    <Column ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="185" ss:Span="1"/>
-   <Column ss:Index="12" ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="95" ss:Span="2"/>
+   <Column ss:Index="13" ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="95"
+    ss:Span="2"/>
 
    ## TABLE HEADERS
    <Row>
     <Cell ss:StyleID="s75"><Data ss:Type="String">Item ID</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">Item Type</Data></Cell>
     <Cell ss:StyleID="s76"><Data ss:Type="String">Item Name</Data></Cell>
     <Cell ss:StyleID="s76"><Data ss:Type="String">Review ID</Data></Cell>
     <Cell ss:StyleID="s76"><Data ss:Type="String">Review Name</Data></Cell>
@@ -1309,6 +1323,7 @@
                   #if($reportLatestReview)
 
                     #set($lastDoc = $doc)
+                    #set($lastDocKey = $docTypeKey)
                     #set($lastReview = $review)
                     #set($lastRevision = $revision)
                     #set($lastApproverCount = $approverCount)
@@ -1325,7 +1340,7 @@
 
                   ## Build a row for every review
                   #else
-                    #rowBuilder($doc $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $foreach.parent.last $currentItem $prevItem $prevStyle)
+                    #rowBuilder($doc $docTypeKey $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $foreach.parent.last $currentItem $prevItem $prevStyle)
                   #end
 
 
@@ -1338,7 +1353,7 @@
           ## If report criteria is true then only build a row for the latest revision i.e latest review
           ## Write the last entry we remembered
           #if($reportLatestReview && $!lastDoc)
-            #rowBuilder($lastDoc $lastReview $lastRevision $lastApproverCount $lastApprovalCount $lastRejectionCount $lastCommentCount $lastRevisionItemCount $lastUsersApprovalGiven $lastUsersRejectGiven $lastForeach $lastCurrentItem $lastPrevItem $lastPrevStyle)
+            #rowBuilder($lastDoc $lastDocKey $lastReview $lastRevision $lastApproverCount $lastApprovalCount $lastRejectionCount $lastCommentCount $lastRevisionItemCount $lastUsersApprovalGiven $lastUsersRejectGiven $lastForeach $lastCurrentItem $lastPrevItem $lastPrevStyle)
           #end
 
 
@@ -1349,19 +1364,19 @@
 
               #if($prevStyle == "Light")
                 #set($prevStyle = "Dark")
-                #emptyRow("Dark")
+                #emptyRow($doc $docTypeKey "Dark")
 
               #else
                 #set($prevStyle = "Light")
-                #emptyRow("Light")
+                #emptyRow($doc $docTypeKey "Light")
               #end
 
             #else
 
               #if($prevStyle == "Light")
-                #emptyRow("Light")
+                #emptyRow($doc $docTypeKey "Light")
               #else
-                #emptyRow("Dark")
+                #emptyRow($doc $docTypeKey "Dark")
               #end
 
             #end
