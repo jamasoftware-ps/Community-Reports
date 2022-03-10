@@ -16,6 +16,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
 ##  -----------  ---------  ----------------  ---------------------------------- 
 ##  03-29-21     0.1        Liam Rotchford    Initial Build Out
 ##  09-30-21     0.2        Liam Rotchford    Updated duration column data formatting to only be time values
+##  03-09-22     0.2.1      Liam Rotchford    Removed space escape code that was left present on a userDao method call.
 ##
 ################################################################################################################
 ################################################################################################################
@@ -418,7 +419,7 @@ tags will be replaced.-->
 ################################################################################################################################################
 
 #set($orgID = $project.getOrganizationId())
-#set($uSource = $userDao.getLoginsForLastHours​(2160, $orgID) )  ##Currently set for 90 Days
+#set($uSource = $userDao.getLoginsForLastHours(2160, $orgID) )  ##Currently set for 90 Days
 
 #foreach( $user in $uSource)
 	
