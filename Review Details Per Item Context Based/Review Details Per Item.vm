@@ -27,7 +27,9 @@
 ##  2022-01-14   1.1         Liam Rotchford    - Added Item type key column per item after the ID column.
 ##  2022-05-06   1.2         Liam Rotchford    - Removed omitted item types conditional to ensure all items in the context
 ##                                               are included.
-##                                             - Adjusted report to use the document items documentKey instead of the API ID. 
+##                                             - Adjusted report to use the document items documentKey instead of the API ID
+##  2022-05-06   1.2.1       Liam Rotchford    - Adjusted cell types for documentKey items to be String type with proper style 
+##                                               class.
 ##
 #########################################################################################################################
 #########################################################################################################################
@@ -860,7 +862,7 @@
   <Row ss:AutoFitHeight="1" ss:StyleID="s72"> ## Print Review details
 
     ## ITEM ID
-    <Cell ss:StyleID="s73"><Data ss:Type="Number">$doc.documentKey</Data></Cell>
+    <Cell ss:StyleID="s74"><Data ss:Type="String">$doc.documentKey</Data></Cell>
 
     ## ITEM TYPE KEY
     <Cell ss:StyleID="s74"><Data ss:Type="String">$docTypeKey</Data></Cell>
@@ -930,7 +932,7 @@
   <Row ss:AutoFitHeight="1"> ## Print Review details
 
     ## ITEM ID
-    <Cell ss:StyleID="s67"><Data ss:Type="Number">$doc.documentKey</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">$doc.documentKey</Data></Cell>
 
     ## ITEM TYPE KEY
     <Cell ss:StyleID="s68"><Data ss:Type="String">$docTypeKey</Data></Cell>
@@ -997,7 +999,7 @@
   #if($style == "Dark")
     <Row ss:StyleID="s72"> ## Print Review details
       ## ITEM ID
-      <Cell ss:StyleID="s73"><Data ss:Type="Number">$doc.documentKey</Data></Cell>
+      <Cell ss:StyleID="s74"><Data ss:Type="String">$doc.documentKey</Data></Cell>
       ## ITEM TYPE KEY
       <Cell ss:StyleID="s74"><Data ss:Type="String">$docTypeKey</Data></Cell>
       ## ITEM NAME
@@ -1030,7 +1032,7 @@
   #else
     <Row> ## Print Review details
       ## ITEM ID
-      <Cell ss:StyleID="s67"><Data ss:Type="Number">$doc.documentKey</Data></Cell>
+      <Cell ss:StyleID="s68"><Data ss:Type="String">$doc.documentKey</Data></Cell>
       ## ITEM TYPE KEY
       <Cell ss:StyleID="s68"><Data ss:Type="String">$docTypeKey</Data></Cell>
       ## ITEM NAME
