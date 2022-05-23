@@ -10,7 +10,7 @@
 - Report Formats: HTML and/or Word
 - Report file to upload: baselineToCurrentDiff.vm
 - Criteria:
-  - *Type:* **Baseline parameter**, *Display:* **Baseline**, *Name:* **report_baseline1**
+  - *Type:* **Baseline parameter**, *Display:* **Baseline**, *Name:* **report_baseline**
   - *Type:* **Boolean**, *Display:* **Include Relationships**, *Name:* **includeRelationships**
   - *Type:* **Boolean**, *Display:* **Include Version Comments**, *Name:* **report_showComment**
 
@@ -22,6 +22,6 @@
 - Report Formats: PDF
 - Report file to upload: baselineToCurrentDiff-PDF.vm
 - Criteria:
-    - *Type:* **Baseline parameter**, *Display:* **Baseline**, *Name:* **report_baseline1**
+    - *Type:* **Baseline parameter**, *Display:* **Baseline**, *Name:* **report_baseline**
     - *Type:* **Boolean**, *Display:* **Include Relationships**, *Name:* **includeRelationships**
     - *Type:* **Boolean**, *Display:* **Include Version Comments**, *Name:* **report_showComment**

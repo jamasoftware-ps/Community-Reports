@@ -24,7 +24,12 @@
 ##  Date         Revision    Person            Comments
 ##  -----------  ---------   ----------------  ----------------------------------
 ##  2022-01-13   1.0         Liam Rotchford    - Report based upon specifications as shown in the description above.
-##
+##  2022-01-14   1.1         Liam Rotchford    - Added Item type key column per item after the ID column.
+##  2022-05-06   1.2         Liam Rotchford    - Removed omitted item types conditional to ensure all items in the context
+##                                               are included.
+##                                             - Adjusted report to use the document items documentKey instead of the API ID
+##  2022-05-06   1.2.1       Liam Rotchford    - Adjusted cell types for documentKey items to be String type with proper style 
+##                                               class.
 ##
 #########################################################################################################################
 #########################################################################################################################
@@ -817,27 +822,27 @@
 #########################################################################################################################
 ## Row Builder (Style Selector)
 
-#macro( rowBuilder $doc $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck $currentItem $prevItem $prevStyle)
+#macro( rowBuilder $doc $docTypeKey $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck $currentItem $prevItem $prevStyle)
 
   ## Row building (Alternating styles per item group)
     #if($currentItem != $prevItem) ## Check if the next item we bring up is a different ID, if it is then move to alternate style
 
       #if($prevStyle == "Light")
         #set($prevStyle = "Dark")
-        #rowStyleDark($doc $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
+        #rowStyleDark($doc $docTypeKey $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
 
       #else
         #set($prevStyle = "Light")
-        #rowStyleLight($doc $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
+        #rowStyleLight($doc $docTypeKey $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
 
       #end
 
     #else
       #if($reportLatestReview == false)
         #if($prevStyle == "Light")
-          #rowStyleLight($doc $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
+          #rowStyleLight($doc $docTypeKey $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
         #else
-          #rowStyleDark($doc $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
+          #rowStyleDark($doc $docTypeKey $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
         #end
       #end
 
@@ -852,12 +857,15 @@
 
 ## Darker Style
 
-#macro( rowStyleDark $doc $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
+#macro( rowStyleDark $doc $docTypeKey $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
 
   <Row ss:AutoFitHeight="1" ss:StyleID="s72"> ## Print Review details
 
     ## ITEM ID
-    <Cell ss:StyleID="s73"><Data ss:Type="Number">$doc.id</Data></Cell>
+    <Cell ss:StyleID="s74"><Data ss:Type="String">$doc.documentKey</Data></Cell>
+
+    ## ITEM TYPE KEY
+    <Cell ss:StyleID="s74"><Data ss:Type="String">$docTypeKey</Data></Cell>
 
     ## ITEM NAME
     <Cell ss:StyleID="s74"><Data ss:Type="String">$doc.name</Data></Cell>
@@ -919,12 +927,15 @@
 #########################################################################################################################
 ## Lighter Style
 
-#macro( rowStyleLight $doc $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
+#macro( rowStyleLight $doc $docTypeKey $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $rejectCheck)
 
   <Row ss:AutoFitHeight="1"> ## Print Review details
 
     ## ITEM ID
-    <Cell ss:StyleID="s67"><Data ss:Type="Number">$doc.id</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">$doc.documentKey</Data></Cell>
+
+    ## ITEM TYPE KEY
+    <Cell ss:StyleID="s68"><Data ss:Type="String">$docTypeKey</Data></Cell>
 
     ## ITEM NAME
     <Cell ss:StyleID="s68"><Data ss:Type="String">$doc.name</Data></Cell>
@@ -983,12 +994,14 @@
 #########################################################################################################################
 #########################################################################################################################
 
-#macro( emptyRow $style)
+#macro( emptyRow $doc $docTypeKey $style)
 
   #if($style == "Dark")
-    <Row ss:Height="17" ss:StyleID="s72"> ## Print Review details
+    <Row ss:StyleID="s72"> ## Print Review details
       ## ITEM ID
-      <Cell ss:StyleID="s73"><Data ss:Type="Number">$doc.id</Data></Cell>
+      <Cell ss:StyleID="s74"><Data ss:Type="String">$doc.documentKey</Data></Cell>
+      ## ITEM TYPE KEY
+      <Cell ss:StyleID="s74"><Data ss:Type="String">$docTypeKey</Data></Cell>
       ## ITEM NAME
       <Cell ss:StyleID="s74"><Data ss:Type="String">$doc.name</Data></Cell>
       ## REVIEW ID
@@ -1017,9 +1030,11 @@
       <Cell ss:StyleID="s74"/>
     </Row>
   #else
-    <Row ss:Height="17"> ## Print Review details
+    <Row> ## Print Review details
       ## ITEM ID
-      <Cell ss:StyleID="s67"><Data ss:Type="Number">$doc.id</Data></Cell>
+      <Cell ss:StyleID="s68"><Data ss:Type="String">$doc.documentKey</Data></Cell>
+      ## ITEM TYPE KEY
+      <Cell ss:StyleID="s68"><Data ss:Type="String">$docTypeKey</Data></Cell>
       ## ITEM NAME
       <Cell ss:StyleID="s68"><Data ss:Type="String">$doc.name</Data></Cell>
        ## REVIEW ID
@@ -1150,21 +1165,25 @@
 
 <Worksheet ss:Name="Review_Status_Details_Report">
  ## TABLE DEFINITION
-  <Table ss:ExpandedColumnCount="14" ss:ExpandedRowCount="$rowLength" x:FullColumns="1"
+  <Table ss:ExpandedColumnCount="43" ss:ExpandedRowCount="$rowLength" x:FullColumns="1"
    x:FullRows="1" ss:StyleID="s64" ss:DefaultColumnWidth="65">
 
-   <Column ss:Index="2" ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="245"/>
-   <Column ss:Index="4" ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="245"/>
+   <Column ss:Index="2" ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="95"/>
+   <Column ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="245"/>
+   <Column ss:Index="5" ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="245"/>
    <Column ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="95"/>
-   <Column ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="125" ss:Span="1"/>
-   <Column ss:Index="8" ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="116"/>
+   <Column ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="125"/>
+   <Column ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="116"/>
+   <Column ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="109"/>
    <Column ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="95"/>
    <Column ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="185" ss:Span="1"/>
-   <Column ss:Index="12" ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="95" ss:Span="2"/>
+   <Column ss:Index="13" ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="95"
+    ss:Span="2"/>
 
    ## TABLE HEADERS
    <Row>
     <Cell ss:StyleID="s75"><Data ss:Type="String">Item ID</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">Item Type</Data></Cell>
     <Cell ss:StyleID="s76"><Data ss:Type="String">Item Name</Data></Cell>
     <Cell ss:StyleID="s76"><Data ss:Type="String">Review ID</Data></Cell>
     <Cell ss:StyleID="s76"><Data ss:Type="String">Review Name</Data></Cell>
@@ -1188,188 +1207,186 @@
     #set($exclusionList = [])
 
     #foreach( $vDoc in $documentList )
-        #set( $doc = $vDoc.document )
-        #set( $docTypeKey = $doc.documentType.documentTypeKey)
-        #set( $versions = $documentSource.getAllVersionsByDocumentId($doc.id))
-        #set( $reviewCount = 0)
+      #set( $doc = $vDoc.document )
+      #set( $docTypeKey = $doc.documentType.documentTypeKey)
+      #set( $versions = $documentSource.getAllVersionsByDocumentId($doc.id))
+      #set( $reviewCount = 0)
 
-        #set( $currentItem = $doc.id)
+      #set( $currentItem = $doc.id)
 
-        #if($foreach.first)
-          #set($prevItem = $doc.id)
-        #end
+      #if($foreach.first)
+        #set($prevItem = $doc.id)
+      #end
 
-        ## Note the report will not include container items in the report (Though at current when you send a collection to a review it includes in it the review and will be counted in the review total)
-        #if($docTypeKey != $cmpKey && $docTypeKey != $setKey && $docTypeKey != $fldKey && $docTypeKey != $txtKey)
-
-          #set($lastDoc = '')
-          #set($lastReview = '')
-          #set($lastRevision = '')
-          #set($lastApproverCount = '')
-          #set($lastApprovalCount = '')
-          #set($lastRejectionCount = '')
-          #set($lastCommentCount = '')
-          #set($lastRevisionItemCount = '')
-          #set($lastUsersApprovalGiven = '')
-          #set($lastUsersRejectGiven = '')
-          #set($lastForeach = '')
-          #set($lastCurrentItem = '')
-          #set($lastPrevItem = '')
-          #set($lastPrevStyle = '')
+      #set($lastDoc = '')
+      #set($lastReview = '')
+      #set($lastRevision = '')
+      #set($lastApproverCount = '')
+      #set($lastApprovalCount = '')
+      #set($lastRejectionCount = '')
+      #set($lastCommentCount = '')
+      #set($lastRevisionItemCount = '')
+      #set($lastUsersApprovalGiven = '')
+      #set($lastUsersRejectGiven = '')
+      #set($lastForeach = '')
+      #set($lastCurrentItem = '')
+      #set($lastPrevItem = '')
+      #set($lastPrevStyle = '')
 
 
-          #foreach( $version in $sortTool.sort($versions, "createdDate:asc") )
-            #set( $revisions = $reviewSource.getRevisionsForItemId($version.document.id) )
+      #foreach( $version in $sortTool.sort($versions, "createdDate:asc") )
+        #set( $revisions = $reviewSource.getRevisionsForItemId($version.document.id) )
 
-            #foreach( $revision in $revisions)
-              #set( $reviewID = $revision.review.id.toString()) ## get revisions review ID
+        #foreach( $revision in $revisions)
+          #set( $reviewID = $revision.review.id.toString()) ## get revisions review ID
 
-              #exclusionListCheck($reviewID $exclusionList)     ## Returns $omitResult ~ check if review ID has been added to the exclusion list of reviews
+          #exclusionListCheck($reviewID $exclusionList)     ## Returns $omitResult ~ check if review ID has been added to the exclusion list of reviews
 
-              #if($omitResult == "false")                       ## if the review ID is not on the exclusion list check to see if it should be (I.e it's latest revision has been deleted rendering all previous revisions as deleted (i.e don't include these in the report))
-                #checkRevisionsStatus($reviewID $revision.review $exclusionList) ## returns updated $exclusionList
-                #exclusionListCheck($reviewID $exclusionList)     ## check our updated exclusion list to ensure the current revision is valid or not to still be added to report
+          #if($omitResult == "false")                       ## if the review ID is not on the exclusion list check to see if it should be (I.e it's latest revision has been deleted rendering all previous revisions as deleted (i.e don't include these in the report))
+            #checkRevisionsStatus($reviewID $revision.review $exclusionList) ## returns updated $exclusionList
+            #exclusionListCheck($reviewID $exclusionList)     ## check our updated exclusion list to ensure the current revision is valid or not to still be added to report
+          #end
+
+          ## If our $omitResult is still false then this revison is valid to be added to the review
+          #if($omitResult == "false")
+
+            #set( $review = $revision.review)
+            #set( $revisionItems = $!revision.revisionItems)
+            #set( $revisionItemCount = $revisionItems.size())
+            #set( $usersApprovalGiven = [])
+            #set( $usersRejectGiven = [])
+
+            #foreach($item in $revisionItems)
+              #if($item.version.document.name == $doc.name)
+                #set($commentCount = $commentDao.getRevisionItemCommentCount($item.id, true))
               #end
+            #end
 
-              ## If our $omitResult is still false then this revison is valid to be added to the review
-              #if($omitResult == "false")
+            #if($!review)
+              #set($reviewCount = $reviewCount + 1)
+              #set($revisionUsers = $revision.revisionUsers)
+              #set($approverCount = 0)
+              #set($approvalCount = 0)
+              #set($rejectionCount = 0)
+              #set($commentCountTotal = 0)
 
-                #set( $review = $revision.review)
-                #set( $revisionItems = $!revision.revisionItems)
-                #set( $revisionItemCount = $revisionItems.size())
-                #set( $usersApprovalGiven = [])
-                #set( $usersRejectGiven = [])
+              #foreach( $revisionUser in $revisionUsers )
+                #set( $revItems = $revisionUser.revisionUserItems)
 
-                #foreach($item in $revisionItems)
-                  #if($item.version.document.name == $doc.name)
-                    #set($commentCount = $commentDao.getRevisionItemCommentCount($item.id, true))
-                  #end
+                #if($revisionUser.isApprover)
+                    #set($approverCount = $approverCount + 1)
                 #end
 
-                #if($!review)
-                  #set($reviewCount = $reviewCount + 1)
-                  #set($revisionUsers = $revision.revisionUsers)
-                  #set($approverCount = 0)
-                  #set($approvalCount = 0)
-                  #set($rejectionCount = 0)
-                  #set($commentCountTotal = 0)
+                #foreach( $revItem in $revItems)
 
-                  #foreach( $revisionUser in $revisionUsers )
-                    #set( $revItems = $revisionUser.revisionUserItems)
+                  #set( $status = $revItem.status)
+                  #set( $reviewItemName = $revItem.revisionItem.version.document.name)
 
-                    #if($revisionUser.isApprover)
-                        #set($approverCount = $approverCount + 1)
-                    #end
+                  #if( $reviewItemName == $doc.name)  ## only check the approve reject counts for the particular item we are using
+                    #if( $status.name == "Approved")
+                      #set( $approvalCount = $approvalCount + 1)
+                      #set($addUser = true)
 
-                    #foreach( $revItem in $revItems)
-
-                      #set( $status = $revItem.status)
-                      #set( $reviewItemName = $revItem.revisionItem.version.document.name)
-
-                      #if( $reviewItemName == $doc.name)  ## only check the approve reject counts for the particular item we are using
-                        #if( $status.name == "Approved")
-                          #set( $approvalCount = $approvalCount + 1)
-                          #set($addUser = true)
-
-                          #foreach($addedUser in $usersApprovalGiven)
-                            #if($revisionUser.user == $addedUser)
-                              #set($addUser = false)
-                            #end
-                          #end
-
-                          #if($addUser)
-                            #set( $success = $usersApprovalGiven.add($revisionUser.user.userName))
-                          #end
-
-                        #elseif( $status.name == "Needs More Work")
-                          #set( $rejectionCount = $rejectionCount + 1)
-                          #set($addUser = true)
-
-                          #foreach($addedUser in $usersRejectGiven)
-                            #if($revisionUser.user == $addedUser)
-                              #set($addUser = false)
-                            #end
-                          #end
-
-                          #if($addUser)
-                            #set( $success = $usersRejectGiven.add($revisionUser.user.userName))
-                          #end
-
+                      #foreach($addedUser in $usersApprovalGiven)
+                        #if($revisionUser.user == $addedUser)
+                          #set($addUser = false)
                         #end
+                      #end
+
+                      #if($addUser)
+                        #set( $success = $usersApprovalGiven.add($revisionUser.user.userName))
+                      #end
+
+                    #elseif( $status.name == "Needs More Work")
+                      #set( $rejectionCount = $rejectionCount + 1)
+                      #set($addUser = true)
+
+                      #foreach($addedUser in $usersRejectGiven)
+                        #if($revisionUser.user == $addedUser)
+                          #set($addUser = false)
+                        #end
+                      #end
+
+                      #if($addUser)
+                        #set( $success = $usersRejectGiven.add($revisionUser.user.userName))
                       #end
 
                     #end
                   #end
 
-
-                  ## Row Builder for each Revision
-
-                  ## If report criteria is true then only build a row for the latest revision i.e latest review
-                  ## Remember data and write after the loops
-                  #if($reportLatestReview)
-
-                    #set($lastDoc = $doc)
-                    #set($lastReview = $review)
-                    #set($lastRevision = $revision)
-                    #set($lastApproverCount = $approverCount)
-                    #set($lastApprovalCount = $approvalCount)
-                    #set($lastRejectionCount = $rejectionCount)
-                    #set($lastCommentCount = $commentCount)
-                    #set($lastRevisionItemCount = $revisionItemCount)
-                    #set($lastUsersApprovalGiven = $usersApprovalGiven)
-                    #set($lastUsersRejectGiven = $usersRejectGiven)
-                    #set($lastForeach = $foreach.parent.last)
-                    #set($lastCurrentItem = $currentItem)
-                    #set($lastPrevItem = $prevItem)
-                    #set($lastPrevStyle = $prevStyle)
-
-                  ## Build a row for every review
-                  #else
-                    #rowBuilder($doc $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $foreach.parent.last $currentItem $prevItem $prevStyle)
-                  #end
+                #end
+              #end
 
 
-                #end ## #if($!review)
-              #end ## #if($omitResult == "false")
-            #end ## #foreach( $revision in $revisions )
-          #end ## #foreach( $version in $versions )
+              ## Row Builder for each Revision
+
+              ## If report criteria is true then only build a row for the latest revision i.e latest review
+              ## Remember data and write after the loops
+              #if($reportLatestReview)
+
+                #set($lastDoc = $doc)
+                #set($lastDocKey = $docTypeKey)
+                #set($lastReview = $review)
+                #set($lastRevision = $revision)
+                #set($lastApproverCount = $approverCount)
+                #set($lastApprovalCount = $approvalCount)
+                #set($lastRejectionCount = $rejectionCount)
+                #set($lastCommentCount = $commentCount)
+                #set($lastRevisionItemCount = $revisionItemCount)
+                #set($lastUsersApprovalGiven = $usersApprovalGiven)
+                #set($lastUsersRejectGiven = $usersRejectGiven)
+                #set($lastForeach = $foreach.parent.last)
+                #set($lastCurrentItem = $currentItem)
+                #set($lastPrevItem = $prevItem)
+                #set($lastPrevStyle = $prevStyle)
+
+              ## Build a row for every review
+              #else
+                #rowBuilder($doc $docTypeKey $review $revision $approverCount $approvalCount $rejectionCount $commentCount $revisionItemCount $usersApprovalGiven $usersRejectGiven $foreach.parent.last $currentItem $prevItem $prevStyle)
+              #end
 
 
-          ## If report criteria is true then only build a row for the latest revision i.e latest review
-          ## Write the last entry we remembered
-          #if($reportLatestReview && $!lastDoc)
-            #rowBuilder($lastDoc $lastReview $lastRevision $lastApproverCount $lastApprovalCount $lastRejectionCount $lastCommentCount $lastRevisionItemCount $lastUsersApprovalGiven $lastUsersRejectGiven $lastForeach $lastCurrentItem $lastPrevItem $lastPrevStyle)
+            #end ## #if($!review)
+          #end ## #if($omitResult == "false")
+        #end ## #foreach( $revision in $revisions )
+      #end ## #foreach( $version in $versions )
+
+
+      ## If report criteria is true then only build a row for the latest revision i.e latest review
+      ## Write the last entry we remembered
+      #if($reportLatestReview && $!lastDoc)
+        #rowBuilder($lastDoc $lastDocKey $lastReview $lastRevision $lastApproverCount $lastApprovalCount $lastRejectionCount $lastCommentCount $lastRevisionItemCount $lastUsersApprovalGiven $lastUsersRejectGiven $lastForeach $lastCurrentItem $lastPrevItem $lastPrevStyle)
+      #end
+
+
+      ## No reviews build empty row
+      #if($reviewCount == 0)  ## If item has no reviews then print only the item id and name for the row
+
+        #if($currentItem != $prevItem) ## Check if the next item we bring up is a different ID, if it is then move to alternate style
+
+          #if($prevStyle == "Light")
+            #set($prevStyle = "Dark")
+            #emptyRow($doc $docTypeKey "Dark")
+
+          #else
+            #set($prevStyle = "Light")
+            #emptyRow($doc $docTypeKey "Light")
           #end
 
+        #else
 
-          ## No reviews build empty row
-          #if($reviewCount == 0)  ## If item has no reviews then print only the item id and name for the row
+          #if($prevStyle == "Light")
+            #emptyRow($doc $docTypeKey "Light")
+          #else
+            #emptyRow($doc $docTypeKey "Dark")
+          #end
 
-            #if($currentItem != $prevItem) ## Check if the next item we bring up is a different ID, if it is then move to alternate style
+        #end
 
-              #if($prevStyle == "Light")
-                #set($prevStyle = "Dark")
-                #emptyRow("Dark")
+        #set($prevItem = $currentItem)
 
-              #else
-                #set($prevStyle = "Light")
-                #emptyRow("Light")
-              #end
-
-            #else
-
-              #if($prevStyle == "Light")
-                #emptyRow("Light")
-              #else
-                #emptyRow("Dark")
-              #end
-
-            #end
-
-            #set($prevItem = $currentItem)
-
-          #end ## #if($reviewCount == 0)
-        #end ## #if($docTypeKey != $cmpKey && $docTypeKey != $setKey && $docTypeKey != $fldKey && $docTypeKey != $txtKey)
+      #end ## #if($reviewCount == 0)
+      
     #end ## #foreach( $vDoc in $documentList )
 
 

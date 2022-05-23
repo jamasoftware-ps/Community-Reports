@@ -3,7 +3,7 @@
 ## Details
 - This report can be exported on a collection of items of any type from the project tree constructing a single sheet excel export. The report will gather active reviews the item is included on, building a row of review details per item. 
 
-- The report will include the following fields per row: Item API ID, Name, Review ID, Review Name, Review Version, Review Status, 
+- The report will include the following fields per row: Item Product ID, Item Type Key, Name, Review ID, Review Name, Review Version, Review Status, 
 Close Date, # of Approvers, # of Items, Users who Approved the review, Users who Rejected the Review, # of Approvals, # of Rejections, and # of Comments per review.
 
 - By default the report will gather and build a row for every active review the item is on however a report parameter is included to filter the data by only the items most recent review. Should an item not have a review the report will only show the items API ID and name.
