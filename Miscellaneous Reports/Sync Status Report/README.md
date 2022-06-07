@@ -1,6 +1,7 @@
 # Sync Status Report
-##Preview Image
-![alt tag](https://github.com/JamaSoftware/Community-Reports/blob/master/Sync%20Status%20Report/SyncStatusPreviewImage.png)
+
+## Preview Image
+![alt tag](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Miscellaneous%20Reports/Sync%20Status%20Report/SyncStatusPreviewImage.png)
 
 ## Installation Instructions
-![alt tag](https://github.com/JamaSoftware/Community-Reports/blob/master/Sync%20Status%20Report/SyncStatusReport_instructions.png)
+![alt tag](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Miscellaneous%20Reports/Sync%20Status%20Report/SyncStatusReport_instructions.png)
