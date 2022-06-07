@@ -1,9 +1,9 @@
 # Test Plan - Test Cycle Report
 ## Test Plan Preview Image
-![Test Plan Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Test%20Plan%20-%20Test%20Cycle%20Report/Test%20Plan%20Preview.png)
+![Test Plan Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Test%20Center%20Reports/Test%20Plan%20-%20Test%20Cycle%20Report/Test%20Plan%20Preview.png)
 
 ## Test Cycle / Basline Preview Image 
-![Test Cycle / Baseline Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Test%20Plan%20-%20Test%20Cycle%20Report/Test%20Cycle%20-%20Basline%20Preview.png)
+![Test Cycle / Baseline Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Test%20Center%20Reports/Test%20Plan%20-%20Test%20Cycle%20Report/Test%20Cycle%20-%20Basline%20Preview.png)
 
 ## Installation Instructions
 1. Go to the Admin section of Jama
@@ -12,7 +12,7 @@
 4. Fill in the Add/Edit Report form as shown below.
 5. Click Save
 
-![Report Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Test%20Plan%20-%20Test%20Cycle%20Report/config.png)
+![Report Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Test%20Center%20Reports/Test%20Plan%20-%20Test%20Cycle%20Report/config.png)
 
 ## NOTES: 
 - Your Organization field will have a different value.  
