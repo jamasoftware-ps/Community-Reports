@@ -16,13 +16,13 @@ Close Date, # of Approvers, # of Items, Users who Approved the review, Users who
 ## Preview Images
 
 ### All Item Reviews
-![All Item Reviews](https://github.com/JamaSoftware/Community-Reports/blob/master/Review%20Details%20Per%20Item%20Context%20Based/All_Item_Reviews.png)
+![All Item Reviews](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Review%20Center%20Reports/Review%20Details%20Per%20Item%20Context%20Based/All_Item_Reviews.png)
 
 ### Only Most Recent Item Reviews
-![Only Most Recent Item Reviews](https://github.com/JamaSoftware/Community-Reports/blob/master/Review%20Details%20Per%20Item%20Context%20Based/Most_Recent_Item_Reviews.png)
+![Only Most Recent Item Reviews](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Review%20Center%20Reports/Review%20Details%20Per%20Item%20Context%20Based/Most_Recent_Item_Reviews.png)
 
 ### Item with No Active Reviews
-![Item with No Active Reviews](https://github.com/JamaSoftware/Community-Reports/blob/master/Review%20Details%20Per%20Item%20Context%20Based/Item_Without_Review.png)
+![Item with No Active Reviews](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Review%20Center%20Reports/Review%20Details%20Per%20Item%20Context%20Based/Item_Without_Review.png)
 
 ## Installation Instructions
 1. Go to the Admin section of Jama
@@ -31,7 +31,7 @@ Close Date, # of Approvers, # of Items, Users who Approved the review, Users who
 1. Fill in the Add/Edit Report form as shown below.
 1. Click Save
 
-![Report Configuration](https://github.com/JamaSoftware/Community-Reports/blob/master/Review%20Details%20Per%20Item%20Context%20Based//Config.png)
+![Report Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Review%20Center%20Reports/Review%20Details%20Per%20Item%20Context%20Based/Config.png)
 
 ## NOTES: 
 - The report parameter display text is "Show Items Latest Review Only" and unique variable name for report code purposes (DO NOT CHANGE) is "reportLatestReview"
