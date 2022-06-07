@@ -1,6 +1,6 @@
 # Review Center Stats Report
 ## Preview Image
-![alt tag](https://github.com/JamaSoftware/Community-Reports/blob/master/Review%20Center%20Stats%20Report/preview.png)
+![alt tag](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Review%20Center%20Reports/Review%20Center%20Stats%20Report/preview.png)
 
 ## Installation Instructions
 1. Go to the Admin section of Jama
@@ -8,7 +8,8 @@
 3. Click Add Report
 4. Fill in the Add/Edit Report form as shown below.
 5. Click Save
-![alt tag](https://github.com/JamaSoftware/Community-Reports/blob/master/Review%20Center%20Stats%20Report/config.png)
+
+![alt tag](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Review%20Center%20Reports/Review%20Center%20Stats%20Report/config.png)
 
 ## NOTES: 
 - Your Organization field will have a different value.  
