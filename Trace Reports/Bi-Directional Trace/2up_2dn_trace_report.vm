@@ -1,0 +1,640 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+#########################################################################################################################
+##
+##  Global Variables
+##
+#########################################################################################################################
+
+## load the data sources.  Data sources changed with Jama 8.44, so this logic detects the correct source to use for the version 
+## of Jama the report is running on.
+
+#if( $documentSource )
+  ## Jama 8.44 or greater
+	#set( $relDao = $documentSource )
+	#set( $docDao = $documentSource )
+	#set( $versionDao = $documentSource )
+	#set( $baselineDao = $baselineSource )
+	#set( $docTypeFieldDao = $documentSource )
+	#set( $reviewDao = $reviewSource )
+	#set( $countourItemDao = $documentSource )
+	#set( $testPlanDao = $testSource )
+	#set( $testCycleDao = $testSource )
+	#set( $testRunDao = $testSource )
+	#set( $roleDao = $userSource )
+	#set( $userDao = $userSource )
+	#set( $smartFilterDao = $filterSource )
+	#set( $filterDao = $filterSource )
+#else
+  ## Jama 8.36 or older
+  #set( $relDao = $applicationContext.getBean("relationshipDao") )
+  #set( $docDao = $applicationContext.getBean("documentDao") )
+  #set( $versionDao = $applicationContext.getBean("versionDao") )
+  #set( $baselineDao = $applicationContext.getBean("baseLineDao") )
+  #set( $docTypeFieldDao = $applicationContext.getBean("documentTypeFieldDao") )
+  #set( $reviewDao = $applicationContext.getBean("reviewDao") )
+  #set( $countourItemDao = $applicationContext.getBean("countourItemDao") )
+  #set( $testPlanDao = $applicationContext.getBean("testPlanDao") )
+  #set( $testCycleDao = $applicationContext.getBean("testCycleDao") )
+  #set( $testRunDao = $applicationContext.getBean("testRunDao") )
+  #set( $roleDao = $applicationContext.getBean("roleDao") )
+  #set( $userDao = $applicationContext.getBean("userDao") )
+  #set( $smartFilterDao = $applicationContext.getBean("smartFilterDao") )
+  #set( $filterDao = $applicationContext.getBean("filterDao") )
+ #end
+
+## Report Paramters
+## Boolean    Merge Repeated cells    reportMerge
+## Boolean    Two Levels Up/Down      reportTwoLevels
+
+#if( $reportMerge )
+  #set( $mergeCells = $reportMerge )
+#else
+  #set( $mergeCells = false )
+#end
+
+#if( $reportTwoLevels )
+  #set( $traceLevels = 2 )
+#else
+  #set( $traceLevels = 1 )
+#end
+
+#########################################################################################################################
+##                                                                                                                    ###
+##  Macros                                                                                                            ###
+##                                                                                                                    ###
+#########################################################################################################################
+
+#########################################################################################################################
+#macro( stripRichText $text )
+
+  #set($text = $text.replaceAll("(?s)<table.*>.*</table>",""))
+  #set($text = $text.replaceAll("(?s)<a.*>(.*)</a>","$1"))
+  #set($text = $text.replaceAll("\xA0"," "))
+  #set($text = $text.replaceAll("=","=< "))
+  #set($text = $text.replaceAll("<p>&nbsp;<\/p>",""))
+  #set($text = $text.replaceAll("<p>(.*?)<\/p>","$1<br>"))
+  #set($text = $text.replaceAll("<ul>",""))
+  #set($text = $text.replaceAll("<\/ul>",""))
+  #set($text = $text.replaceAll("<ol>",""))
+  #set($text = $text.replaceAll("<\/ol>",""))
+  #set($text = $text.replaceAll("<li.*?>(.*?)<\/li>","-$1<br>"))
+  #set($text = $text.replaceAll("<img.*?>",""))
+
+  $text
+
+#end
+######################################################################################################################
+
+#########################################################################################################################
+#macro( stripPlainText $text )
+
+  #set($text = $text.replaceAll("<","	&lt;"))
+  #set($text = $text.replaceAll(">","	&gt;"))
+
+  $text
+
+#end
+######################################################################################################################
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link rel=File-List href="KeywordLocator.fld/filelist.xml">
+<style id="KeywordLocator_11435_Styles">
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{mso-header-data:&A;
+	mso-footer-data:"&L&\0022Calibri\,Regular\0022&K000000Confidential&R&\0022Calibri\,Regular\0022&K000000Page &P of &N";
+	margin:.75in .7in .75in .7in;
+	mso-header-margin:.3in;
+	mso-footer-margin:.3in;
+	mso-page-orientation:landscape;}
+.font5
+	{color:windowtext;
+	font-size:12.0pt;
+	font-weight:700;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;}
+.font6
+	{color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;}
+tr
+	{mso-height-source:auto;}
+col
+	{mso-width-source:auto;}
+br
+	{mso-data-placement:same-cell;}
+.style0
+	{mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	mso-rotate:0;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	color:black;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:Normal;
+	mso-style-id:0;}
+td
+	{mso-style-parent:style0;
+	padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri;
+	mso-generic-font-family:auto;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	border:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	mso-protection:locked visible;
+	white-space:nowrap;
+	mso-rotate:0;}
+.xl63
+	{mso-style-parent:style0;
+	color:white;
+	font-weight:700;
+	text-align:center;
+	background:#4472C4;
+	mso-pattern:black none;}
+.xl64
+	{mso-style-parent:style40;
+	color:black;
+	font-weight:700;
+	text-align:center;
+	background:#B4C6E7;
+	mso-pattern:black none;}
+.xl65
+	{mso-style-parent:style41;
+	color:black;
+	font-weight:700;
+	text-align:center;
+	background:#8EA9DB;
+	mso-pattern:black none;}
+.xl66
+	{mso-style-parent:style0;
+	color:windowtext;
+	font-size:10.0pt;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	text-align:left;
+	vertical-align:top;
+	border:.5pt solid black;
+	background:white;
+	mso-pattern:white none;
+	white-space:normal;}
+-->
+</style>
+</head>
+
+<body link=blue vlink=purple>
+<!--[if !excel]>&nbsp;&nbsp;<![endif]-->
+<!--The following information was generated by Microsoft Excel's Publish as Web
+Page wizard.-->
+<!--If the same item is republished from Excel, all information between the DIV
+tags will be replaced.-->
+<!----------------------------->
+<!--START OF OUTPUT FROM EXCEL PUBLISH AS WEB PAGE WIZARD -->
+<!----------------------------->
+
+
+## Analyze Items in Jama
+#if( $analyzeAllProjects )
+
+#else
+	
+#end
+
+
+## Create the output table
+
+<div id="KeywordLocator_11435" align=center x:publishsource="Excel">
+
+##Define Table Column Widths (points)
+#set( $columnWidths = [] )
+#set( $success = $columnWidths.add(65) )
+#set( $success = $columnWidths.add(65) )
+#set( $success = $columnWidths.add(150) )
+#set( $success = $columnWidths.add(65) )
+#set( $success = $columnWidths.add(65) )
+#set( $success = $columnWidths.add(65) )
+#set( $success = $columnWidths.add(150) )
+#set( $success = $columnWidths.add(65) )
+#set( $success = $columnWidths.add(65) )
+#set( $success = $columnWidths.add(65) )
+#set( $success = $columnWidths.add(150) )
+#set( $success = $columnWidths.add(65) )
+#set( $success = $columnWidths.add(65) )
+#set( $success = $columnWidths.add(65) )
+#set( $success = $columnWidths.add(150) )
+#set( $success = $columnWidths.add(65) )
+#set( $success = $columnWidths.add(65) )
+#set( $success = $columnWidths.add(65) )
+#set( $success = $columnWidths.add(150) )
+#set( $success = $columnWidths.add(65) )
+
+#set( $tableColumns = $columnWidths.size() )
+#set( $tableWidth = 0 )
+#foreach($columnWidth in $columnWidths)
+	#set( $tableWidth = $tableWidth + $columnWidth )
+#end
+
+<table border=0 cellpadding=0 cellspacing=0 style='border-collapse:collapse;table-layout:fixed;width:${tableWidth}pt'>
+#foreach($columnWidth in $columnWidths)
+	<col style='mso-width-source:userset;width:${columnWidth}pt'>
+#end
+ 
+#########################################################################################################################
+##                                                                                                                    ###
+##  Table Header                                                                                                      ###
+##                                                                                                                    ###
+#########################################################################################################################
+
+ <tr>
+  #if( $traceLevels == 2 )<td class=xl64 colspan=4>Two Levels Upstream</td>#end
+  <td class=xl65 colspan=4>One Level Upstream</td>
+  <td class=xl63 colspan=4>Source Items</td>
+  <td class=xl65 colspan=4>One Level Downstream</td>
+  #if( $traceLevels == 2 )<td class=xl64 colspan=4>Two Levels Downstream</td>#end
+ </tr>
+
+ <tr>
+  #if( $traceLevels == 2 )
+	  <td class=xl64>ID</td>
+	  <td class=xl64>Project ID</td>
+	  <td class=xl64>Name</td>
+	  <td class=xl64>Status</td>
+  #end
+  <td class=xl65>ID</td>
+  <td class=xl65>Project ID</td>
+  <td class=xl65>Name</td>
+  <td class=xl65>Status</td>
+  <td class=xl63>ID</td>
+  <td class=xl63>Project ID</td>
+  <td class=xl63>Name</td>
+  <td class=xl63>Status</td>
+  <td class=xl65>ID</td>
+  <td class=xl65>Project ID</td>
+  <td class=xl65>Name</td>
+  <td class=xl65>Status</td>
+  #if( $traceLevels == 2 )
+	  <td class=xl64>ID</td>
+	  <td class=xl64>Project ID</td>
+	  <td class=xl64>Name</td>
+	  <td class=xl64>Status</td>
+  #end
+ </tr>
+
+
+#########################################################################################################################
+##                                                                                                                    ###
+##  Data Rows                                                                                                         ###
+##                                                                                                                    ###
+#########################################################################################################################
+#foreach( $vDoc in $documentList)
+	#set( $doc = $vDoc.document)
+	#if( $doc.documentType.documentTypeKey != "FLD" && 
+		 $doc.documentType.documentTypeKey != "SET" && 
+		 $doc.documentType.id != "CMP" )
+		
+		###### $upDocs Definition ############
+		
+		## array of pairs: [up1Doc, up2Docs]
+		#set ( $upDocs = [] )
+
+		#set ( $up1Rels = $relDao.getRelationshipsForDocument($doc.id, false) )
+		#foreach ( $up1Rel in $up1Rels )
+			#if ( $up1Rel.fromDocument.active )
+				#set ( $up2Rels = $relDao.getRelationshipsForDocument($up1Rel.fromDocument.id, false) )
+				#set ( $up2Docs = [] )
+				#if ( $traceLevels == 2 )
+					#foreach ( $up2Rel in $up2Rels )
+						#if ( $up2Rel.fromDocument.active )
+							#set( $success = $up2Docs.add( $up2Rel.fromDocument ) )
+						#end
+					#end
+				#end
+				#set( $success = $upDocs.add( [$up1Rel.fromDocument, $up2Docs] ) )
+			#end
+		#end
+	
+		###### $dnDocs Definition ############
+		
+		## array of pairs: [dn1Doc, dn2Docs]
+		#set ( $dnDocs = [] )
+
+		## All downstream items except defects, including test runs 2 levels down
+		#set ( $dn1Rels = $relDao.getRelationshipsForDocument($doc.id, true) )
+		#foreach ( $dn1Rel in $dn1Rels )
+			#if ( $dn1Rel.toDocument.active && 
+					  $dn1Rel.toDocument.documentType.documentTypeKey != "BUG" && 
+					  $dn1Rel.toDocument.documentType.documentTypeKey != "DEF" )
+				## 2nd level downstream normal items except defects
+				#set ( $dn2Rels = $relDao.getRelationshipsForDocument($dn1Rel.toDocument.id, true) )
+				#set ( $dn2Docs = [] )
+				#if ( $traceLevels == 2 )
+					#foreach ( $dn2Rel in $dn2Rels )
+						#if ( $dn2Rel.toDocument.active && 
+									$dn2Rel.toDocument.documentType.documentTypeKey != "BUG" && 
+									$dn2Rel.toDocument.documentType.documentTypeKey != "DEF" )
+							#set( $success = $dn2Docs.add( $dn2Rel.toDocument ) )
+						#end
+					#end
+					## 2nd level downstream test runs
+					#set( $dn2testRunIds = $testRunDao.getTestRunIdsForTestCases([$dn1Rel.toDocument.id]) )
+					#foreach( $dn2testRunId in $dn2testRunIds )
+						#set( $dn2testRun = $testRunDao.getTestRun($dn2testRunId) )
+						#if ( $dn2testRun.active )
+							#set( $success = $dn2Docs.add( $dn2testRun ) )
+						#end
+					#end
+				#end
+				#set( $success = $dnDocs.add( [$dn1Rel.toDocument, $dn2Docs] ) )
+			#end
+		#end
+
+		## directly downstream test runs and defects downstream from test runs
+
+		#set( $dn1testRunIds = $testRunDao.getTestRunIdsForTestCases([$doc.id]) )
+		#foreach( $dn1testRunId in $dn1testRunIds )
+			#set( $dn1testRun = $testRunDao.getTestRun($dn1testRunId) )
+			#if ( $dn1testRun.active )
+				#set ( $dn2Rels = $relDao.getRelationshipsForDocument($dn1testRun.id, true) )
+				#set ( $dn2Docs = [] )
+				#if ( $traceLevels == 2 )
+					#foreach ( $dn2Rel in $dn2Rels )
+						#if ( $dn2Rel.toDocument.active )
+							#set( $success = $dn2Docs.add( $dn2Rel.toDocument ) )
+						#end
+					#end
+				#end
+				#set( $success = $dnDocs.add( [$dn1testRun, $dn2Docs] ) )
+			#end
+		#end
+
+		###### Determine rows needed for upstream ############
+		#set ( $numUpstreamRows = 0)
+
+		## if there are no upstream items, then 1 row
+		## if there are upstream items then add 1 row for each if there are no up2 level items
+		## if there are upstream items then add a row for each up2 level item
+		#if ( $upDocs.size() > 0 )
+			#foreach ( $upDoc in $upDocs )
+				#if ( $upDoc.get(1).size() > 0 )
+					#set ( $numUpstreamRows = $numUpstreamRows + $upDoc.get(1).size())
+				#else
+					#set ( $numUpstreamRows = $numUpstreamRows + 1)
+				#end
+			#end
+
+		#else
+			#set ( $numUpstreamRows = 1)
+		#end
+
+		###### Determine rows needed for downstream ############
+		#set ( $numDownstreamRows = 0)
+
+		## if there are no downstream items, then 1 row
+		## if there are downstream items then add 1 row for each if there are no dn2 level items
+		## if there are downstream items then add a row for each dn2 level item
+		#if ( $dnDocs.size() > 0 )
+			#foreach ( $dnDoc in $dnDocs )
+				#if ( $dnDoc.get(1).size() > 0 )
+					#set ( $numDownstreamRows = $numDownstreamRows + $dnDoc.get(1).size())
+				#else
+					#set ( $numDownstreamRows = $numDownstreamRows + 1)
+				#end
+			#end
+
+		#else
+			#set ( $numDownstreamRows = 1)
+		#end
+
+		###### Determine total rows needed for item ############
+		## $rows is the number of rows to create for this L0 item
+
+		#set( $maxRows = $mathTool.max( $numUpstreamRows, $numDownstreamRows))
+		#if( $maxRows < 1)
+			#set( $rows = [1..1])
+		#else
+			#set( $rows = [1..$maxRows])
+		#end
+
+		
+		######## initial values for counters for keeping track of merging and empty cells ########
+		#if ( $upDocs.size() > 0 && $traceLevels == 2 )
+			#if ($upDocs.get(0).get(1).size() > 0)
+				#set ( $up1MergeCount = $upDocs.get(0).get(1).size() )
+			#else
+				#set ( $up1MergeCount = 1)
+			#end
+		#else
+			#set ( $up1MergeCount = 1)
+		#end
+
+		#if ( $dnDocs.size() > 0 && $traceLevels == 2 )
+			#if ($dnDocs.get(0).get(1).size() > 0)
+				#set ( $dn1MergeCount = $dnDocs.get(0).get(1).size() )
+			#else
+				#set ( $dn1MergeCount = 1)
+			#end
+		#else
+			#set ( $dn1MergeCount = 1)
+		#end
+
+		#set ( $up2Index = 0 )
+		#set ( $up1Index = 0 )
+		#set ( $dn1Index = 0 )
+		#set ( $dn2Index = 0 )
+		#set ( $upFinished = false )
+		#set ( $dnFinished = false )
+
+		###### Create Rows of Table ############
+		
+		#foreach ($row in $rows)
+			<tr>
+				###### Up2 ######
+				#if( $traceLevels == 2 )
+					#if ( $upDocs.size() > 0 && !$upFinished )
+						#set ( $up2Docs = $upDocs.get($up1Index).get(1) )
+						#if ( $up2Docs.size() > 0)
+							<td class=xl66 id='up2'>$!up2Docs.get($up2Index).id</td>
+							<td class=xl66>$!up2Docs.get($up2Index).documentKey</td>
+							<td class=xl66>$!up2Docs.get($up2Index).name</td>
+							<td class=xl66>$!up2Docs.get($up2Index).status.name</td>
+						#else
+							<td class=xl66 id='up2 blank'>&nbsp;</td>
+							<td class=xl66>&nbsp;</td>
+							<td class=xl66>&nbsp;</td>
+							<td class=xl66>&nbsp;</td>
+						#end
+					#else
+						<td class=xl66 id='up2 blank'>&nbsp;</td>
+						<td class=xl66>&nbsp;</td>
+						<td class=xl66>&nbsp;</td>
+						<td class=xl66>&nbsp;</td>
+					#end
+				#end
+				###### Up1 ######
+				#if ( $upDocs.size() > 0 && !$upFinished )
+					#set ( $up1Doc = $upDocs.get($up1Index).get(0) )
+					#if ( $up1MergeCount == $upDocs.get($up1Index).get(1).size() || $upDocs.get($up1Index).get(1).size() == 0 || !$mergeCells )
+						<td #if($mergeCells) rowspan=$up1MergeCount #end class=xl66 id='up1'>$up1Doc.id</td>
+						<td #if($mergeCells) rowspan=$up1MergeCount #end class=xl66>$up1Doc.documentKey</td>
+						<td #if($mergeCells) rowspan=$up1MergeCount #end class=xl66>#stripPlainText($up1Doc.name)</td>
+						<td #if($mergeCells) rowspan=$up1MergeCount #end class=xl66>$!up1Doc.status.name</td>
+					 #end
+				#else
+					<td #if($mergeCells) rowspan=$up1MergeCount #end class=xl66 id='up1 blank'>&nbsp;</td>
+					<td #if($mergeCells) rowspan=$up1MergeCount #end class=xl66>&nbsp;</td>
+					<td #if($mergeCells) rowspan=$up1MergeCount #end class=xl66>&nbsp;</td>
+					<td #if($mergeCells) rowspan=$up1MergeCount #end class=xl66>&nbsp;</td>
+				#end
+				
+				###### Source ######
+				#if ($foreach.first || !$mergeCells )
+					<td #if($mergeCells) rowspan=$maxRows #end class=xl66>$doc.id</td>
+					<td #if($mergeCells) rowspan=$maxRows #end class=xl66>$doc.documentKey</td>
+					<td #if($mergeCells) rowspan=$maxRows #end class=xl66>#stripPlainText($doc.name)</td>
+					<td #if($mergeCells) rowspan=$maxRows #end class=xl66>$!doc.status.name</td>
+				#end
+				
+				###### Dn1  ######
+				#if ( $dnDocs.size() > 0 && !$dnFinished )
+					#set ( $dn1Doc = $dnDocs.get($dn1Index).get(0) )
+					#if ( $dn1MergeCount == $dnDocs.get($dn1Index).get(1).size() || $dnDocs.get($dn1Index).get(1).size() == 0 || !$mergeCells )
+						<td #if($mergeCells) rowspan=$dn1MergeCount #end class=xl66 id='dn1'>$dn1Doc.id</td>
+						<td #if($mergeCells) rowspan=$dn1MergeCount #end class=xl66>$dn1Doc.documentKey</td>
+						<td #if($mergeCells) rowspan=$dn1MergeCount #end class=xl66>#stripPlainText($dn1Doc.name)</td>
+						<td #if($mergeCells) rowspan=$dn1MergeCount #end class=xl66>
+							#if( $!dn1Doc.documentType.documentTypeKey == "TSTRN")
+									$!dn1Doc.testRunStatus.display
+								#else
+									$!dn1Doc.status.name
+								#end
+								</td>
+					#end
+				#else
+					<td #if($mergeCells) rowspan=$dn1MergeCount #end class=xl66 id='dn1 blank'>&nbsp;</td>
+					<td #if($mergeCells) rowspan=$dn1MergeCount #end class=xl66>&nbsp;</td>
+					<td #if($mergeCells) rowspan=$dn1MergeCount #end class=xl66>&nbsp;</td>
+					<td #if($mergeCells) rowspan=$dn1MergeCount #end class=xl66>&nbsp;</td>
+				#end
+
+				###### Dn2 ######
+				#if ( $traceLevels == 2 )
+					#if ( $dnDocs.size() > 0 && !$dnFinished )
+						#set ( $dn2Docs = $dnDocs.get($dn1Index).get(1) )
+						#if ( $dn2Docs.size() > 0)
+							<td class=xl66 id='dn2'>$!dn2Docs.get($dn2Index).id</td>
+							<td class=xl66>$!dn2Docs.get($dn2Index).documentKey</td>
+							<td class=xl66>#stripPlainText($!dn2Docs.get($dn2Index).name)</td>
+							<td class=xl66>
+								#if( $!dn2Docs.get($dn2Index).documentType.documentTypeKey == "TSTRN")
+									$!dn2Docs.get($dn2Index).testRunStatus.display
+								#else
+									$!dn2Docs.get($dn2Index).status.name
+								#end
+							</td>
+						#else
+							<td class=xl66 id='dn2 blank 1'>&nbsp;</td>
+							<td class=xl66>&nbsp;</td>
+							<td class=xl66>&nbsp;</td>
+							<td class=xl66>&nbsp;</td>
+						#end
+					#else
+						<td class=xl66 id='dn2 blank 2'>&nbsp;</td>
+						<td class=xl66>&nbsp;</td>
+						<td class=xl66>&nbsp;</td>
+						<td class=xl66>&nbsp;</td>
+					#end
+				#end
+
+				###### Counter Management ######
+				##<td> UpDocs.size: $upDocs.size(), Rows: $rows.size(), Up1Index: $up1Index, Up2Index: $up2Index, Up1MergeCount: $up1MergeCount, Finished: $upFinished</td>
+				##<td>UpDocs: $upDocs</td>
+
+				#if ( $up1Index == $upDocs.size() - 1 && $up1MergeCount == 1 )
+					#set ( $upFinished = true )
+				#else
+					#if ( $up1MergeCount > 1 )
+						#set ( $up2Index = $up2Index + 1 )
+						#set ( $up1MergeCount = $up1MergeCount - 1 )
+					#else
+						#set ( $up2Index = 0 )
+						#set ( $up1Index = $up1Index + 1 )
+						#if ( $upDocs.size() > 0 )
+							#if ( $upDocs.get($up1Index).get(1).size() > 0 )
+								#set ( $up1MergeCount = $upDocs.get($up1Index).get(1).size() )
+							#else
+								#set ( $up1MergeCount = 1)
+							#end
+						#else
+							#set ( $up1MergeCount = 1)
+						#end
+					#end
+				#end
+
+				#if ( $dn1Index == $dnDocs.size() - 1 && $dn1MergeCount == 1 )
+					#set ( $dnFinished = true )
+				#else
+					#if ( $dn1MergeCount > 1 )
+						#set ( $dn2Index = $dn2Index + 1 )
+						#set ( $dn1MergeCount = $dn1MergeCount - 1 )
+					#else
+						#set ( $dn2Index = 0 )
+						#set ( $dn1Index = $dn1Index + 1 )
+						#if ( $dnDocs.size() > 0 )
+							#if ( $dnDocs.get($dn1Index).get(1).size() > 0 )
+								#set ( $dn1MergeCount = $dnDocs.get($dn1Index).get(1).size() )
+							#else
+								#set ( $dn1MergeCount = 1)
+							#end
+						#else
+							#set ( $dn1MergeCount = 1)
+						#end
+					#end
+				#end
+
+			</tr>
+		#end
+	#end  ##end checking to see if it's not a folder, component or set
+#end
+ 
+</table>
+</div>
+<!----------------------------->
+<!--END OF OUTPUT FROM EXCEL PUBLISH AS WEB PAGE WIZARD-->
+<!----------------------------->
+</body>
+</html>
