@@ -4,7 +4,7 @@
 This report constructs a single sheet excel trace report that can trace up to 2 levels both upstream and downstream from your exported source items. This report support merged cells for items with multiple relationships and will include test runs if encountered. Report only supplies generic fields of ID, Project ID, Item Name, and Item Status. 
 
 ## Preview Image
-![Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/)
+![Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Trace%20Reports/Bi-Directional%20Trace/Preview.png)
 
 ## Installation Instructions
 1. Go to the Admin section of Jama
@@ -12,7 +12,9 @@ This report constructs a single sheet excel trace report that can trace up to 2 
 1. Click Add Report
 1. Fill in the Add/Edit Report form as shown below.
 1. Click Save
-![Report Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/master/)
+
+
+![Report Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Trace%20Reports/Bi-Directional%20Trace/Config.png)
 
 ## NOTES: 
 - Your Organization field will have a different value.  
