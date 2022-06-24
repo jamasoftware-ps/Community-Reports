@@ -16,7 +16,8 @@
 - Your Organization field will have a different value.  
 - Rename the report to anyting you like
 - Enable any report format that you'd like to use
-- If your organization uses MS SQL for the database (not common), use the reports specified for MSSQL: https://github.com/jamasoftware-ps/Community-Reports/blob/master/Utilization%20Reports/Utilization%20by%20Project%20Report/Utilization%20By%20Project%20Report%208.x/Utilization%20by%20Project%20Setup_MSSQL.png 
+- If your organization uses MS SQL for the database (not common), use the reports specified for MSSQL: 
+![Report Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Utilization%20Reports/Utilization%20by%20Project%20Report/Utilization%20By%20Project%20Report%208.x/Utilization%20by%20Project%20Setup_MSSQL.png) 
 
 ## Running the Report
 1. Go to the Project section of Jama
