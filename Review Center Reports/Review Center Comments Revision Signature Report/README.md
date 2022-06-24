@@ -9,7 +9,7 @@
 4. Fill in the Add/Edit Report form as shown below.
 5. Click Save
 
-![alt tag](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Review%20Center%20Reports/Review%20Center%20Comments%20Revision%20Signature%20Report/config.png)
+![alt tag](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Review%20Center%20Reports/Review%20Center%20Comments%20Revision%20Signature%20Report/report_config.png)
 
 ## NOTES: 
 - Your Organization field will have a different value.  
