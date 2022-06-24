@@ -2,7 +2,6 @@
 
 ## Login Report Preview Image
 ![Utilization by Project Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Login_User%20Usage%20Reports/Login%20Data%20Report/Preview.png)
-
 ## Installation Instructions
 1. Go to the Admin section of Jama
 2. Click the Reports tab
