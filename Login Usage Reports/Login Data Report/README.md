@@ -14,7 +14,8 @@ Please note that this data itself is suspect due to the fact that logoff time is
 1. Click Add Report
 1. Fill in the Add/Edit Report form as shown below.
 1. Click Save
-![Report Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Login_User%20Usage%20Reports/Login%20Data%20Report/report_config.png)
+
+![Report Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Login%20Usage%20Reports/Login%20Data%20Report/config.png)
 
 ## NOTES: 
 - Your Organization field will have a different value.  
