@@ -30,6 +30,11 @@
 ##                                             - Adjusted report to use the document items documentKey instead of the API ID
 ##  2022-05-06   1.2.1       Liam Rotchford    - Adjusted cell types for documentKey items to be String type with proper style 
 ##                                               class.
+##  2022-07-01   1.2.2       Liam Rotchford    - Adjusted report to utilize globalId for determining item differences for 
+##                                               performing approval, rejection value calculations. 
+##                                             - This prevents edge case where items with duplicate names are present in review.
+##                                             - Adjusted the placement of the #set($prevItem = $currentItem) to ensure it is 
+##                                               always updated. 
 ##
 #########################################################################################################################
 #########################################################################################################################
@@ -1212,10 +1217,10 @@
       #set( $versions = $documentSource.getAllVersionsByDocumentId($doc.id))
       #set( $reviewCount = 0)
 
-      #set( $currentItem = $doc.id)
+      #set( $currentItem = $doc.globalId)
 
       #if($foreach.first)
-        #set($prevItem = $doc.id)
+        #set($prevItem = $doc.globalId)
       #end
 
       #set($lastDoc = '')
@@ -1257,7 +1262,7 @@
             #set( $usersRejectGiven = [])
 
             #foreach($item in $revisionItems)
-              #if($item.version.document.name == $doc.name)
+              #if($item.version.document.globalId == $doc.globalId)
                 #set($commentCount = $commentDao.getRevisionItemCommentCount($item.id, true))
               #end
             #end
@@ -1280,9 +1285,9 @@
                 #foreach( $revItem in $revItems)
 
                   #set( $status = $revItem.status)
-                  #set( $reviewItemName = $revItem.revisionItem.version.document.name)
+                  #set( $reviewItemGlobalId = $revItem.revisionItem.version.document.globalId)
 
-                  #if( $reviewItemName == $doc.name)  ## only check the approve reject counts for the particular item we are using
+                  #if( $reviewItemGlobalId == $doc.globalId)  ## only check the approve reject counts for the particular item we are using
                     #if( $status.name == "Approved")
                       #set( $approvalCount = $approvalCount + 1)
                       #set($addUser = true)
@@ -1383,10 +1388,9 @@
 
         #end
 
-        #set($prevItem = $currentItem)
-
       #end ## #if($reviewCount == 0)
-      
+
+      #set($prevItem = $currentItem)
     #end ## #foreach( $vDoc in $documentList )
 
 
