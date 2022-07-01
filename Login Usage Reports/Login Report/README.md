@@ -1,7 +1,7 @@
 # Login Report
 
 ## Login Report Preview Image
-![Utilization by Project Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Login_User%20Usage%20Reports/Login%20Data%20Report/Preview.png)
+![Utilization by Project Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Login%20Usage%20Reports/Login%20Report/LoginReportScreenshot.png)
 ## Installation Instructions
 1. Go to the Admin section of Jama
 2. Click the Reports tab
@@ -9,7 +9,7 @@
 4. Fill in the Add/Edit Report form as shown below.
 5. Click Save
 
-![Report Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Login_User%20Usage%20Reports/Login%20Data%20Report/Config.png)
+![Report Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Login%20Usage%20Reports/Login%20Report/LoginReportInstallationInstructions.png)
 
 ## NOTES: 
 - Your Organization field will have a different value.  
