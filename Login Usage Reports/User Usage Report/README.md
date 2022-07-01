@@ -1,7 +1,7 @@
 # Usage Report
 
 ## Usage Report Preview Image
-![Utilization by Project Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Login_User%20Usage%20Reports/User%20Usage%20Report/Usage_Report_Screenshot.png)
+![Utilization by Project Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Login%20Usage%20Reports/User%20Usage%20Report/Usage_Report_Screenshot.png)
 
 ## Installation Instructions
 1. Go to the Admin section of Jama
@@ -10,7 +10,7 @@
 4. Fill in the Add/Edit Report form as shown below.
 5. Click Save
 
-![Report Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Login_User%20Usage%20Reports/User%20Usage%20Report/UsageReportInstallationInstructions.png)
+![Report Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Login%20Usage%20Reports/User%20Usage%20Report/UsageReportInstallationInstructions.png)
 
 ## NOTES: 
 - Your Organization field will have a different value.  
