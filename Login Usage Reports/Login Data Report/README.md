@@ -6,7 +6,7 @@ This is a non-context sensitive report that builds a single sheet excel file of 
 Please note that this data itself is suspect due to the fact that logoff time is not accurate. The logoff timestamp can be either a user directly selecting the logoff button, the session timing out, or a user closing their browser.
 
 ## Preview Image
-![Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Login_User%20Usage%20Reports/Login%20Data%20Report/Preview.png)
+![Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Login%20Usage%20Reports/Login%20Data%20Report/Preview.png)
 
 ## Installation Instructions
 1. Go to the Admin section of Jama
