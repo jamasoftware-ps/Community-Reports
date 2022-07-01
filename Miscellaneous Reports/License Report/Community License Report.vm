@@ -1,0 +1,619 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+##
+
+#########################################################################################################################
+## ======================================================================================================================
+## Name: Community License Report.vm
+##
+## Description: This report is project level. It has an interval range of 30 days, from the time the report is run, and
+## it gathers daily license use by license type. For each license type it shows the Date of use, Max Available Licenses,
+## Non-reserved Active Licenses, Reserved Licenses, and Failed Logins.
+## 
+##
+## ======================================================================================================================
+## MODIFICATION HISTORY 
+## 
+## Date         Revision   Person            Comments 
+## -----------  ---------  ----------------  -------------------------------------------------------------------------
+## 2022-07-01   1.0        Anna FitzGerald    - Intial Build
+##
+##
+## ===================================================================================================================== 
+## Criteria: 
+##
+##			Type:     Display Name:           Report Global Variable:
+##      ------------------------------------------------------------
+##
+##
+##
+#########################################################################################################################
+
+
+
+
+#########################################################################################################################
+## ======================================================================================================================
+## Template Steps:
+## -----------------
+## 	1. Convert Excel Mock up template with all styles, borders, data typing, etc.. applied to .mhtml file
+##	2. Adjust file extension from .mhtml file to .vm
+##  3. Open new file in text editor and perform the following "Find and Replace All" actions with regex pattern match toggled
+## 			a. Find: =\n Replace: <nothing>
+##			b. Find: =3D Replace: =
+##  4. In Mock up template code file copy all style classes starting from "<!--table" to the very last style class before the '->'
+##  5. Paste that into this file within the same copied range
+##  6. From the Mock up Template code copy the entire table definition tag from <table .*> to </table> and paste into this file
+##		 within the primary <div> container starting on line 750
+## ======================================================================================================================
+#########################################################################################################################
+
+
+
+#########################################################################################################################
+##
+##  Global Variables
+##
+#########################################################################################################################
+
+## load the data sources.  Data sources changed with Jama 8.44, so this logic detects the correct source to use for the version 
+## of Jama the report is running on.
+
+#if( $documentSource ) ##
+  ## Jama 8.44 or greater
+  ## Jama 8.42 if New Velocity Feature Flag Enabled
+  #set( $docDao = $documentSource )
+  #set( $contourItemDao = $documentSource)
+  #set( $documentTypeFieldDao = $documentSource)
+  #set( $lookupDao = $documentSource)
+  #set( $documentNodeDao = $documentSource )
+  #set( $attachmentDao = $documentSource )
+  #set( $attachmentService = $documentSource )
+  #set( $relDao = $documentSource )
+  #set( $versionDao = $documentSource )
+  #set( $testRunDao = $testSource )
+  #set( $velocityServiceWrapper = $documentSource )
+  #set( $baselineDao = $baselineSource )
+  #set( $licenseDao = $adminSource )
+##
+#else
+  ## Jama 8.43 or older
+  #set( $docDao = $applicationContext.getBean("documentDao"))
+  #set( $contourItemDao = $applicationContext.getBean("documentDao"))
+  #set( $documentTypeFieldDao = $applicationContext.getBean("documentDao"))
+  #set( $lookupDao = $applicationContext.getBean("documentDao"))
+  #set( $documentNodeDao = $applicationContext.getBean("documentNodeDao"))
+  #set( $attachmentDao = $applicationContext.getBean("attachmentDao"))
+  #set( $attachmentService = $applicationContext.getBean("attachmentService"))
+  #set( $relDao = $applicationContext.getBean("relationshipDao") )
+  #set( $versionDao = $applicationContext.getBean("versionDao") )
+  #set( $testRunDao = $applicationContext.getBean("testRunDao") )
+  ## $velocityServiceWrapper is already available
+  #set( $baselineDao = $applicationContext.getBean("baseLineDao") )
+  #set( $licenseDao = $applicationContext.getBean("dwrLicenseService"))
+##
+#end
+
+#set( $baselineMode = false )
+#set( $baselineId = false )
+
+
+## Report Parameters
+##-------------------------------------------
+#if( $reportBaseline )
+  #set( $baselineMode = $reportBaseline )
+#else
+  #set( $baselineMode = false )
+#end
+#if( $reportTestRuns )
+  #set( $testRunMode = $reportTestRuns )
+#else
+  #set( $testRunMode = false )
+#end
+
+
+
+#set($cmpKey = "CMP")
+#set($setKey = "SET")
+#set($fldKey = "FLD")
+#set( $txtKey = "TXT") 
+
+#set( $timeZone = "America/Los_Angeles" ) ##
+
+
+#########################################################################################################################
+#########################################################################################################################
+#########################################################################################################################
+
+
+
+#########################################################################################################################
+##                                                                                                                    ###
+##  Macros                                                                                                            ###
+##                                                                                                                    ###
+#########################################################################################################################
+
+
+#########################################################################################################################
+#########################################################################################################################
+##          Macro: formatRichTextCell
+##          Desc: Use on purly textual Rich Text Fields (I.e use directly in Cells)
+##          Input: $inString - input string
+##          Return: string, ready for opening in Word
+#########################################################################################################################
+#macro( formatRichTextCell $inString )
+  #if( $inString )
+    #set( $string = $inString.toString() )
+    ## clear all span statements to remove character formatting
+    #set( $string = $string.replaceAll("<span.*?>",""))
+    #set( $string = $string.replaceAll("<\/span>",""))
+    #set( $string = $string.replaceAll("<div.*?>",""))
+    #set( $string = $string.replaceAll("<\/div>",""))
+    ## Remove content that doesn't work well in Excel
+    #set( $string = $string.replaceAll("<table.*>|<\/table>",""))
+    #set( $string = $string.replaceAll("<tbody.*>|<\/tbody>",""))
+    #set( $string = $string.replaceAll("<tr.*>|<\/tr>",""))
+    #set( $string = $string.replaceAll("<td>|<\/td>",""))
+    #set( $string = $string.replaceAll("(?s)<a.*>(.*)</a>","$1"))
+    #set( $string = $string.replaceAll("\xA0",""))
+
+    #set( $string = $string.replaceAll("<p>&nbsp;<\/p>",""))
+    #set( $string = $string.replaceAll("<p>-","<p>&#10;-"))
+    #set( $string = $string.replaceAll("&nbsp;<\/p>","<\/p>"))
+    #set( $string = $string.replaceAll("<p.*?>",""))
+    #set( $string = $string.replaceAll("<\/p>","&#10;"))
+
+    #set( $string = $string.replaceAll("<br>","&#10;"))
+    #set( $string = $string.replaceAll("<br />","&#10;"))
+    #set( $string = $string.replaceAll("<br/>","&#10;"))
+
+    #set( $string = $string.replaceAll("<ul>",""))
+    #set( $string = $string.replaceAll("<\/ul>",""))
+    #set( $string = $string.replaceAll("<ol>","&#10;• "))
+    #set( $string = $string.replaceAll("<\/ol>",""))
+
+    #set( $string = $string.replaceAll("<li.*?>","&#10;• "))
+    #set( $string = $string.replaceAll("<\/li>",""))
+    
+    #set( $string = $string.replaceAll("<img.*?>",""))
+    #set( $string = $string.replaceAll("<strong>",""))
+    #set( $string = $string.replaceAll("<\/strong>",""))
+
+    #set( $string = $string.replaceAll("<","&lt;"))
+    #set( $string = $string.replaceAll(">","&gt;"))
+    
+    $string
+
+  #end
+#end
+
+#########################################################################################################################
+#########################################################################################################################
+##
+#########################################################################################################################
+#macro( stripPlainText $text )
+  #set($text = $text.replaceAll("<","	&lt;"))
+  #set($text = $text.replaceAll(">","	&gt;"))
+  $text
+#end
+#########################################################################################################################
+##
+
+#########################################################################################################################
+##          Macro: pickListColorFetch
+##          Input: item, the unique custom field name, the fetched picklist item
+##          Output: String type hex code color 
+##          Call Example: #pickListColorFetch($doc "<unique field name>" $<item variable with item data> )
+##          Apply to cell: style='background:#$color;mso-pattern:#$color none;''
+#########################################################################################################################
+#macro( pickListColorFetch $doc $fieldName $pickListItem)
+
+  ##Get the color it displays in Jama
+  #set( $newItem = $contourItemDao.getContourItem($doc.id))
+  #set( $customFields = $newItem.getCustomFields())
+  #set( $docTypeField = $documentTypeFieldDao.getDocumentTypeFieldByName( $fieldName, $doc.documentType.id))
+  #set( $lookupTypeId = $docTypeField.getLookupTypeId())
+  #set( $fieldId = $docTypeField.documentField.id)
+
+  #set( $lookupTypeList = [])
+  #if( $lookupTypeList.add($lookupTypeId)) #end
+  #set( $getLookupIdsReturn = $lookupDao.getLookupIdsByLookupTypes($lookupTypeList))
+  #set( $lookupValues = [])
+  #foreach( $lookUpId in $getLookupIdsReturn)
+    #set( $lookup = $lookupDao.getLookup($mathTool.toInteger($lookUpId)))
+    #if( $lookupValues.add( $lookup)) #end
+  #end
+  
+  #set( $color = '')
+  #foreach( $lookUpVal in $lookupValues)
+    #if( $lookUpVal.name == $pickListItem.trim())
+      #set( $color = $lookUpVal.color)
+      #break
+    #end
+  #end
+
+  ## Returns $color
+
+#end
+#########################################################################################################################
+##          Macro: getHierarchyLevel
+##          Input: $doc - document object
+##                 $baselineMode - true: export was from a baseline, false: export was from the project
+##                 $baselineId   - ID of the baseline that the items are part of, if in baseline mode
+##          Output: $hierarchyLevel - number, which heading level this item is in Jama relative to the container
+#########################################################################################################################
+#macro( getHierarchyLevel $doc $baselineMode $baselineId )
+  #set( $seqSubStrings = [] )
+  #set( $hierarchyLevel = 1)
+  ## Get hierarchy from the baseline
+  #if( $baselineMode )
+    #set( $docNode = $documentNodeDao.getDocumentNodeForBaseLine(5, $doc.id, $baselineId))
+  ## Get hierarchy from the project
+  #else
+    #set( $docNode = $documentNodeDao.getDocumentNode(5, $doc.id))
+  #end
+  ##Debug: $docNode
+  #set( $seqSubStrings = $docNode.sequence.split("\."))
+  ##Debug: $seqSubStrings
+  #set( $hierarchyLevel = $seqSubStrings.size())
+  #if( !$hierarchyLevelTop )
+    #set($hierarchyLevelTop = $hierarchyLevel)
+  #end
+
+  #set($hierarchyLevel = $hierarchyLevel - $hierarchyLevelTop + 1)
+#end
+
+
+#########################################################################################################################
+##
+
+#########################################################################################################################
+##          Macro: getDate
+##          Input: Java Time Zone ID to determine which timezone to display the date in
+##          Output: Formatted date in the desired timezone
+#########################################################################################################################
+#macro( getDate $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  $dateTool.format( 'MM/dd/yyyy', $inputDate, $locale, $outTz )
+#end
+
+#########################################################################################################################
+##
+
+#########################################################################################################################
+##
+#########################################################################################################################
+##          Macro: getRelationships
+##          Inputs: $baselineMode - GLOBAL, tells the report if the export was from a baseline or not 
+##                  $baselineId - GLOBAL, ID of a baseline       
+##                  $inDoc - current item
+##                  $inDownstream - true provides downstream relationships, false provides upstream relationships
+##          Creates: $returnRels - list of relationships with sub-elements of "fromItem" and "toItem" each of type 
+##                   item
+#########################################################################################################################
+#macro( getRelationships $inDoc $inDownstream )
+  #set( $returnRels = [] )
+  #if( $baselineMode )
+    #if( $baselineId )
+      #set( $currentVersion = $inDoc.currentVersion )
+      #set( $orginDocId = $currentVersion.originDocument.id )
+      #set( $relatedIds = [] )
+      #getBaselineRelationships303( $orginDocId, $baselineId ) ## Creates $returnBaselineRels
+      ##DEBUG $returnBaselineRels
+      #foreach ( $rel in $returnBaselineRels )
+        #set($dnDoc = $rel.toItem)
+        #set($upDoc = $rel.fromItem)
+        #set($relationshipType = $rel.relationshipType )
+        #if( $inDownstream )  ## Get Downstream Relationships
+          #if( $upDoc.id == $inDoc.id )
+            #if( !$relatedIds.contains($dnDoc.id) )
+              #set( $success = $relatedIds.add($dnDoc.id) )
+              #set( $success = $returnRels.add( {"fromDocument":$upDoc,"toDocument":$dnDoc,"relationshipType":$relationshipType} ) )
+            #end
+          #end
+        #else                 ## Get Upstream Relationships
+          #if( $dnDoc.id == $inDoc.id )
+            #if( !$relatedIds.contains($upDoc.id) )
+              #set( $success = $relatedIds.add($upDoc.id) )
+              #set( $success = $returnRels.add( {"fromDocument":$upDoc,"toDocument":$dnDoc,"relationshipType":$relationshipType} ) )
+            #end
+          #end
+        #end
+      #end
+    #end
+  #else
+    #set( $rels = [] )
+    #set ( $rels = $relDao.getRelationshipsForDocument($inDoc.id, $inDownstream) )
+    #foreach( $rel in $rels )
+      #if( $inDownstream )  ## Get Downstream Relationships
+        #if ( $rel.toDocument.active )
+          #set( $success = $returnRels.add({"fromDocument":$rel.fromDocument,"toDocument":$rel.toDocument,"relationshipType":$rel.relationshipType.name}) )
+        #end
+      #else                 ## Get Upstream Relationships
+        #if ( $rel.fromDocument.active )
+          #set( $success = $returnRels.add({"fromDocument":$rel.fromDocument,"toDocument":$rel.toDocument,"relationshipType":$rel.relationshipType.name}) )
+        #end
+      #end
+    #end
+  #end
+#end
+######################################################################################################################
+######################################################################################################################
+
+
+######################################################################################################################
+##
+##	Styles
+##
+######################################################################################################################
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link rel=File-List href="KeywordLocator.fld/filelist.xml">
+<style id="KeywordLocator_11435_Styles">
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+tr
+  {mso-height-source:auto;}
+col
+  {mso-width-source:auto;}
+br
+  {mso-data-placement:same-cell;}
+.style18
+  {background:#D9E1F2;
+  mso-pattern:black none;
+  color:black;
+  font-size:11.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:none;
+  font-family:Calibri, sans-serif;
+  mso-font-charset:0;
+  mso-style-name:"20% - Accent1";
+  mso-style-id:30;}
+.style17
+  {background:#8EA9DB;
+  mso-pattern:black none;
+  color:black;
+  font-size:11.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:none;
+  font-family:Calibri, sans-serif;
+  mso-font-charset:0;
+  mso-style-name:"60% - Accent1";
+  mso-style-id:32;}
+.style16
+  {background:#4472C4;
+  mso-pattern:black none;
+  color:white;
+  font-size:11.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:none;
+  font-family:Calibri, sans-serif;
+  mso-font-charset:0;
+  mso-style-name:Accent1;
+  mso-style-id:29;}
+.style0
+  {mso-number-format:General;
+  text-align:general;
+  vertical-align:bottom;
+  white-space:nowrap;
+  mso-rotate:0;
+  mso-background-source:auto;
+  mso-pattern:auto;
+  color:black;
+  font-size:11.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:none;
+  font-family:Calibri, sans-serif;
+  mso-font-charset:0;
+  border:none;
+  mso-protection:locked visible;
+  mso-style-name:Normal;
+  mso-style-id:0;}
+td
+  {mso-style-parent:style0;
+  padding-top:1px;
+  padding-right:1px;
+  padding-left:1px;
+  mso-ignore:padding;
+  color:black;
+  font-size:11.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:none;
+  font-family:Calibri, sans-serif;
+  mso-font-charset:0;
+  mso-number-format:General;
+  text-align:general;
+  vertical-align:bottom;
+  border:none;
+  mso-background-source:auto;
+  mso-pattern:auto;
+  mso-protection:locked visible;
+  white-space:nowrap;
+  mso-rotate:0;}
+.xl65
+  {mso-style-parent:style0;
+  color:#262626;
+  font-size:10.0pt;
+  mso-number-format:"Short Date";
+  text-align:center;
+  vertical-align:middle;
+  border:.5pt solid #404040;}
+.xl66
+  {mso-style-parent:style0;
+  color:#262626;
+  font-size:10.0pt;
+  text-align:center;
+  vertical-align:middle;
+  border-top:.5pt solid #404040;
+  border-right:.5pt solid #404040;
+  border-bottom:.5pt solid #595959;
+  border-left:.5pt solid #404040;}
+.xl67
+  {mso-style-parent:style0;
+  color:#262626;
+  font-size:10.0pt;
+  text-align:center;
+  border:.5pt solid #404040;}
+.xl68
+  {mso-style-parent:style0;
+  color:#262626;
+  font-size:10.0pt;
+  text-align:center;
+  vertical-align:middle;
+  border:.5pt solid #404040;}
+.xl69
+  {mso-style-parent:style16;
+  color:white;
+  font-size:10.0pt;
+  text-align:center;
+  vertical-align:top;
+  border:.5pt solid #404040;
+  background:#4472C4;
+  mso-pattern:black none;}
+.xl70
+  {mso-style-parent:style16;
+  color:white;
+  font-size:10.0pt;
+  text-align:center;
+  vertical-align:top;
+  border:.5pt solid #404040;
+  background:#4472C4;
+  mso-pattern:black none;
+  white-space:normal;}
+.xl71
+  {mso-style-parent:style18;
+  font-size:10.0pt;
+  text-align:left;
+  border-top:none;
+  border-right:none;
+  border-bottom:.5pt solid #404040;
+  border-left:none;
+  background:#D9E1F2;
+  mso-pattern:black none;}
+.xl72
+  {mso-style-parent:style17;
+  font-size:10.0pt;
+  font-weight:700;
+  background:#B4C6E7;
+  mso-pattern:black none;}
+.xl73
+  {mso-style-parent:style17;
+  font-size:10.0pt;
+  text-align:left;
+  background:#B4C6E7;
+  mso-pattern:black none;}
+.xl74
+  {mso-style-parent:style17;
+  font-size:10.0pt;
+  font-weight:700;
+  text-align:left;
+  background:#B4C6E7;
+  mso-pattern:black none;}
+-->
+</style>
+</head>
+
+<body link=blue vlink=purple>
+<!--[if !excel]>&nbsp;&nbsp;<![endif]-->
+<!--The following information was generated by Microsoft Excel's Publish as Web
+Page wizard.-->
+<!--If the same item is republished from Excel, all information between the DIV
+tags will be replaced.-->
+<!----------------------------->
+<!--START OF OUTPUT FROM EXCEL PUBLISH AS WEB PAGE WIZARD -->
+<!----------------------------->
+
+
+
+
+<div id="KeywordLocator_11435" align=center x:publishsource="Excel">
+
+## Utilize Admin Source and Interface LicenseSnapshotInterval to get license stats for daily interval duration ##
+## -------------------------
+
+#set( $organizationID = $project.getOrganization().getId() )
+#set( $licenseUse = [] ) ## object list: license type and its Interface LicenseSnapshotInterval <List> ##
+#set( $licenseTypes = $licenseDao.getAllOrgLicenseTypes() )
+#foreach( $licenseType in $licenseTypes )
+  #set( $licenseUsageLast30Days = $licenseDao.getLicenseDataForLastNDays( "last30Days", $organizationID, $licenseType ))
+  #set( $sucess = $licenseUse.add( { "licenseType": $licenseType.label, "licenseUsage": $licenseUsageLast30Days }))
+#end 
+
+## Get the 30 Day Date Range
+## -------------------------
+
+#set( $intervalStart = $licenseUsageLast30Days.get(0).intervalStart )
+#set( $intervalEnd = $licenseUsageLast30Days.get(29).intervalEnd ) 
+
+## Table Definition
+## -------------------------
+
+<table border=0 cellpadding=0 cellspacing=0 width=500 style='border-collapse:collapse;table-layout:fixed;width:375pt'>
+ <col width=100 span=5 style='mso-width-source:userset;mso-width-alt:3657;width:75pt'>
+ <col width=111 style='mso-width-source:userset;mso-width-alt:4059;width:83pt'>
+
+## Table Static Headers 
+## -------------------------
+  <tr height=20 style='height:15.0pt'>
+    <td colspan=5 height=20 class=xl74>Jama Connect License Usage 30 Days, $project.organization.name </td>
+  </tr>
+  <tr height=20 style='height:15.0pt'>
+    <td colspan=5 height=20 class=xl74>Date Range: #getDate( $intervalStart $timeZone ) - #getDate( $intervalEnd $timeZone )</td>
+  </tr>
+
+## Table Dynamic Data 
+## -------------------------
+
+  <tr height=34 style='height:25.5pt'>
+    <td class=xl69>Date</td>
+    <td class=xl70 width=100>Max Available Licenses</td>
+    <td class=xl70 width=100>Non-reserved Active Licenses</td>
+    <td class=xl70 width=100>Reserved Licenses</td>
+    <td class=xl70 width=100>Failed Logins</td>
+  </tr>
+
+#foreach( $daysByLicenseType in $licenseUse )
+  
+  #set( $licenseType = $daysByLicenseType.get("licenseType"))
+  #set( $licenseUsage = $daysByLicenseType.get("licenseUsage"))
+
+
+  <tr height=20 style='height:15.0pt'>
+    <td colspan=5 height=20 class=xl71 style='height:15.0pt'>LICENSE TYPE: $licenseType</td>
+  </tr>
+
+
+  #foreach( $dailyUse in $licenseUsage ) 
+    #set( $dateOfCount = $dailyUse.intervalStart) 
+
+     <tr height=20 style='height:15.0pt'>
+      <td height=20 class=xl65 style='height:15.0pt;border-top:none'>#getDate( $dateOfCount $timeZone )</td>
+      <td class=xl66 style='border-top:none;border-left:none'>$dailyUse.maxLicenseCount</td>
+      <td class=xl67 style='border-top:none;border-left:none'>$dailyUse.nonReservedActiveLicenseCount</td>
+      <td class=xl68 style='border-top:none;border-left:none'>$dailyUse.reservedLicenseCount</td>
+      <td class=xl68 style='border-top:none;border-left:none'>$dailyUse.numberRejected</td>
+     </tr>
+
+  #end ##foreach( $dailyUse in $licenseUsage ) 
+#end ##foreach( $daysByLicenseType in $licenseUse )
+
+
+
+</div>
+<!----------------------------->
+<!--END OF OUTPUT FROM EXCEL PUBLISH AS WEB PAGE WIZARD-->
+<!----------------------------->
+</body>
+
+</html>
