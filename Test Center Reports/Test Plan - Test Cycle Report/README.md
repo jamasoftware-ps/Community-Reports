@@ -1,8 +1,12 @@
-# Test Plan - Test Cycle Report
+# Test Plan - Test Cycle Report 
+
+## Report Summary
+The Test Plan - Test Cycle Report is a multi-use test center report that constucts it's content dependant on the export location & data. Depending on the item types exported be it a baseline, test plan, test cases, or test runs the report will generate content formatted specifcally for each data type. 
+
 ## Test Plan Preview Image
 ![Test Plan Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Test%20Center%20Reports/Test%20Plan%20-%20Test%20Cycle%20Report/Test%20Plan%20Preview.png)
 
-## Test Cycle / Basline Preview Image 
+## Test Cycle / Baseline Preview Image 
 ![Test Cycle / Baseline Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Test%20Center%20Reports/Test%20Plan%20-%20Test%20Cycle%20Report/Test%20Cycle%20-%20Basline%20Preview.png)
 
 ## Installation Instructions
