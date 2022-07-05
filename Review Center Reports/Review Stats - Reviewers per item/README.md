@@ -1,4 +1,8 @@
 # Review Center Stats Report - Reviewers per Item
+
+## Description
+The Review Center Stats Report - Reviewers per Item displays reviewer and approver progress on each item present in a review.
+
 ## Preview Image
 ![alt tag](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Review%20Center%20Reports/Review%20Stats%20-%20Reviewers%20per%20item/preview.png)
 
