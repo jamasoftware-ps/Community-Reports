@@ -1,4 +1,29 @@
 <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+## ======================================================================================================================
+## Name: UpStreamTrace Two Levels_8_42.vm 
+## 
+## Description: Traces upstream 2 levels to export to single sheet excel 
+##							showing documentKey (as Jama Item Link), Name, & Status fields.
+## ======================================================================================================================
+## MODIFICATION HISTORY 
+## 
+## Date         Revision   Person            Comments 
+## -----------  ---------  ----------------  ---------------------------------- 
+## 2022-07-05   1.0        Liam Rotchford    - Master Template Header added
+##
+## ======================================================================================================================
+##
+## Report Criteria:
+## ---------------------------    
+##
+##      Type:       Display Name:           Report Global Variable:   Function:
+##      ----------------------------------------------------------------------------------------------------------------------
+##    
+##
+## ======================================================================================================================
+##
+##
+#########################################################################################################################
 <meta http-equiv=Content-Type content="text/html; charset=windows-1252">
 <meta name=ProgId content=Excel.Sheet>
 <meta name=Generator content="Microsoft Excel 11">
