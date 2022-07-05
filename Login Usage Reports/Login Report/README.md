@@ -1,5 +1,10 @@
 # Login Report
 
+## Description 
+The Login Report generates a graph representing the logins to your instance based on the supplied date range. 
+
+Please note that this data itself is suspect due to the fact that logoff time is not accurate. The logoff timestamp can be either a user directly selecting the logoff button, the session timing out, or a user closing their browser.
+
 ## Login Report Preview Image
 ![Utilization by Project Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Login%20Usage%20Reports/Login%20Report/LoginReportScreenshot.png)
 ## Installation Instructions
