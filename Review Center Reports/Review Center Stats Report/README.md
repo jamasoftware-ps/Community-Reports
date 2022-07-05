@@ -21,8 +21,8 @@ The Review Center Stats report provides a quick summary of review, approvers, re
 - Enable any report format that you'd like to use
 
 ## Running the Report
-6. Go to the Project section of Jama
-7. Click Reports
-8. Select the report name you specified when installing the report.
-9. Select a review (the reviews in the list will be all of those reviews associated with the current project)
-9. Click Run Report
+1. Go to the Project section of Jama
+2. Click Reports
+3. Select the report name you specified when installing the report.
+4. Select a review (the reviews in the list will be all of those reviews associated with the current project)
+5. Click Run Report
