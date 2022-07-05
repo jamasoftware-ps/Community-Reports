@@ -1,5 +1,8 @@
 # Usage Report
 
+## Description
+The Usage Report generates a report of user account infomation based on the users who accessed the Jama Connect instance in the supplied date range.
+
 ## Usage Report Preview Image
 ![Utilization by Project Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Login%20Usage%20Reports/User%20Usage%20Report/Usage_Report_Screenshot.png)
 
