@@ -5,6 +5,9 @@
 ## Report Summary
 The Baseline to Current Diff report compares a baselined versions and the current version of the same items, displaying the differences as redlined text in one column.
 
+## Report Preview Image
+![Baseline to Current Diff - 1 column](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Baseline%20Reports/Baseline%20Diff%20Reports/One%20Column%20Baseline%20Diff%20Reports%20-with%20pdf%20option/Baseline%20Diff%20One%20Column/BaselineToCurrentDiffOneColPreview.png)
+
 ### Installation Instructions
 
 #### Word and HTML reports:
@@ -17,6 +20,7 @@ The Baseline to Current Diff report compares a baselined versions and the curren
   - *Type:* **Boolean**, *Display:* **Include Relationships**, *Name:* **includeRelationships**
   - *Type:* **Boolean**, *Display:* **Include Version Comments**, *Name:* **report_showComment**
 
+![Baseline to Current Diff - 1 column](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Baseline%20Reports/Baseline%20Diff%20Reports/One%20Column%20Baseline%20Diff%20Reports%20-with%20pdf%20option/Baseline%20Diff%20One%20Column/BaselineToCurrentDiffOneColConfig.png)
 
 
 #### PDF reports:

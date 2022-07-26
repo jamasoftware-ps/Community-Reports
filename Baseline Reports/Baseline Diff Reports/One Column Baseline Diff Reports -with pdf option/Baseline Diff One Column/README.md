@@ -5,6 +5,9 @@
 ## Report Summary
 The Baseline to Baseline Diff report compares the two baselined versions of the same items, displaying the differences as redlined text in one column.
 
+## Report Preview Image
+![Baseline to Baseline Diff - 1 column](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Baseline%20Reports/Baseline%20Diff%20Reports/One%20Column%20Baseline%20Diff%20Reports%20-with%20pdf%20option/Baseline%20Diff%20One%20Column/BaselineToBaselineDiffOneColPreview.png)
+
 ### Installation Instructions
 
 #### Word and HTML reports:
@@ -18,6 +21,7 @@ The Baseline to Baseline Diff report compares the two baselined versions of the 
   - *Type:* **Boolean**, *Display:* **Include Relationships**, *Name:* **includeRelationships**
   - *Type:* **Boolean**, *Display:* **Include Version Comments**, *Name:* **report_showComment**
 
+![Baseline to Baseline Diff - 1 column](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Baseline%20Reports/Baseline%20Diff%20Reports/One%20Column%20Baseline%20Diff%20Reports%20-with%20pdf%20option/Baseline%20Diff%20One%20Column/BaselineToBaselineDiffOneColConfig.png)
 
 
 #### PDF reports:
