@@ -2,6 +2,9 @@
 
 ### *Note: The Baseline diff reports work with Connect versions 8.68 or later.*
 
+## Report Summary
+The Baseline to Current Diff report compares a baselined versions and the current version of the same items, displaying the differences as redlined text in one column.
+
 ### Installation Instructions
 
 #### Word and HTML reports:
