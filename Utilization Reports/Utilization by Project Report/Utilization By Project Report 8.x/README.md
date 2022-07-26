@@ -1,5 +1,8 @@
 # Utilization by Project Report
 
+## Report Summary
+The Utilization by Project Report shows how active your Jama Connect instance is by showing how many active users, comments, items, reused items, reviews and test plans are added in a given date range.
+
 ## Utilization by Project Preview Image
 ![Utilization by Project Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Utilization%20Reports/Utilization%20by%20Project%20Report/Utilization%20By%20Project%20Report%208.x/Utilization%20by%20Project%20preview.png)
 

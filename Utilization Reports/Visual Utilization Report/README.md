@@ -1,5 +1,8 @@
 # Visual Utilization Report
 
+## Report Summary
+The Visual Utilization Report shows how active your Jama Connect instance is by displaying charts showing how active your users are in a given date range. 
+
 ## Visual Utilization Preview Image
 ![Utilization by Project Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Utilization%20Reports/Visual%20Utilization%20Report/VisualUtilizationPreviewImage.png)
 
