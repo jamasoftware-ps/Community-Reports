@@ -4,10 +4,10 @@
 This report constructs a single sheet excel trace report that can trace up to 2 levels both upstream and downstream from your exported source items. This report support merged cells for items with multiple relationships and will include test runs if encountered. Report only supplies generic fields of ID, Project ID, Item Name, and Item Status. 
 
 ## Preview Image
-If Two Levels is checked at export:
+If Two Levels parameter is checked at export:
 ![2up_2d_mergeCells](https://user-images.githubusercontent.com/99203913/189504820-f58f5a56-b15d-4c4f-9279-4c70aa8a00b2.png)
 
-The default exports 1 level both upstream and downstream from the source:
+If default export (1 level up/down from the source):
 ![default_2up_2dn_mergeCells](https://user-images.githubusercontent.com/99203913/189504870-11e9272d-c1fe-4769-83a8-4f3df257a2e6.png)
 
 
@@ -30,5 +30,5 @@ The default exports 1 level both upstream and downstream from the source:
 1. Go to the Project section of Jama
 1. Click into the context sensitive reports menu option via reading view "Export > View All Export Options"
 1. Select the report name you specified when installing the report.
-1  Determine report run parameters: Merge cells and or Two Levels Up/Down (default is one level Up/Down)
+1  Determine report run parameters: Merge cells and or Two Levels Up/Down 
 1. Click Run Report
