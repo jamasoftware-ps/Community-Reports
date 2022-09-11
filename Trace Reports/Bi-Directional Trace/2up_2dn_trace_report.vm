@@ -323,8 +323,6 @@ Output: $docStatus - status of the item
 #end
 ##
 
-
-
 <!---------------------------------------------------------------------------
 formatRichTextCell
 Desc: Use on Rich Text Field values that need to be cleaned for Excel table data cell 
@@ -335,26 +333,27 @@ Return: $string, ready for opening in Word
   #if( $inString )
     #set( $string = $inString.toString() )
 
-    <!-- remove span elements-->
+    <!-- remove span tags-->
     #set( $string = $string.replaceAll("<span.*?>|<\/span>",""))
     #set( $string = $string.replaceAll("<span>(&nbsp;)+<\/span>",""))
 
-    <!--remove image elements, img/s are not possible in excel -->
+    <!--remove image tags, img/s are not possible in excel -->
+    #set( $string = $string.replaceAll("<p.*?><img.*?><\/p>", ""))
     #set( $string = $string.replaceAll("<img.*?>",""))
     #set( $string = $string.replaceAll("<figcaption.*?>|<\/figcaption>",""))
-    #set( $string = $string.replaceAll("<figure.*?>|</figure", ""))
+    #set( $string = $string.replaceAll("<figure.*?>|</figure>", ""))
     #set( $string = $string.replaceAll("<svg.*?>|<\/svg", ""))
 
-    <!--remove container elements -->
+    <!--remove container tags -->
     #set( $string = $string.replaceAll("<div.*?>|<\/div>",""))
     
 
-    <!--remove table elements, tables within table cells are not possible 
+    <!--remove table tags, tables within table cells are not possible 
       in excel because they read as actual excel rows/cells, throwing 
       off the report's entire structure -->
     #set( $string = $string.replaceAll("<table.*>|<\/table>",""))
     #set( $string = $string.replaceAll("<col.*?>|<\/col>", ""))
-    #set( $string = $string.replaceAll("<tbody.*>|<\/tbody>",""))
+    #set( $string = $string.replaceAll("<tbody.*?>|<\/tbody>",""))
     #set( $string = $string.replaceAll("<thead.*?>|<\/thead>",""))
     #set( $string = $string.replaceAll("<th.*?>|</th>", ""))
     #set( $string = $string.replaceAll("<tr.*>|<\/tr>",""))
@@ -363,31 +362,39 @@ Return: $string, ready for opening in Word
     #set( $string = $string.replaceAll("<caption.*?>|<\/caption>",""))
 
 
-    <!-- remove list elements / replace li with a line break and dash-->
+    <!-- remove list tags / replace li with a line break and dash-->
     #set( $string = $string.replaceAll("<ul.*?>|<\/ul>",""))
     #set( $string = $string.replaceAll("<ol>|<\/ol>",""))
     #set( $string = $string.replaceAll("<li.*?>","&#10;-"))
     #set( $string = $string.replaceAll("<\/li>",""))
 
     
-    <!-- remove typographic elements, replace closing paragraphs wih 
+    <!-- remove typographic tags, replace closing paragraphs with 
       line break character entity -->
-    #set( $string = $string.replaceAll("<p.*?>(&nbsp;)+<\/p>",""))
-    #set( $string = $string.replaceAll("<p>-","<p>&#10;-"))
-    #set( $string = $string.replaceAll("&nbsp;<\/p>","<\/p>"))
+    #set( $string = $string.replaceAll("<h1>|<\/h1>",""))
+    #set( $string = $string.replaceAll("<h2>|<\/h2>",""))
+    #set( $string = $string.replaceAll("<h3>|<\/h3>",""))
+    #set( $string = $string.replaceAll("<h4>|<\/h4>",""))
+    #set( $string = $string.replaceAll("<h5>|<\/h5>",""))
+    #set( $string = $string.replaceAll("(<p.*?>)*?(&nbsp;)+<\/p>",""))
     #set( $string = $string.replaceAll("<p.*?>",""))
-    #set( $string = $string.replaceAll("<\/p>","&#10;"))
+    #set( $string = $string.replaceAll("<\/p>",""))
     #set( $string = $string.replaceAll("<strong>|<\/strong>",""))
     #set( $string = $string.replaceAll("<i>|<\/i>",""))
     #set( $string = $string.replaceAll("<em>|</em>", ""))
 
-    <!-- replace line break element with character entity -->
-    #set( $string = $string.replaceAll("<br.*?>","&#10;"))
+    <!-- remove line break tag (equivalent character entity &#10; 
+    	Conversion to Excel XLSX will break the line regardless, 
+    	so if it is replaced with the equivalent it will output a 
+    	double break. 
+    -->
+    #set( $string = $string.replaceAll("<br.*?>",""))
 
-    <!-- remove link elements -->
+
+    <!-- remove link tags -->
     #set( $string = $string.replaceAll("(?s)<a.*?>(.*)</a>","$1"))
    
-    <!-- replace less than/greater than with character entity -->
+    <!-- replace less than/greater than with equivalent character entity -->
     #set( $string = $string.replaceAll("<","&lt;"))
     #set( $string = $string.replaceAll(">","&gt;"))
 
