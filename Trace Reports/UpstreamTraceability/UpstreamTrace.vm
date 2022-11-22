@@ -69,9 +69,33 @@
 <BASE href="${baseUrl}">
 
 
-#set($docDao = $applicationContext.getBean("documentDao"))
-#set($relDao = $applicationContext.getBean("relationshipDao"))
 
+#if( $documentSource ) ##
+  ## Jama 8.44 or greater
+  ## Jama 8.42 if New Velocity Feature Flag Enabled
+  #set( $docDao = $documentSource )
+  #set( $documentNodeDao = $documentSource )
+  #set( $attachmentDao = $documentSource )
+  #set( $attachmentService = $documentSource )
+  #set( $relDao = $documentSource )
+  #set( $versionDao = $documentSource )
+  #set( $testRunDao = $testSource )
+  #set( $velocityServiceWrapper = $documentSource )
+  #set( $baselineDao = $baselineSource )
+##
+#else
+  ## Jama 8.43 or older
+  #set( $docDao = $applicationContext.getBean("documentDao"))
+  #set( $documentNodeDao = $applicationContext.getBean("documentNodeDao"))
+  #set( $attachmentDao = $applicationContext.getBean("attachmentDao"))
+  #set( $attachmentService = $applicationContext.getBean("attachmentService"))
+  #set( $relDao = $applicationContext.getBean("relationshipDao") )
+  #set( $versionDao = $applicationContext.getBean("versionDao") )
+  #set( $testRunDao = $applicationContext.getBean("testRunDao") )
+  ## $velocityServiceWrapper is already available
+  #set( $baselineDao = $applicationContext.getBean("baseLineDao") )
+##
+#end
 #set($one = '')
 #set($two = '')
 #set($three = '')
