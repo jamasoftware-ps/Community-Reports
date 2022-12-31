@@ -12,11 +12,13 @@ Otherwise, if the report is not filtered by User Name, and a larger time paramet
 If the Report Runner would like to narrow in on particular “Event Activity” to reduce data returned, reach out to the report team or if you are a CSM or Consultant the [ eventEnumList ] and [ objectTypeEnumList ] can be modified on line 238.
 </p>
 
-<h3>Preview Image Sheet 1: "Login Activity</h3>
+<h3>Preview Image Sheet 1: "Login Activity"</h3>
+
 ![LoginActivity png](https://github.com/jamasoftware-ps/Community-Reports/blob/eeb5e1fc1a7cc504dd3f9a0a8a1f0aa431349e78/Login%20Usage%20Reports/User%20Activity%20and%20Event%20Report/LoginActivity.png)
 
 
-<h3>Preview Image Sheet 2: "Event Activity</h3>
+<h3>Preview Image Sheet 2: "Event Activity"</h3>
+
 ![EventActivity png](https://github.com/jamasoftware-ps/Community-Reports/blob/eeb5e1fc1a7cc504dd3f9a0a8a1f0aa431349e78/Login%20Usage%20Reports/User%20Activity%20and%20Event%20Report/EventActivity.png)
 
 
@@ -51,6 +53,7 @@ If the Report Runner would like to narrow in on particular “Event Activity” 
   <li>Select a time parameter</li>
   <li>If filtering the report by user enter String value- first and last name (not case sensitive)</li>
  </ol>
+ 
  ![RunReport png](https://github.com/jamasoftware-ps/Community-Reports/blob/eeb5e1fc1a7cc504dd3f9a0a8a1f0aa431349e78/Login%20Usage%20Reports/User%20Activity%20and%20Event%20Report/RunReport.png)
 
  
