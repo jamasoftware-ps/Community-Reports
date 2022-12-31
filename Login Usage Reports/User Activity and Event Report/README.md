@@ -1,6 +1,6 @@
 <h1>User Activity and Event Report</h1>
 <h2>Description</h2>
-<p>This report gathers User Login Activity and User Events for a selected time frame, and outputs in Excel xlsx format- it is a multisheet report.
+<p>This report gathers User Login Activity and User Events for a selected time frame, and outputs an Excel multisheet report.
 
 On the first sheet, “Login Activity”, the report builds a row per user, showing login stats, most importantly how many login activities, and the latest login activity.
 
@@ -43,7 +43,7 @@ If the Report Runner would like to narrow in on particular “Event Activity” 
   <li>String Parameter, User Filter (Full Name), reportG_userFilter</li>
  </ul>
  
- <h1>Report Run Instructions<h1>
+ <h1>Report Run Instructions</h1>
  <ol>
   <li>Log into the Organizations Instance</li>
   <li>On the top right nav of project dashboard select "Reports" dropdown</li>
