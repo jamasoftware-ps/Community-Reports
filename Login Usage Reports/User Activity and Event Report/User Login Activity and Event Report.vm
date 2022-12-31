@@ -37,7 +37,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
 ##  limitations of Excel - this also depends on how active users are. 
 ##
 ##  If the Report Runner would like to narrow in on particular “Event Activity” to reduce data returned, reach out to the report team, or if you are
-##  a CSM or Consultant the [ eventEnumList ] and [ objectTypeEnumList ] can be modified on line 238.
+##  a CSM or Consultant the [ eventEnumList ] and [ objectTypeEnumList ] can be modified on line 234.
 ## 
 ## 
 ## Context Sensitive: False
