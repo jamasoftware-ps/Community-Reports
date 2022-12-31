@@ -4,7 +4,7 @@
 
 On the first sheet, “Login Activity”, the report builds a row per user, showing login stats, most importantly how many login activities, and the latest login activity.
 
-On the second sheet, “Event Activity”, the report builds a parent row per user, followed by child rows per “Event” triggered by that user.
+On the second sheet, “Event Activity”, the report builds a parent row per user, followed by child rows per “Event”, across all projects of the organization, triggered by that user.
 Events are primarily CRUD activities. (Login events are excluded intentionally on the “Event Activity” sheet, because they are accounted for on the first sheet).
 
 Because “Event Activity” can be extensive, it is beneficial to filter the report by User Name (Full Name) when selecting large time parameters. 
