@@ -14,7 +14,7 @@ If the Report Runner would like to narrow in on particular “Event Activity” 
 
 <h3>Preview Image Sheet 1: "Login Activity"</h3>
 
-
+https://github.com/jamasoftware-ps/Community-Reports/blob/9c4e819307878325fc84aa5aa3d405dc6ead9315/Login%20Usage%20Reports/User%20Activity%20and%20Event%20Report/LoginActivity.png
 
 
 <h3>Preview Image Sheet 2: "Event Activity"</h3>
