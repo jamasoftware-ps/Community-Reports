@@ -7,7 +7,7 @@ On the first sheet, “Login Activity”, the report builds a row per user, show
 On the second sheet, “Event Activity”, the report builds a parent row per user, followed by child rows per “Event”, across all projects of the organization, triggered by that user.
 Events are primarily CRUD activities. (Login events are excluded intentionally on the “Event Activity” sheet, because they are accounted for on the first sheet).
 
-Because “Event Activity” can be extensive, it is beneficial to filter the report by User Name (Full Name) when selecting large time parameters. 
+Because “Event Activity” data can be extensive, it is beneficial to filter the report by User Name (Full Name) when selecting large time parameters. 
 Otherwise, if the report is not filtered by User Name, and a larger time parameter is selected, “Event Activity” can exceed the limitations of Excel - this also depends on how active users are. 
 If the Report Runner would like to narrow in on particular “Event Activity” to reduce data returned, reach out to the report team or if you are a CSM or Consultant the [ eventEnumList ] and [ objectTypeEnumList ] can be modified on line 238.
 </p>
