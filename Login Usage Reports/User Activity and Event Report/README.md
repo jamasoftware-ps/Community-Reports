@@ -1,10 +1,10 @@
 <h1>User Activity and Event Report</h1>
-<h4>Description</h4>
-<p>This report gathers User Login Activity and User Events for the same time frame, output to a two sheet Excel report. 
+<h2>Description</h2>
+<p>This report gathers User Login Activity and User Events for a selected time frame, and outputs in Excel xlsx format- it is a multisheet report.
 
-On the first sheet, “Login Activity”, the report builds a row per user, producing login stats for the time frame specified.
+On the first sheet, “Login Activity”, the report builds a row per user, showing login stats, most importantly how many login activities, and the latest login activity.
 
-On the second sheet, “Event Activity”, the report builds a parent row per user, followed by child rows per “Event” triggered by the user for the same time. 
+On the second sheet, “Event Activity”, the report builds a parent row per user, followed by child rows per “Event” triggered by that user.
 Events are primarily CRUD activities. (Login events are excluded intentionally on the “Event Activity” sheet, because they are accounted for on the first sheet).
 
 Because “Event Activity” can be extensive, it is beneficial to filter the report by User Name (Full Name) when selecting large time parameters. 
@@ -12,12 +12,12 @@ Otherwise, if the report is not filtered by User Name, and a larger time paramet
 If the Report Runner would like to narrow in on particular “Event Activity” to reduce data returned, reach out to the report team or if you are a CSM or Consultant the [ eventEnumList ] and [ objectTypeEnumList ] can be modified on line 238.
 </p>
 
-<h2>Preview Image Sheet 1: "Login Activity</h2>
-![LoginActivity png](https://user-images.githubusercontent.com/99203913/210121980-dced9958-6597-4ed0-b7cd-ae4e7d1a6a1f.png)
+<h3>Preview Image Sheet 1: "Login Activity</h3>
+![LoginActivity png](https://github.com/jamasoftware-ps/Community-Reports/blob/eeb5e1fc1a7cc504dd3f9a0a8a1f0aa431349e78/Login%20Usage%20Reports/User%20Activity%20and%20Event%20Report/LoginActivity.png)
 
 
-<h2>Preview Image Sheet 2: "Event Activity</h2>
-![EventActivity png](https://user-images.githubusercontent.com/99203913/210121972-151a9908-2421-4f0a-9582-657447dc9d7d.png)
+<h3>Preview Image Sheet 2: "Event Activity</h3>
+![EventActivity png](https://github.com/jamasoftware-ps/Community-Reports/blob/eeb5e1fc1a7cc504dd3f9a0a8a1f0aa431349e78/Login%20Usage%20Reports/User%20Activity%20and%20Event%20Report/EventActivity.png)
 
 
 <h1>Installation Instructions</h1>
@@ -30,7 +30,7 @@ If the Report Runner would like to narrow in on particular “Event Activity” 
 </ol>
 <p>Helpful description to add at install: <em>Check one time parameter and the report will show data from the date the report is run. Outputs a two sheet Excel report with tabs: "Login Activity", "Event Activity". Filter by User Name, considering larger time parameters.</em></p>
 
-![InstallReport png](https://user-images.githubusercontent.com/99203913/210122044-bf1b7c54-5380-4529-9879-7b72d8133387.png)
+![InstallReport png](https://github.com/jamasoftware-ps/Community-Reports/blob/eeb5e1fc1a7cc504dd3f9a0a8a1f0aa431349e78/Login%20Usage%20Reports/User%20Activity%20and%20Event%20Report/InstallReport.png)
 
 <p>Report parameters:</p>
 <ul>
@@ -51,7 +51,7 @@ If the Report Runner would like to narrow in on particular “Event Activity” 
   <li>Select a time parameter</li>
   <li>If filtering the report by user enter String value- first and last name (not case sensitive)</li>
  </ol>
- ![RunReport png](https://user-images.githubusercontent.com/99203913/210122167-8d57e90c-7183-4417-a27d-7eced223fa83.png)
+ ![RunReport png](https://github.com/jamasoftware-ps/Community-Reports/blob/eeb5e1fc1a7cc504dd3f9a0a8a1f0aa431349e78/Login%20Usage%20Reports/User%20Activity%20and%20Event%20Report/RunReport.png)
 
  
   
