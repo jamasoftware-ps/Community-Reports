@@ -16,7 +16,6 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
 ##
 #########################################################################################################################
 
-
 #########################################################################################################################
 ## ======================================================================================================================
 ## Name: Excel_SingleSheet_Template.vm
@@ -25,19 +24,20 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
 ## 
 ## Description/Notes:
 ## 
-## This report gathers User Login Activity and User Events for the same time frame, delivering a two sheet report. 
+##  This report gathers User Login Activity and User Events for a selected time frame, and outputs an Excel multisheet report. 
 ##
-## On the first sheet, “Login Activity”, the report builds a row per user, producing login stats for the time frame specified.
+##  On the first sheet, “Login Activity”, the report builds a row per user, showing login stats, most importantly how many 
+##  login activities, and the latest login activity..
 ##
-## On the second sheet, “Event Activity”, the report builds a parent row per user, followed by child rows per “Event” triggered by the user for the same time. 
-## Events are primarily CRUD ## activities. (Login events are excluded intentionally on the “Event Activity” sheet, because they are accounted for on the first sheet). 
+##  On the second sheet, “Event Activity”, the report builds a parent row per user, followed by child rows per “Event” triggered by that user. 
+##  Events are primarily CRUD activities. (Login events are excluded intentionally on the “Event Activity” sheet, because they are accounted for on the first sheet). 
 ## 
-## Because “Event Activity” can be extensive, it is beneficial to filter the report by User Name (Full Name) when selecting large time parameters. 
-## Otherwise, if the report is not filtered by User Name, and the larger time parameters are selected, “Event Activity” can exceed the 
-## limitations of Excel - this also depends on how active users are. 
+##  Because “Event Activity” can be extensive, it is beneficial to filter the report by User Name (Full Name) when selecting large time parameters. 
+##  Otherwise, if the report is not filtered by User Name, and a larger time parameter is selected, “Event Activity” data can exceed the 
+##  limitations of Excel - this also depends on how active users are. 
 ##
-## If the Report Runner would like to narrow in on particular “Event Activity” to reduce data returned, reach out to the report team, or if you are
-## a CSM or Consultant the [ eventEnumList ] and [ objectTypeEnumList ] can be modified on line 238.
+##  If the Report Runner would like to narrow in on particular “Event Activity” to reduce data returned, reach out to the report team, or if you are
+##  a CSM or Consultant the [ eventEnumList ] and [ objectTypeEnumList ] can be modified on line 238.
 ## 
 ## 
 ## Context Sensitive: False
@@ -49,9 +49,6 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
 ## Date         Revision   Person            Comments 
 ## -----------  ---------  ----------------  -------------------------------------------------------------------------
 ## 2022_12_23   1.0        Anna FitzGerald   Initial Build 
-##
-##
-##
 ##
 ##
 ## ===================================================================================================================== 
@@ -66,8 +63,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
 ##      Boolean    Six months                  reportE_sixMonths       #### 182 days, 4368 hours 
 ##      Boolean    One year                    reportF_oneYear         #### 365 days, 8760 hours  
 ##      String     Filter By User (Full Name)  reportG_userFilter
-##                    
-##
+## 
 ##
 #########################################################################################################################
 
@@ -1057,16 +1053,11 @@ xmlns="http://www.w3.org/TR/REC-html40">
 
 <body link="#0563C1" vlink="#954F72" class=xl65>
 
-<table border=0 cellpadding=0 cellspacing=0 width=1088 style='border-collapse:collapse;table-layout:fixed;width:817pt'>
- <col class=xl65 width=200 style='mso-width-source:userset;mso-width-alt:7314;width:150pt'>
- <col class=xl65 width=165 style='mso-width-source:userset;mso-width-alt:6034;width:124pt'>
- <col class=xl65 width=164 style='mso-width-source:userset;mso-width-alt:5997;width:123pt'>
- <col class=xl65 width=165 span=3 style='mso-width-source:userset;mso-width-alt:6034;width:124pt'>
- <col class=xl65 width=64 style='width:48pt'>
+<table border=0 cellpadding=0 cellspacing=0 width=1323 style='border-collapse:collapse;table-layout:fixed;width:992pt'>
 
  <tr height=32 style='mso-height-source:userset;height:24.0pt'>
   <td colspan=3 height=32 class=xl67 width=529 style='height:24.0pt;width:397pt'>Report Runner: $!reportRunner</td>
-  <td colspan=3 class=xl68 width=495 style='border-right:.5pt solid gray;width:372pt'>Organization: $!project.organization.name</td>
+  <td colspan=3 class=xl68 width=729 style='border-right:.5pt solid gray;width:547pt'>Organization: $!project.organization.name</td>
   <td class=xl65 width=64 style='width:48pt'>&nbsp;</td>
  </tr>
 
@@ -1081,7 +1072,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
   <td class=xl76 width=165 style='border-top:none;border-left:none;width:124pt'>User Creation Date</td>
   <td class=xl76 width=164 style='border-top:none;border-left:none;width:123pt'>License Type</td>
   <td class=xl76 width=165 style='border-top:none;border-left:none;width:124pt'>Last Activity Date</td>
-  <td class=xl76 width=165 style='border-top:none;border-left:none;width:124pt'>Duration of Last Activity</td>
+  <td class=xl76 width=400 style='border-top:none;border-left:none;width:300pt'>Duration of Last Activity (hours:mins:secs)</td>
   <td class=xl76 width=165 style='border-top:none;border-left:none;width:124pt'>Total Instance Logins</td>
   <td class=xl66 style='border-left:none'>&nbsp;</td>
  </tr>
