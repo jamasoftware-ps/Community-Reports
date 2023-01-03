@@ -35,17 +35,17 @@ If the Report Runner would like to narrow in on particular “Event Activity” 
 
 ![InstallReport png](https://github.com/jamasoftware-ps/Community-Reports/blob/eeb5e1fc1a7cc504dd3f9a0a8a1f0aa431349e78/Login%20Usage%20Reports/User%20Activity%20and%20Event%20Report/InstallReport.png)
 
-<p>Report parameters:</p>
-<ul>
-  <li>Boolean, One Week, reportA_oneWeek</li>
-  <li>Boolean, Two Weeks, reportB_twoWeeks</li>
-  <li>Boolean, One Month, reportC_oneMonth</li>
-  <li>Boolean, Three Months, reportD_threeMonths</li>
-  <li>Boolean, Six Months, reportE_sixMonths</li>
-  <li>Boolean, One Year, reportF_oneYear</li>
-  <li>String Parameter, User Filter (Full Name), reportG_userFilter</li>
- </ul>
- 
+<h3>Report parameters:</h3>
+|Data Type|Display|Name|
+|----------|---------|--------|
+|Boolean|One Week| reportA_oneWeek|
+|Boolean| Two Weeks| reportB_twoWeeks|
+|Boolean| One Month| reportC_oneMonth|
+|Boolean| Three Months| reportD_threeMonths|
+|Boolean| Six Months| reportE_sixMonths|
+|Boolean| One Year| reportF_oneYear|
+|String Parameter| User Filter (Full Name)|reportG_userFilter|
+
  <h1>Report Run Instructions</h1>
  <ol>
   <li>Log into the Organizations Instance</li>
