@@ -2,7 +2,8 @@
 <h2>Description</h2>
 <p>This report gathers User Login Activity and User Events for a selected time frame, and outputs an Excel multisheet report.
 
-On the first sheet, “Login Activity”, the report builds a row per user, showing login stats, most importantly how many login activities, and the latest login activity.
+On the first sheet, “Login Activity”, the report builds a row per user, showing login stats, like how many login activities, and the latest login activity.
+  *Please note that this data itself is suspect due to the fact that logoff time is not accurate. The logoff timestamp can be either a user directly selecting the logoff button, the session timing out, or a user closing their browser.*
 
 On the second sheet, “Event Activity”, the report builds a parent row per user, followed by child rows per “Event”, across all projects of the organization, triggered by that user.
 Events are primarily CRUD activities. (Login events are excluded intentionally on the “Event Activity” sheet, because they are accounted for on the first sheet).
