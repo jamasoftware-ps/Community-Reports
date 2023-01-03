@@ -36,6 +36,7 @@ If the Report Runner would like to narrow in on particular “Event Activity” 
 ![InstallReport png](https://github.com/jamasoftware-ps/Community-Reports/blob/eeb5e1fc1a7cc504dd3f9a0a8a1f0aa431349e78/Login%20Usage%20Reports/User%20Activity%20and%20Event%20Report/InstallReport.png)
 
 <h3>Report parameters:</h3>
+
 |Data Type|Display|Name|
 |----------|---------|--------|
 |Boolean|One Week| reportA_oneWeek|
