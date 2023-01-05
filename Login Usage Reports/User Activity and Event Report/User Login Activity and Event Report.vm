@@ -16,6 +16,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
 ##
 #########################################################################################################################
 
+
 #########################################################################################################################
 ## ======================================================================================================================
 ## Name: Excel_SingleSheet_Template.vm
@@ -24,20 +25,19 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
 ## 
 ## Description/Notes:
 ## 
-##  This report gathers User Login Activity and User Events for a selected time frame, and outputs an Excel multisheet report. 
+##  - This report gathers User Login Activity and User Events for a selected time frame, and outputs an Excel multisheet report. 
 ##
-##  On the first sheet, “Login Activity”, the report builds a row per user, showing login stats, most importantly how many 
-##  login activities, and the latest login activity..
+##  - On the first sheet, “Login Activity”, the report builds a row per user, showing login stats, most importantly how many 
+##    login activities, and the latest login activity..
 ##
-##  On the second sheet, “Event Activity”, the report builds a parent row per user, followed by child rows per “Event” triggered by that user. 
-##  Events are primarily CRUD activities. (Login events are excluded intentionally on the “Event Activity” sheet, because they are accounted for on the first sheet). 
+##  - On the second sheet, “Event Activity”, the report builds a parent row per user, followed by child rows per “Event” triggered by that user. 
+##    Events are primarily CRUD activities. (Login events are excluded intentionally on the “Event Activity” sheet, 
+##    because they are accounted for on the first sheet). 
 ## 
-##  Because “Event Activity” can be extensive, it is beneficial to filter the report by User Name (Full Name) when selecting large time parameters. 
-##  Otherwise, if the report is not filtered by User Name, and a larger time parameter is selected, “Event Activity” data can exceed the 
-##  limitations of Excel - this also depends on how active users are. 
+##  - Because “Event Activity” can be extensive, it is beneficial to filter the report by User Name (Full Name) when selecting large time parameters. 
 ##
-##  If the Report Runner would like to narrow in on particular “Event Activity” to reduce data returned, reach out to the report team, or if you are
-##  a CSM or Consultant the [ eventEnumList ] and [ objectTypeEnumList ] can be modified on line 234.
+##  - If the Report Runner would like to narrow in on particular “Event Activity” to reduce data returned, reach out to the report team, 
+##    or if you are a CSM or Consultant the [ eventEnumList ] and [ objectTypeEnumList ] can be modified on line 238.
 ## 
 ## 
 ## Context Sensitive: False
@@ -49,6 +49,10 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
 ## Date         Revision   Person            Comments 
 ## -----------  ---------  ----------------  -------------------------------------------------------------------------
 ## 2022_12_23   1.0        Anna FitzGerald   Initial Build 
+## 2023_01_05   1.1        Anna FitzGerald   Added error message if User Name parameter is not an exact match
+##                                           Cleaned up formatting
+##                                           Found bug in sort and added condition to prevent it
+##
 ##
 ##
 ## ===================================================================================================================== 
@@ -63,7 +67,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
 ##      Boolean    Six months                  reportE_sixMonths       #### 182 days, 4368 hours 
 ##      Boolean    One year                    reportF_oneYear         #### 365 days, 8760 hours  
 ##      String     Filter By User (Full Name)  reportG_userFilter
-## 
+##                    
+##
 ##
 #########################################################################################################################
 
@@ -905,7 +910,6 @@ td
       <td class=xl70 style='border-top:none;border-left:none'>#getDateTime($lastLogin $timeZone)</td>
       <td class=xl71 style='border-top:none;border-left:none'>$!sessionTimeResult</td>
       <td class=xl71 style='border-top:none;border-left:none'>$!logHistory.size()</td>
-      <td class=xl66 style='border-left:none'>&nbsp;</td>
     </tr>
 
   #end
@@ -967,9 +971,8 @@ td
         #set( $license = $license.trim())
 
         <tr height=21 style='height:15.75pt'>
-          <td colspan=1 height=21 class=xl81 style='display:inline;overflow-wrap:normal;border-right:none;height:15.75pt;text-align:right;'>$userName</td>
-          <td colspan=5 class=xl81 style='border-left:none;text-align:left;'>$license</td>
-          <td class=xl66></td>
+          <td colspan=1 height=21 class=xl81 style='display:inline;overflow-wrap:normal;height:15.75pt;text-align:right;'>$userName</td>
+          <td colspan=5 class=xl81 style='border-left:none;text-align:left;border-right:solid gray .5pt;'>$license</td>
         </tr>
         #set( $licenseFound = true )
         #break
@@ -979,7 +982,6 @@ td
   #if(!$licenseFound )
    <tr height=21 style='height:15.75pt'>
     <td colspan=6 height=21 class=xl81 style='border-right:.5pt solid gray;height:15.75pt'>$userName</td>
-    <td class=xl66 style='border-left:none'>&nbsp;</td>
    </tr>
   #end 
 
@@ -987,29 +989,34 @@ td
 
       #set( $date = $stat.get("date"))
       #set( $date = "#getDateTime($!date $timeZone)")
+      #set( $date = $date.trim())
+
       #set( $content = $stat.get("content"))
+      #set( $content = "#formatRichTextCell($!content)")
+      #set( $content = $content.replaceAll("\{.*\}", ""))
+      #set( $content = $content.trim())
+
       #set( $action = $stat.get("action"))
       #set( $comments = $stat.get("comments"))
       #set( $eventDocument = $stat.get("document"))
-      #if( $eventDocument != "n/a")
+      #if( $eventDocument != "N/A")
         #set( $eventDocumentType = $eventDocument.documentType.display )
         #set( $eventDocument = $eventDocument.documentKey )
       #else 
-        #set( $eventDocumentType = "n/a" )
+        #set( $eventDocumentType = "N/A" )
       #end 
       #set( $eventProject = $stat.get("project"))
       #if( !$eventProject || $eventProject == "null" || $eventProject == "" )
-        #set( $eventProject = "n/a")
+        #set( $eventProject = "N/A")
       #end 
 
      <tr height=60 style='height:15.0pt'>
       <td height=60 class=xl79 style='height:15.0pt'>$!date</td>
-      <td class=xl79 style='border-left:none'>#formatRichTextCell($!content)</td>
+      <td class=xl79 style='border-left:none'>$!content</td>
       <td class=xl79>$!action</td>
       <td class=xl79>$!eventDocument</td>
       <td class=xl79>$!eventDocumentType</td>
       <td class=xl79>$!eventProject</td>
-      <td class=xl66></td>
      </tr>
    #end 
   #end
@@ -1022,6 +1029,10 @@ td
 #########################################################################################################################
 
 
+
+###########################################################################################
+##                               Sheet 1: Login Activity                                 ## 
+########################################################################################### 
 
 ------=_NextPart_01D91BCC.85EC6240
 Content-Location: file:///C:/AA89CAB4/UserLoginActivityandEventReport_files/sheet001.htm
@@ -1058,12 +1069,10 @@ xmlns="http://www.w3.org/TR/REC-html40">
  <tr height=32 style='mso-height-source:userset;height:24.0pt'>
   <td colspan=3 height=32 class=xl67 width=529 style='height:24.0pt;width:397pt'>Report Runner: $!reportRunner</td>
   <td colspan=3 class=xl68 width=729 style='border-right:.5pt solid gray;width:547pt'>Organization: $!project.organization.name</td>
-  <td class=xl65 width=64 style='width:48pt'>&nbsp;</td>
  </tr>
 
  <tr height=32 style='mso-height-source:userset;height:24.0pt'>
   <td colspan=6 height=32 class=xl72 style='border-right:.5pt solid gray;height:24.0pt'>User Login Activity for the $!timeFrame prior to: #getDate($dateTool.date $timeZone)</td>
-  <td class=xl66 style='border-left:none'>&nbsp;</td>
  </tr>
 
 
@@ -1074,7 +1083,6 @@ xmlns="http://www.w3.org/TR/REC-html40">
   <td class=xl76 width=165 style='border-top:none;border-left:none;width:124pt'>Last Activity Date</td>
   <td class=xl76 width=400 style='border-top:none;border-left:none;width:300pt'>Duration of Last Activity (hours:mins:secs)</td>
   <td class=xl76 width=165 style='border-top:none;border-left:none;width:124pt'>Total Instance Logins</td>
-  <td class=xl66 style='border-left:none'>&nbsp;</td>
  </tr>
  
 
@@ -1084,6 +1092,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
 #set( $userHistorySorted = [] )
 #set( $finalUserSourceHistory = [] )
 #set( $userLicenseList = [] )
+#set( $foundUserNameMatch = false )
 
 ##----------- Set Activity Data --------------- ## 
 
@@ -1096,7 +1105,8 @@ xmlns="http://www.w3.org/TR/REC-html40">
 
 
   #### check to see if we are filtering stats by user #### 
-  #if( $reportG_userFilter && $userName.toUpperCase().contains($reportG_userFilter) || !$reportG_userFilter )
+  #if( $reportG_userFilter && $userName.toUpperCase() == $reportG_userFilter ||  !$reportG_userFilter && $userName != "" && $userName )
+    #set( $foundUserNameMatch = true )
     #set( $success = $userLicenseList.add({"userName":$userName, "license":$license }))
     #set( $success = $userHistory.add({ "userName":$userName, "user": $user, "login": $loginTime, "logout": $logoutTime, "license": $license }))
   #end 
@@ -1104,26 +1114,39 @@ xmlns="http://www.w3.org/TR/REC-html40">
 
   #set( $sortedUserLicenseList = $sortTool.sort( $userLicenseList, "userName:asc"))
 
-##------ Group Activity Data Per User --------- ## 
 
-#set( $sorted_userHistory = $sortTool.sort($userHistory,"userName:asc"))
-#groupActivityDataPerUser($sorted_userHistory) ## Returns $userHistorySorted
+#if( $reportG_userFilter && !$foundUserNameMatch )
+<tr>
+  <td colspan=6>The User Name entered does not match the full name of a user in your organization. Please check the spelling and try again.</td> 
+</tr>
+
+#else 
+
+  ##------ Group Activity Data Per User --------- ## 
+
+  #set( $sorted_userHistory = $sortTool.sort($userHistory,"userName:asc"))
+  #groupActivityDataPerUser($sorted_userHistory) ## Returns $userHistorySorted
 
 
-##------ Set the Last Login Time  --------- ## 
+  ##------ Set the Last Login Time  --------- ## 
 
-#formatLastLoginTimes( $userHistorySorted ) ## Returns $finalUserSourceHistory
+  #formatLastLoginTimes( $userHistorySorted ) ## Returns $finalUserSourceHistory
 
 
-##------ Build Row of Login Stats per User  --------- ## 
+  ##------ Build Row of Login Stats per User  --------- ## 
 
-#buildRowLoginStatsPerUser($finalUserSourceHistory)
+  #buildRowLoginStatsPerUser($finalUserSourceHistory)
+#end 
 
 
 </table>
 </body>
 </html>
 
+
+###########################################################################################
+##                               Sheet 2: Event Activity                                 ## 
+########################################################################################### 
 
 
 ------=_NextPart_01D91BCC.85EC6240
@@ -1162,7 +1185,6 @@ xmlns="http://www.w3.org/TR/REC-html40">
 
   <tr height=32 style='mso-height-source:userset;height:24.0pt'>
     <td colspan=6 height=32 class=xl72 style='border-right:.5pt solid gray;height:24.0pt'>User Event Activity for the $!timeFrame prior to: #getDate($dateTool.date $timeZone)</td>
-    <td class=xl65>&nbsp;</td>
   </tr>
 
   <tr height=20 style='height:15.0pt'>
@@ -1172,18 +1194,18 @@ xmlns="http://www.w3.org/TR/REC-html40">
     <td class=xl76 width=200 style='border-top:none;border-left:none;width:150pt'>Document</td>
     <td class=xl76 width=165 style='border-top:none;border-left:none;width:124pt'>Document Type</td>
     <td class=xl76 width=300 style='border-top:none;border-left:none;width:225pt'>Project</td>
-    <td class=xl66 style='border-left:none'>&nbsp;</td>
   </tr>
 
 #set( $eventUserStats = [] )
 #set( $eventStats = [] )
 #set( $eventUserStatsByUser = [] )
-
+#set( $foundUserNameMatch = false )
 
 ##----------- Set Event Data --------------- ## 
 
 #foreach( $event in $eventList )
   #set( $user = $event.eventUser)
+  #set( $userName = "")
   #set( $userName = $user.fullName )
   #set( $date = $event.getEventDate() )
   #set( $dateTime = $date.replaceAll("(\.\d)", ""))
@@ -1193,29 +1215,40 @@ xmlns="http://www.w3.org/TR/REC-html40">
   #if( $event.document )
     #set( $eventDocument = $event.document)
   #else 
-    #set( $eventDocument = "n/a")
+    #set( $eventDocument = "N/A")
   #end 
   #set( $eventProject = $event.getProject())
   #set( $eventProject = $eventProject.name )
 
   #### check to see if we are filtering stats by user #### 
-  #if( $reportG_userFilter && $userName.toUpperCase().contains($reportG_userFilter) || !$reportG_userFilter )
+
+##&& $userName && $userName.toUpper
+  #if( $reportG_userFilter && $userName.toUpperCase() == $reportG_userFilter || !$reportG_userFilter && $userName != "" && $userName  )
+    #set( $foundUserNameMatch = true )
     #set( $success = $eventUserStats.add({ "userName":$userName, "user":$user, "date":$date,"content":$content,"action":$action,"document":$eventDocument,"project":$eventProject }))
   #end 
 
 
 #end 
 
+#if( $reportG_userFilter && !$foundUserNameMatch )
+<tr>
+  <td colspan=6>The User Name entered does not match the full name of a user in your organization. Please check the spelling and try again.</td> 
+</tr>
 
-##----------- Group Event Data By User --------------- ## 
+#else 
 
-#set( $sorted_eventUserStats = $sortTool.sort($eventUserStats, "userName:asc"))
-#groupEventDataPerUser( $sorted_eventUserStats ) ## returns $eventUserStatsByUser
+  ##----------- Group Event Data By User --------------- ## 
+
+  #set( $sorted_eventUserStats = $sortTool.sort($eventUserStats, "userName:asc"))
+ 
+  #groupEventDataPerUser( $sorted_eventUserStats ) ## returns $eventUserStatsByUser
 
 
-##----------- Build Rows of Event Stats  --------------- ## 
+  ##----------- Build Rows of Event Stats  --------------- ## 
 
-#buildRowsEventStats( $eventUserStatsByUser )
+  #buildRowsEventStats( $eventUserStatsByUser )
+#end 
  
 </table>
 
@@ -1228,7 +1261,6 @@ xmlns="http://www.w3.org/TR/REC-html40">
 ##  FILE LIST 
 ##
 #########################################################################################################################
-#### Replace everything below with the matching content from your Mockup. Remember to remove the tab sheet link ####
 
 ------=_NextPart_01D91BCC.85EC6240
 Content-Location: file:///C:/AA89CAB4/UserLoginActivityandEventReport_files/filelist.xml
@@ -1237,7 +1269,6 @@ Content-Type: text/xml; charset="utf-8"
 <xml xmlns:o="urn:schemas-microsoft-com:office:office">
  <o:MainFile HRef="../UserLoginActivityandEventReport.htm"/>
  <o:File HRef="stylesheet.css"/>
- <o:File HRef="tabstrip.htm"/>
  <o:File HRef="sheet001.htm"/>
  <o:File HRef="sheet002.htm"/>
  <o:File HRef="filelist.xml"/>
