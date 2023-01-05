@@ -37,7 +37,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
 ##  - Because “Event Activity” can be extensive, it is beneficial to filter the report by User Name (Full Name) when selecting large time parameters. 
 ##
 ##  - If the Report Runner would like to narrow in on particular “Event Activity” to reduce data returned, reach out to the report team, 
-##    or if you are a CSM or Consultant the [ eventEnumList ] and [ objectTypeEnumList ] can be modified on line 238.
+##    or if you are a CSM or Consultant the [ eventEnumList ] and [ objectTypeEnumList ] can be modified on line 239.
 ## 
 ## 
 ## Context Sensitive: False
