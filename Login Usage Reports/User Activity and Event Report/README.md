@@ -1,4 +1,4 @@
-<h1>User Activity and Event Report</h1>
+<h1>User Login Activity and Event Report</h1>
 <h2>Description</h2>
 <p>This report gathers User Login Activity and User Events for a selected time frame, and outputs an Excel multisheet report.
 
