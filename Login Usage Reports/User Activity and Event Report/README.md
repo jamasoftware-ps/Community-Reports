@@ -15,13 +15,12 @@ If the Report Runner would like to narrow in on particular “Event Activity” 
 
 <h3>Preview Image Sheet 1: "Login Activity"</h3>
 
-![LoginActivity png](https://github.com/jamasoftware-ps/Community-Reports/blob/9c4e819307878325fc84aa5aa3d405dc6ead9315/Login%20Usage%20Reports/User%20Activity%20and%20Event%20Report/LoginActivity.png)
+![Login_Activity](https://user-images.githubusercontent.com/99203913/210880285-92768c46-3f53-4273-bcc3-c34da68de390.png)
 
 
 <h3>Preview Image Sheet 2: "Event Activity"</h3>
 
-![EventActivity png](https://github.com/jamasoftware-ps/Community-Reports/blob/eeb5e1fc1a7cc504dd3f9a0a8a1f0aa431349e78/Login%20Usage%20Reports/User%20Activity%20and%20Event%20Report/EventActivity.png)
-
+![Event_Activity](https://user-images.githubusercontent.com/99203913/210880319-07126b08-0368-44d8-ab17-bdaf8b6eb950.png)
 
 <h1>Installation Instructions</h1>
 <ol>
@@ -47,7 +46,7 @@ If the Report Runner would like to narrow in on particular “Event Activity” 
 |Boolean| One Year| reportF_oneYear|
 |String Parameter| User Filter (Full Name)|reportG_userFilter|
 
- <h1>Report Run Instructions</h1>
+ <h2>Report Run Instructions</h2>
  <ol>
   <li>Log into the Organizations Instance</li>
   <li>On the top right nav of project dashboard select "Reports" dropdown</li>
