@@ -102,9 +102,10 @@ This report employs error handling in the following cases in which the generate 
 1. Go to the Admin section of Jama.
 2. Click the Reports tab.
 3. Click Add Report.
-4. Fill in the Add/Edit Report form as shown below.
-5. Ensure that no typos, leading, or trailing spaces are present in the *Name* field for the reports installation criteria.
-6. Click Save.
+4. Add *Sync Comparison Report.vm* from this repository folder.
+5. Fill in the Add/Edit Report form as shown below.
+6. Ensure that no typos, leading, or trailing spaces are present in the *Name* field for the reports installation criteria.
+7. Click Save.
 
 ![Config1](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Sync%20Reports/Sync%20Comparison%20Report/config1.png)
 
