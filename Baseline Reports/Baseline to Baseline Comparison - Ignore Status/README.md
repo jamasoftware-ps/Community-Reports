@@ -13,6 +13,17 @@ This report constructs a Word report showing the comparisons between two baselin
 4. Fill in the Add/Edit Report form as shown below.
 5. Click Save
 
+### Report Parameters
+Ensure that no typos, leading, or trailing spaces are present in the *Name* field for the reports installation criteria.
+
+| Type          | Display                               | Name                       |
+| ------------- | ------------------------------------- | -------------------------- |
+| Baseline      | Baseline 1                            | report_baseline1           |
+| Baseline      | Baseline 2                            | report_baseline2           |
+| Boolean       | Include Relationships                 | includeRelationships       |
+| Boolean       | Include Versions Comments             | report_showComment         |
+
+
 ![Report Config](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Baseline%20Reports/Baseline%20to%20Baseline%20Comparison%20-%20Ignore%20Status/baselineToBaselineIgnoreStatus_setup.png)
 
 ## NOTES: 

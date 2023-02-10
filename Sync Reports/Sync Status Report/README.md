@@ -4,7 +4,7 @@
 The Sync Status Report generates a report showing the synced item, project, and sync status of each item exported.
 
 ## Preview Image
-![alt tag](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Miscellaneous%20Reports/Sync%20Status%20Report/SyncStatusPreviewImage.png)
+![alt tag](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Sync%20Reports/Sync%20Status%20Report/SyncStatusPreviewImage.png)
 
 
 ## Installation Instructions
@@ -14,7 +14,7 @@ The Sync Status Report generates a report showing the synced item, project, and 
 4. Fill in the Add/Edit Report form as shown below.
 5. Click Save
 
-![alt tag](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Miscellaneous%20Reports/Sync%20Status%20Report/SyncStatusReport_instructions.png)
+![alt tag](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Sync%20Reports/Sync%20Status%20Report/SyncStatusReport_instructions.png)
 
 ## NOTES: 
 - Your Organization field will have a different value.  

@@ -1,0 +1,2206 @@
+MIME-Version: 1.0
+X-Document-Type: Workbook
+Content-Type: multipart/related; boundary="----=_NextPart_01D8DFBE.2078AF30"
+
+#########################################################################################################################
+## ======================================================================================================================
+## Name: Sync Comparison Report.vm
+##
+## Output Type: Excel XLXS, Excel Legacy, HTML
+## 
+## Description/Notes: 
+##    - This report exports a context sensitive container of "Source" items alongside a parameter input by either 
+##      a location parameter for same project items or string parameter of a API ID for cross project items as the 
+##      "Target" item to generate sync results for. 
+##
+##    - The report then constructs a report comparing both the Source and Target values determining their sync 
+##      status and "Sync Field Comparison Results". 
+##              
+##    - If a source item does not have a synced equivalent item on the Target source items then a red "X" is placed
+##      on the "Target" half of the report, along with listing all Sync results as "N/A".
+##              
+##    - Once finished with the Source items, if any Target items have not yet been listed (I.e Target list has 
+##      items that do not have a Source item sync equivalent) then those items are added with a red "X" on the 
+##      "Source" half of the report, along with listing all Sync results as "N/A".
+## 
+## Context Sensitive: T
+## 
+##
+## ======================================================================================================================
+## MODIFICATION HISTORY 
+## 
+## Date         Revision   Person            Comments 
+## -----------  ---------  ----------------  -------------------------------------------------------------------------
+## 2022-11-22   1.0        Liam Rotchford    - Initial build based on Community Proposal specifications and xlsx single sheet
+##                                             excel template version 1.1
+##
+##
+##
+##
+## ===================================================================================================================== 
+## Criteria: 
+##
+##      Type:       Display Name:                            Report Global Variable:
+##      ---------------------------------------------------------------------------------
+##      Location    Same Project Sync Target                report1SPTargetId
+##      String      Cross Project Sync Target API ID        report2CPTargetId
+##      Boolean     Project Sync Comparison                 report3Project
+##      Boolean     Include Relationships                   report4IncludeRels
+##      Boolean     Include Attachments                     report5IncludeAttachments
+##      Boolean     Include Only Items With Differences     report6OnlyDiffItems
+##
+##
+#########################################################################################################################
+
+
+
+
+
+## ======================================================================================================================
+#########################################################################################################################
+#########################################################################################################################
+##
+##  1. DATA_SOURCES
+##
+#########################################################################################################################
+##
+## Data Sources available without declaration
+##-------------------------------------------
+## $format
+## $project
+## $documentList
+## $baseUrl
+## $contextType
+## $contextId
+## $report_name
+##
+## Data Sources loaded for this report
+##-------------------------------------------
+#if( $documentSource ) ##
+  ## Jama 8.44 or greater
+  ## Jama 8.42 if New Velocity Feature Flag Enabled
+  #set( $docDao = $documentSource )
+  #set( $contourItemDao = $documentSource)
+  #set( $documentTypeFieldDao = $documentSource)
+  #set( $itemDao = $documentSource)
+  #set( $syncService = $documentSource)
+  #set( $lookupDao = $documentSource)
+  #set( $documentNodeDao = $documentSource )
+  #set( $attachmentDao = $documentSource )
+  #set( $attachmentService = $documentSource )
+  #set( $relDao = $documentSource )
+  #set( $versionDao = $documentSource )
+  #set( $testRunDao = $testSource )
+  #set( $velocityServiceWrapper = $documentSource )
+  #set( $baselineDao = $baselineSource )
+  #set( $tagDao = $documentSource )
+##
+#else
+  ## Jama 8.43 or older
+  #set( $docDao = $applicationContext.getBean("documentDao"))
+  #set( $contourItemDao = $applicationContext.getBean("documentDao"))
+  #set( $documentTypeFieldDao = $applicationContext.getBean("documentDao"))
+  #set( $itemDao = $applicationContext.getBean("documentDao"))
+  #set( $syncService = $applicationContext.getBean("documentDao"))
+  #set( $lookupDao = $applicationContext.getBean("documentDao"))
+  #set( $documentNodeDao = $applicationContext.getBean("documentNodeDao"))
+  #set( $attachmentDao = $applicationContext.getBean("attachmentDao"))
+  #set( $attachmentService = $applicationContext.getBean("attachmentService"))
+  #set( $relDao = $applicationContext.getBean("relationshipDao") )
+  #set( $versionDao = $applicationContext.getBean("versionDao") )
+  #set( $testRunDao = $applicationContext.getBean("testRunDao") )
+  ## $velocityServiceWrapper is already available
+  #set( $baselineDao = $applicationContext.getBean("baseLineDao") )
+  #set( $tagDao = $applicationContext.getBean("documentDao"))
+##
+#end
+##
+
+## Report Parameters
+##-------------------------------------------
+#set( $baselineMode = false )
+#set( $baselineId = false )
+
+##
+##
+##
+## Report Constants 
+## -------------------------------------------
+#set( $cmpKey = "CMP") ##
+#set( $setKey = "SET") ##
+#set( $fldKey = "FLD") ##
+#set( $txtKey = "TXT") ##
+#set( $objectTypeField = "object_type" ) ##
+#set( $timeZone = "America/Los_Angeles" ) ##
+##
+## 
+#########################################################################################################################
+
+
+
+
+
+#########################################################################################################################
+##
+##  HEAD 
+##
+#########################################################################################################################
+
+#* Replace the ExcelWorksheet x:Name "Report Name" to correspond with the name of your worksheet Tab
+That is all you need to change within the head tags *#
+
+------=_NextPart_01D8DFBE.2078AF30
+Content-Location: file:///C:/61233B10/Single_Sheet_Mockup.htm
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta name="Excel Workbook Frameset">
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link rel=File-List href="Single_Sheet_Mockup_files/filelist.xml">
+<![if !supportTabStrip]>
+<link id="shLink" href="Single_Sheet_Mockup_files/sheet001.htm">
+
+<link id="shLink">
+<![endif]><!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>Report Name</x:Name>
+    <x:WorksheetSource HRef="Single_Sheet_Mockup_files/sheet001.htm"/>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:Stylesheet HRef="Single_Sheet_Mockup_files/stylesheet.css"/>
+  <x:WindowHeight>12165</x:WindowHeight>
+  <x:WindowWidth>27435</x:WindowWidth>
+  <x:WindowTopX>930</x:WindowTopX>
+  <x:WindowTopY>32767</x:WindowTopY>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+</xml><![endif]-->
+</head>
+</html>
+
+#########################################################################################################################
+##
+##  STYLES 
+##
+#########################################################################################################################
+------=_NextPart_01D8DFBE.2078AF30
+Content-Location: file:///C:/61233B10/Single_Sheet_Mockup_files/stylesheet.css
+Content-Type: text/css; charset="utf-8"
+
+#* Paste your styles here, replacing the styles in this template. You do not need the opening and closing style tags. 
+The styles are found by the template via the boundary and "Content-Location" *#
+tr
+  {mso-height-source:auto;}
+col
+  {mso-width-source:auto;}
+br
+  {mso-data-placement:same-cell;}
+.style0
+  {mso-number-format:General;
+  text-align:left;
+  vertical-align:top;
+  white-space:nowrap;
+  mso-rotate:0;
+  mso-background-source:auto;
+  mso-pattern:auto;
+  color:black;
+  font-size:12.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:none;
+  font-family:Calibri, sans-serif;
+  mso-font-charset:0;
+  border:none;
+  mso-protection:locked visible;
+  mso-style-name:Normal;
+  mso-style-id:0;}
+td
+  {mso-style-parent:style0;
+  padding-top:1px;
+  padding-right:1px;
+  padding-left:1px;
+  mso-ignore:padding;
+  color:black;
+  font-size:12.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:none;
+  font-family:Calibri, sans-serif;
+  mso-font-charset:0;
+  mso-number-format:General;
+  text-align:left;
+  vertical-align:top;
+  border:none;
+  mso-background-source:auto;
+  mso-pattern:auto;
+  mso-protection:locked visible;
+  white-space:normal;
+  mso-rotate:0;}
+.xl50
+  {mso-style-parent:style0;
+  background:white;
+  mso-pattern:black none;}
+.xl61
+  {mso-style-parent:style22;
+  text-align:center;
+  border:.5pt solid windowtext;
+  background:#D9E1F2;
+  mso-pattern:black none;
+  white-space:normal;
+  font-size:12pt;
+  font-weight:bold;
+  border-top:none;
+  border-left:none;}
+.xl62
+  {mso-style-parent:style0;
+  color:black;
+  font-size:14.0pt;
+  text-align:center;
+  vertical-align:middle;
+  border:.5pt solid black;
+  white-space:normal;}
+.xl63
+  {mso-style-parent:style0;
+  border:.5pt solid windowtext;
+  white-space:normal;
+  text-align:left
+  font-size:12pt;
+  border-top:none;
+  border-left:none;}
+.xl64
+  {mso-style-parent:style0;
+  font-size:12.0pt;
+  border:.5pt solid windowtext;
+  white-space:normal;
+  text-align:left
+  border-top:none;
+  border-left:none;}
+.xl65
+  {mso-style-parent:style22;
+  text-align:center;
+  border:.5pt solid windowtext;
+  background:#FFC7CE;
+  mso-pattern:black none;
+  white-space:normal;
+  font-size:18pt;
+  font-weight:bold;
+  color:red;}
+.xl66
+  {mso-style-parent:style0;
+  border:.5pt solid windowtext;
+  white-space:normal;
+  text-align:left;
+  font-size:14pt;
+  border-top:none;
+  border-left:none;}
+.xl67
+  {mso-style-parent:style0;
+  font-size:12.0pt;
+  border:.5pt solid windowtext;
+  border-top:none;
+  border-left:none}
+.xl68
+  {mso-style-parent:style0;
+  font-size:12.0pt;
+  text-align:left;
+  border:.5pt solid windowtext;}
+.xl69
+  {mso-style-parent:style22;
+  font-size:12.0pt;
+  text-align:center;
+  border:.5pt solid windowtext;
+  background:#FFC7CE;
+  mso-pattern:black none;
+  white-space:normal;
+  border-top:none;
+  border-left:none;
+  }
+.xl70
+  {mso-style-parent:style22;
+  font-size:12.0pt;
+  text-align:center;
+  border:.5pt solid windowtext;
+  background:#F0FFEC;
+  mso-pattern:black none;
+  white-space:normal;
+  border-top:none;
+  border-left:none;
+  font-weight:bold;}
+.xl71
+  {mso-style-parent:style22;
+  font-size:12.0pt;
+  text-align:center;
+  border:.5pt solid windowtext;
+  background:#FFDAE5;
+  mso-pattern:black none;
+  white-space:normal;
+  border-top:none;
+  border-left:none;
+  font-weight:bold;}
+.xl72
+  {mso-style-parent:style22;
+  font-size:12.0pt;
+  text-align:center;
+  border:.5pt solid windowtext;
+  background:#FFDAE5;
+  mso-pattern:black none;
+  white-space:normal;
+  border-top:none;
+  border-left:none;}
+.xl73
+  {mso-style-parent:style22;
+  font-size:12.0pt;
+  text-align:center;
+  border:.5pt solid windowtext;
+  background:#F0FFEC;
+  mso-pattern:black none;
+  white-space:normal;
+  border-top:none;
+  border-left:none;}
+.xl74
+  {mso-style-parent:style0;
+  border:.5pt solid windowtext;
+  white-space:normal;
+  text-align:left
+  font-size:12pt;
+  border-top:none;
+  border-left:none;
+  font-style:italic;}
+.xl77
+  {mso-style-parent:style0;
+  text-align:center;
+  border-top:.5pt solid windowtext;
+  border-bottom:.5pt solid windowtext;
+  border-left:.5pt solid windowtext;
+  background:#8EA9DB;
+  mso-pattern:black none;
+  border-right:.5pt solid black;
+  height:25.0pt;
+  font-size:16pt;
+  font-weight:bold;}
+.xl78
+  {mso-style-parent:style22;
+  font-size:12.0pt;
+  text-align:center;
+  border:.5pt solid windowtext;
+  background:#A9D08E;
+  mso-pattern:black none;
+  white-space:normal;
+  border-top:none;
+  border-left:none;
+  font-weight:bold;}
+.xl79
+  {mso-style-parent:style22;
+  font-size:12.0pt;
+  text-align:center;
+  border:.5pt solid windowtext;
+  background:#FF8395;
+  mso-pattern:black none;
+  white-space:normal;
+  border-top:none;
+  border-left:none;
+  font-weight:bold;}
+.xl80
+  {mso-style-parent:style0;
+  text-align:center;
+  border-top:.5pt solid windowtext;
+  border-bottom:.5pt solid windowtext;
+  background:#F4B084;
+  mso-pattern:black none;
+  border-right:.5pt solid black;
+  border-left:none;
+  font-size:16pt;
+  font-weight:bold;}
+.xl83
+  {mso-style-parent:style0;
+  text-align:center;
+  border-right:.5pt solid windowtext;
+  border-bottom:.5pt solid windowtext;
+  background:#FFD966;
+  mso-pattern:black none;
+  border-top:none;
+  border-left:none;
+  font-size:16pt;
+  font-weight:bold;}
+.xl84
+  {mso-style-parent:style0;
+  font-size:12.0pt;
+  text-align:center;
+  border-right:none;
+  border-bottom:.5pt solid windowtext;
+  background:#D9E1F2;
+  mso-pattern:black none;
+  border-top:none;
+  border-left:.5pt solid windowtext;
+  font-weight:bold;}
+.xl85
+  {mso-style-parent:style0;
+  font-size:12.0pt;
+  text-align:center;
+  border-right:.5pt solid windowtext;
+  border-bottom:.5pt solid windowtext;
+  background:#FCE4D6;
+  mso-pattern:black none;
+  border-top:none;
+  border-left:.5pt solid windowtext;
+  font-weight:bold;}
+.xl86
+  {mso-style-parent:style0;
+  font-size:12.0pt;
+  text-align:center;
+  border-right:.5pt solid windowtext;
+  border-bottom:.5pt solid windowtext;
+  background:#FFF2CC;
+  mso-pattern:black none;
+  border-top:none;
+  border-left:.5pt solid windowtext;
+  font-weight:bold;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#########################################################################################################################
+##
+##  MACROS
+##
+#########################################################################################################################
+##
+#########################################################################################################################
+#########################################################################################################################
+##          Macro: formatRichTextCell
+##          Desc: Use on purly textual Rich Text Fields (I.e use directly in Cells)
+##          Input: $inString - input string
+##          Return: string, ready for opening in Word
+#########################################################################################################################
+#macro( formatRichTextCell $inString )
+  #if( $inString )
+    #set( $string = $inString.toString())
+    #set( $string = $string.replaceAll("\n{2}",""))
+
+    #set( $string = $string.replaceAll("<span.*?>",""))
+    #set( $string = $string.replaceAll("<\/span>",""))
+    #set( $string = $string.replaceAll("<h\d*?.*?>","<p><strong>"))
+    #set( $string = $string.replaceAll("<\/h\d*?>","</strong></p>"))
+    #set( $string = $string.replaceAll("<div.*?>",""))
+    #set( $string = $string.replaceAll("<\/div>",""))
+    #set( $string = $string.replaceAll("<p.*?>&nbsp;<\/p>",""))
+    
+    ## Remove content that doesn't work well in Excel
+    #set( $string = $string.replaceAll("<table.*?>|<\/table>",""))
+    #set( $string = $string.replaceAll("(<caption.*?>(?:.|\s)*?<\/caption>)",""))
+    #set( $string = $string.replaceAll("<thead.*?>|<\/thead>",""))
+    #set( $string = $string.replaceAll("(<th.*?>(?:.|\s)*?<\/th>)",""))
+    #set( $string = $string.replaceAll("<tbody.*>|<\/tbody>",""))
+    #set( $string = $string.replaceAll("<tr.*?>|<\/tr>",""))
+    #set( $string = $string.replaceAll("(<td.*?>(?:.|\s)*?<\/td>)",""))
+    #set( $string = $string.replaceAll("(?s)<a.*>(.*)</a>","$1"))
+    #set( $string = $string.replaceAll("\xA0",""))
+
+    #set( $string = $string.replaceAll("<ul.*?>",""))
+    #set( $string = $string.replaceAll("<\/ul>","&#10;"))
+    #set( $string = $string.replaceAll("<ol.*?>",""))
+    #set( $string = $string.replaceAll("<\/ol>","&#10;"))
+    #set( $string = $string.replaceAll("\t<li.*?>|<li.*?>","• &#032;"))
+    #set( $string = $string.replaceAll("<\/li>","&#10;"))
+
+    #set( $string = $string.replaceAll("<em.*?>|<\/em>",""))
+    #set( $string = $string.replaceAll("<pre.*?>|<\/pre>",""))
+    #set( $string = $string.replaceAll("<strong>",""))
+    #set( $string = $string.replaceAll("<\/strong>",""))
+    #set( $string = $string.replaceAll("<u.*?>|<\/u>",""))
+    #set( $string = $string.replaceAll("<br.*?>","&#10;"))
+
+    #set( $string = $string.replaceAll("&nbsp;",""))
+    #set( $string = $string.replaceAll("<p.*?>",""))
+    #set( $string = $string.replaceAll("<\/p>","&#10;"))
+    #set( $string = $string.replaceAll(" \n|(&#10;)\n","$1"))
+   
+    #set( $string = $string.replaceAll("<img.*?>",""))
+
+    #set( $string = $string.replaceAll("<","&lt;"))
+    #set( $string = $string.replaceAll(">","&gt;"))
+
+    #set( $string = $string.replaceAll("([\n|&#10;|&#10;\n]*)$", ""))
+    $!string
+
+  #end
+#end
+
+#########################################################################################################################
+#########################################################################################################################
+##
+
+#########################################################################################################################
+##          Macro: formatPlainText
+##          Desc: Remove all possibly present html tags from text box field content
+#########################################################################################################################
+#macro( formatPlainText $inString)
+  #if( $inString )
+    #set( $string = $inString.toString() )
+    #set( $string = $string.replaceAll("<(.|\n)*?>", ""))
+
+    $string
+  #end
+#end
+
+#########################################################################################################################
+#macro( stripPlainText $text )
+  #set($text = $text.replaceAll("<"," &lt;"))
+  #set($text = $text.replaceAll(">"," &gt;"))
+  $text
+#end
+#########################################################################################################################
+##
+#########################################################################################################################
+##          Macro: pickListColorFetch
+##          Input: item, the unique custom field name, the fetched picklist item
+##          Output: String type hex code color 
+##          Call Example: #pickListColorFetch($doc "<unique field name>" $<item variable with item data> )
+##          Apply to cell: style='background:#$color;mso-pattern:#$color none;''
+#########################################################################################################################
+#macro( pickListColorFetch $doc $fieldName $pickListItem)
+
+  ##Get the color it displays in Jama
+  #set( $newItem = $contourItemDao.getContourItem($doc.id))
+  #set( $customFields = $newItem.getCustomFields())
+  #set( $docTypeField = $documentTypeFieldDao.getDocumentTypeFieldByName( $fieldName, $doc.documentType.id))
+  #set( $lookupTypeId = $docTypeField.getLookupTypeId())
+  #set( $fieldId = $docTypeField.documentField.id)
+
+  #set( $lookupTypeList = [])
+  #if( $lookupTypeList.add($lookupTypeId)) #end
+  #set( $getLookupIdsReturn = $lookupDao.getLookupIdsByLookupTypes($lookupTypeList))
+  #set( $lookupValues = [])
+  #foreach( $lookUpId in $getLookupIdsReturn)
+    #set( $lookup = $lookupDao.getLookup($mathTool.toInteger($lookUpId)))
+    #if( $lookupValues.add( $lookup)) #end
+  #end
+  
+  #set( $color = '')
+  #foreach( $lookUpVal in $lookupValues)
+    #if( $lookUpVal.name == $pickListItem.trim())
+      #set( $color = $lookUpVal.color)
+      #break
+    #end
+  #end
+
+  ## Returns $color
+
+#end
+#########################################################################################################################
+##          Macro: getHierarchyLevel
+##          Input: $doc - document object
+##                 $baselineMode - true: export was from a baseline, false: export was from the project
+##                 $baselineId   - ID of the baseline that the items are part of, if in baseline mode
+##          Output: $hierarchyLevel - number, which heading level this item is in Jama relative to the container
+#########################################################################################################################
+#macro( getHierarchyLevel $doc $baselineMode $baselineId )
+  #set( $seqSubStrings = [] )
+  #set( $hierarchyLevel = 1)
+  ## Get hierarchy from the baseline
+  #if( $baselineMode )
+    #set( $docNode = $documentNodeDao.getDocumentNodeForBaseLine(5, $doc.id, $baselineId))
+  ## Get hierarchy from the project
+  #else
+    #set( $docNode = $documentNodeDao.getDocumentNode(5, $doc.id))
+  #end
+  ##Debug: $docNode
+  #set( $seqSubStrings = $docNode.sequence.split("\."))
+  ##Debug: $seqSubStrings
+  #set( $hierarchyLevel = $seqSubStrings.size())
+  #if( !$hierarchyLevelTop )
+    #set($hierarchyLevelTop = $hierarchyLevel)
+  #end
+
+  #set($hierarchyLevel = $hierarchyLevel - $hierarchyLevelTop + 1)
+#end
+
+
+#########################################################################################################################
+##
+
+#########################################################################################################################
+##          Macro: getDate
+##          Input: Java Time Zone ID to determine which timezone to display the date in
+##          Output: Formatted date in the desired timezone
+#########################################################################################################################
+#macro( getDate $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  $dateTool.format( 'MM/dd/yyyy', $inputDate, $locale, $outTz )
+#end
+
+#########################################################################################################################
+##
+
+#########################################################################################################################
+##
+#########################################################################################################################
+##          Macro: getRelationships
+##          Inputs: $baselineMode - GLOBAL, tells the report if the export was from a baseline or not 
+##                  $baselineId - GLOBAL, ID of a baseline       
+##                  $inDoc - current item
+##                  $inDownstream - true provides downstream relationships, false provides upstream relationships
+##          Creates: $returnRels - list of relationships with sub-elements of "fromItem" and "toItem" each of type 
+##                   item
+#########################################################################################################################
+#macro( getRelationships $inDoc $inDownstream )
+  #set( $returnRels = [] )
+  #if( $baselineMode )
+    #if( $baselineId )
+      #set( $currentVersion = $inDoc.currentVersion )
+      #set( $orginDocId = $currentVersion.originDocument.id )
+      #set( $relatedIds = [] )
+      #getBaselineRelationships303( $orginDocId, $baselineId ) ## Creates $returnBaselineRels
+      ##DEBUG $returnBaselineRels
+      #foreach ( $rel in $returnBaselineRels )
+        #set($dnDoc = $rel.toItem)
+        #set($upDoc = $rel.fromItem)
+        #set($relationshipType = $rel.relationshipType )
+        #if( $inDownstream )  ## Get Downstream Relationships
+          #if( $upDoc.id == $inDoc.id )
+            #if( !$relatedIds.contains($dnDoc.id) )
+              #set( $success = $relatedIds.add($dnDoc.id) )
+              #set( $success = $returnRels.add( {"fromDocument":$upDoc,"toDocument":$dnDoc,"relationshipType":$relationshipType} ) )
+            #end
+          #end
+        #else                 ## Get Upstream Relationships
+          #if( $dnDoc.id == $inDoc.id )
+            #if( !$relatedIds.contains($upDoc.id) )
+              #set( $success = $relatedIds.add($upDoc.id) )
+              #set( $success = $returnRels.add( {"fromDocument":$upDoc,"toDocument":$dnDoc,"relationshipType":$relationshipType} ) )
+            #end
+          #end
+        #end
+      #end
+    #end
+  #else
+    #set( $rels = [] )
+    #set ( $rels = $relDao.getRelationshipsForDocument($inDoc.id, $inDownstream) )
+    #foreach( $rel in $rels )
+      #if( $inDownstream )  ## Get Downstream Relationships
+        #if ( $rel.toDocument.active )
+          #set( $success = $returnRels.add({"fromDocument":$rel.fromDocument,"toDocument":$rel.toDocument,"relationshipType":$rel.relationshipType.name}) )
+        #end
+      #else                 ## Get Upstream Relationships
+        #if ( $rel.fromDocument.active )
+          #set( $success = $returnRels.add({"fromDocument":$rel.fromDocument,"toDocument":$rel.toDocument,"relationshipType":$rel.relationshipType.name}) )
+        #end
+      #end
+    #end
+  #end
+#end
+
+#########################################################################################################################
+##
+#########################################################################################################################
+##          Macro: getTags
+##          Input: $inDoc - document object to get tags from
+##                 $aReportBaselineMode - true: export was from a baseline, false: export was from the project
+##          Output: $tagList - if not a baseline, then tagList is the item's tags.  If export is from a baseline, then
+##                             tagList is the tags from the latest version of the item.
+#########################################################################################################################
+#macro( getTags $doc )
+  #set( $tagList = '')
+  #set( $docTags = $tagDao.getAllTagsByDocumentId($mathTool.toInteger($doc.id)))
+
+  #if( $docTags.size() != 0 )
+    #foreach( $dt in $docTags)
+      #if( $foreach.first )
+        #set( $tagList = "$dt.tagName")
+      #else
+        #set( $tagList = "$tagList, $dt.tagName")
+      #end
+    #end
+  #end
+
+#end
+
+#########################################################################################################################
+##          Macro: getAttachmentsList
+##          Input: 
+##          Return: Construct a organized list of items attachments via file id and name present in the "Attachements" widget
+#########################################################################################################################
+#macro( getAttachmentsList $item)
+
+  #set($attachmentDataList = [])
+  #set($finalAttachmentList = [])
+  #set($attachments = $docDao.getDocument_DocAttachments($mathTool.toInteger($item.id))) ## java.util.List<DocumentDocAttach> 
+
+  ## Get Attachments List
+  #foreach($docAttachNode in $attachments)
+    #set($attachmentDoc = $docAttachNode.getAttachment()) ## Document getAttachment()
+    #set($attachment = $docDao.getAttachment($mathTool.toInteger($attachmentDoc.getAttachment()))) ## Attachment getAttachment(java.lang.Integer attachmentId)
+    #set($success = $attachmentDataList.add({"ID": $attachment.id, "Name": $attachment.getFileName()}))
+  #end
+
+  ## Return attachment list sorted by ID
+  #if($attachmentDataList.size() != 0)
+    #set($finalAttachmentList = $sortTool.sort($attachmentDataList, "ID:asc"))
+  #else
+    #set($finalAttachmentList = [])
+  #end
+
+#end
+
+
+#########################################################################################################################
+##          Macro: gatherTargetContent
+##          Input: $targetSyncItem
+##          Return: gathers all Target Location contained items
+#########################################################################################################################
+#macro (gatherTargetItems $trgtItems $childNodes)
+  
+  #foreach($childItem in $childNodes)
+    #set($trgtItem = $docDao.getDocument($childItem.refId))
+    #if($trgtItem.active)
+      #set($success = $trgtItems.add($trgtItem))
+
+      #set($trgtItemNode =  $documentNodeDao.getDocumentNode(5, $trgtItem.id))
+      #set($trgtItemChildNodes = $trgtItemNode.getAllChildNodes()) 
+
+      #if($trgtItemChildNodes.size() != 0)
+        #gatherTargetItems($trgtItems $trgtItemChildNodes)
+      #end
+    #end
+
+  #end
+
+#end
+
+#########################################################################################################################
+##          Macro: contentSyncRows
+##          Input: $targetSyncItem
+##          Return: Source item sync comparison to Target item results
+#########################################################################################################################
+#macro (contentSyncRows $trgtItems $trgtIDs)
+  
+  #set($trgtItemsUsed = [])
+
+  #foreach($vDoc in $documentList)
+    #set( $doc = $vDoc.document )
+
+    ## Target Sync Item:
+    ## ============================
+    #set($trgtSyncItem = '')
+    #set($syncDocs = $docDao.getDocumentsWithGlobalId( "$doc.globalId", $mathTool.toInteger($project.organizationId)))
+    #foreach($srcSyncItem in $syncDocs)
+      #if($trgtIDs.contains($srcSyncItem.id))
+        #set($trgtSyncItem = $srcSyncItem)
+        #set($success = $trgtItemsUsed.add($trgtSyncItem.id))
+        #break
+      #end
+    #end
+
+    ## Sync Status
+    ## ============================
+    #set($inSync = $syncService.areItemsInSync( $mathTool.toInteger($!doc.id), $mathTool.toInteger($!trgtSyncItem.id)))
+      
+    ## Report Row Building
+    ## ============================
+    #if($report6OnlyDiffItems)
+      #if(!$!inSync)
+        #buildRow($doc $trgtSyncItem $inSync $trgtItems $trgtIDs)
+      #end
+    #else
+      #buildRow($doc $trgtSyncItem $inSync $trgtItems $trgtIDs)
+    #end
+
+  #end ## #foreach($vDoc in $documentList)
+
+
+  ## Construct List of un-used Target Items that do not have a Sync item present on the Source list
+  ## ===============================================================================================
+
+  #set($trgtUnUsedList = [])
+  #foreach($item in $trgtItems)
+    #if(!$trgtItemsUsed.contains($item.id))
+      #set($success = $trgtUnUsedList.add($item))
+    #end
+  #end
+
+  #unUsedTargetSyncRows($trgtUnUsedList)
+
+#end
+
+#########################################################################################################################
+##          Macro: getColumnSyncStatus
+##          Input: $columnSyncStatus $itemSyncDataContainer
+##          Return: returns updated $columnSyncStatus after determining if all columns for this item row are in sync or not
+#########################################################################################################################
+#macro( getColumnSyncStatus $columnSyncStatus $itemSyncDataContainer) 
+  
+  ## Source Content Items
+  #set($srcItem = $itemSyncDataContainer.get("SrcItem"))
+  #set($srcHeading = $itemSyncDataContainer.get("SrcHeading"))
+  #set($srcTagList = $itemSyncDataContainer.get("SrcTagList"))
+  #set($srcUpRels = $itemSyncDataContainer.get("SrcUpRels"))
+  #set($srcDownRels = $itemSyncDataContainer.get("SrcDownRels"))
+  #set($srcAtchmts = $itemSyncDataContainer.get("SrcAtchmts"))
+
+  ## Target Content Items
+  #set($trgtItem = $itemSyncDataContainer.get("TrgtItem"))
+  #set($trgtHeading = $itemSyncDataContainer.get("TrgtHeading"))
+  #set($trgtTagList = $itemSyncDataContainer.get("TrgtTagList"))
+  #set($trgtUpRels = $itemSyncDataContainer.get("TrgtUpRels"))
+  #set($trgtDownRels = $itemSyncDataContainer.get("TrgtDownRels"))
+  #set($trgtAtchmts = $itemSyncDataContainer.get("TrgtAtchmts"))
+
+
+  ## Heading Sync Status
+  #if($!srcHeading != $!trgtHeading)
+    #set($columnSyncStatus = false)
+  #end
+
+  ## Name Sync Status
+  #if($srcItem.name != $trgtItem.name)
+    #set($columnSyncStatus = false)
+  #end
+
+  ## Description Text Sync Status
+  #if("#formatRichTextCell($!srcItem.description)" != "#formatRichTextCell($!trgtItem.description)")
+    #set($columnSyncStatus = false)
+  #end
+
+  ## Description Source Sync Status
+  #if($!srcItem.description != $!trgtItem.description)
+    #set($columnSyncStatus = false)
+  #end
+
+  ## Status Sync Status
+  #if($srcItem.status.name != $trgtItem.status.name)
+    #set($columnSyncStatus = false)
+  #end
+
+  ## Tag Sync Status
+  #if($!srcTagList != $!trgtTagList)
+    #set($columnSyncStatus = false)
+  #end
+
+  #if($report4IncludeRels)
+    ## Up Relationships Sync Status
+    #set($srcUpRels = $sortTool.sort($srcUpRels))
+    #set($trgtUpRels = $sortTool.sort($trgtUpRels))
+
+    #if($srcUpRels != $trgtUpRels)
+      #set($columnSyncStatus = false)
+    #end
+
+    ## Down Relationships Sync Status
+    #set($srcDownRels = $sortTool.sort($srcDownRels))
+    #set($trgtDownRels = $sortTool.sort($trgtDownRels))
+
+    #if($srcDownRels != $trgtDownRels)
+      #set($columnSyncStatus = false)
+    #end
+  #end
+
+  #if($report5IncludeAttachments)
+    ## Attachments Sync Status
+    #if($srcAtchmts != $trgtAtchmts)
+      #set($columnSyncStatus = false)
+    #end
+  #end
+
+  ## return updated $columnSyncStatus
+
+#end
+######################################################################################################################
+######################################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## ===================================================================================================================
+######################################################################################################################
+##
+##  Content Macros
+##
+######################################################################################################################
+## ===================================================================================================================
+
+
+#########################################################################################################################
+##          Macro: parameterErrorHandling
+##          Input: $errorCase
+##          Return: $errorCase 
+##                  In the event that an parameter supply edge case is true report a error message in the generated report
+##                  with clear instructions on how to properly run the report and or the proper sync items to select. 
+#########################################################################################################################
+#macro (parameterErrorHandling $errorCase)
+
+  ## Exported from a Container or Project
+  ## ==================================
+  #if($documentList.size() > 1) 
+    #if($report3Project)
+      #set( $sourceSyncItem = $project)
+    #else
+      ## Gather Source Export Location Item
+      #set( $firstItem = $documentList[0])
+      #set( $node = $documentNodeDao.getDocumentNode(5, $firstItem.document.id ))
+      #set( $parentNode = $node.parentNode)
+      #set( $sourceSyncItem = $docDao.getDocument( $parentNode.refId ) )
+
+      #if(!$sourceSyncItem)
+        #set($errorCase = true)
+        <tr>
+          <td colspan=6 class=xl65>Sync Target Error</td>
+        </tr>
+        <tr height=69 style="height:52.0pt;">
+          <td colspan=6 class=xl62 height=69 style='height:52.0pt;width:795pt'>If you are exporting from the project level please ensure you set the <b>Project Sync Comparison</b> parameter to true. 
+          </td>
+        </tr>
+      #end
+      
+    #end
+  
+  ## Single Item Export
+  ## ==================================
+  #else
+    #set( $sourceSyncItem = $documentList[0].document)
+    #set( $singleItemExport = true)
+  #end
+
+  ## Parameter Error Handling & Sync Target Value Collection
+  ## ========================================================
+  #if($errorCase != true)
+    ## When Location parameter is supplied without any input it provides a static '[]' that is not an array object therefore we adjust it to an empty string for error processing logic below.
+    #set($report1SPTargetId = $report1SPTargetId.toString())
+    #set($report1SPTargetId = $report1SPTargetId.replaceAll('\[|\]', ''))
+
+    ## Both Sync Target Location Parameters supplied
+    ##-------------------------------------------------------------------------------------------------------------------------------
+    #if($!report1SPTargetId && $!report1SPTargetId != '' && $!report2CPTargetId && $!report2CPTargetId != '')
+      #set($errorCase = true)
+      <tr>
+        <td colspan=6 class=xl65>Sync Target Error</td>
+      </tr>
+      <tr height=69 style="height:52.0pt;">
+        <td colspan=6 class=xl62 height=69 style='height:52.0pt;width:795pt'>Please supply only <b>ONE</b> sync target using either the Same Project or Cross Project report parameter options.
+        </td>
+      </tr>
+
+
+    ## Input not supplied for either Same or Cross Project parameters
+    ##-------------------------------------------------------------------------------------------------------------------------------
+    #elseif($!report1SPTargetId && $!report1SPTargetId == ''  && $!report2CPTargetId && $!report2CPTargetId == '')
+      #set($errorCase = true)
+      <tr>
+        <td colspan=6 class=xl65>Sync Target Error</td>
+      </tr>
+      <tr height=69 style="height:52.0pt;">
+        <td colspan=6 class=xl62 height=69 style='height:52.0pt;width:795pt'>Please supply report with a Target Sync Location using either the Same Project or Cross Project report parameter options.</td>
+      </tr>
+
+
+    ## Invalid Same Project Target Parameter supplied
+    ##-------------------------------------------------------------------------------------------------------------------------------
+    #elseif($!report1SPTargetId && $!report1SPTargetId != '' && $!report2CPTargetId && $!report2CPTargetId == '')
+      
+      #set($targetSyncItem = $docDao.getContourItem($mathTool.toInteger($!report1SPTargetId)))
+
+      #if(!$targetSyncItem)
+        #set($errorCase = true)
+        <tr>
+          <td colspan=6 class=xl65>Sync Target Error</td>
+        </tr>
+        <tr height=69 style="height:52.0pt;">
+          <td colspan=6 class=xl62 height=69 style='height:52.0pt;width:795pt'>Please select a valid Same Project Target item.
+            </td>
+        </tr>
+      #end
+
+
+    ## Invalid Cross Project Target API ID Parameter supplied (Project Level Sync Compare)
+    ##-------------------------------------------------------------------------------------------------------------------------------
+    #elseif($!report3Project && $!report1SPTargetId && $!report1SPTargetId == '' && $!report2CPTargetId && $!report2CPTargetId != '')
+      #set($targetApiId = $!report2CPTargetId.replaceAll("^[^\d]*(\d*)[^\d]*$","$1") )
+      
+      #set($invalidProject = false)
+
+      #if($targetApiId != '')
+
+        #set( $instanceProjects = $projectSource.getProjects(true))
+        #set( $instanceProdIds = [])
+        #foreach($instanceProd in $instanceProjects)
+          #set($success = $instanceProdIds.add($instanceProd.id))
+        #end
+
+        ## Check is supplied cross project project ID is a valid instance project ID
+        #if($instanceProdIds.contains($mathTool.toInteger($targetApiId)))
+          #set( $targetSyncItem = $projectSource.getProject($mathTool.toInteger($targetApiId )))
+
+        #else
+          #set($errorCase = true)
+          #set($invalidProject = true)
+          <tr>
+            <td colspan=6 class=xl65>Sync Target Error</td>
+          </tr>
+          <tr>
+            <td colspan=6 class=xl66 style='width:795pt;'>Please enter a valid Project Target ID value from the list of instance projects below.</td>
+          </tr>
+          <tr>
+            <td colspan=4 class=xl61>Project Name</td>
+            <td colspan=2 class=xl61>Project ID</td>
+          </tr>
+          #foreach($instanceProd in $instanceProjects)
+            #if($instanceProd.id != $project.id)
+              <tr>
+                <td colspan=4 class=xl63><a href="$baseUrl/perspective.req#/projects/$!instanceProd.id/list">$!instanceProd.name.trim()</a></td>
+                <td colspan=2 class=xl63>$!instanceProd.id</td>
+              </tr>
+            #end
+          #end
+        #end
+
+      #end
+
+
+      #if((!$targetSyncItem || $targetApiId == '') && !$invalidProject)
+        #set($errorCase = true)
+        <tr>
+          <td colspan=6 class=xl65>Sync Target Error</td>
+        </tr>
+        <tr height=69 style="height:52.0pt;">
+          <td colspan=6 class=xl62 height=69 style='height:52.0pt;width:795pt'>Please enter a Project Target ID value.</td>
+        </tr>
+        
+      #end
+
+
+    ## Invalid Cross Project Target API ID Parameter supplied (Non- Project Level Sync Compare)
+    ##-------------------------------------------------------------------------------------------------------------------------------
+    #elseif(!$report3Project && $!report1SPTargetId && $!report1SPTargetId == '' && $!report2CPTargetId && $!report2CPTargetId != '')
+      
+      #set($targetApiId = $!report2CPTargetId.replaceAll("^[^\d]*(\d*)[^\d]*$","$1") )
+      
+      #if($targetApiId != '')
+        #set( $targetSyncItem = $docDao.getContourItem($mathTool.toInteger($targetApiId )))
+      #end
+
+      #if(!$targetSyncItem || $targetApiId == '')
+        #set($errorCase = true)
+        <tr>
+          <td colspan=6 class=xl65>Sync Target Error</td>
+        </tr>
+        <tr height=69 style="height:52.0pt;">
+          <td colspan=6 class=xl62 height=69 style='height:52.0pt;width:795pt'>Please enter a valid Cross Project Target API ID value.</td>
+        </tr>
+      #end
+    
+    #end
+
+    
+    ## Source To Target Sync Item Check
+    ## ==========================================================================================================
+    ## If target source inputs are valid error check that it is indeed a synced item to the source item.
+    #if(!$errorCase && $!targetSyncItem && !$report3Project)
+      #sourceToTargetSyncCheck($sourceSyncItem $targetSyncItem $errorCase )
+    #end
+
+  #end ## #if($errorCase != true)
+
+#end
+
+
+
+#########################################################################################################################
+##          Macro: sourceToTargetSyncCheck
+##          Input: $sourceSyncItem $targetSyncItem $errorCase
+##          Return: true false result if source and target supplied items are sync items. 
+##                  if not macro builds an error message of the source items sync items list. 
+#########################################################################################################################
+#macro( sourceToTargetSyncCheck $sourceSyncItem $targetSyncItem $errorCase)
+  
+  #set($sourceSyncedItemsList = $docDao.getDocumentsWithGlobalId( "$sourceSyncItem.globalId", $mathTool.toInteger($project.organizationId)))
+     
+  #set($syncIds = [])
+  #foreach($syncItem in $sourceSyncedItemsList)
+    #set($success = $syncIds.add($syncItem.id))
+  #end
+  
+
+  ## Error Messaging For Out of Sync Source Export location and selected Target location.
+  #if(!$syncIds.contains($targetSyncItem.id))
+    <tr>
+      <td colspan=6 class=xl65>Sync Target Error</td>
+    </tr>
+    <tr>
+      <td colspan=6 class=xl66 style='width:795pt;'>Exported source item and selected target sync location are not synced items
+      </td>
+    </tr>
+    
+
+    #if($sourceSyncedItemsList.size() == 0 )
+      <tr>
+        <td colspan=6 class=xl66 style='width:795pt;'>Exported source item has no synced items</td>
+      </tr>
+    #else
+      <tr>
+        <td colspan=6 class=xl66 style='width:795pt;'>Exported source item contains the following synced items
+        </td>
+      </tr>
+      <tr>
+        <td colspan=6 class=xl62 style='width:795pt'>&nbsp;</td>
+      </tr>
+      <tr>
+        <td colspan=2 class=xl61>Project</td>
+        <td class=xl61>Item ID</td>
+        <td class=xl61>API ID</td>
+        <td colspan=2 class=xl61>Item Name</td>
+      </tr>
+      #foreach($syncItem in $sourceSyncedItemsList)
+        #if($syncItem.id != $sourceSyncItem.id)
+          <tr>
+            <td colspan=2 class=xl63>$syncItem.project.name</td>
+            <td class=xl63 style="font-size:12pt"><a href="$baseUrl/perspective.req#/items/$syncItem.id?projectId=$syncItem.project.id">$syncItem.documentKey</a></td>
+            <td class=xl63>$syncItem.id</td>
+            <td colspan=2 class=xl63>$syncItem.name</td>
+          </tr>
+        #end
+      #end
+    #end
+
+    #set($errorCase = true)
+  
+  #else
+    #set($errorCase = false)
+  #end
+
+#end
+
+
+#########################################################################################################################
+##          Macro: parentExportSyncRow
+##          Input: $sourceSyncItem $targetSyncItem
+##          Return: First table row of the content and sync results of the exported source location 
+##                  and selected target location
+#########################################################################################################################
+#macro(parentExportSyncRow $sourceSyncItem $targetSyncItem)
+
+  <tr>
+    #set($sourceUpRels = [])
+    #set($sourceDownRels = [])
+    
+    ## Source Content
+    ## ==========================================================================================================
+    
+    ## Item Doc Key Link
+    <td class=xl63><a style="font-size:12pt" href="$baseUrl/perspective.req#/items/$!sourceSyncItem.id?projectId=$project.id">$!sourceSyncItem.documentKey.trim()</a></td>
+    
+    ## Project Name
+    <td class=xl63>$!sourceSyncItem.project.name</td>
+    
+    ## Global ID
+    <td class=xl63>$!sourceSyncItem.globalId</td>
+    
+    ## Heading Sequence
+    #set( $docNode = $documentNodeDao.getDocumentNode(5, $sourceSyncItem.id))
+    #set( $sourceHeading = $!docNode.sequence)
+    <td class=xl64>$!sourceHeading</td>
+    
+    ## Name
+    <td class=xl63>$!sourceSyncItem.name</td>
+    
+    ## Description
+    #set($desc = "#formatRichTextCell($!sourceSyncItem.description)")
+    <td class=xl63>$!desc.trim()</td>
+    
+    ## Status
+    <td class=xl63>$!sourceSyncItem.status.name</td>
+    
+    ## Tags
+    #getTags($!sourceSyncItem)
+    #set($srcTagList = $tagList)
+    <td class=xl63>$!srcTagList.trim()</td>
+    
+    ## Relationships
+    #if($report4IncludeRels)
+      
+      ## Up Relationships
+      #set($upRelContent = '')
+      #getRelationships($sourceSyncItem, false) ## Creates $returnRels
+      #set ( $upRels = $returnRels )
+      #foreach ( $upRel in $upRels )
+        #set($upDoc = $upRel.fromDocument)
+        #set($success = $sourceUpRels.add($upDoc.id))
+        #set($upRelContent = $upRelContent.trim() + "${upDoc.documentKey}: ${upDoc.name}<br>")
+      #end
+      <td class=xl63>$!upRelContent.trim()</td>
+
+      ## Down Relationships
+      #set($downRelContent = '')
+      #getRelationships($sourceSyncItem, true) ## Creates $returnRels
+      #set ( $dnRels = $returnRels )
+      #foreach ( $dnRel in $dnRels )
+        #set($dnDoc = $dnRel.toDocument)
+        #set($success = $sourceDownRels.add($dnDoc.id))
+        #set($downRelContent = $downRelContent.trim() + "${dnDoc.documentKey}: ${dnDoc.name}<br>")
+      #end
+      <td class=xl63>$!downRelContent.trim()</td>
+
+    #end
+
+    ## Attachments
+    #if($report5IncludeAttachments)
+      
+      ## Attachment Links
+      #set($attachementList = '')
+      #getAttachmentsList($sourceSyncItem) ## Returns $finalAttachmentList
+      #set($sourceAttachmentList = $finalAttachmentList)
+      #foreach($attachmentObj in $sourceAttachmentList)
+        #set($attachmentName = $attachmentObj.get("Name"))
+        #set($attachementList = $attachementList.trim() + "${attachmentName}<br>")
+      #end
+      #set($attachementList = "<span style='font-style:italic;'>$attachementList</span>")
+      <td class=xl63 style='font-style: italic;'>$!attachementList.trim()</td>
+
+    #end
+
+
+    ## Target Content
+    ## ==========================================================================================================
+
+    #set($targetUpRels = [])
+    #set($targetDownRels = [])
+
+    ## Item Document Key Link
+    <td class=xl63 style="font-size:12pt"><a href="$baseUrl/perspective.req#/items/$!targetSyncItem.id?projectId=$project.id">$!targetSyncItem.documentKey.trim()</a></td>
+    
+    ## Project Name
+    <td class=xl63>$!targetSyncItem.project.name</td>
+    
+    ## Global ID
+    <td class=xl63>$!sourceSyncItem.globalId</td>
+    
+    ## Heading Sequence
+    #set( $docNode = $documentNodeDao.getDocumentNode(5, $targetSyncItem.id))
+    #set( $targetHeading = $!docNode.sequence)
+    <td class=xl64>$!targetHeading</td>
+    
+    ## Name
+    <td class=xl63>$!targetSyncItem.name</td>
+    
+    ## Description
+    #set($desc = "#formatRichTextCell($!targetSyncItem.description)")
+    <td class=xl63>$!desc.trim()</td>
+    
+    ## Status
+    <td class=xl63>$!targetSyncItem.status.name</td>
+    
+    ## Tags
+    #getTags($targetSyncItem)
+    #set($trgtTagList = $tagList)
+    <td class=xl63>$!trgtTagList.trim()</td>
+    
+    ## Relationships
+    #if($report4IncludeRels)
+      
+      ## Up Relationships
+      #set($upRelContent = '')
+      #getRelationships($targetSyncItem, false) ## Creates $returnRels
+      #set ( $upRels = $returnRels )
+      #foreach ( $upRel in $upRels )
+        #set($upDoc = $upRel.fromDocument)
+        #set($success = $targetUpRels.add($upDoc.id))
+        #set($upRelContent = $upRelContent.trim() + "${upDoc.documentKey}: ${upDoc.name}<br>")
+      #end
+      <td class=xl63>$!upRelContent.trim()</td>
+      
+      ## Down Relationships
+      #set($downRelContent = '')
+      #getRelationships($targetSyncItem, true) ## Creates $returnRels
+      #set ( $dnRels = $returnRels )
+      #foreach ( $dnRel in $dnRels )
+        #set($dnDoc = $dnRel.toDocument)
+        #set($success = $targetDownRels.add($dnDoc.id))
+        #set($downRelContent = $downRelContent.trim() + "${dnDoc.documentKey}: ${dnDoc.name}<br>")
+      #end
+      <td class=xl63>$!downRelContent.trim()</td>
+
+    #end
+
+    ## Attachments
+    #if($report5IncludeAttachments)
+      
+      ## Attachments
+      #set($attachementList = '')
+      #getAttachmentsList($targetSyncItem) ## Returns $finalAttachmentList
+      #set($targetAttachmentList = $finalAttachmentList)
+      #foreach($attachmentObj in $targetAttachmentList)
+        #set($attachmentName = $attachmentObj.get("Name"))
+        #set($attachementList = $attachementList.trim() + "${attachmentName}<br>")
+      #end
+      <td class=xl74 style='font-style: italic;'>$!attachementList.trim()</td>
+
+    #end
+
+    ## Sync Status's Results Content
+    ## ==========================================================================================================
+    
+    ## Determine if Source and Target Item Columns are in full sync or not
+    #set($columnSyncStatus = true)
+    #set($itemSyncDataContainer = {"SrcItem": $!sourceSyncItem, "SrcHeading": $!sourceHeading, "SrcTagList": $!srcTagList, "SrcUpRels": $!sourceUpRels, "SrcDownRels": $!sourceDownRels, "SrcAtchmts": $!sourceAttachmentList, "TrgtItem": $!targetSyncItem, "TrgtHeading": $!targetHeading, "TrgtTagList": $!trgtTagList, "TrgtUpRels": $!targetUpRels, "TrgtDownRels": $!targetDownRels, "TrgtAtchmts": $!targetAttachmentList})
+    
+    #getColumnSyncStatus($columnSyncStatus, $itemSyncDataContainer) ## returns updated $columnSyncStatus
+
+
+    #set( $inSync = $syncService.areItemsInSync( $mathTool.toInteger($sourceSyncItem.id), $mathTool.toInteger($targetSyncItem.id)))
+      
+    ## Jama Sync Status
+    #if($!inSync)
+      <td class=xl78>In Sync</td>
+    #else
+      <td class=xl79>Out of Sync</td>
+    #end
+
+    ## Column Sync Status
+    #if($!columnSyncStatus)
+      <td class=xl70>In Sync</td>
+    #else
+      <td class=xl71>Out of Sync</td>
+    #end
+
+    ## Heading Sync Status
+    #if($!sourceHeading == $!targetHeading)
+      <td class=xl73>Yes</td>
+    #else
+      <td class=xl72>No</td>
+    #end
+
+    ## Name Sync Status
+    #if($sourceSyncItem.name == $targetSyncItem.name)
+      <td class=xl73>Yes</td>
+    #else
+      <td class=xl72>No</td>
+    #end
+
+    ## Description Text Sync Status
+    #if("#formatRichTextCell($!sourceSyncItem.description)" == "#formatRichTextCell($!targetSyncItem.description)")
+      <td class=xl73>Yes</td>
+    #else
+      <td class=xl72>No</td>
+    #end
+
+    ## Description Source Sync Status
+    #if($!sourceSyncItem.description == $!targetSyncItem.description)
+      <td class=xl73>Yes</td>
+    #else
+      <td class=xl72>No</td>
+    #end
+
+    ## Status Sync Status
+    #if($sourceSyncItem.status.name == $targetSyncItem.status.name)
+      <td class=xl73>Yes</td>
+    #else
+      <td class=xl72>No</td>
+    #end
+
+    ## Tag Sync Status
+    #if($!srcTagList == $!trgtTagList)
+      <td class=xl73>Yes</td>
+    #else
+      <td class=xl72>No</td>
+    #end
+
+    #if($report4IncludeRels)
+      ## Up Relationships Sync Status
+      #set($sourceUpRels = $sortTool.sort($sourceUpRels))
+      #set($targetUpRels = $sortTool.sort($targetUpRels))
+
+      #if($sourceUpRels == $targetUpRels)
+        <td class=xl73>Yes</td>
+      #else
+        <td class=xl72>No</td>
+      #end
+
+      ## Down Relationships Sync Status
+      #set($sourceDownRels = $sortTool.sort($sourceDownRels))
+      #set($targetDownRels = $sortTool.sort($targetDownRels))
+
+      #if($sourceDownRels == $targetDownRels)
+        <td class=xl73>Yes</td>
+      #else
+        <td class=xl72>No</td>
+      #end
+    #end
+
+    #if($report5IncludeAttachments)
+      ## Attachments Sync Status
+      #if($sourceAttachmentList == $targetAttachmentList)
+        <td class=xl73>Yes</td>
+      #else
+        <td class=xl72>No</td>
+      #end
+    #end
+  
+  </tr>
+
+
+#end
+
+
+
+#########################################################################################################################
+##          Macro: buildRow
+##          Input: $doc $trgtSyncItem $inSync $trgtItems $trgtIDs
+##          Return: Construct sync data row 
+#########################################################################################################################
+#macro( buildRow $doc $trgtSyncItem $inSync $trgtItems $trgtIDs)
+  
+  <tr>
+    ## Source Content
+    ## ==========================================================================================================
+    
+    #set($sourceUpRels = [])
+    #set($sourceDownRels = [])
+
+    ## Product ID
+    <td class=xl63 style="font-size:12pt"><a href="$baseUrl/perspective.req#/items/$!doc.id?projectId=$project.id">$!doc.documentKey</a></td>
+    
+    ## Project Name
+    <td class=xl63>$!doc.project.name</td>
+    
+    ## Global ID
+    <td class=xl63>$!doc.globalId</td>
+    
+    ## Heading
+    #set( $docNode = $documentNodeDao.getDocumentNode(5, $!doc.id))
+    #set( $sourceHeading = $!docNode.sequence)
+    <td class=xl64>$!sourceHeading</td>
+    
+    ## Name
+    <td class=xl63>$!doc.name</td>
+   
+    ## Description
+    #set($desc = "#formatRichTextCell($!doc.description)")
+    <td class=xl63>$!desc.trim()</td>
+    
+    ## Status
+    <td class=xl63>$!doc.status.name</td>
+    
+    ## Tags
+    #getTags($!doc)
+    #set($srcTagList = $tagList) 
+    <td class=xl63>$!srcTagList.trim()</td>
+    
+    ## Relationships
+    #if($report4IncludeRels)
+      
+      ## Up Relationships
+      #set($upRelContent = '')
+      #getRelationships($doc, false) ## Creates $returnRels
+      #set($upRels = $returnRels) 
+      #foreach($upRel in $upRels)
+        #set($upDoc = $upRel.fromDocument)
+        #set($success = $sourceUpRels.add($upDoc.id))
+        #set($upRelContent = $upRelContent.trim() + "${upDoc.documentKey}: ${upDoc.name}<br>")
+      #end
+      <td class=xl63>$!upRelContent.trim()</td>
+
+      ## Down Relationships
+      #set($downRelContent = '')
+      #getRelationships($doc, true) ## Creates $returnRels
+      #set($dnRels = $returnRels)
+      #foreach($dnRel in $dnRels)
+        #set($dnDoc = $dnRel.toDocument)
+        #set($success = $sourceDownRels.add($dnDoc.id))
+        #set($downRelContent = $downRelContent.trim() + "${dnDoc.documentKey}: ${dnDoc.name}<br>")
+      #end
+      <td class=xl63>$!downRelContent.trim()</td>
+
+    #end
+    
+    ## Attachments
+    #if($report5IncludeAttachments)
+      
+      ## Attachment Links
+      #set($attachementList = '')
+      #getAttachmentsList($doc) ## Returns $finalAttachmentList
+      #set($sourceAttachmentList = $finalAttachmentList)
+      #foreach($attachmentObj in $sourceAttachmentList)
+        #set($attachmentName = $attachmentObj.get("Name"))
+        #set($attachementList = $attachementList.trim() + "${attachmentName}<br>")
+      #end
+      <td class=xl74 style='font-style: italic;'>$!attachementList.trim()</td>
+
+    #end
+
+    ## Target Content
+    ## ==========================================================================================================
+    #set($targetUpRels = [])
+    #set($targetDownRels = [])
+
+    #if($!trgtSyncItem && $trgtSyncItem != '')
+      ## Product ID
+      <td class=xl63 style="font-size:12pt"><a href="$baseUrl/perspective.req#/items/$!trgtSyncItem.id?projectId=$project.id">$!trgtSyncItem.documentKey</a></td>
+      
+      ## Project Name
+      <td class=xl63>$!trgtSyncItem.project.name</td>
+      
+      ## Global ID
+      <td class=xl63>$!doc.globalId</td>
+      
+      ## Heading
+      #set( $docNode = $documentNodeDao.getDocumentNode(5, $!trgtSyncItem.id))
+      #set( $!targetHeading = $!docNode.sequence)
+      <td class=xl64>$!targetHeading</td>
+      
+      ## Name
+      <td class=xl63>$!trgtSyncItem.name</td>
+      
+      ## Description
+      #set($desc = "#formatRichTextCell($!trgtSyncItem.description)")
+      <td class=xl63>$!desc.trim()</td>
+      
+      ## Status
+      <td class=xl63>$!trgtSyncItem.status.name</td>
+      
+      ## Tags
+      #getTags($!trgtSyncItem)
+      #set($trgtTagList = $tagList)
+      <td class=xl63>$!trgtTagList.trim()</td>
+      
+      ## Relationships
+      #if($report4IncludeRels)
+        
+        ## Up Relationships
+        #set($upRelContent = '')
+        #getRelationships($trgtSyncItem, false) ## Creates $returnRels
+        #set($upRels = $returnRels)
+        #foreach($upRel in $upRels)
+          #set($upDoc = $upRel.fromDocument)
+          #set($success = $targetUpRels.add($upDoc.id))
+          #set($upRelContent = $upRelContent.trim() + "${upDoc.documentKey}: ${upDoc.name}<br>")
+        #end
+        <td class=xl63>$!upRelContent.trim()</td>
+
+        ## Down Relationships
+        #set($downRelContent = '')
+        #getRelationships($trgtSyncItem, true) ## Creates $returnRels
+        #set ( $dnRels = $returnRels )
+        #foreach ( $dnRel in $dnRels )
+          #set($dnDoc = $dnRel.toDocument)
+          #set($success = $targetDownRels.add($dnDoc.id))
+          #set($downRelContent = $downRelContent.trim() + "${dnDoc.documentKey}: ${dnDoc.name}<br>")
+        #end
+        <td class=xl63>$!downRelContent.trim()</td>
+
+      #end
+
+      ## Attachments
+      #if($report5IncludeAttachments)
+        
+        ## Attachments
+        #set($attachementList = '')
+        #getAttachmentsList($trgtSyncItem) ## Returns $finalAttachmentList
+        #set($targetAttachmentList = $finalAttachmentList)
+        #foreach($attachmentObj in $targetAttachmentList)
+          #set($attachmentName = $attachmentObj.get("Name"))
+          #set($attachementList = $attachementList.trim() + "${attachmentName}<br>")
+        #end
+        #set($attachementList = "$attachementList")
+        <td class=xl74>$!attachementList.trim()</td>
+
+      #end
+
+
+      ## Sync Status's Results Content
+      ## ==========================================================================================================
+
+      ## Determine if Source and Target Item Columns are in full sync or not
+      #set($columnSyncStatus = true)
+      #set($itemSyncDataContainer = {"SrcItem": $!doc, "SrcHeading": $!sourceHeading, "SrcTagList": $!srcTagList, "SrcUpRels": $!sourceUpRels, "SrcDownRels": $!sourceDownRels, "SrcAtchmts": $!sourceAttachmentList, "TrgtItem": $!trgtSyncItem, "TrgtHeading": $!targetHeading, "TrgtTagList": $!trgtTagList, "TrgtUpRels": $!targetUpRels, "TrgtDownRels": $!targetDownRels, "TrgtAtchmts": $!targetAttachmentList})
+    
+      #getColumnSyncStatus($columnSyncStatus, $itemSyncDataContainer) ## returns updated $columnSyncStatus
+
+
+      ## Jama Sync Status
+      #if($!inSync)
+        <td class=xl78>In Sync</td>
+      #else
+        <td class=xl79>Out of Sync</td>
+      #end
+
+      ## Column Sync Status
+      #if($!columnSyncStatus)
+        <td class=xl70>In Sync</td>
+      #else
+        <td class=xl71>Out of Sync</td>
+      #end
+
+      ## Heading Sync Status
+      #if($!sourceHeading == $!targetHeading)
+        <td class=xl73>Yes</td>
+      #else
+        <td class=xl72>No</td>
+      #end
+
+      ## Name Sync Status
+      #if($!doc.name == $!trgtSyncItem.name)
+        <td class=xl73>Yes</td>
+      #else
+        <td class=xl72>No</td>
+      #end
+
+      ## Description Text Sync Status
+      #if("#formatRichTextCell($!doc.description)" == "#formatRichTextCell($!trgtSyncItem.description)")
+        <td class=xl73>Yes</td>
+      #else
+        <td class=xl72>No</td>
+      #end
+
+      ## Description Source Sync Status
+      #if($!doc.description == $!trgtSyncItem.description)
+        <td class=xl73>Yes</td>
+      #else
+        <td class=xl72>No</td>
+      #end
+
+      ## Status Sync Status
+      #if($!doc.status.name == $!trgtSyncItem.status.name)
+        <td class=xl73>Yes</td>
+      #else
+        <td class=xl72>No</td>
+      #end
+
+      ## Tag Sync Status
+      #if($!srcTagList == $!trgtTagList)
+        <td class=xl73>Yes</td>
+      #else
+        <td class=xl72>No</td>
+      #end
+
+      #if($report4IncludeRels)
+        ## Up Relationships Sync Status
+        #set($sourceUpRels = $sortTool.sort($sourceUpRels))
+        #set($targetUpRels = $sortTool.sort($targetUpRels))
+
+        #if($sourceUpRels == $targetUpRels)
+          <td class=xl73>Yes</td>
+        #else
+          <td class=xl72>No</td>
+        #end
+
+        ## Down Relationships Sync Status
+        #set($sourceDownRels = $sortTool.sort($sourceDownRels))
+        #set($targetDownRels = $sortTool.sort($targetDownRels))
+
+        #if($sourceDownRels == $targetDownRels)
+          <td class=xl73>Yes</td>
+        #else
+          <td class=xl72>No</td>
+        #end
+      #end
+
+      #if($report5IncludeAttachments)
+        ## Attachments Sync Status
+        #if($sourceAttachmentList == $targetAttachmentList)
+          <td class=xl73>Yes</td>
+        #else
+          <td class=xl72>No</td>
+        #end
+      #end
+
+    ## Source item does not have a corresponding Target Sync Item
+    ## ==========================================================
+    #else
+
+      <td class=xl72>X</td>
+
+      #set($syncColRange = 8)
+      #set($targetColRange = 7)
+      #if($report4IncludeRels)
+        #set($syncColRange = $syncColRange + 2)
+        #set($targetColRange = $targetColRange + 2)
+      #end
+
+      #if($report5IncludeAttachments)
+        #set($syncColRange = $syncColRange + 1)
+        #set($targetColRange = $targetColRange + 1)
+      #end
+
+      #foreach($i in [1..$targetColRange])
+        <td class=xl63>&nbsp;</td>
+      #end
+      
+      #foreach($i in [1..$syncColRange])
+        <td class=xl74>N/A</td>
+      #end
+      
+    #end ## #if($!trgtSyncItem && $trgtSyncItem != '')
+  
+  </tr>  
+
+#end
+
+
+#########################################################################################################################
+##          Macro: unUsedTargetSyncRows
+##          Input: $trgtUnUsedList
+##          Return: For all items in the target list that did not have a Source Sync list item present, build those rows
+##                  at the end of the list.
+#########################################################################################################################
+#macro( unUsedTargetSyncRows $trgtUnUsedList)
+
+  #foreach($nonSyncTrgtItem in $trgtUnUsedList)
+    <tr>
+      ## Source Content
+      ## ==============================================================
+      <td class=xl72>X</td>
+
+      #set($sourceColRange = 7)
+      #if($report4IncludeRels)
+        #set($sourceColRange = $sourceColRange + 2)
+      #end
+
+      #if($report5IncludeAttachments)
+        #set($sourceColRange = $sourceColRange + 1)
+      #end
+
+      #foreach($i in [1..$sourceColRange])
+        <td class=xl63>&nbsp;</td>
+      #end
+
+      ## Target Content
+      ## ==============================================================
+      
+      ## Product ID
+      <td class=xl63 style="font-size:12pt"> <a href="$baseUrl/perspective.req#/items/$!nonSyncTrgtItem.id?projectId=$project.id">$!nonSyncTrgtItem.documentKey</a></td>
+      
+      ## Project Name
+      <td class=xl63>$!nonSyncTrgtItem.project.name</td>
+      
+      ## Global ID
+      <td class=xl64>$!nonSyncTrgtItem.globalId</td>
+      
+      ## Heading
+      #set( $docNode = $documentNodeDao.getDocumentNode(5, $!nonSyncTrgtItem.id))
+      #set( $!targetHeading = $!docNode.sequence)
+      <td class=xl64>$!targetHeading</td>
+      
+      ## Name
+      <td class=xl63>$!nonSyncTrgtItem.name</td>
+      
+      ## Description
+      #set($desc = "#formatRichTextCell($!nonSyncTrgtItem.description)")
+      <td class=xl63>$!desc.trim()</td>
+      
+      ## Status
+      <td class=xl63>$!nonSyncTrgtItem.status.name</td>
+      
+      ## Tags
+      #getTags($!nonSyncTrgtItem)
+      #set($trgtTagList = $tagList)
+      <td class=xl63>$!trgtTagList.trim()</td>
+      
+      ## Relationships
+      #if($report4IncludeRels)
+        
+        ## Up Relationships
+        #set($upRelContent = '')
+        #getRelationships($nonSyncTrgtItem, false) ## Creates $returnRels
+        #set ( $upRels = $returnRels )
+        #foreach ( $upRel in $upRels )
+          #set($upDoc = $upRel.fromDocument)
+          #set($upRelContent = $upRelContent.trim() + "${upDoc.documentKey}: ${upDoc.name}<br>")
+        #end
+        <td class=xl63>$!upRelContent.trim()</td>
+
+        ## Down Relationships
+        #set($downRelContent = '')
+        #getRelationships($nonSyncTrgtItem, true) ## Creates $returnRels
+        #set ( $dnRels = $returnRels )
+        #foreach ( $dnRel in $dnRels )
+          #set($dnDoc = $dnRel.toDocument)
+          #set($downRelContent = $downRelContent.trim() + "${dnDoc.documentKey}: ${dnDoc.name}<br>")
+        #end
+        <td class=xl63>$!downRelContent.trim()</td>
+
+      #end
+
+      ## Attachments
+      #if($report5IncludeAttachments)
+        
+        ## Attachments
+        #set($attachementList = '')
+        =($nonSyncTrgtItem) ## Returns $finalAttachmentList
+        #set($nonSyncAttachmentList = $finalAttachmentList)
+        #foreach($attachmentObj in $nonSyncAttachmentList)
+          #set($attachmentName = $attachmentObj.get("Name"))
+          #set($attachementList = $attachementList.trim() + "${attachmentName}<br>")
+        #end
+        <td class=xl63>$!attachementList.trim()</td>
+
+      #end
+
+      ## Sync Status's Results Content
+       ## ==============================================================
+      #set($syncColRange = 8)
+      #if($report4IncludeRels)
+        #set($syncColRange = $syncColRange + 2)
+      #end
+
+      #if($report5IncludeAttachments)
+        #set($syncColRange = $syncColRange + 1)
+      #end
+
+      #foreach($i in [1..$syncColRange])
+        <td class=xl74>N/A</td>
+      #end
+
+    </tr>
+
+  #end ## #foreach($nonSyncTrgtItem in $trgtUnUsedList)
+
+#end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#########################################################################################################################
+##
+##  Report Body
+##
+#########################################################################################################################
+
+
+------=_NextPart_01D8DFBE.2078AF30
+Content-Location: file:///C:/61233B10/Single_Sheet_Mockup_files/sheet001.htm
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link id=Main-File rel=Main-File href="../Single_Sheet_Mockup.htm">
+<link rel=File-List href=filelist.xml>
+<<style>
+<!--table
+  {mso-displayed-decimal-separator:"\.";
+  mso-displayed-thousand-separator:"\,";}
+@page
+  {margin:.75in .7in .75in .7in;
+  mso-header-margin:.3in;
+  mso-footer-margin:.3in;}
+-->
+</style>
+</head>
+
+  
+
+<body link="#0563C1" vlink="#954F72" class=xl50>
+
+<table border=0 cellpadding=0 cellspacing=0 width=4201 style='border-collapse:collapse;table-layout:fixed;width:3145pt'>
+  
+  ## Sync Status Grouping Column Width Span
+  #set($syncGroupColSpan = 8)
+  #if($report4IncludeRels)
+    #set($syncGroupColSpan = $syncGroupColSpan + 2)
+  #end
+  #if($report5IncludeAttachments)
+    #set($syncGroupColSpan = $syncGroupColSpan + 1)
+  #end
+
+  <col width=207 span=3 style='mso-width-source:userset;mso-width-alt:6613;width:155pt'>
+  <col width=167 style='mso-width-source:userset;mso-width-alt:5333;width:125pt'>
+  <col width=207 style='mso-width-source:userset;mso-width-alt:6613;width:155pt'>
+  <col width=407 style='mso-width-source:userset;mso-width-alt:13013;width:305pt'>
+  <col width=167 style='mso-width-source:userset;mso-width-alt:5333;width:125pt'>
+  <col width=207 style='mso-width-source:userset;mso-width-alt:6613;width:155pt'>
+  #if($report4IncludeRels)
+    <col width=407 span=2 style='mso-width-source:userset;mso-width-alt:13013;width:305pt'>
+  #end
+  #if($report5IncludeAttachments)
+    <col width=407 style='mso-width-source:userset;mso-width-alt:13013;width:305pt'>
+  #end
+  <col width=207 span=3 style='mso-width-source:userset;mso-width-alt:6613;width:155pt'>
+  <col width=167 style='mso-width-source:userset;mso-width-alt:5333;width:125pt'>
+  <col width=207 style='mso-width-source:userset;mso-width-alt:6613;width:155pt'>
+  <col width=407 style='mso-width-source:userset;mso-width-alt:13013;width:305pt'>
+  <col width=167 style='mso-width-source:userset;mso-width-alt:5333;width:125pt'>
+  <col width=207 style='mso-width-source:userset;mso-width-alt:6613;width:155pt'>
+  #if($report4IncludeRels)
+    <col width=407 span=2 style='mso-width-source:userset;mso-width-alt:13013;width:305pt'>
+  #end
+  #if($report5IncludeAttachments)
+    <col width=407 style='mso-width-source:userset;mso-width-alt:13013;width:305pt'>
+  #end
+  <col width=127 span=$syncGroupColSpan style='mso-width-source:userset;mso-width-alt:4053;width:95pt'>
+
+
+  ## Table Row Report Content
+  ## ====================================================================================
+
+  ## Check User supplied sync target parameters and report any errors back to the user
+  #set($errorCase = false)
+  #parameterErrorHandling($errorCase)  ## Return $errorCase
+
+
+
+  ## Table Row Report Content
+  ## ====================================================================================
+  
+  ## If errorCase is still false then Source and Target items are synced items
+  #if(!$errorCase)
+
+    #set($columnCount = 10)
+    #set($syncNoteMerge = 8)
+    #if($report4IncludeRels)
+      #set($columnCount = $columnCount + 4)
+      #set($syncNoteMerge = $syncNoteMerge + 2)
+    #end
+
+    #if($report5IncludeAttachments)
+      #set($columnCount = $columnCount + 2)
+      #set($syncNoteMerge = $syncNoteMerge + 1)
+    #end
+    
+    ## Source & Target Header Data
+    ## ==================================================================================
+    <tr height=50 style='height:50.0pt'>
+      <td class=xl67 style='font-weight:bold;'>Sync Source:</td>
+      #if($report3Project)
+        <td class=xl67 colspan=3 style="font-size:12pt"><a href="$baseUrl/perspective.req#/projects/$!sourceSyncItem.id/list">$!sourceSyncItem.name.trim()</a></td>
+      #else
+        <td class=xl67 colspan=3 style="font-size:12pt"><a href="$baseUrl/perspective.req#/items/$!sourceSyncItem.id?projectId=$project.id">$!sourceSyncItem.name.trim()</a></td>
+      #end
+      <td class=xl67 style='font-weight:bold;'>Source API ID:</td>
+      <td class=xl68>$!sourceSyncItem.id</td>
+      #foreach($i in [1..$columnCount])
+        <td class=xl67>&nbsp;</td>
+      #end
+      <td class=xl67 colspan=$syncNoteMerge rowspan=2 style='font-size:10pt;'><b>Sync Status Definition:</b><br>The <b>Jama Instance Sync Status</b> column is determined by the overall sync status results between the source and target instance defined 'sync fields'.<br>The <b>Report Field Comparison Sync Status</b> column also shows a overall sync result value but is measured based upon the field comparison results from each generic field included in this report. This can include fields that are not designated as 'sync fields' on your instance but provide additional comparison information between your source and target items.</td>
+    </tr>
+
+    <tr height=50 style='height:50.0pt'>
+      <td class=xl67 style='font-weight:bold;'>Sync Target:</td>
+      #if($report3Project)
+        <td class=xl67 colspan=3 style="font-size:12pt"><a href="$baseUrl/perspective.req#/projects/$!targetSyncItem.id/list">$!targetSyncItem.name.trim()</a></td>
+      #else
+        <td class=xl67 colspan=3 style="font-size:12pt"><a href="$baseUrl/perspective.req#/items/$!targetSyncItem.id?projectId=$project.id">$!targetSyncItem.name.trim()</a></td>
+      #end
+      <td class=xl67 style='font-weight:bold;'>Target API ID:</td>
+      <td class=xl68>$!targetSyncItem.id</td>
+      #foreach($i in [1..$columnCount])
+        <td class=xl67>&nbsp;</td>
+      #end
+    </tr>
+
+
+    ## Section Grouping
+    ## ==================================================================================
+    #set($sourceSpan = 8)
+    #set($targetSpan = 8)
+    #set($syncSpan = 8)
+
+    #if($report4IncludeRels)
+      #set($sourceSpan = $sourceSpan + 2)
+      #set($targetSpan = $targetSpan + 2)
+      #set($syncSpan = $syncSpan + 2)
+    #end
+
+    #if($report5IncludeAttachments)
+      #set($sourceSpan = $sourceSpan + 1)
+      #set($targetSpan = $targetSpan + 1)
+      #set($syncSpan = $syncSpan + 1)
+    #end
+
+    <tr height=19 style='height:25.0pt'>
+      <td colspan=$sourceSpan class=xl77>Sync Source</td>
+      <td colspan=$targetSpan class=xl80>Sync Target</td>
+      <td colspan=$syncSpan class=xl83>Sync Results</td>
+    </tr>
+
+
+    ## Column Headers
+    ## ==================================================================================
+    <tr height=80 style='height:60.0pt'>
+      ## Source
+      <td height=80 class=xl84 style='height:60.0pt;'>Source Item ID</td>
+      <td class=xl84>Source Item Project</td>
+      <td class=xl84>Source Global ID</td>
+      <td class=xl84>Source Item Header Number</td>
+      <td class=xl84>Source Item Name</td>
+      <td class=xl84>Source Item Description (Text)</td>
+      <td class=xl84>Source Item Status</td>
+      <td class=xl84>Source Item Tags</td>
+      #if($report4IncludeRels)
+        <td class=xl84>Source Up Relationships</td>
+        <td class=xl84>Source Down Relationships</td>
+      #end
+      #if($report5IncludeAttachments)
+        <td class=xl84>Source Attachments</td>
+      #end
+      ## Target
+      <td class=xl85>Target Item ID</td>
+      <td class=xl85>Target Item Project</td>
+      <td class=xl85>Target Global ID</td>
+      <td class=xl85>Target Item Header Number</td>
+      <td class=xl85>Target Item Name</td>
+      <td class=xl85>Target Item Description (Text)</td>
+      <td class=xl85>Target Item Status</td>
+      <td class=xl85>Target Item Tags</td>
+      #if($report4IncludeRels)
+        <td class=xl85>Target Up Relationships</td>
+        <td class=xl85>Target Down Relationships</td>
+      #end
+      #if($report5IncludeAttachments)
+        <td class=xl85>Target Attachments</td>
+      #end
+      ## Sync
+      <td class=xl86>Jama Instance Sync Status</td>
+      <td class=xl86>Report Field Comparison Sync Status</td>
+      <td class=xl86>Header Number Sync</td>
+      <td class=xl86>Name Sync</td>
+      <td class=xl86>Description Text Sync</td>
+      <td class=xl86>Description Source Sync</td>
+      <td class=xl86>Status Sync</td>
+      <td class=xl86>Tags Sync</td>
+      #if($report4IncludeRels)
+        <td class=xl86>Up Relationships Sync</td>
+        <td class=xl86>Down Relationships Sync</td>
+      #end
+      #if($report5IncludeAttachments)
+        <td class=xl86>Attachments Sync</td>
+      #end
+    </tr>
+
+
+
+    ## Data Gathering and Parent Container Row
+    ## ==================================================================================
+    #set($trgtItems = [])
+    #set($trgtIDs = [])
+
+    #if(!$singleItemExport)
+      
+      #if($report3Project)
+        #set( $projectDocIds = [])
+        #set( $projectDocIds = $docDao.getContourItemIdsForProject($mathTool.toInteger($!targetSyncItem.id))) 
+
+        ##Get the Contour Items by DocId from each item in target project and add to the $trgtItems array
+        #foreach($projectDocId in $projectDocIds)
+          #set($trgtItem = $docDao.getContourItem($mathTool.toInteger($projectDocId)))
+          #if($trgtItem.active)
+            #if( $trgtItems.add($trgtItem)) #end
+          #end
+        #end
+
+      ## Export Source Location to Target Source Location (First Table Row Sync Compare)
+      #else
+
+        #if($report6OnlyDiffItems)
+          #set($inSync = $syncService.areItemsInSync( $mathTool.toInteger($!sourceSyncItem.id), $mathTool.toInteger($!targetSyncItem.id)))
+        
+          #if(!$!inSync)
+            #parentExportSyncRow($sourceSyncItem $targetSyncItem)
+          #end
+        #else
+          #parentExportSyncRow($sourceSyncItem $targetSyncItem)
+        #end
+
+        ## Gather all Target Location Items to use in sync comparison
+        #set($trgtSourceItemNode =  $documentNodeDao.getDocumentNode(5, $targetSyncItem.id))
+        #set($trgtSrcItemChildNodes = $trgtSourceItemNode.getAllChildNodes())   
+
+        #gatherTargetItems($trgtItems $trgtSrcItemChildNodes)
+
+      #end
+
+      ## Determine List of all Target List global IDs for quick source sync connections check
+      #foreach($item in $trgtItems)
+        #set($success = $trgtIDs.add($item.id))
+      #end
+
+    ## Exported from a Single item
+    ## =================================================================================
+    #else
+      #set($success = $trgtItems.add($targetSyncItem))
+      #set($success = $trgtIDs.add($targetSyncItem.id))
+    #end
+
+
+
+    ## Content Rows
+    ## ==================================================================================
+    #contentSyncRows($trgtItems $trgtIDs)
+    
+  #end ## #if(!$errorCase)
+  
+</body>
+
+
+</html>
+
+
+
+## Leave boundaries and file list as is ## 
+
+------=_NextPart_01D8DFBE.2078AF30
+Content-Location: file:///C:/61233B10/Single_Sheet_Mockup_files/filelist.xml
+Content-Type: text/xml; charset="utf-8"
+
+<xml xmlns:o="urn:schemas-microsoft-com:office:office">
+ <o:MainFile HRef="../Single_Sheet_Mockup.htm"/>
+ <o:File HRef="stylesheet.css"/>
+ <o:File HRef="sheet001.htm"/>
+ <o:File HRef="filelist.xml"/>
+</xml>
+------=_NextPart_01D8DFBE.2078AF30--

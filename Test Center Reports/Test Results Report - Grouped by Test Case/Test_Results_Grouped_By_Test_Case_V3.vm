@@ -3742,7 +3742,7 @@ $string
   #set($testRunID = $mathTool.toInteger($testRunID))
   #set($testRun = $tRunDao.getTestRun($mathTool.toInteger($testRunID)))
   
-  #if(!$testRun.active)
+  #if($testRun.active)
     #set($success = $activeTestRuns.add($testRun))
   #end
 #end

@@ -596,7 +596,7 @@ table.MsoTableGrid
 
 #set( $jamaReviewURL = '')
 #set( $jamaReviewURL = $jamaReviewURL.concat($baseUrl) )
-#set( $jamaReviewURL = $jamaReviewURL.concat( 'review.req#/r:REV'))
+#set( $jamaReviewURL = $jamaReviewURL.concat( '/review.req#/r:REV'))
 
 ##getInfo( $revisionUserService)<br>
 ##getInfo( $reviewProgressDTO)

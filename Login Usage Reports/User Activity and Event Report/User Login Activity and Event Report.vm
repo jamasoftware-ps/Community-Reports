@@ -1,0 +1,1276 @@
+MIME-Version: 1.0
+X-Document-Type: Workbook
+Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
+
+#########################################################################################################################
+## ======================================================================================================================
+##
+##  Boundaries are necessary deliminators for a Multisheet .xlsx report. In the conversion 
+##  of .mht to .xlsx, the file is parsed to distinguish and separate sheets, i.e:
+##
+##  1. Check Content-Type: multipart/related; boundary="----=_NextPart_01D8D1DD.28209070" to get “boundary”
+##  2. Split .mht to HTML files by boundary and name each HTML file with the value of “Content-Location”
+##  3. Parse “x:ExcelWorkbook” xml section to get HREF of “x:WorksheetSource”,
+##  4. Gets the HTML stream of the worksheet by comparing HREF of “x:WorksheetSource” and “Content-Location”
+##  5. Read the data of the worksheet.
+##
+#########################################################################################################################
+
+
+#########################################################################################################################
+## ======================================================================================================================
+## Name: User Activity and Event Report.vm
+##
+## Output Type: Excel XLXS 
+## 
+## Description/Notes:
+## 
+##  - This report gathers User Login Activity and User Events for a selected time frame, and outputs an Excel multisheet report. 
+##
+##  - On the first sheet, “Login Activity”, the report builds a row per user, showing login stats, most importantly how many 
+##    login activities, and the latest login activity..
+##
+##  - On the second sheet, “Event Activity”, the report builds a parent row per user, followed by child rows per “Event” triggered by that user. 
+##    Events are primarily CRUD activities. (Login events are excluded intentionally on the “Event Activity” sheet, 
+##    because they are accounted for on the first sheet). 
+## 
+##  - Because “Event Activity” can be extensive, it is beneficial to filter the report by User Name (Full Name) when selecting large time parameters. 
+##
+##  - If the Report Runner would like to narrow in on particular “Event Activity” to reduce data returned, reach out to the report team, 
+##    or if you are a CSM or Consultant the [ eventEnumList ] and [ objectTypeEnumList ] can be modified on line 239.
+## 
+## 
+## Context Sensitive: False
+## 
+##
+## ======================================================================================================================
+## MODIFICATION HISTORY 
+## 
+## Date         Revision   Person            Comments 
+## -----------  ---------  ----------------  -------------------------------------------------------------------------
+## 2022_12_23   1.0        Anna FitzGerald   Initial Build 
+## 2023_01_05   1.1        Anna FitzGerald   Added error message if User Name parameter is not an exact match
+##                                           Cleaned up formatting
+##                                           Found bug in sort and added condition to prevent it
+##
+##
+##
+## ===================================================================================================================== 
+## Criteria: 
+##
+##      Type:     Display Name:           Report Global Variable:
+##      ------------------------------------------------------------
+##      Boolean    One week                    reportA_oneWeek         #### 7 days, 168 hours
+##      Boolean    Two weeks                   reportB_twoWeeks        #### 14 days, 336 hours
+##      Boolean    One month                   reportC_oneMonth        #### 30 days, 720 hours
+##      Boolean    Three months                reportD_threeMonths     #### 91 days, 2184 hours 
+##      Boolean    Six months                  reportE_sixMonths       #### 182 days, 4368 hours 
+##      Boolean    One year                    reportF_oneYear         #### 365 days, 8760 hours  
+##      String     Filter By User (Full Name)  reportG_userFilter
+##                    
+##
+##
+#########################################################################################################################
+
+#########################################################################################################################
+## ======================================================================================================================
+## Template Steps:
+## -----------------
+##  1. In your Mockup .mhtml file: 
+##     o Find: =\n Replace: <nothing>
+##     o Find: =3D Replace: =
+##     o Remove any JS <script>...</script> tags and content between tags
+##     o Remove <frameset>...</frameset> tags and content between tags
+##     o Remove all "Content-Transfer-Encoding: quoted-printable" (this is important because it can ruin styles if present)
+##     o Remove the entire Tab Sheet ( you only will need the xml in the "HEAD" for the tabs )
+##  2. Find the HEAD section of this template, and from you Mockup copy and paste all the content that matches to the HEAD section 
+##  3. Find the STYLES section, and from your Mockup copy and paste all the content that matches to the STYLES section 
+##  4. Find the BODY section, and from your Mockup copy and paste all the Worksheets to the BODY section
+##  5. Find the FILE LIST section, and from your Mockup copy and paste the content that matches to the FILE LIST section
+##  6. Replace the initial boundary in this template, "Content-Type: multipart/related; boundary="----=_NextPart_01D8DBD5.4D8FB410""
+##      with the initial boundary from your mockup. 
+##  7. Do not place comments above the opening code of the file "MIME-Version: 1.0..."
+## 
+## ======================================================================================================================
+#########################################################################################################################
+#########################################################################################################################
+##
+##  1. DATA_SOURCES
+##
+#########################################################################################################################
+##
+## Data Sources available without declaration
+##-------------------------------------------
+## $format
+## $project
+## $documentList
+## $baseUrl
+## $contextType
+## $contextId
+## $report_name
+##
+## Data Sources loaded for this report
+##-------------------------------------------
+#if( $documentSource ) ##
+  ## Jama 8.44 or greater
+  ## Jama 8.42 if New Velocity Feature Flag Enabled
+  #set( $docDao = $documentSource )
+  #set( $documentNodeDao = $documentSource )
+  #set( $attachmentDao = $documentSource )
+  #set( $attachmentService = $documentSource )
+  #set( $docTypeFieldDao = $documentSource )
+  #set( $relDao = $documentSource )
+  #set( $versionDao = $documentSource )
+  #set( $testRunDao = $testSource )
+  #set( $testPlanDao = $testSource)
+  #set( $testSetDao = $testSource)
+  #set( $testCycleDao = $testSource)
+  #set( $velocityServiceWrapper = $documentSource )
+  #set( $baselineDao = $baselineSource )
+  #set( $contourItemDao = $documentSource )
+  #set( $userDao = $userSource )
+  #set( $lookupDao = $documentSource )
+  #set( $eventDao = $eventSource )
+#else
+  ## Jama 8.43 or older
+  ## Jama 8.43 or older ## Zoll is version 8.42.1 without the Velocity Feature Flag Enabled
+  #set( $contourItemDao = $applicationContext.getBean("contourItemDao"))
+  #set( $docDao = $applicationContext.getBean("documentDao"))
+  #set( $documentNodeDao = $applicationContext.getBean("documentNodeDao"))
+  #set( $attachmentDao = $applicationContext.getBean("attachmentDao"))
+  #set( $attachmentService = $applicationContext.getBean("attachmentService"))
+  #set( $relDao = $applicationContext.getBean("relationshipDao") )
+  #set( $versionDao = $applicationContext.getBean("versionDao") )
+  #set( $testRunDao = $applicationContext.getBean("testRunDao") )
+  #set( $testPlanDao = $applicationContext.getBean("testPlanDao"))
+  #set( $testSetDao = $applicationContext.getBean("testSetDao"))
+  #set( $testCycleDao = $applicationContext.getBean("testCycleDao"))
+  #set( $userDao = $applicationContext.getBean("userDao"))
+  #set( $baselineDao = $applicationContext.getBean("baseLineDao") )
+##
+#end
+##
+
+## Report Parameters
+##-------------------------------------------
+
+#if($!contextType && $contextType.toUpperCase().contains("BASELINE") )
+  #set( $baselineMode = true)
+  #set( $baselineId = $mathTool.toInteger($contextId))
+  #set( $reportBaseline = $baselineDao.getBaseLine( $baselineId ))
+#else
+  #if( $reportBaseline )
+    #set( $baselineMode = $reportBaseline )
+  #else
+    #set( $baselineMode = false )
+  #end
+#end
+
+
+#if( $reportTestRuns )
+  #set( $testRunMode = $reportTestRuns )
+#else
+  #set( $testRunMode = false )
+#end
+
+
+
+## Filter By User 
+#if( !$reportG_userFilter || $reportG_userFilter == "" )
+  #set( $reportG_userFilter = false )
+#else 
+  #set( $reportG_userFilter = $reportG_userFilter.toUpperCase() )
+#end 
+
+
+
+##
+##
+##
+## Report Constants 
+## -------------------------------------------
+#set( $cmpKey = "CMP") ##
+#set( $setKey = "SET") ##
+#set( $fldKey = "FLD") ##
+#set( $txtKey = "TXT") ##
+#set( $objectTypeField = "object_type" ) ##
+#set( $timeZone = "America/Los_Angeles" ) ##
+##
+## 
+#########################################################################################################################
+
+
+## ----------------------------- User Source | Event Source  -------------------------------- ## 
+
+
+#set( $reportRunner = $userDao.currentUser.fullName )
+#set( $orgId = $mathTool.toInteger( $project.organization.id ))
+
+
+#if( $reportA_oneWeek ) 
+  #set( $hours = 168 )
+  #set( $timeFrame = "Week")
+
+#elseif( $reportB_twoWeeks )
+  #set( $hours = 336 )
+  #set( $timeFrame = "Two Weeks")
+
+#elseif( $reportC_oneMonth )
+  #set( $hours = 720 )
+  #set( $timeFrame = "Month")
+
+#elseif( $reportD_threeMonths )
+  #set( $hours = 2184 )
+  #set( $timeFrame = "Three Months")
+
+#elseif( $reportE_sixMonths )
+  #set( $hours = 4368 )
+  #set( $timeFrame = "Six Months")
+
+#elseif( $reportF_oneYear )
+  #set( $hours = 8760 )
+  #set( $timeFrame = "Year")
+
+#end 
+
+
+
+#set( $userActivitySource = $userDao.getLoginsForLastHours( $hours, $orgId ) )
+#set( $eventList = $eventDao.getEventsForLastHours([0,1,2,3,4,5,6,7,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24], [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25], $hours))
+## Arguments for .getEventsForLastHours( [ eventEnumList ], [ objectTypeEnumList ], hours)  
+
+
+
+
+#########################################################################################################################
+##
+##  HEAD 
+##
+#########################################################################################################################
+
+## Replace below with the equivalent from your .mhtml mockup file, delete the Tab x:Worksheet.../x:Worksheet ## 
+
+------=_NextPart_01D91BCC.85EC6240
+Content-Location: file:///C:/AA89CAB4/UserLoginActivityandEventReport.htm
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta name="Excel Workbook Frameset">
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link rel=File-List href="UserLoginActivityandEventReport_files/filelist.xml">
+<![if !supportTabStrip]>
+<link id="shLink" href="UserLoginActivityandEventReport_files/sheet001.htm">
+<link id="shLink" href="UserLoginActivityandEventReport_files/sheet002.htm">
+
+<link id="shLink">
+
+<![endif]><!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>Login Activity</x:Name>
+    <x:WorksheetSource HRef="UserLoginActivityandEventReport_files/sheet001.htm"/>
+   </x:ExcelWorksheet>
+   <x:ExcelWorksheet>
+    <x:Name>Event Activity</x:Name>
+    <x:WorksheetSource HRef="UserLoginActivityandEventReport_files/sheet002.htm"/>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:Stylesheet HRef="UserLoginActivityandEventReport_files/stylesheet.css"/>
+  <x:WindowHeight>13800</x:WindowHeight>
+  <x:WindowWidth>25245</x:WindowWidth>
+  <x:WindowTopX>3810</x:WindowTopX>
+  <x:WindowTopY>1665</x:WindowTopY>
+  <x:ActiveSheet>0</x:ActiveSheet>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+</xml><![endif]-->
+</head>
+</html>
+
+
+#########################################################################################################################
+##
+##  STYLES 
+##
+#########################################################################################################################
+
+## Replace below with the equivalent from your .mhtml mockup file (you do not need <style></style> tags) ## 
+
+------=_NextPart_01D91BCC.85EC6240
+Content-Location: file:///C:/AA89CAB4/UserLoginActivityandEventReport_files/stylesheet.css
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/css; charset="utf-8"
+
+tr
+  {mso-height-source:auto;}
+col
+  {mso-width-source:auto;}
+br
+  {mso-data-placement:same-cell;}
+.style0
+  {mso-number-format:General;
+  text-align:general;
+  vertical-align:bottom;
+  white-space:normal;
+  mso-rotate:0;
+  mso-background-source:auto;
+  mso-pattern:auto;
+  color:black;
+  font-size:11.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:none;
+  font-family:Calibri, sans-serif;
+  mso-font-charset:0;
+  border:none;
+  mso-protection:locked visible;
+  mso-style-name:Normal;
+  mso-style-id:0;}
+td
+  {mso-style-parent:style0;
+  padding-top:1px;
+  padding-right:1px;
+  padding-left:1px;
+  mso-ignore:padding;
+  color:black;
+  font-size:11.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:none;
+  font-family:Calibri, sans-serif;
+  mso-font-charset:0;
+  mso-number-format:General;
+  text-align:general;
+  vertical-align:bottom;
+  border:none;
+  mso-background-source:auto;
+  mso-pattern:auto;
+  mso-protection:locked visible;
+  white-space:normal;
+  mso-rotate:0;}
+.xl65
+  {mso-style-parent:style0;
+  background:white;
+  mso-pattern:black none;}
+.xl66
+  {mso-style-parent:style0;
+  border-top:none;
+  border-right:none;
+  border-bottom:none;
+  border-left:.5pt solid gray;
+  background:white;
+  mso-pattern:black none;}
+.xl67
+  {mso-style-parent:style0;
+  font-size:10.0pt;
+  text-align:left;
+  border-top:none;
+  border-right:none;
+  border-bottom:.5pt solid gray;
+  border-left:none;
+  background:white;
+  mso-pattern:black none;}
+.xl68
+  {mso-style-parent:style0;
+  font-size:10.0pt;
+  text-align:right;
+  border-top:none;
+  border-right:none;
+  border-bottom:.5pt solid gray;
+  border-left:none;
+  background:white;
+  mso-pattern:black none;}
+.xl69
+  {mso-style-parent:style0;
+  text-align:left;
+  vertical-align:middle;
+  border:.5pt solid gray;
+  background:white;
+  mso-pattern:black none;}
+.xl70
+  {mso-style-parent:style0;
+  mso-number-format:"Short Date";
+  text-align:center;
+  vertical-align:middle;
+  border:.5pt solid gray;
+  background:white;
+  mso-pattern:black none;}
+.xl71
+  {mso-style-parent:style0;
+  text-align:center;
+  vertical-align:middle;
+  border:.5pt solid gray;
+  background:white;
+  mso-pattern:black none;}
+.xl72
+  {mso-style-parent:style0;
+  font-size:12.0pt;
+  font-weight:700;
+  text-align:center;
+  vertical-align:middle;
+  border-top:.5pt solid gray;
+  border-right:none;
+  border-bottom:.5pt solid gray;
+  border-left:.5pt solid gray;
+  background:#D9E1F2;
+  mso-pattern:black none;}
+.xl73
+  {mso-style-parent:style0;
+  font-weight:700;
+  text-align:center;
+  vertical-align:middle;
+  border-top:.5pt solid gray;
+  border-right:none;
+  border-bottom:.5pt solid gray;
+  border-left:none;
+  background:#D9E1F2;
+  mso-pattern:black none;}
+.xl74
+  {mso-style-parent:style0;
+  font-weight:700;
+  text-align:center;
+  vertical-align:middle;
+  border-top:.5pt solid gray;
+  border-right:.5pt solid gray;
+  border-bottom:.5pt solid gray;
+  border-left:none;
+  background:#D9E1F2;
+  mso-pattern:black none;}
+.xl75
+  {mso-style-parent:style0;
+  color:windowtext;
+  font-weight:700;
+  text-align:left;
+  border:.5pt solid gray;
+  background:#DDEBF7;
+  mso-pattern:black none;
+  white-space:normal;}
+.xl76
+  {mso-style-parent:style0;
+  color:windowtext;
+  font-weight:700;
+  text-align:center;
+  border:.5pt solid gray;
+  background:#DDEBF7;
+  mso-pattern:black none;
+  white-space:normal;}
+.xl77
+  {mso-style-parent:style0;
+  font-size:10.0pt;
+  text-align:right;
+  border-top:none;
+  border-right:.5pt solid gray;
+  border-bottom:.5pt solid gray;
+  border-left:none;
+  background:white;
+  mso-pattern:black none;}
+.xl78
+  {mso-style-parent:style0;
+  mso-number-format:"Short Date";
+  text-align:center;
+  border:.5pt solid gray;
+  background:white;
+  mso-pattern:black none;}
+.xl79
+  {mso-style-parent:style0;
+  border:.5pt solid gray;
+  background:white;
+  mso-pattern:black none;
+  vertical-align:top;}
+.xl80
+  {mso-style-parent:style0;
+  border-top:.5pt solid gray;
+  border-right:none;
+  border-bottom:none;
+  border-left:none;
+  background:white;
+  mso-pattern:black none;}
+.xl81
+  {mso-style-parent:style0;
+  color:windowtext;
+  font-size:13.0pt;
+  font-style:italic;
+  text-align:left;
+  border-top:.5pt solid gray;
+  border-right:none;
+  border-bottom:none;
+  border-left:.5pt solid gray;
+  background:#FCE4D6;
+  mso-pattern:black none;}
+.xl82
+  {mso-style-parent:style0;
+  color:windowtext;
+  font-size:12.0pt;
+  text-align:left;
+  border-top:.5pt solid gray;
+  border-right:none;
+  border-bottom:none;
+  border-left:none;
+  background:#FCE4D6;
+  mso-pattern:black none;}
+.xl83
+  {mso-style-parent:style0;
+  color:windowtext;
+  font-size:12.0pt;
+  text-align:left;
+  border-top:.5pt solid gray;
+  border-right:.5pt solid gray;
+  border-bottom:none;
+  border-left:none;
+  background:#FCE4D6;
+  mso-pattern:black none;}
+.xl84
+  {mso-style-parent:style0;
+  font-size:10.0pt;
+  text-align:right;
+  border:.5pt solid gray;
+  background:white;
+  mso-pattern:black none;}
+	
+
+#########################################################################################################################
+##
+##  MACROS
+##
+#########################################################################################################################
+##
+#########################################################################################################################
+#########################################################################################################################
+##          Macro: formatRichTextCell
+##          Desc: Use on purly textual Rich Text Fields (I.e use directly in Cells)
+##          Input: $inString - input string
+##          Return: string, ready for opening in Word
+#########################################################################################################################
+#macro( formatRichTextCell $inString )
+  #if( $inString )
+    #set( $string = $inString.toString())
+    #set( $string = $string.replaceAll("\n{2}",""))
+
+    #set( $string = $string.replaceAll("<span.*?>",""))
+    #set( $string = $string.replaceAll("<\/span>",""))
+    #set( $string = $string.replaceAll("<h\d*?.*?>","<p><strong>"))
+    #set( $string = $string.replaceAll("<\/h\d*?>","</strong></p>"))
+    #set( $string = $string.replaceAll("<div.*?>",""))
+    #set( $string = $string.replaceAll("<\/div>",""))
+    ## Remove content that doesn't work well in Excel
+    #set( $string = $string.replaceAll("<table.*?>|<\/table>",""))
+    #set( $string = $string.replaceAll("(<caption.*?>(?:.|\s)*?<\/caption>)",""))
+    #set( $string = $string.replaceAll("<thead.*?>|<\/thead>",""))
+    #set( $string = $string.replaceAll("(<th.*?>(?:.|\s)*?<\/th>)",""))
+    #set( $string = $string.replaceAll("<tbody.*>|<\/tbody>",""))
+    #set( $string = $string.replaceAll("<tr.*?>|<\/tr>",""))
+    #set( $string = $string.replaceAll("(<td.*?>(?:.|\s)*?<\/td>)",""))
+    #set( $string = $string.replaceAll("(?s)<a.*>(.*)</a>","$1"))
+    #set( $string = $string.replaceAll("\xA0",""))
+
+    #set( $string = $string.replaceAll("<ul.*?>",""))
+    #set( $string = $string.replaceAll("<\/ul>","&#10;"))
+    #set( $string = $string.replaceAll("<ol.*?>",""))
+    #set( $string = $string.replaceAll("<\/ol>","&#10;"))
+    #set( $string = $string.replaceAll("\t<li.*?>|<li.*?>","• &#032;"))
+    #set( $string = $string.replaceAll("<\/li>","&#10;"))
+
+    #set( $string = $string.replaceAll("<em.*?>|<\/em>",""))
+    #set( $string = $string.replaceAll("<pre.*?>|<\/pre>",""))
+    #set( $string = $string.replaceAll("<strong>",""))
+    #set( $string = $string.replaceAll("<\/strong>",""))
+    #set( $string = $string.replaceAll("<b>|<\/b>", ""))
+    #set( $string = $string.replaceAll("<u.*?>|<\/u>",""))
+    #set( $string = $string.replaceAll("<br.*?>","&#10;"))
+
+    #set( $string = $string.replaceAll("&nbsp;",""))
+    #set( $string = $string.replaceAll("<p.*?>",""))
+    #set( $string = $string.replaceAll("<\/p>",""))
+    #set( $string = $string.replaceAll(" \n|(&#10;)\n","$1"))
+    #set( $string = $string.replaceAll("<br>", ""))
+   
+    #set( $string = $string.replaceAll("<img.*?>",""))
+
+
+    #set( $string = $string.replaceAll("<","&lt;"))
+    #set( $string = $string.replaceAll(">","&gt;"))
+
+    $!string
+
+  #end
+#end
+
+#########################################################################################################################
+#########################################################################################################################
+##
+
+#########################################################################################################################
+##          Macro: formatPlainText
+##          Desc: Remove all possibly present html tags from text box field content
+#########################################################################################################################
+#macro( formatPlainText $inString)
+  #if( $inString )
+    #set( $string = $inString.toString() )
+    #set( $string = $string.replaceAll("<(.|\n)*?>", ""))
+
+    $string
+  #end
+#end
+
+#########################################################################################################################
+#macro( stripPlainText $text )
+  #set($text = $text.replaceAll("<"," &lt;"))
+  #set($text = $text.replaceAll(">"," &gt;"))
+  $text
+#end
+#########################################################################################################################
+##
+
+#########################################################################################################################
+##          lookupPickListColor
+##          Input: item, the unique custom field name, the fetched picklist item
+##          Output: String type hex code color 
+##          Note: see example at base of template
+##          Call Example: #lookupPickListColor($doc "<unique field name>" $<item variable with item data> )
+##          Apply to cell: style='background:#$color;mso-pattern:#$color none;''
+#########################################################################################################################
+#macro( lookupPickListColor $doc $uniqueFieldName $fetchedFieldValue )
+              
+  #set( $docTypeField = $docTypeFieldDao.getDocumentTypeFieldByName( $uniqueFieldName, $doc.documentType.id ))
+  #set( $lookupTypeId = $docTypeField.getLookupTypeId())
+  #set( $fieldId = $docTypeField.documentField.id)
+  #set( $lookupTypeList = [])
+  #if( $lookupTypeList.add( $lookupTypeId ))#end
+  #set( $getLookupIdsReturn = $lookupDao.getLookupIdsByLookupTypes($lookupTypeList))
+  #set( $lookupValues = [])
+  
+  #foreach( $l in $getLookupIdsReturn)
+  #set( $lookup = $lookupDao.getLookup($mathTool.toInteger($l)))
+    #if( $lookupValues.add( $lookup)) #end
+  #end
+  #set( $color = 'FFFFFF')
+  #foreach( $l in $lookupValues)
+    #if( $l.name == $fetchedFieldValue )
+      #set( $color = $l.color)
+      #break
+    #end
+  #end
+
+#end 
+##
+#########################################################################################################################
+##          Macro: getHierarchyLevel
+##          Input: $doc - document object
+##                 $baselineMode - true: export was from a baseline, false: export was from the project
+##                 $baselineId   - ID of the baseline that the items are part of, if in baseline mode
+##          Output: $hierarchyLevel - number, which heading level this item is in Jama relative to the container
+#########################################################################################################################
+#macro( getHierarchyLevel $doc $baselineMode $baselineId )
+  #set( $seqSubStrings = [] )
+  #set( $hierarchyLevel = 1)
+  ## Get hierarchy from the baseline
+  #if( $baselineMode )
+    #set( $docNode = $documentNodeDao.getDocumentNodeForBaseLine(5, $doc.id, $baselineId))
+  ## Get hierarchy from the project
+  #else
+    #set( $docNode = $documentNodeDao.getDocumentNode(5, $doc.id))
+  #end
+  ##Debug: $docNode
+  #set( $seqSubStrings = $docNode.sequence.split("\."))
+  ##Debug: $seqSubStrings
+  #set( $hierarchyLevel = $seqSubStrings.size())
+  #if( !$hierarchyLevelTop )
+    #set($hierarchyLevelTop = $hierarchyLevel)
+  #end
+
+  #set($hierarchyLevel = $hierarchyLevel - $hierarchyLevelTop + 1)
+#end
+
+
+#########################################################################################################################
+##           Macro: getStatus
+##           Input: $doc - document object
+##           Output: $docStatus - status of the item
+#########################################################################################################################
+#macro( getStatus $doc )
+  #set( $docStatus = false )
+  #foreach( $docTypeField in $doc.documentType.documentTypeFields )
+    #if( $docTypeField.documentField.name == "status" )
+      #set ( $docStatus = $doc.status.name )
+      #break
+    #end
+  #end
+#end
+##
+
+#########################################################################################################################
+##
+
+#########################################################################################################################
+##          Macro: getDate
+##          Input: Java Time Zone ID to determine which timezone to display the date in
+##          Output: Formatted date in the desired timezone
+#########################################################################################################################
+#macro( getDate $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  $dateTool.format( 'MM/dd/yyyy', $inputDate, $locale, $outTz )
+#end
+
+#########################################################################################################################
+##          Macro: getDateTime
+##          Input: Java Time Zone ID to determine which timezone to display the date in
+##          Output: Formatted date in the desired timezone
+#########################################################################################################################
+#macro( getDateTime $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  #set( $dateTime = $dateTool.format( 'MM/dd/yyyy hh:mm a', $inputDate, $locale, $outTz ))
+  $!dateTime
+#end
+#########################################################################################################################
+##
+#########################################################################################################################
+##          Macro: getRelationships
+##          Inputs: $baselineMode - GLOBAL, tells the report if the export was from a baseline or not 
+##                  $baselineId - GLOBAL, ID of a baseline       
+##                  $inDoc - current item
+##                  $inDownstream - true provides downstream relationships, false provides upstream relationships
+##          Creates: $returnRels - list of relationships with sub-elements of "fromItem" and "toItem" each of type 
+##                   item
+#########################################################################################################################
+#macro( getRelationships $inDoc $inDownstream )
+  #set( $returnRels = [] )
+  #if( $baselineMode )
+    #if( $baselineId )
+      #set( $currentVersion = $inDoc.currentVersion )
+      #set( $orginDocId = $currentVersion.originDocument.id )
+      #set( $relatedIds = [] )
+      #getBaselineRelationships303( $orginDocId, $baselineId ) ## Creates $returnBaselineRels
+      ##DEBUG $returnBaselineRels
+      #foreach ( $rel in $returnBaselineRels )
+        #set($dnDoc = $rel.toItem)
+        #set($upDoc = $rel.fromItem)
+        #set($relationshipType = $rel.relationshipType )
+        #if( $inDownstream )  ## Get Downstream Relationships
+          #if( $upDoc.id == $inDoc.id )
+            #if( !$relatedIds.contains($dnDoc.id) )
+              #set( $success = $relatedIds.add($dnDoc.id) )
+              #set( $success = $returnRels.add( {"fromDocument":$upDoc,"toDocument":$dnDoc,"relationshipType":$relationshipType} ) )
+            #end
+          #end
+        #else                 ## Get Upstream Relationships
+          #if( $dnDoc.id == $inDoc.id )
+            #if( !$relatedIds.contains($upDoc.id) )
+              #set( $success = $relatedIds.add($upDoc.id) )
+              #set( $success = $returnRels.add( {"fromDocument":$upDoc,"toDocument":$dnDoc,"relationshipType":$relationshipType} ) )
+            #end
+          #end
+        #end
+      #end
+    #end
+  #else
+    #set( $rels = [] )
+    #set ( $rels = $relDao.getRelationshipsForDocument($inDoc.id, $inDownstream) )
+    #foreach( $rel in $rels )
+      #if( $inDownstream )  ## Get Downstream Relationships
+        #if ( $rel.toDocument.active )
+          #set( $success = $returnRels.add({"fromDocument":$rel.fromDocument,"toDocument":$rel.toDocument,"relationshipType":$rel.relationshipType.name}) )
+        #end
+      #else                 ## Get Upstream Relationships
+        #if ( $rel.fromDocument.active )
+          #set( $success = $returnRels.add({"fromDocument":$rel.fromDocument,"toDocument":$rel.toDocument,"relationshipType":$rel.relationshipType.name}) )
+        #end
+      #end
+    #end
+  #end
+#end
+######################################################################################################################
+######################################################################################################################
+#macro( getLicenseType $userLicenseType )
+
+  #if( $userLicenseType == "N")
+    #set( $userLicenseDisplay = "Creator")
+  #elseif( $userLicenseType == "C")
+    #set( $userLicenseDisplay = "Creator (Float)")
+  #elseif( $userLicenseType == "S")
+    #set( $userLicenseDisplay = "Stakeholder")
+  #elseif( $userLicenseType == "FC")
+    #set( $userLicenseDisplay = "Collaborator (Float)")
+  #elseif( $userLicenseType == "R")
+    #set( $userLicenseDisplay = "Collaborator (Reserved)")
+  #elseif( $userLicenseType == "V")
+    #set( $userLicenseDisplay = "Reviewer (Float)")
+  #elseif( $userLicenseType == "RV")
+    #set( $userLicenseDisplay = "Reviewer (Reserved)")
+  #elseif( $userLicenseType == "NV")
+    #set( $userLicenseDisplay = "Reviewer")
+  #elseif( $userLicenseType == "ET")
+    #set( $userLicenseDisplay = "Expiring Trial")
+  #elseif( $userLicenseType == "I")
+    #set( $userLicenseDisplay = "Inactive")
+  #elseif( $userLicenseType == "TR")
+    #set( $userLicenseDisplay = "Test runner")
+  #end 
+
+  $userLicenseDisplay
+
+#end 
+######################################################################################################################
+######################################################################################################################
+#macro(groupActivityDataPerUser $sorted_userHistory )
+
+  #foreach( $activity in $sorted_userHistory ) ## Ensure user data is sorted per user, and aggregate login/logout data per user ##
+
+    #set( $user = $activity.get("user"))
+    #set( $userID = $user.id)
+    #set( $login = $activity.get( "login"))
+    #set( $logout = $activity.get( "logout"))
+    #set( $license = $activity.get("license"))
+
+    #if( $foreach.hasNext )
+      #set( $nextIndex = $foreach.index + 1 )
+      #set( $nextItem = $sorted_userHistory.get($nextIndex))
+      #set( $nextItemUser = $nextItem.get("user"))
+      #set( $nextItemUserID = $nextItemUser.id )
+    #else
+      #set( $nextItem = false )
+    #end
+
+    #set( $success = $allLoginsLogouts.add({"login":$login, "logout":$logout}))
+
+    #if( $userID != $nextItemUserID || !$nextItem )
+     #set( $success = $userHistorySorted.add({ "user": $user, "logHistory": $allLoginsLogouts, "license": $license }))
+     #set( $allLoginsLogouts = [] )
+    #end
+
+  #end 
+#end 
+## 
+######################################################################################################################
+######################################################################################################################
+#macro( formatLastLoginTimes $userHistorySorted )
+
+  #foreach( $userAccount in $userHistorySorted )
+    
+    #set( $user = $userAccount.get("user"))
+    #set( $logHistory = $userAccount.get("logHistory"))
+    #set( $license = $userAccount.get("license"))
+
+    #set( $lastActivityIndex = $logHistory.size() - 1 )
+    #set( $lastActivity = $logHistory.get( $lastActivityIndex ))
+    #set( $lastLoginTime = $lastActivity.get("login"))
+    #set( $lastLogoutTime = $lastActivity.get("logout"))
+
+    #if( $lastLogoutTime == "null" || !$lastLogoutTime )
+      #set( $sessionTimeResult = "Session Active")
+
+    #else  
+      #set( $sessionTime = $comparisonDateTool.difference($lastLoginTime, $lastLogoutTime))
+      #set( $sessionTimeMinutes = $sessionTime.getMinutes())
+
+      #if( $sessionTimeMinutes == 0)
+        #set( $seconds = $sessionTime.getSeconds())
+        #set( $sessionTimeResult = "00:00:$seconds")
+      #else
+        #set( $hours = $mathTool.floor($mathTool.div( $sessionTimeMinutes,60 )))
+        #set( $minutes = $mathTool.floor($mathTool.mod( $sessionTimeMinutes,60 )))
+        #set( $sessionTimeResult = "$hours:$minutes:00")
+      #end 
+    #end
+
+    
+    #set( $success = $finalUserSourceHistory.add( {"user": $user, "logHistory": $logHistory, "sessionTimeResult": $sessionTimeResult, "lastLogin": $lastLoginTime, "license": $license }))
+
+  #end 
+#end 
+## 
+######################################################################################################################
+######################################################################################################################
+#macro( buildRowLoginStatsPerUser $finalUserSourceHistory )
+  #foreach( $userAccount in $finalUserSourceHistory ) 
+
+    #set( $user = $userAccount.get("user"))
+    #set( $userName = $user.getFullName() )
+    #set( $userCreatedDate = $user.getCreatedDate())
+    #set( $license = $userAccount.get("license"))
+
+    #set( $sessionTimeResult = $userAccount.get("sessionTimeResult"))
+    #set( $logHistory = $userAccount.get( "logHistory"))
+    #set( $lastLogin = $userAccount.get("lastLogin"))
+
+    <tr height=27 style='mso-height-source:userset;height:20.25pt'>
+      <td height=27 class=xl69 style='height:20.25pt;border-top:none'>$!userName</td>
+      <td class=xl70 style='border-top:none;border-left:none'>#getDate( $userCreatedDate $timeZone)</td>
+      <td class=xl71 style='border-top:none;border-left:none'>#getLicenseType($license)</td>
+      <td class=xl70 style='border-top:none;border-left:none'>#getDateTime($lastLogin $timeZone)</td>
+      <td class=xl71 style='border-top:none;border-left:none'>$!sessionTimeResult</td>
+      <td class=xl71 style='border-top:none;border-left:none'>$!logHistory.size()</td>
+    </tr>
+
+  #end
+#end 
+######################################################################################################################
+######################################################################################################################
+#macro( groupEventDataPerUser $sorted_eventUserStats )
+
+  #foreach( $event in $sorted_eventUserStats)
+
+    #set( $user = $event.get("user"))
+    #set( $userID = $user.id )
+    #set( $date = $event.get("date"))
+    #set( $content = $event.get("content"))
+    #set( $action = $event.get("action"))
+    #set( $eventDocument = $event.get("document"))
+    #set( $eventProject = $event.get("project"))
+    #set( $comments = $event.get("comments"))
+
+    #if( $foreach.hasNext )
+      #set( $nextIndex = $foreach.index + 1 )
+      #set( $nextItem = $sorted_eventUserStats.get($nextIndex))
+      #set( $nextItemUser = $nextItem.get("user"))
+      #set( $nextItemUserID = $nextItemUser.id)
+    #else
+      #set( $nextItem = false )
+    #end
+
+    #set( $success = $eventStats.add({"date":$date,"content":$content,"action":$action,"document":$eventDocument,"project":$eventProject}))
+
+    #if( $userID != $nextItemUserID || !$nextItem )
+     #set( $success = $eventUserStatsByUser.add({ "user": $user, "eventStats": $eventStats }))
+     #set( $eventStats = [] )
+    #end
+
+  #end 
+
+#end 
+## 
+######################################################################################################################
+######################################################################################################################
+#macro( buildRowsEventStats $eventUserStatsByUser )
+  #foreach( $eventUser in $eventUserStatsByUser )
+    #set( $licenseFound = false )
+    #set( $user = $eventUser.get("user"))
+    #set( $userName = $user.fullName )
+    #set( $userName = $userName.trim())
+    #set( $eventStats = $eventUser.get("eventStats"))
+
+    #foreach( $userLicense in $sortedUserLicenseList )
+      #set( $fullName = $userLicense.get("userName"))
+      #set( $fullName = $fullName.trim())
+      #set( $license = $userLicense.get("license"))
+      #if( $userName.contains($fullName) || $userName == $fullName )
+        #set( $userName = "#formatRichTextCell($userName)")
+        #set( $userName = $userName.trim())
+        #set( $license =  "#getLicenseType($license)")
+        #set( $license = "#formatRichTextCell($license)")
+        #set( $license = $license.trim())
+
+        <tr height=21 style='height:15.75pt'>
+          <td colspan=1 height=21 class=xl81 style='display:inline;overflow-wrap:normal;height:15.75pt;text-align:right;'>$userName</td>
+          <td colspan=5 class=xl81 style='border-left:none;text-align:left;border-right:solid gray .5pt;'>$license</td>
+        </tr>
+        #set( $licenseFound = true )
+        #break
+      #end 
+    #end 
+
+  #if(!$licenseFound )
+   <tr height=21 style='height:15.75pt'>
+    <td colspan=6 height=21 class=xl81 style='border-right:.5pt solid gray;height:15.75pt'>$userName</td>
+   </tr>
+  #end 
+
+   #foreach( $stat in $eventStats )
+
+      #set( $date = $stat.get("date"))
+      #set( $date = "#getDateTime($!date $timeZone)")
+      #set( $date = $date.trim())
+
+      #set( $content = $stat.get("content"))
+      #set( $content = "#formatRichTextCell($!content)")
+      #set( $content = $content.replaceAll("\{.*\}", ""))
+      #set( $content = $content.trim())
+
+      #set( $action = $stat.get("action"))
+      #set( $comments = $stat.get("comments"))
+      #set( $eventDocument = $stat.get("document"))
+      #if( $eventDocument != "N/A")
+        #set( $eventDocumentType = $eventDocument.documentType.display )
+        #set( $eventDocument = $eventDocument.documentKey )
+      #else 
+        #set( $eventDocumentType = "N/A" )
+      #end 
+      #set( $eventProject = $stat.get("project"))
+      #if( !$eventProject || $eventProject == "null" || $eventProject == "" )
+        #set( $eventProject = "N/A")
+      #end 
+
+     <tr height=60 style='height:15.0pt'>
+      <td height=60 class=xl79 style='height:15.0pt'>$!date</td>
+      <td class=xl79 style='border-left:none'>$!content</td>
+      <td class=xl79>$!action</td>
+      <td class=xl79>$!eventDocument</td>
+      <td class=xl79>$!eventDocumentType</td>
+      <td class=xl79>$!eventProject</td>
+     </tr>
+   #end 
+  #end
+#end 
+## 
+#########################################################################################################################
+##
+##  BODY
+##
+#########################################################################################################################
+
+
+
+###########################################################################################
+##                               Sheet 1: Login Activity                                 ## 
+########################################################################################### 
+
+------=_NextPart_01D91BCC.85EC6240
+Content-Location: file:///C:/AA89CAB4/UserLoginActivityandEventReport_files/sheet001.htm
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link id=Main-File rel=Main-File href="../UserLoginActivityandEventReport.htm">
+<link rel=File-List href=filelist.xml>
+<link rel=Stylesheet href=stylesheet.css>
+<style>
+<!--table
+  {mso-displayed-decimal-separator:"\.";
+  mso-displayed-thousand-separator:"\,";}
+@page
+  {margin:.75in .7in .75in .7in;
+  mso-header-margin:.3in;
+  mso-footer-margin:.3in;}
+-->
+</style>
+</head>
+
+<body link="#0563C1" vlink="#954F72" class=xl65>
+
+<table border=0 cellpadding=0 cellspacing=0 width=1323 style='border-collapse:collapse;table-layout:fixed;width:992pt'>
+
+ <tr height=32 style='mso-height-source:userset;height:24.0pt'>
+  <td colspan=3 height=32 class=xl67 width=529 style='height:24.0pt;width:397pt'>Report Runner: $!reportRunner</td>
+  <td colspan=3 class=xl68 width=729 style='border-right:.5pt solid gray;width:547pt'>Organization: $!project.organization.name</td>
+ </tr>
+
+ <tr height=32 style='mso-height-source:userset;height:24.0pt'>
+  <td colspan=6 height=32 class=xl72 style='border-right:.5pt solid gray;height:24.0pt'>User Login Activity for the $!timeFrame prior to: #getDate($dateTool.date $timeZone)</td>
+ </tr>
+
+
+ <tr height=21 style='mso-height-source:userset;height:15.75pt'>
+  <td height=21 class=xl75 width=200 style='height:15.75pt;border-top:none;width:150pt'>User Name</td>
+  <td class=xl76 width=165 style='border-top:none;border-left:none;width:124pt'>User Creation Date</td>
+  <td class=xl76 width=164 style='border-top:none;border-left:none;width:123pt'>License Type</td>
+  <td class=xl76 width=165 style='border-top:none;border-left:none;width:124pt'>Last Activity Date</td>
+  <td class=xl76 width=400 style='border-top:none;border-left:none;width:300pt'>Duration of Last Activity (hours:mins:secs)</td>
+  <td class=xl76 width=165 style='border-top:none;border-left:none;width:124pt'>Total Instance Logins</td>
+ </tr>
+ 
+
+#set( $userHistory = [] )
+#set( $allLoginsLogouts = [] ) 
+#set( $allActiveUserIDs = [] )
+#set( $userHistorySorted = [] )
+#set( $finalUserSourceHistory = [] )
+#set( $userLicenseList = [] )
+#set( $foundUserNameMatch = false )
+
+##----------- Set Activity Data --------------- ## 
+
+#foreach( $activity in $userActivitySource ) 
+  #set( $user = $activity.getUser() )
+  #set( $userName = $user.getFullName() )
+  #set( $loginTime = $activity.getLoginTime() )
+  #set( $logoutTime = $activity.getLogoutTime() )
+  #set( $license = $activity.getActualLicenseType() )
+
+
+  #### check to see if we are filtering stats by user #### 
+  #if( $reportG_userFilter && $userName.toUpperCase() == $reportG_userFilter ||  !$reportG_userFilter && $userName != "" && $userName )
+    #set( $foundUserNameMatch = true )
+    #set( $success = $userLicenseList.add({"userName":$userName, "license":$license }))
+    #set( $success = $userHistory.add({ "userName":$userName, "user": $user, "login": $loginTime, "logout": $logoutTime, "license": $license }))
+  #end 
+#end 
+
+  #set( $sortedUserLicenseList = $sortTool.sort( $userLicenseList, "userName:asc"))
+
+
+#if( $reportG_userFilter && !$foundUserNameMatch )
+<tr>
+  <td colspan=6>The User Name entered does not match the full name of a user in your organization. Please check the spelling and try again.</td> 
+</tr>
+
+#else 
+
+  ##------ Group Activity Data Per User --------- ## 
+
+  #set( $sorted_userHistory = $sortTool.sort($userHistory,"userName:asc"))
+  #groupActivityDataPerUser($sorted_userHistory) ## Returns $userHistorySorted
+
+
+  ##------ Set the Last Login Time  --------- ## 
+
+  #formatLastLoginTimes( $userHistorySorted ) ## Returns $finalUserSourceHistory
+
+
+  ##------ Build Row of Login Stats per User  --------- ## 
+
+  #buildRowLoginStatsPerUser($finalUserSourceHistory)
+#end 
+
+
+</table>
+</body>
+</html>
+
+
+###########################################################################################
+##                               Sheet 2: Event Activity                                 ## 
+########################################################################################### 
+
+
+------=_NextPart_01D91BCC.85EC6240
+Content-Location: file:///C:/AA89CAB4/UserLoginActivityandEventReport_files/sheet002.htm
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link id=Main-File rel=Main-File href="../UserLoginActivityandEventReport.htm">
+<link rel=File-List href=filelist.xml>
+
+<link rel=Stylesheet href=stylesheet.css>
+<style>
+<!--table
+  {mso-displayed-decimal-separator:"\.";
+  mso-displayed-thousand-separator:"\,";}
+@page
+  {margin:.75in .7in .75in .7in;
+  mso-header-margin:.3in;
+  mso-footer-margin:.3in;}
+-->
+</style>
+</head>
+
+<body link="#0563C1" vlink="#954F72" class=xl65>
+
+
+<table border=0 cellpadding=0 cellspacing=0 width=1765 style='border-collapse:collapse;table-layout:fixed;width:1325pt'>
+
+  <tr height=32 style='mso-height-source:userset;height:24.0pt'>
+    <td colspan=6 height=32 class=xl72 style='border-right:.5pt solid gray;height:24.0pt'>User Event Activity for the $!timeFrame prior to: #getDate($dateTool.date $timeZone)</td>
+  </tr>
+
+  <tr height=20 style='height:15.0pt'>
+    <td height=20 class=xl76 width=200 style='height:15.0pt;border-top:none;width:150pt'>Event Date</td>
+    <td class=xl76 width=700 style='border-top:none;border-left:none;width:526pt'>Event Content</td>
+    <td class=xl76 width=200 style='border-top:none;border-left:none;width:150pt'>Event Action</td>
+    <td class=xl76 width=200 style='border-top:none;border-left:none;width:150pt'>Document</td>
+    <td class=xl76 width=165 style='border-top:none;border-left:none;width:124pt'>Document Type</td>
+    <td class=xl76 width=300 style='border-top:none;border-left:none;width:225pt'>Project</td>
+  </tr>
+
+#set( $eventUserStats = [] )
+#set( $eventStats = [] )
+#set( $eventUserStatsByUser = [] )
+#set( $foundUserNameMatch = false )
+
+##----------- Set Event Data --------------- ## 
+
+#foreach( $event in $eventList )
+  #set( $user = $event.eventUser)
+  #set( $userName = "")
+  #set( $userName = $user.fullName )
+  #set( $date = $event.getEventDate() )
+  #set( $dateTime = $date.replaceAll("(\.\d)", ""))
+  #set( $content = $event.content )
+  #set( $content = $content.replaceAll("null", ""))
+  #set( $action = $event.action )
+  #if( $event.document )
+    #set( $eventDocument = $event.document)
+  #else 
+    #set( $eventDocument = "N/A")
+  #end 
+  #set( $eventProject = $event.getProject())
+  #set( $eventProject = $eventProject.name )
+
+  #### check to see if we are filtering stats by user #### 
+
+##&& $userName && $userName.toUpper
+  #if( $reportG_userFilter && $userName.toUpperCase() == $reportG_userFilter || !$reportG_userFilter && $userName != "" && $userName  )
+    #set( $foundUserNameMatch = true )
+    #set( $success = $eventUserStats.add({ "userName":$userName, "user":$user, "date":$date,"content":$content,"action":$action,"document":$eventDocument,"project":$eventProject }))
+  #end 
+
+
+#end 
+
+#if( $reportG_userFilter && !$foundUserNameMatch )
+<tr>
+  <td colspan=6>The User Name entered does not match the full name of a user in your organization. Please check the spelling and try again.</td> 
+</tr>
+
+#else 
+
+  ##----------- Group Event Data By User --------------- ## 
+
+  #set( $sorted_eventUserStats = $sortTool.sort($eventUserStats, "userName:asc"))
+ 
+  #groupEventDataPerUser( $sorted_eventUserStats ) ## returns $eventUserStatsByUser
+
+
+  ##----------- Build Rows of Event Stats  --------------- ## 
+
+  #buildRowsEventStats( $eventUserStatsByUser )
+#end 
+ 
+</table>
+
+</body>
+
+</html>
+
+#########################################################################################################################
+##
+##  FILE LIST 
+##
+#########################################################################################################################
+
+------=_NextPart_01D91BCC.85EC6240
+Content-Location: file:///C:/AA89CAB4/UserLoginActivityandEventReport_files/filelist.xml
+Content-Type: text/xml; charset="utf-8"
+
+<xml xmlns:o="urn:schemas-microsoft-com:office:office">
+ <o:MainFile HRef="../UserLoginActivityandEventReport.htm"/>
+ <o:File HRef="stylesheet.css"/>
+ <o:File HRef="sheet001.htm"/>
+ <o:File HRef="sheet002.htm"/>
+ <o:File HRef="filelist.xml"/>
+</xml>
+------=_NextPart_01D91BCC.85EC6240--
