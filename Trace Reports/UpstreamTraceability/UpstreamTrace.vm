@@ -69,8 +69,8 @@
 <BASE href="${baseUrl}">
 
 
-#set($docDao = $applicationContext.getBean("documentDao"))
-#set($relDao = $applicationContext.getBean("relationshipDao"))
+#set($docDao = $documentSource)
+#set($relDao = $documentSource)
 
 #set($one = '')
 #set($two = '')
@@ -160,7 +160,7 @@
 																		#elseif($vDoc.document.documentType.display == 'Folder')
 																			n/a
 																		#else
-																			$vDoc.document.status.name
+																			$!vDoc.document.status.name
 																		#end
 																	</td>															
 																	<td><a href="perspective.req?projectId=$docDao.getDocument($h1).project.id&docId=$h1" >$docDao.getDocument($h1).documentKey</a></td>
