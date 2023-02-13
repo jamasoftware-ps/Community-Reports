@@ -31,7 +31,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
 ##    login activities, and the latest login activity..
 ##
 ##  - On the second sheet, “Event Activity”, the report builds a parent row per user, followed by child rows per “Event” triggered by that user. 
-##    Events are primarily CRUD activities. (Login events are excluded intentionally on the “Event Activity” sheet, 
+##    Events are primarily Create, Update, Delete activities. (Login events are excluded intentionally on the “Event Activity” sheet, 
 ##    because they are accounted for on the first sheet). 
 ## 
 ##  - Because “Event Activity” can be extensive, it is beneficial to filter the report by User Name (Full Name) when selecting large time parameters. 
