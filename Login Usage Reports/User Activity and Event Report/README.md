@@ -6,7 +6,7 @@ On the first sheet, “Login Activity”, the report builds a row per user, show
   *Please note that this data itself is suspect due to the fact that logoff time is not accurate. The logoff timestamp can be either a user directly selecting the logoff button, the session timing out, or a user closing their browser.*
 
 On the second sheet, “Event Activity”, the report builds a parent row per user, followed by child rows per “Event”, across all projects of the organization, triggered by that user.
-Events are primarily CRUD activities. (Login events are excluded intentionally on the “Event Activity” sheet, because they are accounted for on the first sheet).
+Events are primarily Create, Update, and Destroy activities. (Login events are excluded intentionally on the “Event Activity” sheet, because they are accounted for on the first sheet).
 
 Because “Event Activity” data can be extensive, it is beneficial to filter the report by User Name (Full Name) when selecting large time parameters. 
 If the Report Runner would like to narrow in on particular “Event Activity” to reduce data returned, reach out to the report team or if you are a CSM or Consultant the [ eventEnumList ] and [ objectTypeEnumList ] can be modified on line 239.
