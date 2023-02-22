@@ -28,6 +28,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                            -Removed Extra thead that surrounds the Version Comments in Section 1.0
 ##                                            -In section 1.0 Moved the close of two loops ( lines 4904 and 4905 ) 
 ##                                                to directly before building the relationship row, instead of after. 
+## 2023-02-21   2.2        Shawnna Williams   Fix table of contents not being clickable, fixed hyperlinks to items
+
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -1418,7 +1420,7 @@ span.diff-html-removed {
     font-size: 100%;
     background-color: #fcddde; /* light red */
     color: #ec1c24;
-  border: 2px solid #eclc24;}
+  border: 2px solid #ec1c24;}
 
 .inline-diffs span.diff-html-added {
     background-repeat: no-repeat;}
@@ -3822,6 +3824,26 @@ $string
   #end
 #end
 ##
+#macro( formatName $doc $hierarchyLevel  )
+
+	##since this the baseline to baseline comparison - you have to go to the current version - a link to a prev. version won't work
+    #set($currentDoc = $doc.currentVersion.originDocument) 
+
+    #if( $hierarchyLevel < 7 )
+      <h$hierarchyLevel>
+		#createLink( $currentDoc)
+        <a href='$createLinkReturn'>$doc.documentKey</a> $doc.name
+        ##<a name="_API$docID"><span style='mso-bookmark:_API$docID'>$doc.name</span></a>
+      </h$hierarchyLevel>
+    #else
+      <p class=MsoHeading$hierarchyLevel>
+        #createLink( $currentDoc)
+        <a href='$createLinkReturn'>$doc.documentKey</a> $doc.name
+      </p>
+    #end
+    ##formatRichText($doc.description)
+
+#end
 ## Description Only
 #macro( formatDescription $doc $docStatus )
   #if( !$excludedStatuses.contains($docStatus) )
@@ -3931,7 +3953,8 @@ $string
         style='mso-bookmark:_API${docID}'><span style='mso-spacerun:yes'> </span>SEQ Equation
         \* ARABIC <span style='mso-element:field-separator'></span></span><![endif]-->
     <span style='mso-bookmark:_API${docID}'><span style='mso-no-proof:yes'>$referenceNumber</span></span><!--[if supportFields]><span
-        style='mso-bookmark:_API${docID}'></span><span style='mso-element:field-end'></span><![endif]--><span
+        style='mso-bookmark:_API${docID}'></span><span style='mso-element:field-end'></span><![endif]-->
+		<span
         style='mso-bookmark:_API${docID}'></span>
       </span></p>
     #else
@@ -3948,9 +3971,10 @@ $string
 #########################################################################################################################  
 #macro( formatUpdatedItemsHeader $baseDoc $bData1 $bData2 )
 
-<h2>
+#formatName( $baseDoc 2)
+#*<h2>
   <a href="perspective.req?projectId=$orginDoc.project.id&docId=$orginDoc.id">$baseDoc.documentKey</a> $baseDoc.name
-</h2>
+</h2>*#
 <table class="MsoTableGrid" width=90% border="1" cellspacing="0" cellpadding="0"
 style='margin-left:.5in;border-collapse:collapse;border:none;mso-border-alt: solid windowtext .5pt;
 mso-yfti-tbllook:1184;padding:.05in 5.75pt 0in 5.75pt'>
@@ -4357,8 +4381,10 @@ mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;p
 
         #set($fromItem = $documentSource.getItem($fromItemId, $fromItemVersion))
         #set($toItem = $documentSource.getItem( $toItemId, $toItemVersion ))
-        <a href="perspective.req?projectId=$fromItem.project.id&docId=$fromItem.id">$fromItem.documentKey</a>
-        --> <a href="perspective.req?projectId=$toItem.project.id&docId=$toItem.id">$toItem.documentKey</a>
+		#createLink( $fromItem)
+        <a href='$createLinkReturn'>$fromItem.documentKey</a>
+		#createLink( $toItem)
+        --> <a href='$createLinkReturn'>$toItem.documentKey</a>
         <br> <br>
         </p>
         #end
@@ -4390,9 +4416,11 @@ mso-border-left-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;p
             #set($fromItemVersion = $versionedRelationship.getFromItem().getValue().get(1))
             #set($fromItem = $documentSource.getItem($fromItemId , $fromItemVersion))
           #end
-
-        <a href="perspective.req?projectId=$fromItem.project.id&docId=$fromItem.id">$fromItem.documentKey</a>
-        --> <a href="perspective.req?projectId=$toItem.project.id&docId=$toItem.id">$toItem.documentKey</a>
+		
+		#createLink( $fromItem)
+        <a href='$createLinkReturn'>$fromItem.documentKey</a>
+		#createLink( $toItem)
+        --> <a href='$createLinkReturn'>$toItem.documentKey</a>
         <br> <br>
         </p>
         #end ##foreach( $versionedRelationship in $base2Rels )
@@ -4504,7 +4532,7 @@ mso-border-alt: solid windowtext .5pt;mso-yfti-tbllook:1184;padding:.05in 5.75pt
 
 #macro( formatAddedItems $compareOriginIds )
 
-<h1 style='page-break-after:avoid'>ADDED ITEMS</h1>
+<h1>ADDED ITEMS</h1>
 
 <table class="MsoTableGrid" width=90% border="1" cellspacing="0" cellpadding="0"
 style='margin-left:.5in;border-collapse:collapse;border:none;'>
@@ -4515,9 +4543,10 @@ style='margin-left:.5in;border-collapse:collapse;border:none;'>
           <td width="9in" valign="top"
               style='border:solid windowtext 1.0pt; mso-border-alt:solid windowtext .5pt;padding:5.4pt 5.4pt 5.4pt 5.4pt ;width:9in;'>
               <p class=TableCell style='margin-left:0in'>
-              <h2>
+              #formatName( $cDoc)
+			  #*<h2>
                   <a href="perspective.req?projectId=$cDoc.project.id&docId=$cDoc.id">$cDoc.documentKey</a> $cDoc.name
-              </h2>
+              </h2>*#
               </p>
               
                   #if( $cDoc.description) #formatTableCell( $cDoc.description, "left", 650) #end 
@@ -4557,8 +4586,10 @@ style='margin-left:.5in;border-collapse:collapse;border:none;'>
               #set($fromItem = $documentSource.getItem($fromItemId , $fromItemVersion))
               #set($toItem = $documentSource.getItem($toItemId , $toItemVersion))
 
-              <a href="perspective.req?projectId=$fromItem.project.id&docId=$fromItem.id">$fromItem.documentKey</a>
-              --> <a href="perspective.req?projectId=$toItem.project.id&docId=$toItem.id">$toItem.documentKey</a>
+			#createLink( $fromItem)
+              <a href='$createLinkReturn'>$fromItem.documentKey</a>
+			#createLink( $toItem)
+              --> <a href='$createLinkReturn'>$toItem.documentKey</a>
               <br> <br>
             #end ##foreach( $versionedRelationship in $addedRels.getResults() )
 
@@ -4575,6 +4606,16 @@ style='margin-left:.5in;border-collapse:collapse;border:none;'>
   #end ##foreach($aa in $compareOriginIds)
 </table>
 #end 
+###################################################################################################
+#macro( createLink $sDoc)
+	
+	#set( $createLinkReturn = "")
+	#set( $createLinkReturn = $baseUrl + "/perspective.req#/items/" + $sDoc.id.toString() + "?projectId=" + $project.id.toString())
+	
+	##https://customexports.jamacloud.com/perspective.req#/items/2116510?projectId=20181
+#end
+
+##
 ##
 #########################################################################################################################
 ##  8.3 BODY_MACRO - Creates the body of the report
@@ -4792,13 +4833,14 @@ style='margin-left:.5in;border-collapse:collapse;border:none;'>
 
 ## Word field for a table of contents
 <div>
-  <p class=MsoNormal>
+ <p class=MsoNormal>
     <!--[if supportFields]><span style='mso-element:field-begin'></span> 
-    TOC \\h \\o 1-3 \\* MERGEFORMAT <span
+    TOC \h \o 1-3 \* MERGEFORMAT <span
     style='mso-element:field-separator'></span>
   <![endif]--><span
     style='color:red;mso-no-proof:yes'>Select the entire document (Windows: Ctrl+a) (Mac: Command+a) and press F9 to update the TOC and Cross-References</span><!--[if supportFields]><span
     style='mso-element:field-end'></span><![endif]--></p>
+	
 </div>
 
 ## Page Break
