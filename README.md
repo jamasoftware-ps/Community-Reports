@@ -8,6 +8,8 @@ Please visit [dev.jamasoftware.com](http://dev.jamasoftware.com) for additional 
 ## Community Report Downloads:
 Jama's EESR custom reporting team in partnership with Jama's Consulting team are happy to provide our Jama customers a collection of public use custom reports. Each of these community reports are generic custom reports ready to be installed to any customer instance to satisfy a specific common need. Each report is either written with BIRT or Velocity, so if you are an on-premises customer and have experience with the appropriate platform, you can manipulate them to suit your needs. 
 
+Please be aware that these custom reports are complimentary and come as-is but should a bug be identfied the EESR Team will be happy to resolve it. Should you wish to request a enhancement request please review the 'Requesting Modified Community Report Versions' section below.
+
 
 ## Installation Process:
 
