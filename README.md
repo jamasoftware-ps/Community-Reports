@@ -13,8 +13,8 @@ Please be aware that these custom reports are complimentary and come as-is but s
 
 ## Installation Process:
 
-### On-Prem Customer:
-Each community report includes a ReadMe of about the report including the installation instructions and configuration settings. Some reports have multiple versions which cater to different databases, so pay close attention that you download the correct one. Please note that BIRT reports cannot be downloaded via a right-click; the raw text should be saved in a text-editing program with the extension .rptdesign.
+### On-Prem & Cloud Customers:
+Each community report includes a ReadMe of about the report including the installation instructions and configuration settings. Some reports have multiple versions which cater to different databases, so pay close attention that you download the correct one. 
 1. Download the community report file you would like installed to your instance. 
 2. Navigate to the Admin screen of your instance.
 3. On the left navigation menu select the *Reports* option.
@@ -24,8 +24,8 @@ Each community report includes a ReadMe of about the report including the instal
 6. Select the *Save* button to finalize your report installation.
  
 
-### Cloud Customers:
-In order to install a Community report to your Jama Cloud instance you will need to submit a [Jama Support ticket](https://support.jamasoftware.com/hc/en-us/requests/new). 
+### Cloud Hosted Customer BIRT Report Installation (.rptdesign):
+Please note that BIRT reports cannot be downloaded via a right-click; the raw text should be saved in a text-editing program with the extension .rptdesign. In order to install a BIRT report to your Jama Cloud instance you will need to submit a [Jama Support ticket](https://support.jamasoftware.com/hc/en-us/requests/new). 
 1. Select the *Technical Support Request* option for your request type.
 2. In the subject field add *Community Report Installation Request*.
 3. In the description field please specify the name of the report along with a URL's to both the community report and the specific instance you would like it installed on.  
