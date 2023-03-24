@@ -10,7 +10,7 @@ SET groups are presented in the report in alphabetical order.
 ### Table Specification 
 | Column Label | Column Value Definition | 
 | -------------| ------------------------|
-| Path| The component path that contains the set|
+| Path| The component path that contains the Set|
 | Set Name | The name of the Set |
 | Review Status | See "Review Status Definitions" below |
 | Approved Items | See "Item Review Status Definitions" below |
