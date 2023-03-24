@@ -1,0 +1,1834 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+###############################################################################################################
+##
+##  NAME: review_status_by_set_v4.vm
+##
+##  Description:
+##              - Export from any location in project tree, and report groups items by what set they belong to
+##              - Report aggregates reviews in those groups, and returns a summary of the aggregated review data
+##              
+##              
+##  Item Review Status Definitions:
+##              - Approved, 
+##                current item version approved by all approvers in most recent review.
+##              - Partially Approved,
+##		            current item version approved by some approvers in most recent review with no rejections.
+##              - Rejected,
+##                current item version rejected by any approver in most recent review.
+##              - Not Reviewed, 
+##                current item version not approved or rejected by any approver in any review.
+##  
+##  Review Status Definitions:
+##              - Not Reviewed, 
+##                no items in the set have received feedback in a review.
+##              - Partially Reviewed, 
+##                items in the set have received feedback in a review, but not all are approved. 
+##              - Approved, 
+##                all items in the set have been approved by all approvers.
+##
+## ============================================================================================================
+##  HISTORY
+##--------------------------------------------------------------------------------------------------------------
+##
+##  Date         Revision    Person            Comments
+##  -----------  ---------   ----------------  ----------------------------------
+##  04-06-2022   1.0         Anna FitzGerald   Inital Version
+##  04-15-2022   1.2         Anna FitzGerald   -fixed date bug typo 
+##                                             -omitted getting item versions for review summary details( just need revisions)
+##                                             -rewrote #getParentCMPpathAndSETnamePerItem to consider the items hierarchy range
+##                                              when getting its parent SET and the SET's CMP path 
+##                                             -fixed condition so that all item types but SETs and CMPs are qualified in 
+##                                              review summary stats
+##  04-28-2022   1.3         Anna FitzGerald   -add criteria to determine if report is exported from baseline, and if so, 
+##																							retrieve nodes from baseline to build component path, set groups, and for review summary stats. 
+##                                             -fixed styles to render in XLSX 
+##                                             -added condition for col "Review Status" to show "Partially Reviewed" if reviewed items > 0 and 
+##                                              not reviewed items > 0. 
+##  05-09-2022   1.4         Anna FitzGerald   -removed criteria and replaced with $contextType, $contextId
+##  08-24-2022   1.5         Shawnna Williams  -fix path if a set is at the top of a project
+##  09-06-2022   1.6         Anna FitzGerald   -rebuilt the row build within new macro buildRowStats, and debugged why the report was not adding a row per
+##                                              unique review in each set. Now if a Set contains items that have been in different reviews, looking 
+##                                               at only the most recent review of each item, 
+##                                               the report will build a new row for each unique review.
+##                                             - fixed some alignment and style issues within cells. 
+##  03-24-2023   1.7         Anna FitzGerald   - Cleaned up macros that build the object list of component paths, set names, and items grouped by set
+##                                             - Renamed lists for easier readability 
+##                                             - Removed Baseline condition because not needed, and exports off a baseline returning correct stats 
+##                                             - Removed macros not used
+##                                             - Corrected conditions tally the group stats in the #getReviewStats macro. 
+## 
+################################################################################################################
+##
+##  Report Features
+##
+##  o Output Type:                Excel
+##  o Context Sensitive:          True
+##
+################################################################################################################
+##
+##  Jama Configuration Requirements
+##
+##  o Export Location Type:
+##      - Project Tree:           True 
+##      - Baseline:               True
+##
+##  o Valid Export Location Types:
+##      - Project:                True
+##      - Component:              True
+##      - Set:                    True
+##      - Folder:                 True
+##
+##
+################################################################################################################
+##
+##  Installation Instructions
+##  Add a new report in Jama with the following options:
+##
+##  - Report Name:            ReviewStatusBySet
+##  - Report Type:            Velocity
+##  - Report Formats:         Microsoft Excel
+##  - Report File Name:       ReviewStatusBySet.vm
+##  - Description:            Add if you like
+##  - Organization:           Select yours
+##  - Visible to Users:       True
+##  - Context Sensitive:      True
+##  - Criteria / Parameters:
+##    Type:                Display Name:                   Report Global Variable:
+##    -----------------------------------------------------------------------------
+##    
+################################################################################################################
+
+################################################################################################################
+##
+##  Global Variables
+##
+################################################################################################################
+
+## load the data sources.  Data sources changed with Jama 8.44, so this logic detects the correct source to use 
+## for the version of Jama the report is running on.
+
+#if( $documentSource ) ##
+  ## Jama 8.44 or greater
+  ## Jama 8.42 if New Velocity Feature Flag Enabled
+  #set( $docDao = $documentSource )
+  #set( $documentNodeDao = $documentSource )
+  #set( $attachmentDao = $documentSource )
+  #set( $attachmentService = $documentSource )
+  #set( $relDao = $documentSource )
+  #set( $versionDao = $documentSource )
+  #set( $testRunDao = $testSource )
+  #set( $velocityServiceWrapper = $documentSource )
+  #set( $baselineDao = $baselineSource )
+  #set( $reviewDao = $reviewSource )
+	#set( $docTypeFieldDao = $documentSource )
+
+##
+#else
+  ## Jama 8.43 or older
+  #set( $docDao = $applicationContext.getBean("documentDao"))
+  #set( $documentNodeDao = $applicationContext.getBean("documentNodeDao"))
+  #set( $docTypeFieldDao = $applicationContext.getBean("documentNodeDao"))
+  #set( $attachmentDao = $applicationContext.getBean("attachmentDao"))
+  #set( $attachmentService = $applicationContext.getBean("attachmentService"))
+  #set( $relDao = $applicationContext.getBean("relationshipDao") )
+  #set( $versionDao = $applicationContext.getBean("versionDao") )
+  #set( $testRunDao = $applicationContext.getBean("testRunDao") )
+  ## $velocityServiceWrapper is already available
+  #set( $baselineDao = $applicationContext.getBean("baseLineDao") )
+  #set( $reviewDao = $applicationContext.getBean("reviewDao") )
+##
+#end
+
+## Report Parameters
+##-------------------------------------------
+#if($!contextType && $contextType.toUpperCase().contains("BASELINE") )
+  #set( $baselineMode = true)
+  #set( $contextId = $mathTool.toInteger($contextId))
+#else
+  #if( $reportBaseline )
+    #set( $baselineMode = $reportBaseline )
+  #else
+    #set( $baselineMode = false )
+  #end
+#end
+##
+
+#set($cmpKey = "CMP")
+#set($setKey = "SET")
+#set($fldKey = "FLD")
+#set($txtKey = "TXT")
+
+#set( $timeZone = "America/Los_Angeles" )
+
+
+## EXPORT LOCATION
+#set( $docNode = $documentNodeDao.getDocumentNode(5, $documentList[0].document.id) )
+#set( $parentNode = $docNode.getParentNode() )
+#set( $exportLocation = $docDao.getDocument( $parentNode.refId ) )
+
+
+################################################################################################################
+##
+##  Styles
+##
+################################################################################################################
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<style>
+<!--
+A {
+    text-decoration:none;
+    color:#000000;
+    font-size:9pt;
+}
+table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:.75in .7in .75in .7in;
+	mso-header-margin:.3in;
+	mso-footer-margin:.3in;}
+p {text-align:center;}
+tr
+	{mso-height-source:auto;}
+col
+	{mso-width-source:auto;}
+br
+	{mso-data-placement:same-cell;}
+.style62
+	{color:#0563C1;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:underline;
+	text-underline-style:single;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-style-name:Hyperlink;
+	mso-style-id:8;}
+a:link
+	{color:#0563C1;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:underline;
+	text-underline-style:single;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;}
+a:visited
+	{color:#954F72;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:underline;
+	text-underline-style:single;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;}
+.style0
+	{mso-number-format:General;
+	/*text-align:general;*/
+	vertical-align:middle;
+	white-space:nowrap;
+	mso-rotate:0;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	color:black;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:Normal;
+	mso-style-id:0;}
+td
+	{mso-style-parent:style0;
+	padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:black;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	/*text-align:general;*/
+	vertical-align:middle !important;
+	/*border:none;*/
+	mso-background-source:auto;
+	mso-pattern:auto;
+	mso-protection:locked visible;
+	white-space:normal;
+	mso-rotate:0;}
+	td.status
+	{font-size:10.0pt !important;
+	text-align:center !important;
+	vertical-align:middle !important;
+	border:.5pt solid black !important;
+	white-space:normal;}
+.xl65
+	{mso-style-parent:style0;
+	color:windowtext;
+	font-size:12.0pt;
+	font-weight:700;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt solid black;
+	border-right:.5pt solid black;
+	border-bottom:none;
+	border-left:.5pt solid black;
+	background:#EAF1DD;
+	mso-pattern:#EAF1DD none;
+	white-space:normal;}
+.xl66
+	{mso-style-parent:style0;
+	color:windowtext;
+	font-size:12.0pt;
+	font-weight:700;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid black;
+	border-right:none;
+	border-bottom:.5pt solid black;
+	border-left:.5pt solid black;
+	background:#EAF1DD;
+	mso-pattern:#EAF1DD none;
+	white-space:normal;}
+.xl67
+	{mso-style-parent:style0;
+	color:windowtext;
+	font-size:12.0pt;
+	font-weight:700;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid black;
+	border-right:.5pt solid black;
+	border-bottom:none;
+	border-left:.5pt solid black;
+	background:#EAF1DD;
+	mso-pattern:#EAF1DD none;
+	white-space:normal;}
+.xl68
+	{mso-style-parent:style0;
+	color:windowtext;
+	font-size:10.0pt;
+	text-align:left;
+	vertical-align:middle;
+	border:.5pt solid black;
+	background:white;
+	mso-pattern:white none;
+	white-space:normal;}
+.xl69
+	{mso-style-parent:style0;
+	color:windowtext;
+	font-size:10.0pt;
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid black;
+	background:#70AD47;
+	mso-pattern:black none;
+	white-space:normal;}
+.xl70
+	{mso-style-parent:style0;
+	color:windowtext;
+	font-size:10.0pt;
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid black;
+	background:white;
+	mso-pattern:white none;
+	white-space:normal;}
+.xl71
+	{mso-style-parent:style62;
+	color:#0563C1 !important;
+	text-decoration:underline !important;
+	text-underline-style:single;
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid black;
+	background:white;
+	mso-pattern:white none;
+	white-space:normal;}
+.xl72
+	{mso-style-parent:style0;
+	color:windowtext;
+	font-size:10.0pt;
+	mso-number-format:"Short Date";
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid black;
+	background:white;
+	mso-pattern:white none;
+	white-space:normal;}
+.xl1527488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl6527488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:top;
+	border:.5pt solid black;
+	background:white;
+	mso-pattern:white none;
+	white-space:normal;}
+.xl6627488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid black;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:normal;}
+.xl6727488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid black;
+	background:#70AD47;
+	mso-pattern:black none;
+	white-space:normal;}
+.xl6827488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:12.0pt;
+	font-weight:700;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid black;
+	border-right:.5pt solid black;
+	border-bottom:none;
+	border-left:.5pt solid black;
+	background:#EAF1DD;
+	mso-pattern:#EAF1DD none;
+	white-space:normal;}
+.xl6927488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:12.0pt;
+	font-weight:700;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt solid black;
+	border-right:.5pt solid black;
+	border-bottom:none;
+	border-left:.5pt solid black;
+	background:#EAF1DD;
+	mso-pattern:#EAF1DD none;
+	white-space:normal;}
+.xl7027488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid black;
+	background:white;
+	mso-pattern:white none;
+	white-space:normal;}
+.xl7127488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:#0563C1;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:underline;
+	text-underline-style:single;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid black;
+	background:white;
+	mso-pattern:white none;
+	white-space:normal;}
+.xl7227488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:"Short Date";
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid black;
+	background:white;
+	mso-pattern:white none;
+	white-space:normal;}
+.xl7327488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl7427488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:12.0pt;
+	font-weight:700;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid black;
+	border-right:none;
+	border-bottom:.5pt solid black;
+	border-left:.5pt solid black;
+	background:#EAF1DD;
+	mso-pattern:#EAF1DD none;
+	white-space:normal;}
+.xl7527488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:right;
+	vertical-align:bottom;
+	border-top:none;
+	border-right:none;
+	border-bottom:none;
+	border-left:.5pt solid windowtext;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:normal;}
+.xl7627488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:normal;}
+.xl7727488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:right;
+	vertical-align:bottom;
+	border-top:none;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:normal;}
+.xl7827488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:normal;}
+.xl7927488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid black;
+	border-right:.5pt solid black;
+	border-bottom:none;
+	border-left:.5pt solid black;
+	background:white;
+	mso-pattern:white none;
+	white-space:normal;}
+.xl8027488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid black;
+	border-bottom:.5pt solid black;
+	border-left:.5pt solid black;
+	background:white;
+	mso-pattern:white none;
+	white-space:normal;}
+.xl8127488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:top;
+	border-top:.5pt solid black;
+	border-right:.5pt solid black;
+	border-bottom:none;
+	border-left:.5pt solid black;
+	background:white;
+	mso-pattern:white none;
+	white-space:normal;}
+.xl8227488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:top;
+	border-top:none;
+	border-right:.5pt solid black;
+	border-bottom:.5pt solid black;
+	border-left:.5pt solid black;
+	background:white;
+	mso-pattern:white none;
+	white-space:normal;}
+.xl8327488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid black;
+	border-right:.5pt solid black;
+	border-bottom:none;
+	border-left:.5pt solid black;
+	background:#70AD47;
+	mso-pattern:#00B050 none;
+	white-space:normal;}
+.xl8427488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid black;
+	border-bottom:.5pt solid black;
+	border-left:.5pt solid black;
+	background:#70AD47;
+	mso-pattern:#00B050 none;
+	white-space:normal;}
+.xl8527488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:top;
+	border-top:none;
+	border-right:.5pt solid black;
+	border-bottom:none;
+	border-left:.5pt solid black;
+	background:white;
+	mso-pattern:white none;
+	white-space:normal;}
+.xl8627488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:white;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid black;
+	border-right:.5pt solid black;
+	border-bottom:none;
+	border-left:.5pt solid black;
+	background:#ED7D31;
+	mso-pattern:#7030A0 none;
+	white-space:normal;}
+.xl8727488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:white;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid black;
+	border-bottom:none;
+	border-left:.5pt solid black;
+	background:#ED7D31;
+	mso-pattern:#7030A0 none;
+	white-space:normal;}
+.xl8827488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:white;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid black;
+	border-bottom:.5pt solid black;
+	border-left:.5pt solid black;
+	background:#ED7D31;
+	mso-pattern:#7030A0 none;
+	white-space:normal;}
+.xl8927488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid black;
+	border-right:.5pt solid black;
+	border-bottom:none;
+	border-left:.5pt solid black;
+	background:white;
+	mso-pattern:white none;
+	white-space:nowrap;}
+.xl9027488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid black;
+	border-bottom:none;
+	border-left:.5pt solid black;
+	background:white;
+	mso-pattern:white none;
+	white-space:nowrap;}
+.xl9127488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid black;
+	border-bottom:.5pt solid black;
+	border-left:.5pt solid black;
+	background:white;
+	mso-pattern:white none;
+	white-space:nowrap;}
+.xl9227488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:700;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:bottom;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:.5pt solid windowtext;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl9327488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:700;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:bottom;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl9427488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:700;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:bottom;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:.5pt solid windowtext;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:normal;}
+.xl9527488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:700;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:bottom;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:normal;}
+.xl9627488
+	{padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid black;
+	border-bottom:none;
+	border-left:.5pt solid black;
+	background:white;
+	mso-pattern:white none;
+	white-space:normal;}
+-->
+</style>
+</head>
+#########################################################################################################################
+##                                                                                                                    ###
+##  Macros                                                                                                            ###
+##                                                                                                                    ###
+#########################################################################################################################
+
+#########################################################################################################################
+##          Macro: getDateTime
+##          Input: Java Time Zone ID to determine which timezone to display the date in
+##          Output: Formatted date in the desired timezone
+#########################################################################################################################
+
+#macro( getDate $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  $dateTool.format( 'short', $inputDate, $locale, $outTz )
+#end
+##
+#########################################################################################################################
+##          Macro: getHierarchyLevel
+##          Input: $doc - document object
+##                 $baselineMode - true: export was from a baseline, false: export was from the project
+##                 $baselineId   - ID of the baseline that the items are part of, if in baseline mode
+##          Output: $hierarchyLevel - number, which heading level this item is in Jama relative to the container
+#########################################################################################################################
+#macro( getHierarchyLevel $doc $baselineMode $baselineId )
+  #set( $seqSubStrings = [] )
+  #set( $hierarchyLevel = 1)
+  ## Get hierarchy from the baseline
+  #if( $baselineMode )
+    #set( $docNode = $documentNodeDao.getDocumentNodeForBaseLine(5, $doc.currentVersion.originDocument.id, $baselineId))
+  ## Get hierarchy from the project
+  #else
+    #set( $docNode = $documentNodeDao.getDocumentNode(5, $doc.id))
+  #end
+  ##Debug: $docNode
+  #set( $seqSubStrings = $docNode.sequence.split("\."))
+  ##Debug: $seqSubStrings
+  #set( $hierarchyLevel = $seqSubStrings.size())
+  #if( !$hierarchyLevelTop )
+    #set($hierarchyLevelTop = $hierarchyLevel)
+  #end
+  #set($hierarchyLevel = $hierarchyLevel - $hierarchyLevelTop + 1)
+#end
+##
+#########################################################################################################################
+#########################################################################################################################
+## Check if Revision is Active (I.e it's latest version isn't deleted )
+## if revision is archived it qualifies
+
+#macro( checkRevisionsStatus $reviewID $review $exclusionList)
+
+  #set( $revisionsForReview = $review.revisions)
+
+  #foreach( $rev in $sortTool.sort( $revisionsForReview, "createdDate:desc" ) )
+
+    #if( $foreach.first)
+      #if($rev.status.name == "Deleted" )
+        #set( $success = $exclusionList.add( $reviewID ))
+      #end
+    #else
+      #break
+    #end
+
+  #end
+
+  ## $exclusionList
+
+#end
+##
+#########################################################################################################################
+#########################################################################################################################
+## Check if this review is in exclusion list as it's been deleted
+
+#macro( exclusionListCheck $reviewID $exclusionList )
+
+  #set(	$omitResult = false )
+
+  #foreach(	$excludedID in $exclusionList)
+    #if(	$excludedID == $reviewID )
+      #set(	$omitResult = true	)
+    #end
+  #end
+
+ ## $omitResult
+
+#end 
+#########################################################################################################################
+##          Macro: getParentCMPpathAndSETnamePerItem
+##          Input: $doc - document object
+##          Output: 
+##                 - $cmpPath, the path of the parent CMPs that the SET of review summary items is contained in
+##                 - $setItems, object list, each review summary item paired with the SET name it belongs
+##             		 - $cmpPath_SetName, object list, each CMP path paired with the SET name contained within it
+#########################################################################################################################
+#macro( getParentCMPpathAndSETnamePerItem $doc $baselineMode )
+
+#set( $parentSetFound = false )
+#set( $node = $documentNodeDao.getDocumentNode(5, $doc.id))
+#set( $parentNode = $node.parentNode )
+
+#set( $range = $node.sequence.split("\.").size() - 1 )
+
+#foreach( $level in [ 1..$range ] )
+	#set( $parentDoc = $docDao.getDocument( $parentNode.refId ) )
+		#if( $parentDoc.documentType.documentTypeKey == $setKey )
+			#set( $parentSetFound = true )
+			#set( $parentSet = $parentDoc )
+			## $parentSet.name
+			#break 
+		#else 
+			#set( $parentNode = $parentNode.parentNode )
+		#end
+#end 
+
+#if( $parentSetFound ) 
+
+	#set( $setNode = $documentNodeDao.getDocumentNode( 5, $parentSet.id ) )
+	#set( $parentOfSetNode = $setNode.parentNode )
+	#set( $range = $setNode.sequence.split("\.").size() - 1) 
+	
+	#if( $range == 0)
+		#set( $cmpPath = "/")
+	#else
+		#foreach( $level in [1..$range ] )
+			#set( $parentDoc = $docDao.getDocument( $parentOfSetNode.refId ) )
+			
+			#if( $parentDoc.documentType.documentTypeKey == $cmpKey )
+				#if( $foreach.first )
+					#set( $cmpPath = "/${parentDoc.name}/")
+				#else 
+					#set( $cmpPath = "/${parentDoc.name}$cmpPath")
+				#end
+				#set( $parentOfSetNode = $parentOfSetNode.parentNode )
+			#end
+		#end
+	#end
+
+	#set( $success = $CMP_SET_ITEMs.add( { "Path": $cmpPath, "SetName": $parentSet.name, "Item": $doc } ) )
+
+	#end 
+#end
+## 
+#########################################################################################################################
+##          Macro: buildSetGroups
+##          Input: $CMP_SET_ITEMs
+##          Output: 
+##                 -returns $finalSetGroups, component path that contains the set, set name, items in set 
+#########################################################################################################################
+#macro( buildSetGroups $CMP_SET_ITEMs )
+
+
+#set( $CMP_SET_ITEMs = $sortTool.sort( $CMP_SET_ITEMs, "SetName:asc"))
+
+#set( $itemIDs = [] )
+#set( $items = [] )
+ #foreach( $item in $CMP_SET_ITEMs )
+    #set( $setName = $item.get("SetName"))
+    #set( $cmpPath = $item.get( "Path" ))
+   	#set( $doc = $item.get("Item"))
+
+    #if( $foreach.hasNext )
+      #set( $nextIndex = $foreach.index + 1 )
+      #set( $nextCMPsetItem = $CMP_SET_ITEMs.get($nextIndex))
+    #else
+      #set( $nextCMPsetItem = false )
+    #end
+    
+    #if( !$itemIDs.contains( $doc.id ))
+      #set( $success = $itemIDs.add( $doc.id ))
+      #set( $success = $items.add( $doc ))
+    #end 
+
+    #if( $setName != $nextCMPsetItem.get("SetName") || !$nextCMPsetItem )
+      #set( $success = $finalSetGroups.add({"Path": $cmpPath, "Set": $setName, "Items":$items }))
+      #set( $items = [] )
+    #end
+
+  #end
+
+#end 
+## 
+########################################################################################################################
+#########################################################################################################################
+##          Macro: getRowReviewStats
+##          Input: $finalSetGroups
+##          Description 
+##                 - this macro calls the #getReviewStats and gets the total review stats for the set group                     
+##          Output: $rowReviewStats - the object list of every stat row for the report and $rowSpanCount 
+## 
+#########################################################################################################################
+#macro( getRowReviewStats $finalSetGroups )
+
+	#foreach( $set in $finalSetGroups )
+		#set( $componentPath = $set.get("Path"))
+		#set( $setName = $set.get("Set"))
+		#set( $setGroup = $set.get("Items"))
+
+		## get the total review stats for the set group
+		#getReviewStats( $setGroup ) 
+		## returns $uniqueGroupReviewIds, $groupTotalApproved, $groupTotalPartiallyApproved, 
+		## $groupTotalRejected, $groupTotalNotReviewed, reviewIdentifiersAndDates 
+
+		#set( $rowSpanCount = 1 ) 
+
+		#if( $uniqueGroupReviewIds.size() > 1 )
+			#set( $rowSpanCount = $uniqueGroupReviewIds.size() )
+		#end
+		
+		#set( $background = "FFFFFF" )
+		
+		#if( $groupTotalApproved > 0 && $groupTotalPartiallyApproved == 0 && $groupTotalRejected == 0 && $groupTotalNotReviewed == 0 )
+			#set( $reviewStatus = "Approved") 
+			#set( $background="70AD47" )
+
+	
+		#elseif( $groupTotalPartiallyApproved > 0 || $groupTotalApproved > 0 && $groupTotalNotReviewed > 0 )
+			#set( $reviewStatus = "Partially Reviewed")
+			#set( $background="ED7D31" )
+
+
+		#elseif( $groupTotalPartiallyApproved == 0 && $groupTotalRejected == 0 && $groupTotalApproved == 0 ) 
+			#set( $reviewStatus = "Not Reviewed")
+		#end  
+	
+		#set( $success = $rowReviewStats.add( { "RowSpan": $rowSpanCount, "Path": $componentPath, "Set": $setName, "ReviewStatus": $reviewStatus, "Approved": $groupTotalApproved, 
+		"Background": $background, "Partially": $groupTotalPartiallyApproved, "Rejected": $groupTotalRejected, "NotReviewed": $groupTotalNotReviewed, "Reviews": $reviewIdentifiersAndDates }) )
+	#end
+
+
+#end 
+##
+#########################################################################################################################
+#########################################################################################################################
+##          Macro: getReviewStats
+##          Input: $group of document objects that belong to one SET 
+##          Output: $uniqueGroupReviewIds - this determines rowspan-i.e how many reviews per set, 
+##                  Review Stats are aggregated foreach item in group - 
+##                  $groupTotalApprovers, $groupTotalApproved, $groupTotalRejected
+##                  $groupTotalNotReviewed, $groupTotalModerators 
+##
+#########################################################################################################################
+
+#macro( getReviewStats $group )
+
+#set( $exclusionList = [] )
+
+#set( $groupTotalApproved = 0 )
+#set( $groupTotalRejected = 0 )
+#set( $groupTotalNotReviewed = 0 ) 
+#set( $groupTotalPartiallyApproved = 0 )
+#set( $groupTotalNotReviewed = 0 )
+#set( $uniqueGroupReviewIds = [] )
+#set( $reviewIdentifiersAndDates = [] )
+
+	#foreach( $doc in $group )
+		## <tr colspan=13><td>Debug $doc.name</td></tr>
+		#set( $reviewRevisionsDatesAndVersions = [] )
+
+		#if( $baselineMode )
+			#set( $revisions = $reviewDao.getRevisionsForItemId( $doc.currentVersion.originDocument.id ) )
+		#else
+			#set( $revisions = $reviewDao.getRevisionsForItemId( $doc.id ) )
+		#end
+
+		#foreach( $revision in $revisions )
+				
+			#set( $reviewID = $revision.review.id )
+	
+			#exclusionListCheck( $reviewID $exclusionList )
+			## Returns $omitResult ~ check if review ID has been added to the exclusion list of reviews
+
+	    #if( !$omitResult )   
+      ## if the review ID is not on the exclusion list 
+      ## see if it should be- has the latest revision been deleted rendering all previous revisions as deleted? ( don't include these in the report))
+	      #checkRevisionsStatus( $reviewID $revision.review $exclusionList ) ## returns updated $exclusionList
+	      #exclusionListCheck( $reviewID $exclusionList) ## check our updated exclusion list to ensure the current revision is valid or not to still be added to report
+    	#end 
+
+			## If $omitResult is still false, revison is valid
+    	#if( !$omitResult )
+				#set( $success = $reviewRevisionsDatesAndVersions.add( { "revision": $revision, "date": $revision.createdDate } ) )
+			#end
+
+		#end
+
+		## get the most recent revision date 
+		#set( $reviewRevisionsDatesAndVersions = $sortTool.sort( $reviewRevisionsDatesAndVersions, "date:desc") )
+		
+		#if( $reviewRevisionsDatesAndVersions.size() > 0 )
+			#set( $mostRecentRevision = $reviewRevisionsDatesAndVersions[0].revision )
+			#set( $mostRecentReview = $mostRecentRevision.review )
+			#set( $mostRecentReviewID = $mostRecentRevision.review.id )
+		#else
+			#set( $mostRecentRevision = false )
+			#set( $mostRecentReview = false )
+		#end
+		
+		## Check to see if the item is approved/rejected in the review (if there is one)
+		
+		#if( $mostRecentReview ) 
+		
+			#set( $revisionItem = $reviewDao.getRevision_ItemByRevisionAndItem( $mostRecentRevision.id, $doc.id) )
+			#set( $revisionUsers = $mostRecentRevision.revisionUsers )
+			#set( $revisionStatus = $mostRecentRevision.status.name )
+
+			## these review identifiers are for the unique URLS to the review in Jama
+			#set( $reviewSequence = "")
+			#set( $reviewSequence= $mostRecentReview.sequence.toString() )
+			#set( $revisionSequenceNum = "")
+			#set( $revisionSequenceNum = $mostRecentRevision.sequenceNumber.toString() )
+		
+			#set( $reviewStartDate = "")
+			#set(	$reviewStartDate = "#getDate( $mostRecentRevision.createdDate, $timeZone)")
+    	#set(	$reviewStartDate = $reviewStartDate.replaceAll(","," "))
+    	#set( $reviewEndDate = "" )
+			#set(	$reviewEndDate = "#getDate( $mostRecentRevision.endDate, $timeZone)")
+    	#set(	$reviewEndDate = $reviewEndDate.replaceAll(","," "))
+			
+			#set( $approvers = 0 )
+			#set( $approved = 0 )
+			#set( $partiallyApproved = 0 )
+			#set( $rejected = 0 )
+			#set( $moderators = [] )
+
+
+			#foreach( $author in $mostRecentReview.authors )
+				#if( !$foreach.first )
+				#end
+				#if( !$moderators.contains( $author.displayName )) 
+					#set( $success = $moderators.add( $author.displayName ) )
+				#end 
+			#end			
+			
+			#foreach( $revisionUser in $revisionUsers )
+				#if( $revisionUser.isApprover ) 
+					#set( $approvers = $approvers + 1 ) 
+				#end 
+			#end
+		
+			#foreach( $reviewRevisionUserItem in $revisionItem.revisionUserItems )
+				#if( $reviewRevisionUserItem.status.name == "Approved" ) 
+					#set( $approved = $approved + 1 )
+				#end
+				#if( $reviewRevisionUserItem.status.name == "Needs More Work" ) 
+					#set( $rejected = $rejected + 1 ) 
+				#end 
+			#end  
+
+			##<tr colspan=13><td>DEBUG Approvers $approvers, Approved $approved, Rejected $rejected</td></tr>
+
+			#if( $approvers == 0 && $approved == 0 && $rejected == 0 || $approvers > 0 && $approved == 0 && $rejected == 0 )
+				#set( $groupTotalNotReviewed = $groupTotalNotReviewed + 1 )
+
+			#elseif( $approvers > $approved && $approved > 0 && $rejected == 0 )
+				#set( $partiallyApproved = $partiallyApproved + 1 )
+				#set( $groupTotalPartiallyApproved = $groupTotalPartiallyApproved + $partiallyApproved )
+					
+			#elseif( $approvers > 0 && $approvers == $approved && $rejected == 0 )
+				#set( $groupTotalApproved = $groupTotalApproved + $approved ) 
+			
+			#elseif( $rejected > 0  )
+				#set( $groupTotalRejected = $groupTotalRejected + $rejected )
+
+			#end 
+	  	
+	  	#set( $contains = true )
+			#if( $!mostRecentReviewID && !$uniqueGroupReviewIds.contains( $!mostRecentReviewID ) )
+				#set( $contains = false )
+				#set( $success = $uniqueGroupReviewIds.add(  $!mostRecentReviewID ) )
+			#end 
+			#if( !$contains )
+				#set( $success = $reviewIdentifiersAndDates.add({ "reviewSequence": $reviewSequence, "revisionSequence": $revisionSequenceNum, 
+				"moderators": $moderators, "startDate": $reviewStartDate, "endDate": $reviewEndDate } ))
+				##<tr colspan=13><td>Debug Review Details: $reviewIdentifiersAndDates</td></tr>
+			#end 
+			##<tr colspan=13><td> Unique Group Ids Size $uniqueGroupReviewIds.size()</td></tr>
+		#else 
+			#set( $groupTotalNotReviewed = $groupTotalNotReviewed + 1 )
+			##<tr colspan=13><td>DEBUG No Review</td></tr>
+		#end
+
+	#end 
+#end
+##
+ 
+#########################################################################################################################
+#########################################################################################################################
+##          
+##          Macro: buildRowStats
+##          Input: $rowSpanCount $background $path $setGroup $reviewStatus $groupTotalApproved 
+##                 $groupTotalPartiallyApproved $groupTotalRejected $groupTotalNotReviewed $reviews
+##          Desc: 
+##                Merge cells- Build a row per Set group of review stats with a rowSpan for each unique recent review
+##                             that items in that Set have been in, and build a row per review
+##
+#########################################################################################################################
+#macro( buildRowStats $rowSpanCount $background $path $setGroup $reviewStatus $groupTotalApproved 
+$groupTotalPartiallyApproved $groupTotalRejected $groupTotalNotReviewed $reviews )
+
+#set( $reviewsIndex = 0 )
+#set( $reviewsFinished = false )
+
+#foreach( $row in [1..$rowSpanCount ] )
+
+	<tr rowspan="$rowSpanCount">
+		
+		#if( $foreach.first )
+			## COMPONENT PATH ## 
+			<td class=xl68 width=351 rowspan=$rowSpanCount>$!path</td>
+
+			## SET NAME GROUP ## 
+			<td class=xl68 width=350 rowspan=$rowSpanCount>$!setGroup</td>
+
+			## REVIEW STATUS ## 
+			<td width=118 rowspan=$rowSpanCount style='background-color:#$background !important;border-right:.5pt solid black;border-bottom:.5pt solid black;'>
+				<p>$!reviewStatus</p></td>
+
+			## APPROVED ITEMS COUNT ## 
+			<td class=xl70 rowspan=$rowSpanCount width=90 style='border-left:none;'>$!groupTotalApproved</td>
+
+			## PARTIALLY APPROVED ITEMS COUNT ## 
+			<td class=xl70 rowspan=$rowSpanCount width=90 style='border-left:none;'>$!groupTotalPartiallyApproved</td>
+
+			## REJECTED ITEMS COUNT ## 
+			<td class=xl70 rowspan=$rowSpanCount width=90 style='border-left:none;'>$!groupTotalRejected</td>
+
+			## NOT REVIEWED ITEMS ## 
+			<td class=xl70 rowspan=$rowSpanCount width=90 style='border-left:none;'>$!groupTotalNotReviewed</td>
+	  #end 
+
+
+		#if( $reviews.size() > 0 && !$reviewsFinished )
+			#set( $reviewSequence = $reviews.get($reviewsIndex).reviewSequence )
+			#set( $revisionSequenceNum = $reviews.get($reviewsIndex).revisionSequence )
+			#set( $moderators = $reviews.get($reviewsIndex).moderators )
+			#set( $reviewStartDate = $reviews.get($reviewsIndex).startDate )
+			#set( $reviewEndDate = $reviews.get($reviewsIndex).endDate )
+
+			## REVIEW ITEMS LINK ## 
+			<td class=xl71 width=146 style='border-left:none;color:#0563C1 !important;text-decoration:underline !important;'>
+				<a style='color:#0563C1 !important;text-decoration:underline !important;' href="$baseUrl/review.req#/r:REV-$reviewSequence,V$revisionSequenceNum">REV-$!reviewSequence,V$!revisionSequenceNum</a>
+			</td>
+		
+		
+		## REVIEW MODERATOR ## 
+			#set( $moderatorNames = "")
+			#if( $moderators.size() == 1)
+				#set( $moderatorNames = $moderatorNames.concat("$moderators.get(0)"))
+			#elseif( $moderators.size() > 1 )
+
+					#foreach( $moderator in $moderators )
+						#set( $moderatorsNames = $moderatorNames.concat( "$moderator, "))
+					#end 
+
+			#end
+			<td class=xl70 width=146 style='border-left:none;'>$!moderatorNames</td>
+	  
+	  ## REVIEW START DATE ##
+
+			<td class=xl72 width=146 style='border-left:none;'>$!reviewStartDate</td>
+		
+		## REVIEW END DATE ## 
+		
+			<td class=xl72 width=146 style='border-left:none;'>$!reviewEndDate</td>
+
+		#else 
+			<td class=xl71 width=146 style='border-left:none;'></td>
+			<td class=xl71 width=146 style='border-left:none;'></td>
+			<td class=xl71 width=146 style='border-left:none;'></td>
+			<td class=xl71 width=146 style='border-left:none;'></td>
+		#end
+
+
+		#if( $reviewsIndex == $reviews.size() - 1 )
+			#set( $reviewsFinished = true )
+		#else
+			#set( $reviewsIndex = $reviewsIndex + 1 )
+		#end 
+
+
+		</tr>
+
+	#end ##foreach( $row in $rows )
+
+
+#end 
+
+#####################################################################################################################
+##     REPORT BODY, OUTPUT DOCUMENT LIST                                                                           ## 
+#####################################################################################################################
+
+<body link="#0563C1" vlink="#954F72">
+
+
+##------------------------    Table Definition     ---------------------------##
+
+<table border=0 cellpadding=0 cellspacing=0 width=1763 style='border-collapse:collapse;table-layout:fixed;'>
+ <col width=351 style='mso-width-source:userset;'>
+ <col width=350 style='mso-width-source:userset;'>
+ <col width=118 style='mso-width-source:userset;'>
+ <col width=90 span=4 style='mso-width-source:userset;'>
+ <col width=146 span=4 style='mso-width-source:userset;'>
+
+##------------------------    Table Headings        ---------------------------##
+
+ <tr height=84>
+  <td height=84 class=xl65 width=351>Path</td>
+  <td class=xl65 width=350 style='border-left:none;'>Set Name</td>
+  <td class=xl66 width=118 style='border-left:none;'>Review Status</td>
+  <td class=xl67 width=90>Approved Items</td>
+  <td class=xl67 width=90 style='border-left:none;'>Partially Approved Items</td>
+  <td class=xl67 width=90 style='border-left:none;'>Rejected Items</td>
+  <td class=xl67 width=90 style='border-left:none;'>Not Reviewed Items</td>
+  <td class=xl67 width=146 style='border-left:none;'>Reviews</td>
+  <td class=xl67 width=146 style='border-left:none;'>Review Moderator</td>
+  <td class=xl67 width=146 style='border-left:none;'>Review Start Date</td>
+  <td class=xl67 width=146 style='border-left:none;'>Review End Date</td>
+ </tr>
+
+##------------------------  Document List Get Data   --------------------------##
+
+
+#set( $CMP_SET_ITEMs = [] )
+#set( $finalSetGroups = [] )
+#set( $rowReviewStats = [] )
+
+
+#foreach( $vDoc in $documentList )
+	#set( $doc = $vDoc.document )
+
+	#set( $docTypeKey = $doc.documentType.documentTypeKey )
+
+  #if( $docTypeKey != $setKey && $docTypeKey != $cmpKey )
+  	
+  	## For each item, build a list of its parent set, and the component path that contains the set and item.
+	  #getParentCMPpathAndSETnamePerItem( $doc ) 
+	  ## returns $CMP_SET_ITEMs { "Path": $cmpPath, SetName": $parentSet.name, "Item": $doc }
+		
+	#end 
+#end 
+
+##------------------------    Organize Data by Set  ------------------------##
+
+
+	#buildSetGroups( $CMP_SET_ITEMs )
+	## returns $finalSetGroups ({"Path": $cmpPath, "Set": $setName, "Items":$items }))
+	## set groups are in alphabetical order
+	
+	#getRowReviewStats( $finalSetGroups )
+	## returns entire $rowReviewStat, obj list
+	
+
+##------------------------    Dynamic Table      ---------------------------##
+
+#foreach( $rowReviewStat in $rowReviewStats )
+
+	#set( $rowSpanCount = $rowReviewStat.get( "RowSpan" ) )
+	#set( $background = $rowReviewStat.get( "Background" ) )
+
+	#set( $path = $rowReviewStat.get( "Path" ) )
+	#set( $setGroup = $rowReviewStat.get( "Set" ) )
+	#set( $reviewStatus = $rowReviewStat.get( "ReviewStatus" ) )
+
+	#set( $groupTotalApproved = $rowReviewStat.get( "Approved" ) )
+	#set( $groupTotalPartiallyApproved = $rowReviewStat.get( "Partially" ) )
+	#set( $groupTotalRejected = $rowReviewStat.get( "Rejected" ) )
+	#set( $groupTotalNotReviewed = $rowReviewStat.get( "NotReviewed"))
+
+	#set( $reviews = $rowReviewStat.get( "Reviews" ) )
+
+
+	#buildRowStats( $rowSpanCount $background $path $setGroup $reviewStatus $groupTotalApproved $groupTotalPartiallyApproved 
+	$groupTotalRejected $groupTotalNotReviewed $reviews )
+	
+
+#end ## end reviewStats obj list
+
+##-----------------------  Static Item Review Status Definitions  ----------------##
+<tr height=20 style='height:15.0pt'>
+  <td height=20 class=xl1527488 style='height:15.0pt'></td>
+  <td class=xl1527488></td>
+  <td class=xl1527488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+ </tr>
+ <tr height=20 style='height:15.0pt'>
+  <td height=20 class=xl1527488 style='height:15.0pt'></td>
+  <td class=xl1527488></td>
+  <td class=xl1527488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+ </tr>
+ <tr height=20 style='height:15.0pt'>
+  <td colspan=2 height=20 class=xl9227488 style='border-right:.5pt solid black;
+  height:15.0pt'>Item Review Status Definitions</td>
+  <td class=xl1527488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+ </tr>
+ <tr height=40 style='height:30.0pt'>
+  <td height=40 class=xl7527488 width=350 style='height:30.0pt;width:263pt'>Approved</td>
+  <td class=xl7627488 width=350 style='width:263pt'>Current Item Version
+  approved by all approvers in all reviews</td>
+  <td class=xl1527488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+ </tr>
+ <tr height=40 style='height:30.0pt'>
+  <td height=40 class=xl7527488 width=350 style='height:30.0pt;width:263pt'>Partially
+  Approved</td>
+  <td class=xl7627488 width=350 style='width:263pt'>Current Item Version
+  approved by some approvers in all reviews with no rejections</td>
+  <td class=xl1527488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+ </tr>
+ <tr height=40 style='height:30.0pt'>
+  <td height=40 class=xl7527488 width=350 style='height:30.0pt;width:263pt'>Rejected</td>
+  <td class=xl7627488 width=350 style='width:263pt'>Current Item Version
+  rejected by any approver in any review</td>
+  <td class=xl1527488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+ </tr>
+ <tr height=40 style='height:30.0pt'>
+  <td height=40 class=xl7527488 width=350 style='height:30.0pt;width:263pt'>Not
+  Reviewed</td>
+  <td class=xl7627488 width=350 style='width:263pt'>Current item version not
+  approved or rejected by any approver in any review</td>
+  <td class=xl1527488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+ </tr>
+
+ ##-----------------------  Static Review Status Definitions  ----------------##
+ <tr height=20 style='height:15.0pt'>
+  <td colspan=2 height=20 class=xl9427488 width=700 style='border-right:.5pt solid black;
+  height:15.0pt;width:526pt'>Review Status Definitions</td>
+  <td class=xl1527488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+ </tr>
+ <tr height=40 style='height:30.0pt'>
+  <td height=40 class=xl7527488 width=350 style='height:30.0pt;width:263pt'>Not
+  Reviewed</td>
+  <td class=xl7627488 width=350 style='width:263pt'>No items in the set have
+  received feedback in a review</td>
+  <td class=xl1527488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+ </tr>
+ <tr height=40 style='height:30.0pt'>
+  <td height=40 class=xl7527488 width=350 style='height:30.0pt;width:263pt'>Partially
+  Reviewed</td>
+  <td class=xl7627488 width=350 style='width:263pt'>Items in the set have
+  received feedback in a review, but not all are approved</td>
+  <td class=xl1527488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+ </tr>
+ <tr height=40 style='height:30.0pt'>
+  <td height=40 class=xl7727488 width=350 style='height:30.0pt;width:263pt'>Approved</td>
+  <td class=xl7827488 width=350 style='width:263pt'>All items in the set have
+  been approved by all approvers</td>
+  <td class=xl1527488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+ </tr>
+ <tr height=20 style='height:15.0pt'>
+  <td height=20 class=xl1527488 style='height:15.0pt'></td>
+  <td class=xl1527488></td>
+  <td class=xl1527488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+  <td class=xl7327488></td>
+ </tr>
+
+
+</table>
+
+
+
+</body>
+
+</html>
