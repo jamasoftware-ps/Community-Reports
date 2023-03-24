@@ -46,7 +46,7 @@ SET groups are presented in the report in alphabetical order.
 ![ReviewStatusBySet2](https://user-images.githubusercontent.com/99203913/227651930-aff68a34-0a02-47d4-b814-5cac50c5dd10.png)
 
 ## Installation Instructions 
-1. Go to the Admin seciton of Jama 
+1. Go to the Admin section of Jama 
 2. Click the Reports Tab
 3. Click Add Report 
 4. Fill in the Add/Edit Report form as shown below
