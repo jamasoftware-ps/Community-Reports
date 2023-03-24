@@ -2,10 +2,10 @@
 
 ## Description 
 This report can be exported from any location in the project tree or from a baseline. 
-The report groups items by what SET they belong to, and sorts the SETs in alphabetical order. 
-(If an item is exported that does not belong to a set, it will not be included in the report.) 
+The report groups items by what SET they belong to (If an item is exported that does not belong to a set, it will not be included in the report).
 For each item in a SET group, the report checks for it's most recent review. 
 If the item has been reviewed, the most recent review data for that item is aggregated with the total review stats for the SET Group.
+SET groups are presented in the report in alphabetical order. 
 
 ### Table Specification 
 | Column Label | Column Value Definition | 
