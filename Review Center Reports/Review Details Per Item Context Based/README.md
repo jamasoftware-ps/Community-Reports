@@ -1,16 +1,9 @@
 # Review Details Per Item Report (Context Based)
 
-## Details
-- This report can be exported on a collection of items of any type from the project tree constructing a single sheet excel export. The report will gather active reviews the item is included on, building a row of review details per item. 
+## Description
+This report when exported from either a container item or single item present in the project tree or baseline will retrieve review data from each exported items associated reviews. The report includes a simple checkbox parameter option label "Show Items Latest Review Only" that when true will only extract each exported items latest review data. Alternatively if false the report will extract every review each exported items is associated with. In the event that a exported item does not have any associated reviews the report will still include it by only showing the Item ID and Item Name but a blank cells for all other columns.
 
-- The report will include the following fields per row: Item Product ID, Item Type Key, Name, Review ID, Review Name, Review Version, Review Status, 
-Close Date, # of Approvers, # of Items, Users who Approved the review, Users who Rejected the Review, # of Approvals, # of Rejections, and # of Comments per review.
-
-- By default the report will gather and build a row for every active review the item is on however a report parameter is included to filter the data by only the items most recent review. Should an item not have a review the report will only show the items API ID and name.
-
-- If the number of Approver users and review Approvals matches the "# Approvals" cell will be highlighted in green. If the review has any rejections the "# of Rejections" cell will be highlighted red. 
-
-
+The report organizes itself into five primary parent categories of data: Exported Item Data, Review Data, Review Item Data, Approvers Data, and Reviewers Data. Each section contains it's own collection of category specific data columns to provide you with a expanded informational overview of your items review data. In order to allow for simple navigation back to your Jama Connect instance hyperlinks are provided for any of the data provided in the report. In addition for assistance with confirming assigned users progress, in the event that the number of approvals and or reviews of a particular item match the number of Approver and or Reviewer users that cell will be colored green. Alternatively if any user has applied a rejection status or has not reviewed an assigned item then that cell will be colored red. 
 
 
 ## Preview Images
@@ -21,8 +14,6 @@ Close Date, # of Approvers, # of Items, Users who Approved the review, Users who
 ### Only Most Recent Item Reviews
 ![Only Most Recent Item Reviews](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Review%20Center%20Reports/Review%20Details%20Per%20Item%20Context%20Based/Most_Recent_Item_Reviews.png)
 
-### Item with No Active Reviews
-![Item with No Active Reviews](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Review%20Center%20Reports/Review%20Details%20Per%20Item%20Context%20Based/Item_Without_Review.png)
 
 ## Installation Instructions
 1. Go to the Admin section of Jama
@@ -33,11 +24,13 @@ Close Date, # of Approvers, # of Items, Users who Approved the review, Users who
 
 ![Report Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Review%20Center%20Reports/Review%20Details%20Per%20Item%20Context%20Based/Config.png)
 
-## NOTES: 
-- The report parameter display text is "Show Items Latest Review Only" and unique variable name for report code purposes (DO NOT CHANGE) is "reportLatestReview"
-- Your Organization field will have a different value.  
-- Rename the report to anyting you like
-- Enable any report format that you'd like to use
+### Report Criteria
+Ensure that no typos, leading, or trailing spaces are present in the *Name* field for the reports installation criteria.
+
+| Type          | Display                               | Name                       |
+| ------------- | ------------------------------------- | -------------------------- |
+| Boolean       | Show Items Latest Review Only         | reportLatestReview         |
+
 
 ## Running the Report
 1. Find the data set you would like to run the report on in your project tree 

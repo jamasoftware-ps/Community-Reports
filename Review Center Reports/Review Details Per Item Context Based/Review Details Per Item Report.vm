@@ -1,0 +1,1125 @@
+MIME-Version: 1.0
+X-Document-Type: Workbook
+Content-Type: multipart/related; boundary="----=_NextPart_01D8DFBE.2078AF30"
+
+#########################################################################################################################
+## ======================================================================================================================
+## Name: Review Details Per Item Report.vm
+##
+## Output Type: Excel XLXS
+## 
+## Description/Notes:
+##               - Export report on a container or single item from your project tree. 
+##                 - If the "Latest Reviews Only" parameter is true then the report will extract only the latest review
+##                   data per each exported item. 
+##                 - If the "Latest Reviews Only" parameter is false then the report will extract all review data per
+##                   each exported item.
+##               - The report builds five primary data group sections: Exported Item Data, Review Data, 
+##                 Review Item Data, Approvers Data, & Reviewers Data.
+##               - Content ID cells are direct hyperlinks back to the Jama instance either to the exported item, review, 
+##                 or review item itself.
+##               - If an exported item does not have any reviews then a row with only item ID and name will generate.
+##               - If the # of Approvals or # of Reviews matches the number of Approver or Reviewer users assigned
+##                 to the review the cell will be colored green. 
+##               - If a review has a rejection or has not been reviewed then the # of Rejections and or # of Awaiting Review
+##                 cells will be colored red.
+## 
+## Context Sensitive: T
+## 
+##
+## ======================================================================================================================
+## MODIFICATION HISTORY 
+## 
+## Date         Revision   Person            Comments 
+## -----------  ---------  ----------------  -------------------------------------------------------------------------
+## 2022-01-13   1.0         Liam Rotchford    - Report based upon specifications as shown in the description above.
+## 2022-01-14   1.1         Liam Rotchford    - Added Item type key column per item after the ID column.
+## 2022-05-06   1.2         Liam Rotchford    - Removed omitted item types conditional to ensure all items in the context
+##                                              are included.
+##                                            - Adjusted report to use the document items documentKey instead of the API ID
+## 2022-05-06   1.2.1       Liam Rotchford    - Adjusted cell types for documentKey items to be String type with proper style 
+##                                              class.
+## 2022-07-01   1.2.2       Liam Rotchford    - Adjusted report to utilize globalId for determining item differences for 
+##                                              performing approval, rejection value calculations. 
+##                                            - This prevents edge case where items with duplicate names are present in review.
+##                                            - Adjusted the placement of the #set($prevItem = $currentItem) to ensure it is 
+##                                              always updated. 
+## 2023-03-24   2.0         Liam Rotchford    - Updated report to latest EESR Master Single Sheet .XLSX Output Template version
+##                                              1.1 .
+##                                            - Rebuilt report content into five primary groups: Exported Item Data, Review Data, 
+##                                              Review Item Data, Approvers Data, & Reviewers Data. 
+##                                            - Improved report formatting, style classes, and incorporated additional data columns. 
+##                                            - Created #gatherReviews() & #gatherReviewData() macros to extract report data 
+##                                              with updated implementations to improve report performance. 
+##                                            - Updated dynamic row / cell creation organized into individual content macros
+##                                              based on report "groups": #itemDataGroupCells(), #reviewDataGroupCells(), 
+##                                              #reviewItemDataGroupCells(), #reviewItemApproversDataGroupCells(), 
+##                                              #reviewItemReviewersDataGroupCells().
+##                                            - Added a modified version of the #getSpan() macro to apply merged cells formatting
+##                                              to the exported items column cell group. 
+##                                            - Added hyperlink logic for exported items, latest review, previous revision review, 
+##                                              latest review version review item, & previous review version review item. 
+##                                            - Removed excess / unused functional macros to reduce report file bulk.
+##
+##
+##
+##
+##
+## ===================================================================================================================== 
+## Criteria: 
+##
+##      Type:     Display Name:                     Report Global Variable:
+##      -------------------------------------------------------------------
+##      Boolean   Show Items Latest Review Only     reportLatestReview
+##
+##
+#########################################################################################################################
+
+
+
+
+#########################################################################################################################
+#########################################################################################################################
+##
+##  1. DATA_SOURCES
+##
+#########################################################################################################################
+##
+## Data Sources available without declaration
+##-------------------------------------------
+## $format
+## $project
+## $documentList
+## $baseUrl
+## $contextType
+## $contextId
+## $report_name
+##
+## Data Sources loaded for this report
+##-------------------------------------------
+#if( $documentSource ) ##
+  ## Jama 8.44 or greater
+  ## Jama 8.42 if New Velocity Feature Flag Enabled
+  #set( $docDao = $documentSource )
+  #set( $documentNodeDao = $documentSource )
+  #set( $attachmentDao = $documentSource )
+  #set( $attachmentService = $documentSource )
+  #set( $docTypeFieldDao = $documentSource )
+  #set( $relDao = $documentSource )
+  #set( $versionDao = $documentSource )
+  #set( $testRunDao = $testSource )
+  #set( $testPlanDao = $testSource)
+  #set( $testSetDao = $testSource)
+  #set( $testCycleDao = $testSource)
+  #set( $velocityServiceWrapper = $documentSource )
+  #set( $baselineDao = $baselineSource )
+  #set( $contourItemDao = $documentSource )
+  #set( $userDao = $userSource )
+  #set( $lookupDao = $documentSource )
+  #set( $revisionDao = $reviewSource )
+  #set( $commentDao = $commentSource )
+#else
+  ## Jama 8.43 or older
+  ## Jama 8.43 or older ## Zoll is version 8.42.1 without the Velocity Feature Flag Enabled
+  #set( $contourItemDao = $applicationContext.getBean("contourItemDao"))
+  #set( $docDao = $applicationContext.getBean("documentDao"))
+  #set( $documentNodeDao = $applicationContext.getBean("documentNodeDao"))
+  #set( $attachmentDao = $applicationContext.getBean("attachmentDao"))
+  #set( $attachmentService = $applicationContext.getBean("attachmentService"))
+  #set( $relDao = $applicationContext.getBean("relationshipDao") )
+  #set( $versionDao = $applicationContext.getBean("versionDao") )
+  #set( $testRunDao = $applicationContext.getBean("testRunDao") )
+  #set( $testPlanDao = $applicationContext.getBean("testPlanDao"))
+  #set( $testSetDao = $applicationContext.getBean("testSetDao"))
+  #set( $testCycleDao = $applicationContext.getBean("testCycleDao"))
+  #set( $userDao = $applicationContext.getBean("userDao"))
+  #set( $baselineDao = $applicationContext.getBean("baseLineDao") )
+  #set( $revisionDao = $applicationContext.getBean("reviewDao"))
+  #set( $commentDao = $applicationContext.getBean("commentDao") )
+##
+#end
+##
+
+## Report Parameters
+##-------------------------------------------
+
+#if($!contextType && $contextType.toUpperCase().contains("BASELINE") )
+  #set( $baselineMode = true)
+  #set( $baselineId = $mathTool.toInteger($contextId))
+  #set( $reportBaseline = $baselineDao.getBaseLine( $baselineId ))
+#else
+  #if( $reportBaseline )
+    #set( $baselineMode = $reportBaseline )
+  #else
+    #set( $baselineMode = false )
+  #end
+#end
+
+
+#if( $reportTestRuns )
+  #set( $testRunMode = $reportTestRuns )
+#else
+  #set( $testRunMode = false )
+#end
+##
+##
+##
+## Report Constants 
+## -------------------------------------------
+#set( $cmpKey = "CMP") ##
+#set( $setKey = "SET") ##
+#set( $fldKey = "FLD") ##
+#set( $txtKey = "TXT") ##
+#set( $objectTypeField = "object_type" ) ##
+#set( $timeZone = "America/Los_Angeles" ) ##
+##
+## 
+#########################################################################################################################
+
+
+
+
+
+#########################################################################################################################
+##
+##  HEAD 
+##
+#########################################################################################################################
+
+#* Replace the ExcelWorksheet x:Name "Report Name" to correspond with the name of your worksheet Tab
+That is all you need to change within the head tags *#
+
+------=_NextPart_01D8DFBE.2078AF30
+Content-Location: file:///C:/61233B10/Single_Sheet_Mockup.htm
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta name="Excel Workbook Frameset">
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link rel=File-List href="Single_Sheet_Mockup_files/filelist.xml">
+<![if !supportTabStrip]>
+<link id="shLink" href="Single_Sheet_Mockup_files/sheet001.htm">
+
+<link id="shLink">
+<![endif]><!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>Report Name</x:Name>
+    <x:WorksheetSource HRef="Single_Sheet_Mockup_files/sheet001.htm"/>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:Stylesheet HRef="Single_Sheet_Mockup_files/stylesheet.css"/>
+  <x:WindowHeight>12165</x:WindowHeight>
+  <x:WindowWidth>27435</x:WindowWidth>
+  <x:WindowTopX>930</x:WindowTopX>
+  <x:WindowTopY>32767</x:WindowTopY>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+</xml><![endif]-->
+</head>
+</html>
+
+#########################################################################################################################
+##
+##  STYLES 
+##
+#########################################################################################################################
+------=_NextPart_01D8DFBE.2078AF30
+Content-Location: file:///C:/61233B10/Single_Sheet_Mockup_files/stylesheet.css
+Content-Type: text/css; charset="utf-8"
+
+#* Paste your styles here, replacing the styles in this template. You do not need the opening and closing style tags. 
+The styles are found by the template via the boundary and "Content-Location" *#
+tr
+  {mso-height-source:auto;}
+col
+  {mso-width-source:auto;}
+br
+  {mso-data-placement:same-cell;}
+.style0
+  {mso-number-format:General;
+  text-align:general;
+  vertical-align:bottom;
+  white-space:nowrap;
+  mso-rotate:0;
+  mso-background-source:auto;
+  mso-pattern:auto;
+  color:black;
+  font-size:12.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:none;
+  font-family:Calibri, sans-serif;
+  mso-font-charset:0;
+  border:none;
+  mso-protection:locked visible;
+  mso-style-name:Normal;
+  mso-style-id:0;
+  white-space:normal;
+  mso-char-indent-count:0;
+  }
+td
+  {mso-style-parent:style0;
+  padding-top:1px;
+  padding-right:1px;
+  padding-left:1px;
+  mso-ignore:padding;
+  color:black;
+  font-size:12.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:none;
+  font-family:Calibri, sans-serif;
+  mso-font-charset:0;
+  mso-number-format:General;
+  text-align:general;
+  vertical-align:bottom;
+  border:none;
+  mso-background-source:auto;
+  mso-pattern:auto;
+  mso-protection:locked visible;
+  white-space:normal;
+  mso-rotate:0;
+  mso-char-indent-count:0;}
+.xl61
+  {mso-style-parent:style0;
+  text-align:left;
+  vertical-align:center;
+  border:.5pt solid windowtext;}
+.xl62
+  {mso-style-parent:style0;
+  background:white;
+  mso-pattern:black none;}
+.xl63
+  {mso-style-parent:style0;
+  font-weight:700;
+  text-align:left;
+  vertical-align:top;
+  border:.5pt solid windowtext;}
+.xl64
+  {mso-style-parent:style0;
+  font-weight:700;
+  text-align:left;
+  vertical-align:center;
+  border:.5pt solid windowtext;
+  background:#DDEBF7;
+  mso-pattern:black none;}
+.xl65
+  {mso-style-parent:style0;
+  font-weight:700;
+  text-align:left;
+  vertical-align:center;
+  border:.5pt solid windowtext;
+  background:#FCE4D6;
+  mso-pattern:black none;}
+.xl66
+  {mso-style-parent:style0;
+  font-weight:700;
+  text-align:left;
+  vertical-align:center;
+  border:.5pt solid windowtext;
+  background:#FFF2CC;
+  mso-pattern:black none;}
+.xl67
+  {mso-style-parent:style0;
+  text-align:left;
+  vertical-align:top;
+  border:.5pt solid windowtext;}
+.xl68
+  {mso-style-parent:style0;
+  text-align:center;
+  vertical-align:top;
+  border:.5pt solid windowtext;}
+.xl69
+  {mso-style-parent:style0;
+  text-align:center;
+  vertical-align:top;
+  border:.5pt solid windowtext;
+  background:#C6E0B4;
+  mso-pattern:black none;}
+.xl70
+  {mso-style-parent:style0;
+  text-align:center;
+  vertical-align:top;
+  border:.5pt solid windowtext;
+  background:#FF9D9D;
+  mso-pattern:black none;}
+.xl71
+  {mso-style-parent:style0;
+  font-size:14.0pt;
+  font-weight:700;
+  text-align:left;
+  vertical-align:top;
+  border:.5pt solid windowtext;
+  background:#BDD7EE;
+  mso-pattern:black none;}
+.xl72
+  {mso-style-parent:style0;
+  font-size:14.0pt;
+  font-weight:700;
+  text-align:left;
+  vertical-align:top;
+  border:.5pt solid windowtext;
+  background:#F8CBAD;
+  mso-pattern:black none;}
+.xl73
+  {mso-style-parent:style0;
+  font-size:14.0pt;
+  font-weight:700;
+  text-align:left;
+  vertical-align:top;
+  border:.5pt solid windowtext;
+  background:#FFE699;
+  mso-pattern:black none;}
+.xl74
+  {mso-style-parent:style0;
+  font-size:14.0pt;
+  font-weight:700;
+  text-align:left;
+  vertical-align:top;
+  border:.5pt solid windowtext;}
+.xl75
+  {mso-style-parent:style0;
+  text-align:center;
+  vertical-align:top;
+  border:.5pt solid windowtext;}
+.xl76
+  {mso-style-parent:style0;
+  text-align:center;
+  vertical-align:top;
+  border:.5pt solid windowtext;
+  background:#FF9D9D;
+  mso-pattern:black none;
+  border:.5pt solid windowtext;}
+.xl77
+  {mso-style-parent:style0;
+  text-align:center;
+  vertical-align:top;
+  border:.5pt solid windowtext;}
+.xl78
+  {mso-style-parent:style0;
+  font-size:14.0pt;
+  font-weight:700;
+  text-align:left;
+  vertical-align:top;
+  border:.5pt solid windowtext;
+  background:#C6E0B4;
+  mso-pattern:black none;}
+.xl79
+  {mso-style-parent:style0;
+  font-weight:700;
+  text-align:left;
+  vertical-align:center;
+  border:.5pt solid windowtext;
+  background:#E2EFDA;
+  mso-pattern:black none;}
+.xl80
+  {mso-style-parent:style0;
+  font-size:14.0pt;
+  font-weight:700;
+  text-align:left;
+  vertical-align:top;
+  border:.5pt solid windowtext;
+  background:#8EA9DB;
+  mso-pattern:black none;}
+.xl81
+  {mso-style-parent:style0;
+  font-weight:700;
+  text-align:left;
+  vertical-align:center;
+  border:.5pt solid windowtext;
+  background:#B4C6E7;
+  mso-pattern:black none;}
+
+#########################################################################################################################
+##
+##  MACROS
+##
+#########################################################################################################################
+##
+#########################################################################################################################
+#########################################################################################################################
+##          Macro: formatRichTextCell
+##          Desc: Use on purly textual Rich Text Fields (I.e use directly in Cells)
+##          Input: $inString - input string
+##          Return: string, ready for opening in Word
+#########################################################################################################################
+#macro( formatRichTextCell $inString )
+  #if( $inString )
+    #set( $string = $inString.toString())
+    #set( $string = $string.replaceAll("\n{2}",""))
+
+    #set( $string = $string.replaceAll("<span.*?>",""))
+    #set( $string = $string.replaceAll("<\/span>",""))
+    #set( $string = $string.replaceAll("<h\d*?.*?>","<p><strong>"))
+    #set( $string = $string.replaceAll("<\/h\d*?>","</strong></p>"))
+    #set( $string = $string.replaceAll("<div.*?>",""))
+    #set( $string = $string.replaceAll("<\/div>",""))
+    ## Remove content that doesn't work well in Excel
+    #set( $string = $string.replaceAll("<table.*?>|<\/table>",""))
+    #set( $string = $string.replaceAll("(<caption.*?>(?:.|\s)*?<\/caption>)",""))
+    #set( $string = $string.replaceAll("<thead.*?>|<\/thead>",""))
+    #set( $string = $string.replaceAll("(<th.*?>(?:.|\s)*?<\/th>)",""))
+    #set( $string = $string.replaceAll("<tbody.*>|<\/tbody>",""))
+    #set( $string = $string.replaceAll("<tr.*?>|<\/tr>",""))
+    #set( $string = $string.replaceAll("(<td.*?>(?:.|\s)*?<\/td>)",""))
+    #set( $string = $string.replaceAll("(?s)<a.*>(.*)</a>","$1"))
+    #set( $string = $string.replaceAll("\xA0",""))
+
+    #set( $string = $string.replaceAll("<ul.*?>",""))
+    #set( $string = $string.replaceAll("<\/ul>","&#10;"))
+    #set( $string = $string.replaceAll("<ol.*?>",""))
+    #set( $string = $string.replaceAll("<\/ol>","&#10;"))
+    #set( $string = $string.replaceAll("\t<li.*?>|<li.*?>","• &#032;"))
+    #set( $string = $string.replaceAll("<\/li>","&#10;"))
+
+    #set( $string = $string.replaceAll("<em.*?>|<\/em>",""))
+    #set( $string = $string.replaceAll("<pre.*?>|<\/pre>",""))
+    #set( $string = $string.replaceAll("<strong>",""))
+    #set( $string = $string.replaceAll("<\/strong>",""))
+    #set( $string = $string.replaceAll("<u.*?>|<\/u>",""))
+    #set( $string = $string.replaceAll("<br.*?>","&#10;"))
+
+    #set( $string = $string.replaceAll("&nbsp;",""))
+    #set( $string = $string.replaceAll("<p.*?>",""))
+    #set( $string = $string.replaceAll("<\/p>","&#10;"))
+    #set( $string = $string.replaceAll(" \n|(&#10;)\n","$1"))
+   
+    #set( $string = $string.replaceAll("<img.*?>",""))
+
+
+    #set( $string = $string.replaceAll("<","&lt;"))
+    #set( $string = $string.replaceAll(">","&gt;"))
+
+    $!string
+
+  #end
+#end
+
+
+#########################################################################################################################
+##          Macro: getDate
+##          Input: Java Time Zone ID to determine which timezone to display the date in
+##          Output: Formatted date in the desired timezone
+#########################################################################################################################
+#macro( getDate $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  $dateTool.format( 'MM/dd/yyyy', $inputDate, $locale, $outTz )
+#end
+
+#########################################################################################################################
+
+
+
+#########################################################################################################################
+#########################################################################################################################
+##
+##  Report Review Data Collection Macros
+##
+#########################################################################################################################
+#########################################################################################################################
+
+
+#########################################################################################################################
+##          Macro: gatherReviews
+##          Inputs: 
+##          Returns: Populated the $itemReviewData array of objects
+#########################################################################################################################
+#macro( gatherReviews )
+  #set($itemReviewData = [])
+  
+  ## Gather Exported Items Review & Revision Objects
+  #####################################################
+  #foreach($vDoc in $documentList )
+    #set($reviewItemAdded = false)
+    #set($doc = $vDoc.document )
+    #set($versions = $docDao.getAllVersionsByDocumentId($doc.id))
+    #set($versionsSorted = $sortTool.sort($versions, "createdDate:desc"))
+
+    ## Extract All Reviews From Every Item Version
+    #####################################################
+    #if($versionsSorted.size() != 0)
+      #foreach($version in $versionsSorted)
+        #set($revisions = $reviewSource.getRevisionsForItemId($version.document.id) )
+        #set($revisionsSorted = $sortTool.sort($revisions, "createdDate:desc"))
+
+        #if($revisionsSorted.size() != 0)
+          
+          ## Extract Only Latest Review Revision
+          #######################################
+          #if($!reportLatestReview)
+            #if($revisionsSorted.size() != 0)
+              #set($latestRev = $revisionsSorted[0])
+            #else
+              #set($latestRev = false)
+            #end
+
+            #set($success = $itemReviewData.add({"Item": $doc, "LatestRevision": $!latestRev, "Revision": $!latestRev}))
+            #set($reviewItemAdded = true)
+            #break ## Break out of $versions forloop upon extracting latest revision from latest item version to move to next item
+          
+          ## Extract Every Review Revision
+          #######################################
+          #else
+            
+            #foreach($revision in $revisionsSorted)
+              #if($foreach.first)
+                #set($latestRev = $revision)
+              #else
+                #set($latestRev = false)
+              #end
+
+              #set($success = $itemReviewData.add({"Item": $doc, "LatestRevision": $!latestRev, "Revision": $!revision}))
+              #set($reviewItemAdded = true)
+            #end
+            
+          #end
+
+        #end ## #if($revisionsSorted.size() != 0)
+      #end ## #foreach($version in $versionsSorted)
+    #end ## #if($versionsSorted.size() != 0)
+
+
+    ## Item with no associated Reviews
+    ###################################
+    #if(!$reviewItemAdded)
+      #set($success = $itemReviewData.add({"Item": $doc, "LatestRevision": false, "Revision": false}))
+    #end
+
+  #end ## #foreach( $vDoc in $documentList )
+
+
+  ## Return $itemReviewData
+
+#end
+
+#########################################################################################################################
+##          Macro: gatherReviewData
+##          Inputs: $doc $revision $reviewItemDataObj
+##          Returns: Collect the following data stored in a key value pair object
+#########################################################################################################################
+#macro( gatherReviewData $doc $revision $reviewItemDataObj) 
+  
+  ## Define Revision Item Data Variables
+  #####################################################
+  #set($revisionItem = '')
+  #set($revisionItemId = '')
+  #set($revisionItemStatus = '')
+  #set($approvers = '')
+  #set($approverUserCount = 0)
+  #set($reviewers = '')
+  #set($reviewerUserCount = 0)
+  #set($approvedItemUsers = '')
+  #set($rejectedItemUsers = '')
+  #set($approvalCount = 0)
+  #set($rejectionCount = 0)
+  #set($reviewedItemUsers = '')
+  #set($notReviewedItemUsers = '')
+  #set($reviewedCount = 0)
+  #set($notReviewedCount = 0)
+  #set($commentCount = 0)
+
+
+  ## Extract Revision Item Data
+  #####################################################
+  #set($revisionUsers = $revision.revisionUsers)
+
+  #foreach($revisionUser in $revisionUsers)
+    #set($revUserItems = $revisionUser.revisionUserItems)
+
+    ## Gather Reviewer & Approver Users
+    ######################################
+    #if($revisionUser.isApprover)
+      #set($approvers = "$approvers,<br>$revisionUser.user.fullName")
+      #set($approverUserCount = $approverUserCount + 1)
+    #else
+      #set($reviewers = "$reviewers,<br>$revisionUser.user.fullName")
+      #set($reviewerUserCount = $reviewerUserCount + 1)
+    #end 
+
+    ## Gather Revision Item Data
+    ######################################
+    #foreach($revUserItem in $revUserItems)
+      
+      #if($revUserItem.revisionItem.version.document.globalId == $doc.globalId)
+        #set($revisionItem = $revUserItem.revisionItem.version.document)
+        #set($revisionItemId = $revUserItem.revisionItem.id)
+        #set($revisionItemStatus = $revUserItem.status.name)
+
+        #if($revisionItemStatus == "Approved")
+          #set($approvedItemUsers = "$approvedItemUsers,<br>$revisionUser.user.fullName")
+          #set($approvalCount = $approvalCount + 1)
+        #elseif($revisionItemStatus == "Needs More Work")
+          #set($rejectedItemUsers = "$rejectedItemUsers,<br>$revisionUser.user.fullName")
+          #set($rejectionCount = $rejectionCount + 1)
+        #elseif($revisionItemStatus == "Reviewed")
+          #set($reviewedItemUsers = "$reviewedItemUsers,<br>$revisionUser.user.fullName")
+          #set($reviewedCount = $reviewedCount + 1)
+        #elseif($revisionItemStatus == "Not Reviewed")
+          #set($notReviewedItemUsers = "$notReviewedItemUsers,<br>$revisionUser.user.fullName")
+          #set($notReviewedCount = $notReviewedCount + 1)
+        #end
+
+      #end ## #if($reviewItemGlobalId == $doc.globalId)
+
+    #end ## #foreach($revItem in $revItems)
+  #end ## #foreach($revisionUser in $revisionUsers)
+
+
+  ## String Clean User Name Lists
+  ######################################
+  #set($approvers = $approvers.replaceAll("^(,<br>)|(,<br>)$", ""))
+  #set($reviewers = $reviewers.replaceAll("^(,<br>)|(,<br>)$", ""))
+  #set($approvedItemUsers = $approvedItemUsers.replaceAll("^(,<br>)|(,<br>)$", ""))
+  #set($rejectedItemUsers = $rejectedItemUsers.replaceAll("^(,<br>)|(,<br>)$", ""))
+  #set($reviewedItemUsers = $reviewedItemUsers.replaceAll("^(,<br>)|(,<br>)$", ""))
+  #set($notReviewedItemUsers = $notReviewedItemUsers.replaceAll("^(,<br>)|(,<br>)$", ""))
+
+  ## Extract Revision Item Comment Count 
+  ######################################
+  #set( $revisionItems = $!revision.revisionItems)
+  #foreach($revItem in $revisionItems)
+    #if($revItem.version.document.globalId == $doc.globalId)
+      #set($commentCount = $commentDao.getRevisionItemCommentCount($revItem.id, false))
+      #break
+    #end
+  #end
+
+  ## Store Revision Item Data
+  #####################################################
+  #set($reviewItemDataObj = {"RevisionItem": $revisionItem, "RevisionItemId": $revisionItemId, "RevisionItemStatus": $revisionItemStatus, "Approvers": $approvers, "ApproverUserCount": $approverUserCount, "Reviewers": $reviewers, "ReviewerUserCount": $reviewerUserCount, "ApprovedItemUsers": $approvedItemUsers, "RejectedItemUsers": $rejectedItemUsers, "ApprovalCount": $approvalCount, "RejectionCount": $rejectionCount, "ReviewedItemUsers": $reviewedItemUsers, "NotReviewedItemUsers": $notReviewedItemUsers, "ReviewedCount": $reviewedCount, "NotReviewedCount": $notReviewedCount, "CommentCount": $commentCount})
+
+  ## Return $reviewItemDataObj
+
+#end
+
+#########################################################################################################################
+##          Macro: getSpan
+##          Inputs: $doc $currIndex $itemReviewData
+##          Desc: Used to determine how many rows to span down the table for the merge cell blocks
+##
+#########################################################################################################################
+#macro (getSpan $doc $currIndex $itemReviewData)
+  
+  #set($span = 0)
+
+  ## Inclusive (index included)
+  #set($fromIndex = $mathTool.toInteger($currIndex))
+  ## Exclusive (index not included (i.e index - 1))
+  #set($toIndex = $mathTool.toInteger($itemReviewData.size())) 
+  
+  ## Determine cycle range to minimize overhead
+  #set($subList = $itemReviewData.subList($fromIndex, $toIndex))
+
+  ## Determine number of same id items until we find a new item to calculate row span for merge cells
+  #foreach($itemReviewDataObj in $subList)
+    #set($exportedItem = $itemReviewDataObj.get("Item"))
+    
+    #if($!doc.id == $!exportedItem.id && $exportedItem != false)
+      #set($span = $span + 1)
+    #else
+      #break
+    #end
+
+  #end
+
+  #if($span == 0)
+    #set($span = 1)
+  #end
+
+  ## Return $span
+#end
+
+
+
+
+
+
+#########################################################################################################################
+#########################################################################################################################
+##
+##  Report Table Cell Creation Macros
+##
+#########################################################################################################################
+#########################################################################################################################
+
+
+#########################################################################################################################
+##          Macro: itemDataGroupCells
+##          Inputs: $doc $currIndex $itemReviewData
+##          Returns: Export items data column cells creation
+#########################################################################################################################
+#macro (itemDataGroupCells $doc $currIndex $itemReviewData)
+    
+  #getSpan($doc $currIndex $itemReviewData) ## Returns $span
+
+  ## Item ID
+  <td class=xl61 rowspan=$span style='border-top:none'><a href="$baseUrl/perspective.req#/items/$doc.id?projectId=$project.id">$doc.documentKey</a></td>
+
+  ## Item Name
+  <td class=xl61 rowspan=$span style='border-top:none;border-left:none'>$doc.name</td>
+
+#end
+
+#########################################################################################################################
+##          Macro: reviewDataGroupCells
+##          Inputs: $review $latestRevision $revision $reviewItemDataObj 
+##          Returns: Review data column cells creation
+#########################################################################################################################
+#macro (reviewDataGroupCells $review $latestRevision $revision $reviewItemDataObj)
+          
+  ## Review ID
+    ## Latest review revision hyperlink
+  #if($!latestRevision && $latestRevision.sequenceNumber == $!revision.sequenceNumber)
+    <td class=xl67 style='border-top:none;border-left:none'><a href="$baseUrl/review.req#/r:REV-$review.sequence">REV-$review.id</a></td>
+    ## Previous review revision hyperlink
+  #else
+    <td class=xl67 style='border-top:none;border-left:none'><a href="$baseUrl/review.req#/r:REV-$review.sequence,V$revision.sequenceNumber">REV-$review.id</a></td>
+  #end
+
+  ## Review Name
+  <td class=xl67 style='border-top:none;border-left:none'>$review.name</td>
+
+  ## Review Version
+  <td class=xl68 style='border-top:none;border-left:none'>V$!revision.sequenceNumber</td>
+
+  ## Review Status
+  <td class=xl67 style='border-top:none;border-left:none'>$!revision.status.name</td>
+
+  ## Review Start Date
+  #set($reviewStartDate = "#getDate($revision.startDate, $timeZone)")
+  #set($reviewStartDate = $reviewStartDate.replaceAll(","," "))
+  <td class=xl67 style='border-top:none;border-left:none'>$!reviewStartDate</td>
+
+  ## Review End Date
+  #set($reviewEndDate = "#getDate($revision.endDate, $timeZone)")
+  #set($reviewEndDate = $reviewEndDate.replaceAll(","," "))
+  <td class=xl67 style='border-top:none;border-left:none'>$!reviewEndDate</td>
+
+  ## Approvers
+  #set($approvers = $reviewItemDataObj.get("Approvers"))
+  <td class=xl67 style='border-top:none;border-left:none'>$!approvers</td>
+
+  ## Reviewers
+  #set($reviewers = $reviewItemDataObj.get("Reviewers"))
+  <td class=xl67 style='border-top:none;border-left:none'>$!reviewers</td>
+
+#end
+
+
+#########################################################################################################################
+##          Macro: reviewItemDataGroupCells
+##          Inputs: $review $latestRevision $revision $reviewItemDataObj 
+##          Returns: Review item data column cells creation
+#########################################################################################################################
+#macro (reviewItemDataGroupCells $review $latestRevision $revision $reviewItemDataObj)
+
+  ## Review Item ID
+    #set($revisionItem = $reviewItemDataObj.get("RevisionItem"))
+    #set($revisionItemId = $reviewItemDataObj.get("RevisionItemId"))
+    ## Latest review revision item hyperlink
+  #if($!latestRevision && $latestRevision.sequenceNumber == $!revision.sequenceNumber)
+    <td class=xl67 style='border-top:none;border-left:none'><a href="$baseUrl/review.req#/r:REV-$review.sequence/rp:i$!revisionItemId">REV-$revisionItem.documentKey</a></td>
+    ## Previous review revision item hyperlink
+  #else
+    <td class=xl67 style='border-top:none;border-left:none'><a href="$baseUrl/review.req#/r:REV-$review.sequence,V$revision.sequenceNumber/rp:i$!revisionItemId">REV-$revisionItem.documentKey</a></td>
+  #end
+  
+  ## Review Item Name
+  <td class=xl67 style='border-top:none;border-left:none'>$!revisionItem.name</td>
+
+  ## Review Item Version
+  <td class=xl67 style='border-top:none;border-left:none'>V$!revision.sequenceNumber</td>
+
+  ## # of Comments
+  #set($commentCount = $reviewItemDataObj.get("CommentCount"))
+  <td class=xl67 style='border-top:none;border-left:none'>$!commentCount</td>
+
+#end
+
+
+#########################################################################################################################
+##          Macro: reviewItemApproversDataGroupCells
+##          Inputs: $reviewItemDataObj 
+##          Returns: Review item approvers data column cells creation
+#########################################################################################################################
+#macro (reviewItemApproversDataGroupCells $reviewItemDataObj)
+  
+  ## Approval User
+  #set($approvedItemUsers = $reviewItemDataObj.get("ApprovedItemUsers"))
+  <td class=xl67 style='border-top:none;border-left:none'>$!approvedItemUsers</td>
+
+  ## Rejection User
+  #set($rejectedItemUsers = $reviewItemDataObj.get("RejectedItemUsers"))
+  <td class=xl67 style='border-top:none;border-left:none'>$!rejectedItemUsers</td>
+
+  ## # of Approvals
+  #set($approverUserCount = $reviewItemDataObj.get("ApproverUserCount"))
+  #set($approvalCount = $reviewItemDataObj.get("ApprovalCount"))
+  #set($approvalStyle = "xl75")
+  #if($approvalCount == $approverUserCount && $approvalCount != 0)
+    #set($approvalStyle = "xl69")
+  #elseif($approverUserCount == 0)
+    #set($approvalCount = '')
+  #end
+  <td class=$approvalStyle style='border-top:none;border-left:none'>$!approvalCount</td>
+
+  ## # of Rejections
+  #set($rejectionCount = $reviewItemDataObj.get("RejectionCount"))
+  #set($rejectionStyle = "xl75")
+  #if($rejectionCount > 0 )
+    #set($rejectionStyle = "xl70")
+  #elseif($approverUserCount == 0)
+    #set($rejectionCount = '')
+  #end
+  <td class=$rejectionStyle style='border-top:none;border-left:none'>$!rejectionCount</td>
+
+#end
+
+#########################################################################################################################
+##          Macro: reviewItemReviewersDataGroupCells
+##          Inputs: $reviewItemDataObj 
+##          Returns: Review item reviewers data column cells creation
+#########################################################################################################################
+#macro (reviewItemReviewersDataGroupCells $reviewItemDataObj)
+  
+  ## Reviewed User 
+  #set($reviewedItemUsers = $reviewItemDataObj.get("ReviewedItemUsers"))
+  <td class=xl67 style='border-top:none;border-left:none'>$!reviewedItemUsers</td>
+
+  ## Not Reviewed User
+  #set($notReviewedItemUsers = $reviewItemDataObj.get("NotReviewedItemUsers"))
+  <td class=xl67 style='border-top:none;border-left:none'>$!notReviewedItemUsers</td>
+
+  ## # of Reviewed
+  #set($reviewerUserCount = $reviewItemDataObj.get("ReviewerUserCount"))
+  #set($reviewedCount = $reviewItemDataObj.get("ReviewedCount"))
+  #set($reviewStyle = "xl75")
+  #if($reviewedCount == $reviewerUserCount && $reviewedCount != 0)
+    #set($reviewStyle = "xl69")
+  #elseif($reviewerUserCount == 0)
+    #set($reviewedCount = '')
+  #end
+  <td class=$reviewStyle style='border-top:none;border-left:none'>$!reviewedCount</td>
+
+  ## # of Not Reviewed
+  #set($notReviewedCount = $reviewItemDataObj.get("NotReviewedCount"))
+  #set($notReviewedStyle = "xl77")
+  #if($notReviewedCount > 0 )
+    #set($notReviewedStyle = "xl76")
+  #elseif($reviewerUserCount == 0)
+    #set($notReviewedCount = '')
+  #end
+  <td class=$notReviewedStyle style='border-top:none;border-left:none'>$!notReviewedCount</td>
+
+#end
+
+
+
+
+
+
+
+
+
+
+######################################################################################################################
+######################################################################################################################
+
+#########################################################################################################################
+##
+##  BODY
+##
+#########################################################################################################################
+
+
+------=_NextPart_01D8DFBE.2078AF30
+Content-Location: file:///C:/61233B10/Single_Sheet_Mockup_files/sheet001.htm
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link id=Main-File rel=Main-File href="../Single_Sheet_Mockup.htm">
+<link rel=File-List href=filelist.xml>
+<<style>
+<!--table
+  {mso-displayed-decimal-separator:"\.";
+  mso-displayed-thousand-separator:"\,";}
+@page
+  {margin:.75in .7in .75in .7in;
+  mso-header-margin:.3in;
+  mso-footer-margin:.3in;}
+-->
+</style>
+</head>
+
+  
+<body link="#0563C1" vlink="#954F72" class=xl62>
+
+  ## Gather Item Review Data
+  ##################################################################################
+  #gatherReviews() ## $itemReviewData
+
+  ## Report Table Definition
+  ##################################################################################
+  <table border=0 cellpadding=0 cellspacing=0 width=2966 style='border-collapse:collapse;table-layout:fixed;width:2220pt'>
+    <col width=127 style='mso-width-source:userset;mso-width-alt:4053;width:95pt'>
+    <col width=287 style='mso-width-source:userset;mso-width-alt:9173;width:215pt'>
+    <col width=127 style='mso-width-source:userset;mso-width-alt:4053;width:95pt'>
+    <col width=287 style='mso-width-source:userset;mso-width-alt:9173;width:215pt'>
+    <col width=127 span=2 style='mso-width-source:userset;mso-width-alt:4053;width:95pt'>
+    <col width=167 span=3 style='mso-width-source:userset;mso-width-alt:5333;width:125pt'>
+    <col width=207 span=2 style='mso-width-source:userset;mso-width-alt:6613;width:155pt'>
+    <col width=127 style='mso-width-source:userset;mso-width-alt:4053;width:95pt'>
+    <col width=287 style='mso-width-source:userset;mso-width-alt:9173;width:215pt'>
+    <col width=127 style='mso-width-source:userset;mso-width-alt:4053;width:95pt'>
+    <col width=207 span=2 style='mso-width-source:userset;mso-width-alt:6613;width:155pt'>
+    <col width=127 span=2 style='mso-width-source:userset;mso-width-alt:4053;width:95pt'>
+    <col width=207 span=2 style='mso-width-source:userset;mso-width-alt:6613;width:155pt'>
+    <col width=127 style='mso-width-source:userset;mso-width-alt:4053;width:95pt'>
+    <col width=135 style='mso-width-source:userset;mso-width-alt:4053;width:125pt'>
+
+    ## Data Group Labels
+    ###############################################
+    <tr class=xl74 height=25 style='height:19.0pt'>
+      <td colspan=2 height=25 class=xl71 style='height:19.0pt;'>Item Data</td>
+      <td colspan=8 class=xl72 style='border-left:none;'>Review Data</td>
+      <td colspan=4 class=xl73 style='border-left:none;'>Review Item Data</td>
+      <td colspan=4 class=xl78 style='border-left:none;'>Review Item Approvers Data</td>
+      <td colspan=4 class=xl80 style='border-left:none;'>Review Item Reviewers Data</td>
+    </tr>
+
+    ## Column Header Labels
+    ###############################################
+    <tr class=xl63 height=40 style='height:35.0pt'>
+      <td height=40 width=127 class=xl64 style='height:35.0pt;border-top:none;width:95pt'>Item ID</td>
+      <td class=xl64 width=287 style='border-top:none;border-left:none;width:215pt'>Item Name</td>
+      <td class=xl65 width=127 style='border-top:none;border-left:none;width:95pt'>Review ID</td>
+      <td class=xl65 width=287 style='border-top:none;border-left:none;width:215pt'>Review Name</td>
+      <td class=xl65 width=127 style='border-top:none;border-left:none;width:95pt'>Review Version</td>
+      <td class=xl65 width=167 style='border-top:none;border-left:none;width:125pt'>Review Status</td>
+      <td class=xl65 width=167 style='border-top:none;border-left:none;width:125pt'>Review Start Date</td>
+      <td class=xl65 width=167 style='border-top:none;border-left:none;width:125pt'>Review End Date</td>
+      <td class=xl65 width=207 style='border-top:none;border-left:none;width:155pt'>Approvers</td>
+      <td class=xl65 width=207 style='border-top:none;border-left:none;width:155pt'>Reviewers</td>
+      <td class=xl66 width=127 style='border-top:none;border-left:none;width:95pt'>Review Item ID</td>
+      <td class=xl66 width=287 style='border-top:none;border-left:none;width:215pt'>Review Item Name</td>
+      <td class=xl66 width=127 style='border-top:none;border-left:none;width:95pt'>Review Item Version</td>
+      <td class=xl66 width=127 style='border-top:none;border-left:none;width:95pt'># of Comments</td>
+      <td class=xl79 width=207 style='border-top:none;border-left:none;width:155pt'>Item Approved User</td>
+      <td class=xl79 width=207 style='border-top:none;border-left:none;width:155pt'>Item Rejected User</td>
+      <td class=xl79 width=127 style='border-top:none;border-left:none;width:95pt'># of Approvals</td>
+      <td class=xl79 width=127 style='border-top:none;border-left:none;width:95pt'># of Rejections</td>
+      <td class=xl81 width=207 style='border-top:none;border-left:none;width:155pt'>Item Reviewed User</td>
+      <td class=xl81 width=207 style='border-top:none;border-left:none;width:155pt'>Item Not Reviewed User</td>
+      <td class=xl81 width=127 style='border-top:none;border-left:none;width:95pt'># of Reviews</td>
+      <td class=xl81 width=135 style='border-top:none;border-left:none;width:125pt'># of Awaiting Review</td>
+      
+    </tr>
+
+    ## Dynamic Report Data Rows
+    ###############################################
+    #set($createdExportedItems = [])
+    #foreach($reviewDataObj in $itemReviewData)
+      #set($doc = $reviewDataObj.get("Item"))
+      #set($latestRevision = $reviewDataObj.get("LatestRevision"))
+      #set($revision = $reviewDataObj.get("Revision"))
+
+      ## Extract Review Users Data and Review Item Approval / Rejection Data by updating supplied values
+      #set($reviewItemDataObj = '')
+      #if($!revision)
+        #gatherReviewData($doc $revision $reviewItemDataObj) 
+      #end
+
+      <tr class=xl67>
+
+        ## Item Data Group
+        #####################################
+        #if(!$createdExportedItems.contains($doc.id))
+          #itemDataGroupCells($doc $foreach.index $itemReviewData)
+          #set($success = $createdExportedItems.add($doc.id))
+        #end
+
+        ## Review Data Group
+        #####################################
+        #set($review = $revision.review)
+
+        #if($!revision && ($!reviewItemDataObj && $reviewItemDataObj != '') || ($!revision.status.name == "Deleted" || $!revision.status.name == "Archived"))
+
+          #reviewDataGroupCells($review $latestRevision $revision $reviewItemDataObj)
+
+          ## Review Item Data Group
+          #####################################
+          #reviewItemDataGroupCells($review $latestRevision $revision $reviewItemDataObj)
+
+
+          ## Review Item Approvers Data Group
+          #####################################
+          #reviewItemApproversDataGroupCells($reviewItemDataObj)
+
+
+          ## Review Item Reviewers Data Group
+          #####################################
+          #reviewItemReviewersDataGroupCells($reviewItemDataObj)
+ 
+
+        ## Empty Cell Creation For Items Without Reviews
+        ################################################
+        #else
+
+          #foreach($i in [1..20])
+            #if($foreach.last)
+              #set($style = "xl68")
+            #else
+              #set($style = "xl67")
+            #end
+
+            <td class=$style style='border-top:none;border-left:none'></td>
+          #end
+
+        #end ## #if($!revision && ($!reviewItemDataObj && $reviewItemDataObj != '') || ($!revision.status.name == "Deleted" || $!revision.status.name == "Archived"))
+
+      </tr>
+
+    #end ## #foreach($reviewDataObj in $itemReviewData)
+
+
+  </table>
+
+</body>
+
+
+</html>
+
+
+
+## Leave boundaries and file list as is ## 
+
+------=_NextPart_01D8DFBE.2078AF30
+Content-Location: file:///C:/61233B10/Single_Sheet_Mockup_files/filelist.xml
+Content-Type: text/xml; charset="utf-8"
+
+<xml xmlns:o="urn:schemas-microsoft-com:office:office">
+ <o:MainFile HRef="../Single_Sheet_Mockup.htm"/>
+ <o:File HRef="stylesheet.css"/>
+ <o:File HRef="sheet001.htm"/>
+ <o:File HRef="filelist.xml"/>
+</xml>
+------=_NextPart_01D8DFBE.2078AF30--
