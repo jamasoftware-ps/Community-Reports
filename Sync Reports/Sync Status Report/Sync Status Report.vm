@@ -16,10 +16,6 @@
 ## 											 
 ##
 ## ========================================================================== 
-#set($docDao = $applicationContext.getBean("documentDao"))
-#set($itemDao = $applicationContext.getBean("contourItemDao"))
-#set($syncService = $applicationContext.getBean("syncStatusService"))
-
 
 ## Data Sources loaded for this report
 ##-------------------------------------------
