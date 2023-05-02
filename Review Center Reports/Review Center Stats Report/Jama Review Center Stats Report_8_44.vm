@@ -21,6 +21,9 @@ xmlns="http://www.w3.org/TR/REC-html40">
 ## 04-APR-2023   D          Anna FitzGerald   Ensured origDocID is an integer before gathering its node 
 ##                                            Removed leader character in left footer and fixed date to print in footer
 ##                                            Fixed header/footer extra page, now no extra page will show
+## 05-MAY-2023   E          Anna FitzGerald   Added conditional logic considering Test Runs need a different method for supplying version 
+##                                            to get the revision item node while other items need the RevisionItem version itself. 
+## 
 ## 
 #########################################################################################################################
 #########################################################################################################################
@@ -622,9 +625,12 @@ table.MsoTableGrid
 	#set( $signatureDao = $applicationContext.getBean("signatureDao"))
 	#set( $commentDao = $applicationContext.getBean("commentDao"))
 #end
-	#set( $review = $reviewDao.getReview($mathTool.toInteger($reviewId)))
+
+
+#set( $review = $reviewDao.getReview($mathTool.toInteger($reviewId)))
 ##set( $reviewProgressDTO = $applicationContext.getBean("reviewProgressDTO"))
 
+##DEBUG Review ID $review.id <br>
 ##getInfo( $revisionUserService)<br>
 ##getInfo( $reviewProgressDTO)
 ##Review - $review.id<br>
@@ -638,7 +644,6 @@ table.MsoTableGrid
 	#set( $i=$i+1)
 	##Rev - $r.id, $revstatus<br>
 #end	
-
 #set( $revisionItems = $revision.revisionItems)
 
 ##Debug revision.revisionItems $revisionItems 
@@ -649,6 +654,7 @@ table.MsoTableGrid
 
 
 <body lang=EN-US link=blue vlink=purple style='tab-interval:.5in'>
+
 
 ##--------------------------------------------------------------------------------------------------------------------
 ## Report Body  
@@ -1097,28 +1103,33 @@ style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
   normal'><b style='mso-bidi-font-weight:normal'># Votes</b></p>
   </td>
  </tr>
- 
  ##################################Begin Review Items###############################################
  #if( $r)
 	#set ( $revisionItems = $revisionItemDao.revision_ItemsInRevision( $r))
  #end
- 
+
  ##Count: $revisionItems.size()<br>
  ####################Need to sort by global sort order######################################
  #set( $riWithKey = [])
 
  #foreach( $ri in $revisionItems)
-	
-    #set( $docVersion = $documentSource.getVersionByDocumentId($ri.id) )
-    ## DEBUG $docVersion <br>
+        
+    #set( $docVersion = $documentSource.getVersionByDocumentId($ri.id) ) ## Test Runs want document version
     #set( $origDocID = $mathTool.toInteger($docVersion.originDocument.id ))
-    ## DEBUG ORIGIN DOC ID $origDocID <br> 
+   
+    #if( $docVersion == "" || !$docVersion )
+        #set( $docVersion = $ri.version ) ## Documents want revision object version 
+    #end 
+      
+     ##DEBUG DOC VERSION $docVersion <br>
+    #set( $origDocID = $mathTool.toInteger($docVersion.originDocument.id ))
+     ##DEBUG ORIGIN DOC ID $origDocID <br> 
 
 	#set( $revItemNode = $docNodeDao.getDocumentNode(5, $origDocID))
-    ## DEBUG $revItemNode <br>
+     ##DEBUG REV ITEM NODE: $revItemNode <br>
 	
 	#set( $itemSortOrder = $revItemNode.getGlobalSortOrder())
-    ## DEBUG ITEM SORT ORDER $itemSortOrder <br>
+     ##DEBUG ITEM SORT ORDER $itemSortOrder <br>
 	
 	##Appending the docKey to the global sort order. Then will sort by that to get the correct sort
 	#set( $sortWithKey = $itemSortOrder.toString())
