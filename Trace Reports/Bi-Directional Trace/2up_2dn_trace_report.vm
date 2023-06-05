@@ -32,7 +32,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
 ##-----------  ---------   ----------------  ----------------------------------
 ## 2022_09_09   1.0         Anna FitzGerald   Rebuilt with further optimization for XLSX
 ## 2023_05_19   1.1         Anna FitzGerald   Replace html comments with velocity comments																			
-##
+## 2023_06_05   1.2         Anna FitzGerald   Commented out a comment
 ########################################################################################
 ## 
 ## Report Criteria
@@ -65,8 +65,8 @@ xmlns="http://www.w3.org/TR/REC-html40">
   #set( $velocityServiceWrapper = $documentSource )
   #set( $baselineDao = $baselineSource )
   #set( $reviewDao = $reviewSource )
-	#set( $docTypeFieldDao = $documentSource )
-	#set( $lookupDao = $documentSource ) 
+  #set( $docTypeFieldDao = $documentSource )
+  #set( $lookupDao = $documentSource ) 
 
 ## Jama 8.43 or older ## 
 
@@ -561,8 +561,8 @@ a:visited {
 		#end
 
 ## Compare up and dn for maxRows. 
-		 Set the range for the row loop to the higher value. 
-		 The source level item's row span is set to the max##
+##		 Set the range for the row loop to the higher value. 
+##		 The source level item's row span is set to the max##
 
 		#set( $maxRows = $mathTool.max( $numUpstreamRows, $numDownstreamRows))
 		#if( $maxRows < 1)
