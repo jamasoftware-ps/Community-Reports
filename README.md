@@ -8,11 +8,13 @@ Please visit [dev.jamasoftware.com](http://dev.jamasoftware.com) for additional 
 ## Community Report Downloads:
 Jama's EESR custom reporting team in partnership with Jama's Consulting team are happy to provide our Jama customers a collection of public use custom reports. Each of these community reports are generic custom reports ready to be installed to any customer instance to satisfy a specific common need. Each report is either written with BIRT or Velocity, so if you are an on-premises customer and have experience with the appropriate platform, you can manipulate them to suit your needs. 
 
+Please be aware that these custom reports are complimentary and come as-is but should a bug be identfied the EESR Team will be happy to resolve it. Should you wish to request a enhancement request please review the 'Requesting Modified Community Report Versions' section below.
+
 
 ## Installation Process:
 
-### On-Prem Customer:
-Each community report includes a ReadMe of about the report including the installation instructions and configuration settings. Some reports have multiple versions which cater to different databases, so pay close attention that you download the correct one. Please note that BIRT reports cannot be downloaded via a right-click; the raw text should be saved in a text-editing program with the extension .rptdesign.
+### On-Prem & Cloud Customers:
+Each community report includes a ReadMe of about the report including the installation instructions and configuration settings. Some reports have multiple versions which cater to different databases, so pay close attention that you download the correct one. 
 1. Download the community report file you would like installed to your instance. 
 2. Navigate to the Admin screen of your instance.
 3. On the left navigation menu select the *Reports* option.
@@ -22,8 +24,8 @@ Each community report includes a ReadMe of about the report including the instal
 6. Select the *Save* button to finalize your report installation.
  
 
-### Cloud Customers:
-In order to install a Community report to your Jama Cloud instance you will need to submit a [Jama Support ticket](https://support.jamasoftware.com/hc/en-us/requests/new). 
+### Cloud Hosted Customer BIRT Report Installation (.rptdesign):
+Please note that BIRT reports cannot be downloaded via a right-click; the raw text should be saved in a text-editing program with the extension .rptdesign. In order to install a BIRT report to your Jama Cloud instance you will need to submit a [Jama Support ticket](https://support.jamasoftware.com/hc/en-us/requests/new). 
 1. Select the *Technical Support Request* option for your request type.
 2. In the subject field add *Community Report Installation Request*.
 3. In the description field please specify the name of the report along with a URL's to both the community report and the specific instance you would like it installed on.  

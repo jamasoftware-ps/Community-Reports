@@ -18,8 +18,15 @@ xmlns="http://www.w3.org/TR/REC-html40">
 ## 8-SEPT-2017   A          Shawnna Williams  Created. 
 ## 8-AUG-2019    B          Shawnna Williams  Changed for velocity 3.0 upgrade
 ## 11-DEC-2019   C          Shawnna Williams  Fixed date that was cut off.                                         
-##                                         
+## 04-APR-2023   D          Anna FitzGerald   Ensured origDocID is an integer before gathering its node 
+##                                            Removed leader character in left footer and fixed date to print in footer
+##                                            Fixed header/footer extra page, now no extra page will show
+## 05-MAY-2023   E          Anna FitzGerald   Added conditional logic considering Test Runs need a different method for supplying version 
+##                                            to get the revision item node while other items need the RevisionItem version itself. 
 ## 
+## 
+#########################################################################################################################
+#########################################################################################################################
 ## 
 ##############################################################################	
 <meta http-equiv=Content-Type content="text/html; charset=windows-1252">
@@ -547,13 +554,20 @@ table.MsoTableGrid
   <o:idmap v:ext="edit" data="1"/>
  </o:shapelayout></xml><![endif]-->
 </head>
-
-######3/28/2013 - Shawnna Williams - Jama Software
-######Review Center Stats Summary Report
-#####
-#####10/31/2014 - Update to make sure the variable doesn't print if values are null
-<body lang=EN-US link=blue vlink=purple style='tab-interval:.5in'>
-####################################
+#########################################################################################################################
+##          Macro: getDateTime
+##          Input: Java Time Zone ID to determine which timezone to display the date in
+##          Output: Formatted date in the desired timezone
+#########################################################################################################################
+#macro( getDateTime $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  #set( $dateTime = $dateTool.format( 'MM/dd/yyyy hh:mm a', $inputDate, $locale, $outTz ))
+  $!dateTime
+#end
+##
+#########################################################################################################################
+##
 #macro( getInfo $o)
 	<div style="margin: 30px; border: 1px solid black; width:50%;>"
 		<span style="font-weight: bolder;">
@@ -581,8 +595,11 @@ table.MsoTableGrid
 		</div>
 	</div>
 #end
-######################################
-
+##
+#########################################################################################################################
+## 
+#set( $timeZone = "Africa/Abidjan" ) ## UTC Time ## 
+##
 #if( $documentSource)
 	#set( $contourItemDao = $documentSource)
 	#set( $docDao = $documentSource)
@@ -608,9 +625,12 @@ table.MsoTableGrid
 	#set( $signatureDao = $applicationContext.getBean("signatureDao"))
 	#set( $commentDao = $applicationContext.getBean("commentDao"))
 #end
-	#set( $review = $reviewDao.getReview($mathTool.toInteger($reviewId)))
+
+
+#set( $review = $reviewDao.getReview($mathTool.toInteger($reviewId)))
 ##set( $reviewProgressDTO = $applicationContext.getBean("reviewProgressDTO"))
 
+##DEBUG Review ID $review.id <br>
 ##getInfo( $revisionUserService)<br>
 ##getInfo( $reviewProgressDTO)
 ##Review - $review.id<br>
@@ -624,29 +644,39 @@ table.MsoTableGrid
 	#set( $i=$i+1)
 	##Rev - $r.id, $revstatus<br>
 #end	
-
 #set( $revisionItems = $revision.revisionItems)
+
+##Debug revision.revisionItems $revisionItems 
+
 #set( $iTotalRevItems = $revisionItems.size())
 ##RevisionItems - $iTotalRevItems<br>
-<div class=WordSection1>
+
+
+
+<body lang=EN-US link=blue vlink=purple style='tab-interval:.5in'>
+
+
+##--------------------------------------------------------------------------------------------------------------------
+## Report Body  
+
 
 <p class=MsoNormal align=center style='margin-bottom:0in;margin-bottom:.0001pt;
 text-align:center;line-height:normal;tab-stops:0in'><b style='mso-bidi-font-weight:
-normal'><span style='font-size:14.0pt'>Review Center Stats Report<o:p></o:p></span></b></p>
+normal'><span style='font-size:14.0pt'>Review Center Stats Report</span></b></p>
 
 <p class=MsoNormal align=center style='margin-bottom:0in;margin-bottom:.0001pt;
 text-align:center;line-height:normal;tab-stops:0in'><b style='mso-bidi-font-weight:
-normal'><span style='font-size:14.0pt'>$review.name v.$i<o:p></o:p></span></b></p>
+normal'><span style='font-size:14.0pt'>$review.name v.$i</span></b></p>
 
 <p class=MsoNormal align=center style='margin-bottom:0in;margin-bottom:.0001pt;
 text-align:center;line-height:normal;tab-stops:0in'><b style='mso-bidi-font-weight:
-normal'><span style='font-size:14.0pt'>Status: $rs<o:p></o:p></span></b></p>
+normal'><span style='font-size:14.0pt'>Status: $rs</span></b></p>
 
 <p class=MsoNormal align=center style='margin-bottom:0in;margin-bottom:.0001pt;
 text-align:center;line-height:normal;tab-stops:0in'><b style='mso-bidi-font-weight:
-normal'><span style='font-size:14.0pt'>##&lt;Review URL&gt;<o:p></o:p></span></b></p>
+normal'><span style='font-size:14.0pt'>##&lt;Review URL&gt;</span></b></p>
 
-<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt'><o:p>&nbsp;</o:p></p>
+<p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt'>&nbsp;</p>
 
 <table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
  style='border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
@@ -675,7 +705,7 @@ normal'><span style='font-size:14.0pt'>##&lt;Review URL&gt;<o:p></o:p></span></b
 	#end
   </p>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><o:p>&nbsp;</o:p></p>
+  normal'>&nbsp;</p>
   </td>
   #set( $approvers = [])
   #set( $iApprovers = 0)
@@ -742,11 +772,11 @@ normal'><span style='font-size:14.0pt'>##&lt;Review URL&gt;<o:p></o:p></span></b
 </table>
 
 <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;text-indent:
-.5in'><o:p>&nbsp;</o:p></p>
+.5in'>&nbsp;</p>
 
 <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt'><b
 style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
-115%'>Approver Progress<o:p></o:p></span></b></p>
+115%'>Approver Progress</span></b></p>
 
 <table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
  style='border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
@@ -756,42 +786,42 @@ style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
   mso-border-alt:solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:
   background1;mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'>Approver Name<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'>Approver Name</b></p>
   </td>
   <td width=344 valign=top align=center style='width:206.65pt;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
   mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'>Title<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'>Title</b></p>
   </td>
   <td width=150 valign=top align=center style='width:1.25in;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
   mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'>Percent Complete<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'>Percent Complete</b></p>
   </td>
   <td width=200 valign=top align=center style='width:1.65in;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
   mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'>Approval Date<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'>Approval Date</b></p>
   </td>
   <td width=150 valign=top align=center style='width:.75in;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
   mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'>Signature<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'>Signature</b></p>
   </td>
   <td width=150 valign=top align=center style='width:2.50in;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
   mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'>Signature Comments<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'>Signature Comments</b></p>
   </td>
  </tr>
  
@@ -908,12 +938,12 @@ style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
  
 
 <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;text-indent:
-.5in'><o:p>&nbsp;</o:p></p>
+.5in'>&nbsp;</p>
 
 ################################Begin Reviewer Progress#####################################################
 <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt'><b
 style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
-115%'>Reviewer Progress<o:p></o:p></span></b></p>
+115%'>Reviewer Progress</span></b></p>
 
 <table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
  style='border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
@@ -923,28 +953,28 @@ style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
   mso-border-alt:solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:
   background1;mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'>Reviewer Name<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'>Reviewer Name</b></p>
   </td>
   <td width=344 valign=top align=center style='width:206.65pt;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
   mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'>Title<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'>Title</b></p>
   </td>
   <td width=150 valign=top align=center style='width:1.25in;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
   mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'>Percent Complete<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'>Percent Complete</b></p>
   </td>
    <td width=150 valign=top align=center style='width:1.65in;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
   mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'>Completed Date<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'>Completed Date</b></p>
   </td>
  </tr>
  
@@ -1000,11 +1030,11 @@ style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
 ####################################End Reviewer Progress############################################
 
 <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;text-indent:
-.5in'><o:p>&nbsp;</o:p></p>
+.5in'>&nbsp;</p>
 
 <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt'><b
 style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
-115%'>Items in Review<o:p></o:p></span></b></p>
+115%'>Items in Review</span></b></p>
 
 <table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
  style='border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt;
@@ -1014,107 +1044,115 @@ style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
   mso-border-alt:solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:
   background1;mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'>Item ID<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'>Item ID</b></p>
   </td>
   <td width=200 valign=top align=center style='width:3.0in;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
   mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'>Item Name<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'>Item Name</b></p>
   </td>
   <td width=109 valign=top align=center style='width:.75in;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
   mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'>Reviewed Version<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'>Reviewed Version</b></p>
   </td>
   <td width=109 valign=top align=center style='width:.75in;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
   mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'>Current Version<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'>Current Version</b></p>
   </td>
   <td width=109 valign=top align=center style='width:.75in;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
   mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'># Comments<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'># Comments</b></p>
   </td>
   <td width=117 valign=top align=center style='width:.75in;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
   mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'># Approved<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'># Approved</b></p>
   </td>
   <td width=120 valign=top align=center style='width:.75in;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
   mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'># Needs More Work<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'># Needs More Work</b></p>
   </td>
   <td width=117 valign=top align=center style='width:.75in;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
   mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'># Reviewed<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'># Reviewed</b></p>
   </td>
   <td width=126 valign=top align=center style='width:.75in;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;background:#D9D9D9;mso-background-themecolor:background1;
   mso-background-themeshade:217;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><b style='mso-bidi-font-weight:normal'># Votes<o:p></o:p></b></p>
+  normal'><b style='mso-bidi-font-weight:normal'># Votes</b></p>
   </td>
  </tr>
- 
  ##################################Begin Review Items###############################################
  #if( $r)
 	#set ( $revisionItems = $revisionItemDao.revision_ItemsInRevision( $r))
  #end
- 
+
  ##Count: $revisionItems.size()<br>
  ####################Need to sort by global sort order######################################
  #set( $riWithKey = [])
+
  #foreach( $ri in $revisionItems)
+        
+    #set( $docVersion = $documentSource.getVersionByDocumentId($ri.id) ) ## Test Runs want document version
+    #set( $origDocID = $mathTool.toInteger($docVersion.originDocument.id ))
+   
+    #if( $docVersion == "" || !$docVersion )
+        #set( $docVersion = $ri.version ) ## Documents want revision object version 
+    #end 
+      
+     ##DEBUG DOC VERSION $docVersion <br>
+    #set( $origDocID = $mathTool.toInteger($docVersion.originDocument.id ))
+     ##DEBUG ORIGIN DOC ID $origDocID <br> 
+
+	#set( $revItemNode = $docNodeDao.getDocumentNode(5, $origDocID))
+     ##DEBUG REV ITEM NODE: $revItemNode <br>
 	
-	#set( $rv=$ri.version)
-	#set( $rvDoc = $rv.document) ##this is a version
-	#set( $origDoc = $rv.originDocument) ###This is a contour item
-	#set( $docId = $origDoc.id.toString())
-	##$origDoc.id
-	##$docId
-	#set( $revItemNode = $docNodeDao.getDocumentNode(5, $origDoc.id))
-	##$revItemNode
 	#set( $itemSortOrder = $revItemNode.getGlobalSortOrder())
-	##$itemSortOrder
+     ##DEBUG ITEM SORT ORDER $itemSortOrder <br>
 	
 	##Appending the docKey to the global sort order. Then will sort by that to get the correct sort
 	#set( $sortWithKey = $itemSortOrder.toString())
 	#set( $sortKey = $sortWithKey.concat("_"))
+
+    #set( $docId = $docVersion.originDocument.id.toString())
 	#set( $moreSortKey = $sortKey.concat($docId))
+
 	#set( $finalSortKey = $moreSortKey.concat("_"))
 	#set( $riSortKey = $finalSortKey.concat($ri.id.toString()))
-	##$riSortKey<br>
 	#if( $riWithKey.add( $riSortKey)) #end
-	##Item - $riSortKey<br>
 	
+    ## DEBUG Item - $riSortKey<br>
+
 #end
 
 #set( $revisionItemsSorted = [])
 #foreach( $ris in $sortTool.sort($riWithKey))
-	##$ris<br>
-	##Sorted Array - $ris<br>
+	## DEBUG $ris<br> Sorted Array - $ris<br>
 	##set( $riOrigDocId = $ris.split("_").get(1))
 	##$riOrigDocid<br>
 	#set( $riId = $ris.split("_").get(2))
-	##$riId<br>
+	##DEBUG $riId<br>
 	####Will need to use the doc dao to get the document object based on the sorted docKey
 
 	#set( $ri = $revisionItemDao.getRevision_Item($mathTool.toInteger($riId)))
@@ -1122,15 +1160,19 @@ style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
 	
 #end
 
+##Sorted Size $revisionItemsSorted.size()
+
  ###Make revisionItemsSorted the sorted one to use below 
  ####################End Sort###############################################################
  #foreach( $ri in $revisionItemsSorted)
 	##$revisionItemDao.getOriginalDocumentName( $ri.id)<br>
 
 	#set( $rv=$ri.version)
+
+
 	#set( $rvDoc = $rv.document) ##this is a version
 	#set( $origDoc = $rv.originDocument) ###This is a contour item
-	
+	##DEBUG IN SORTED $origDoc 
 	##Get the stats for each item
 	#set( $ruItems = $ri.revisionUserItems)
 	#set( $iApproved = 0)
@@ -1155,6 +1197,8 @@ style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
 		
 	#end
 
+
+
  <tr style='mso-yfti-irow:1'>
   <td width=199 valign=top style='width:.75in;border:solid windowtext 1.0pt;
   border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
@@ -1174,21 +1218,21 @@ style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><o:p>$rv.versionNumber</o:p></p>
+  normal'>$rv.versionNumber</p>
   </td>
   <td width=109 valign=top style='width:.75in;border-top:none;border-left:
   none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><o:p>$origDoc.currentVersion.versionNumber</o:p></p>
+  normal'>$origDoc.currentVersion.versionNumber</p>
   </td>
   <td width=109 valign=top style='width:.75in;border-top:none;border-left:
   none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;line-height:
-  normal'><o:p>$!iComments</o:p></p>
+  normal'>$!iComments</p>
   </td>
   <td width=117 valign=top style='width:.75in;border-top:none;border-left:
   none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
@@ -1224,52 +1268,87 @@ style='mso-bidi-font-weight:normal'><span style='font-size:14.0pt;line-height:
 </table>
 
 <p class=MsoNormal style='margin-bottom:0in;margin-bottom:.0001pt;text-indent:
-.5in'><o:p>&nbsp;</o:p></p>
+.5in'>&nbsp;</p>
+
+<div class=WordSection1>
+##--------------------------------------------------------------------------------------------------------------------
+## Header Footer 
 
 ##Next 2 lines help the header and footer stuff not appear at the bottom of the last page
-<table style="margin-left:10in;">
-<tr><td>
+<table style='margin-left:15in'>
+    <tr style='height:.1in;mso-height-rule:exactly'>
+      <td>
+        <div style='mso-element:footnote-separator' id=fs>
 
+          <p class=MsoNormal><span style='mso-special-character:footnote-separator'><![if !supportFootnotes]>
+
+          <hr align=left size=1 width="33%">
+
+          <![endif]></span></p>
+
+        </div>
+
+        <div style='mso-element:footnote-continuation-separator' id=fcs>
+
+          <p class=MsoNormal><span style='mso-special-character:footnote-continuation-separator'><![if !supportFootnotes]>
+
+          <hr align=left size=1>
+
+          <![endif]></span></p>
+
+        </div>
+
+        <div style='mso-element:endnote-separator' id=es>
+
+          <p class=MsoNormal><span style='mso-special-character:footnote-separator'><![if !supportFootnotes]>
+
+          <hr align=left size=1 width="33%">
+
+          <![endif]></span></p>
+
+        </div>
+
+        <div style='mso-element:endnote-continuation-separator' id=ecs>
+
+          <p class=MsoNormal><span style='mso-special-character:footnote-continuation-separator'><![if !supportFootnotes]>
+
+          <hr align=left size=1>
+
+          <![endif]></span></p>
+
+        </div>
 <div style='mso-element:header' id=h1>
 
-<p class=MsoHeader><o:p>&nbsp;</o:p></p>
+<p class=MsoHeader>&nbsp;</p>
 
 </div>
-<div style='mso-element:footer' id=f1>			
-			<span lang=EN-GB>
-			<w:PTab Alignment="LEFT" RelativeTo="MARGIN" Leader="NONE">
-			<span lang=EN-GB>
-			Report Generated&nbsp;<span style='mso-field-code:" DATE "'></span>
-			</w:PTab>
-			</span>
-			</w:PTab>
-			<w:PTab Alignment="CENTER" RelativeTo="MARGIN" Leader="NONE"></w:PTab>
-			<w:PTab Alignment="RIGHT" RelativeTo="MARGIN" Leader="NONE">
-			Page&nbsp;<span style='mso-field-code:" PAGE "'></span>
-			<!--[if supportFields]>
-			<span style='mso-element:field-end'></span>
-			<![endif]--> of 
-			<!--[if supportFields]>
-			<span style='mso-element:field-begin'></span>
-			<span style='mso-spacerun:yes'> </span>NUMPAGES 
-			<span style='mso-element:field-separator'></span>
-			<![endif]-->
-			<span style='mso-field-code:" SECTIONPAGES "'></span>
-			<!--[if supportFields]>
-			<span style='mso-element:field-end'></span>
-			<![endif]-->
-			</w:PTab>
-			</span>
-
-
-<p class=MsoFooter><o:p>&nbsp;</o:p></p>
+<div align=center style='mso-element:footer' id=f1> 
+<table width=100%>  
+<tr>
+    <td width=50% style='text-align:left;'>Report Generated&nbsp;#getDateTime($dateTool.date $timeZone) UTC </td>
+    <td width=50% style='text-align:right;'>Page&nbsp;<span style='mso-field-code:" PAGE "'></span><!--[if supportFields]>
+            <span style='mso-element:field-end'></span>
+            <![endif]--> of 
+            <!--[if supportFields]>
+            <span style='mso-element:field-begin'></span>
+            <span style='mso-spacerun:yes'> </span>NUMPAGES 
+            <span style='mso-element:field-separator'></span>
+            <![endif]-->
+            <span style='mso-field-code:" SECTIONPAGES "'></span>
+            <!--[if supportFields]>
+            <span style='mso-element:field-end'></span>
+            <![endif]-->
+            </w:PTab>
+            </span> </td>
+</tr>
+##<p class=MsoFooter>&nbsp;</p>
+</table>    
 
 </div>
-
-</div>
-##End of the table that helps the header and footer not repeat printing
 </td></tr>
+
 </table>
+</div>
 
 </body>
 
