@@ -12,10 +12,10 @@ The Baseline to Baseline Diff (Three Column) report compares the two baselined v
 ![Baseline to Baseline Diff - 3 column](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Baseline%20Reports/Baseline%20to%20Baseline%20Diff%20Report/doNotShowFinishedTextPreview.png)
 
 
-#### Word and HTML reports:
+#### Word and PDF reports:
 - Report Name: Baseline to Baseline Diff - 3 columns
 - Report Type: Velocity
-- Report Formats: HTML and/or Word
+- Report Formats: PDF and/or Word
 - Report file to upload: baselineToBaselineDiff_3column.vm
 - Criteria:
   - *Type:* **Baseline parameter**, *Display:* **Baseline 1**, *Name:* **report_baseline1**
