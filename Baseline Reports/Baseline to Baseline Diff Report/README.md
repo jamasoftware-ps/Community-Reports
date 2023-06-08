@@ -5,8 +5,11 @@
 ## Report Summary
 The Baseline to Baseline Diff (Three Column) report compares the two baselined versions of the same items, displaying the differences as redlined text in one column. If the user selects Show Finished Text, the actual (unredlined) text will show as well.
 
-## Report Preview Image
+## Report Preview Image (Showing Finished Text)
 ![Baseline to Baseline Diff - 3 column](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Baseline%20Reports/Baseline%20to%20Baseline%20Diff%20Report/BaselineToBaselineDiffThreeColPreview.png)
+
+## Report Preview Image (Not Showing Finished Text)
+![Baseline to Baseline Diff - 3 column](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Baseline%20Reports/Baseline%20to%20Baseline%20Diff%20Report/doNotShowFinishedTextPreview.png)
 
 
 #### Word and HTML reports:
