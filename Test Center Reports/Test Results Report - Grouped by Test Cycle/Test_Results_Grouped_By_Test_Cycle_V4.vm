@@ -22,7 +22,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                             grouped by test cycle if there are multiple test case groups on test plan.
 ##                                           - Updated test run gathering logic to ensure test runs are sorted by test case
 ##                                             order per test cycle.
-##
+## 2023-07-06   1.2        Shawnna Williams  - minor adjustment to remove blank img tags in test results fields
 ##
 ## ======================================================================================================================
 ##
@@ -2598,6 +2598,8 @@ $string
 ## clear all embedded headings from rich text fields
 ##set( $string = $string.replaceAll("<h\d*?.*?>","<p><strong>"))
 ##set( $string = $string.replaceAll("<\/h\d*?>","</strong></p>"))
+## clear all blank image tags
+#set( $string = $string.replaceAll("<img \/>",""))
 $string
 #end
 #########################################################################################################################
