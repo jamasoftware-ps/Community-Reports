@@ -18,7 +18,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 2021-08-30   1.0        Liam Rotchford    -Intial Build updating the Test Results - Grouped By Test Cycle Report to use
 ##                                            the master template due to errors in test run steps having images.
 ##                                           -Report also handles upstream requirements for the test cases and runs. 
-##
+## 2023-07-06   1.1        Shawnna Williams  Update formatText macro to remove blank image tags
 ##
 ## ======================================================================================================================
 ##
@@ -2594,6 +2594,8 @@ $string
 ## clear all embedded headings from rich text fields
 ##set( $string = $string.replaceAll("<h\d*?.*?>","<p><strong>"))
 ##set( $string = $string.replaceAll("<\/h\d*?>","</strong></p>"))
+## clear all blank image tags
+#set( $string = $string.replaceAll("<img \/>",""))
 $string
 #end
 #########################################################################################################################

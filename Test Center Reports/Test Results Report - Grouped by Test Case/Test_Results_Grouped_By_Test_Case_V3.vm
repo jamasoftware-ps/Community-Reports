@@ -16,7 +16,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## -----------  ---------  ----------------  ---------------------------------- 
 ## 2021-10-19   1.0        Liam Rotchford    -Intial Build updating the Test Results - Grouped By Test Case Report to use
 ##                                            the master template due to errors in test run steps having images.
-##                                            
+## 2023-07-06   1.1        Shawnna Williams  Add code to remove blank image tags in formatText macro                                           
 ##
 ##
 ## ======================================================================================================================
@@ -2593,6 +2593,8 @@ $string
 ## clear all embedded headings from rich text fields
 ##set( $string = $string.replaceAll("<h\d*?.*?>","<p><strong>"))
 ##set( $string = $string.replaceAll("<\/h\d*?>","</strong></p>"))
+## clear all blank image tags
+#set( $string = $string.replaceAll("<img \/>",""))
 $string
 #end
 #########################################################################################################################
