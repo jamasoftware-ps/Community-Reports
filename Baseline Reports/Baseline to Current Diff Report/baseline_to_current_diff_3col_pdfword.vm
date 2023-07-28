@@ -13,6 +13,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## Date         Revision   Person            Comments 
 ## -----------  ---------  ----------------  ---------------------------------- 
 ## 2023-03-21   1.0        Shawnna Williams  Created from baseline to baseline diff
+## 2023-07-28   1.3        Anna FitzGerald   Converted activeDoc into a Document before proceeding to get fields
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -5751,11 +5752,13 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
   #foreach( $node in $sortTool.sort( $baseDocNodes,"globalSortOrder") )
 
 	  #set($baseDoc = $documentSource.getDocument($node.refId))
-	  ##set($activeId = $documentSource.getVersionByDocumentId($baseDoc.id).originDocument.id)
-	  ##set($activeDoc = $documentSource.getDocument($activeId))
+	
 	  #set( $activeDoc = $baseDoc.currentVersion.originDocument)
+    ## We must convert it to document to get the "status" field for the .originDocument item 
+    ## is not returning "status", i.e. $activeDoc.status.name
+    #set( $activeDoc = $documentSource.getDocument( $activeDoc.id ))  
 	  #set( $activeId = $activeDoc.id)
-	  #set($actDN = $documentSource.getDocumentNode(5,$activeDoc.id))
+	  #set( $actDN = $documentSource.getDocumentNode(5,$activeDoc.id))
   
   #################### look for containers and load active versions into list of all active version of baselined items #################
         #if(($activeDoc.documentType.display == "Set" || $activeDoc.documentType.display == "Component" || $activeDoc.documentType.display == "Folder")
