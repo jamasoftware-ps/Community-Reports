@@ -4,7 +4,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 #end
 
 ## ======================================================================================================================
-## Name: baseline_to_baseline_diff_3col_pdfword.vm 
+## Name: baseline_to_current_diff_3col_pdfword.vm 
 ## 
 ## Description: Master Template for exporting specifications from Jama to Word and PDF
 ## ======================================================================================================================
