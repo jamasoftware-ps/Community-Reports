@@ -12,16 +12,17 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 
 ## Date         Revision   Person            Comments 
 ## -----------  ---------  ----------------  ---------------------------------- 
-## 2023-03-07   2.23.1     Anna FitzGerald         - Updated #convertFigures and #formatTables comments 
-## 2023-03-15   3.0        Shawnna Williams  Create baseline to baseline diff
-## 2023-08-01   3.1        Anna FitzGerald   -Updated Get Relationships Macro to match Master Word PDF Template 
-##                                           -Put conditions around .getResults to prevent Null Pointer Error
-##                                           -Fixed argument call to get relationships for added items
-##                                           -Updated #formatText macro and #findSourceMHTML with latest macros
-## 2023-08-02   3.1.1      Anna FitzGerald   -Reduced maxImageWidth considering images that are taller than wider and must fit in landscape layout 
-##                                           -Adjusted styles for more room for comparison tables (margin, font size)
-##                                           -Ensured compare relationships show for items that are same version but that have relationship difference
-##                                    
+## 2023-03-07   2.23.1     Anna FitzGerald   - Updated #convertFigures and #formatTables comments 
+## 2023-03-15   3.0        Shawnna Williams  - Create baseline to baseline diff
+## 2023-08-01   3.1        Anna FitzGerald   - Updated Get Relationships Macro to match Master Word PDF Template 
+##                                           - Put conditions around .getResults to prevent Null Pointer Error
+##                                           - Fixed argument call to get relationships for added items
+##                                           - Updated #formatText macro and #findSourceMHTML with latest macros
+## 2023-08-02   3.1.1      Anna FitzGerald   - Reduced maxImageWidth considering images that are taller than wider and must fit in landscape layout 
+##                                           - Adjusted styles for more room for comparison tables (margin, font size)
+##                                           - Ensured compare relationships show for items that are same version but that have relationship difference
+## 2033-08-09   3.1.2      Anna FitzGerald   - Ensured totalRels variables are set to 0 incase no total results are returned so that they 
+##                                             do not trigger a null error
 ##                                        
 ##                             
 ## ======================================================================================================================
@@ -2484,7 +2485,7 @@ td.TableCell
   ##
   #set($baseRelsPage = $velocityServiceWrapper.getRelationships($orginDocId,$baselineId,$start,$count))
   ##
-  #set( $totalRels = [])
+  #set( $totalRels = 0)
   #set( $totalRels = $baseRelsPage.getPageInfo().getTotalResults())
   ## DEBUG Baseline Page Info: $baseRelsPage.getPageInfo() <br><br>
   ## DEBUG Baseline Relationship Count: $baseRelsPage.getPageInfo().getTotalResults()<br><br>
@@ -4737,14 +4738,14 @@ $string
 
 #if( $b != "testCaseSteps" )
 
-  #if( $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat))
-    #set($beforeVal = $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat))
-    #set($afterVal = $velocityReportUtil.getValueForField($compareDoc, $b, $dateFormat))
-    #if($beforeVal.length() > $maxDiff || $afterVal.length() > $maxDiff)
+  #if( $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat ))
+    #set( $beforeVal = $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat ))
+    #set( $afterVal = $velocityReportUtil.getValueForField($compareDoc, $b, $dateFormat ))
+    #if( $beforeVal.length() > $maxDiff || $afterVal.length() > $maxDiff )
       <p class="toobig">$maxedOut $maxDiff.</p>
     #else
       #set( $print = "")
-      #set( $print = $diffService.getDiff($beforeVal, $afterVal))
+      #set( $print = $diffService.getDiff( $beforeVal, $afterVal ))
       #if( $report_showFinText == false)
         #set( $imageWid = $maxImageWidth)
       #else
@@ -4759,16 +4760,16 @@ $string
   #end ###if( $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat))
 
 #else
-  #set($baseSteps = $baseDoc.testCaseSteps)
-  #set($activeSteps = $compareDoc.testCaseSteps)
-  #set($length = $mathTool.max($baseSteps.size(), $activeSteps.size()))
-  #set($stepNum = [1..$length])
+  #set( $baseSteps = $baseDoc.testCaseSteps )
+  #set( $activeSteps = $compareDoc.testCaseSteps )
+  #set( $length = $mathTool.max($baseSteps.size(), $activeSteps.size()) )
+  #set( $stepNum = [1..$length] )
   
   #foreach( $i in $stepNum )
-    #set($beforeStep = "")
-    #set($afterStep = "")
-    #set($index = $i - 1)
-    #if($i <= $baseSteps.size())
+    #set( $beforeStep = "")
+    #set( $afterStep = "")
+    #set( $index = $i - 1)
+    #if( $i <= $baseSteps.size())
       #set($beforeStep = $baseSteps.get($index))
       #set($beforeStepText =
       "<p class='MsoNormal' style='margin-left:0in'><b>" + $i
@@ -4843,11 +4844,18 @@ $string
   #set( $base1RelsPage = $documentSource.getRelationships( $baseDoc.id,$r1,$start,$count))
   #set( $base2RelsPage = $documentSource.getRelationships( $compareDoc.id,$r2,$start,$count))
 
-  #set( $totalRels1 = [])
-  #set( $totalRels1 = $base1RelsPage.getPageInfo().getTotalResults())
+  ##$base1RelsPage 
+  ##$base2RelsPage 
+  
+  #set( $totalRels1 = 0 )
+  #set( $totalRels2 = 0 )
+  #if( $base1RelsPage )
+    #set( $totalRels1 = $base1RelsPage.getPageInfo().getTotalResults())
+  #end 
 
-  #set( $totalRels2 = [])
-  #set( $totalRels2 = $base2RelsPage.getPageInfo().getTotalResults())
+  #if( $base2RelsPage )
+    #set( $totalRels2 = $base2RelsPage.getPageInfo().getTotalResults())
+  #end 
 
   ##Total Rels 1: $totalRels1 TotalRels2: $totalRels2<br>
 
