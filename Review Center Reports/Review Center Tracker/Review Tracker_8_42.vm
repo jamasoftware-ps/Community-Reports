@@ -25,14 +25,32 @@ xmlns=3D"http://www.w3.org/TR/REC-html40">
 ## 
 ## Date         Revision   Person            Comments 
 ## -----------  ---------  ----------------  ---------------------------------- 
-## 13-JUL-2016  A          Shawnna Williams  Created. 
-## 28-JAN-2019  B          Shawnna Williams  Modified    
+## 13-JUL-2016  A          Shawnna Williams  - Created. 
+## 28-JAN-2019  B          Shawnna Williams  - Modified    
 ## 3-APR-2019   C          Shawnna Williams                                      
-## 8-APR-2019   D          Shawnna Williams  Fix Approval status on second page                                    
-## 2-OCT-2019   E          Shawnna Williams  Modify for new velocity
+## 8-APR-2019   D          Shawnna Williams  - Fix Approval status on second page                                    
+## 2-OCT-2019   E          Shawnna Williams  - Modify for new velocity
+## 21-AUG-2023  F          Liam Rotchford    - Resolved "Time Spent" column value bug by implementing #getDuration() macro.
 ## 
 ##
 ## ========================================================================== 
+## ======================================================================================================================
+##
+## Report Criteria:
+## ---------------------------    
+##
+##      Type:       Display Name:               Report Global Variable:   Function:
+##      ----------------------------------------------------------------------------------------------------------------------
+##      Boolean     Show All Projects?          report_showAllProjects
+##      Boolean     Show All Revisions?         report_showAllRevs
+##      Boolean     Show Completed Revisions    showCompleted
+##      Boolean     Show In Progress Revisions  showInProgress
+##      String      Show Only These Reviews     report_showReviews
+##
+##    
+##
+## ======================================================================================================================
+##
 <meta name=3D"Excel Workbook Frameset">
 <meta http-equiv=3DContent-Type content=3D"text/html; charset=3Dutf-8">
 <meta name=3DProgId content=3DExcel.Sheet>
@@ -535,41 +553,43 @@ id=3D"webarch_temp_base_tag">
         </div>
     </div>
 #end
-######################################
-###############################################################################
-#macro( getTimeLogged3 $time )
-    
-    #set ($durationSec = $!time / 1000)
+
+################################################################################
+#########################################################################################################################
+##          Macro: getDuration
+##          Input: testRun Duration int
+##          Output: Formatted duration time
+#########################################################################################################################
+#macro (getDuration $duration)
+ 
+ #set($formattedDuration = '')
+
+  #if($duration)
+    #set ($durationSec = $!duration / 1000)
     #set( $durationSec = $mathTool.floor($durationSec))
-    #set( $durationSecString = $durationSec.toString())
-                                                
-    #if( $durationSecString.length() == 1)
-        #set( $zero = "0")
-        #set( $durationSecString = $zero.concat($durationSecString))
-    #end
-                                                
+
     #set( $durationHr = $durationSec / 3600)
     #set( $durationHr =  $mathTool.floor($durationHr))
     #set( $durationHrString = $durationHr.toString())
     #if( $durationHrString.length() == 1)
-        #set( $zero = "0")
-        #set( $durationHrString = $zero.concat($durationHrString))
+      #set( $durationHrString = "0$!durationHrString")
     #end
-                                                
-    #set( $durationMin = $durationSec / 6000)
+
+    #set($remainingSec = $durationSec - ($durationHr * 3600))
+
+    #set( $durationMin = $remainingSec / 60)
     #set( $durationMin =  $mathTool.floor($durationMin))
     #set( $durationMinString = $durationMin.toString())
     #if( $durationMinString.length() == 1)
-        #set( $durationMinString = $zero.concat($durationMinString))
+      #set( $durationMinString = "0$!durationMinString")
     #end
-
-    #set( $returnTime = $durationHrString)
-    #set( $returnTime = $returnTime.concat(":"))
-    #set( $returnTime = $returnTime.concat($durationMinString))
     
-    $!returnTime
+    #set($formattedDuration = "$!durationHrString:$!durationMinString")   
+  #end
+
+  $formattedDuration
+
 #end
-################################################################################
 ################################################################################
 #macro( getAuthors3 $review )
 
@@ -990,7 +1010,7 @@ Sorted Archived: $sortedArchived<br>*#
                               
                               
                                 
-                              <td class=3Dxl97 width=3D102 style=3D'width:76pt'>#getTimeLogged3( $!a.timeLogged)</td>
+                              <td class=3Dxl97 width=3D102 style=3D'width:76pt'>#getDuration($!a.timeLogged)</td>
                               ##<td class=3Dxl67 width=3D125 style=3D'width:94pt'>??Maybe if I can get the last revision</td>
                                
                                 #set( $revSummaryProgressDTO = $revisionUserService.getUserRevisionSummary( $mathTool.toInteger($v.id), $mathTool.toInteger($a.user.id)))
@@ -1070,7 +1090,7 @@ Sorted Archived: $sortedArchived<br>*#
                               </td>
                               <td class=3Dxl65 width=3D112 style=3D'width:84pt'>$!v.sequenceNumber</td>
                               <td class=3Dxl65 width=3D130 style=3D'width:97pt'>$r.name</td>
-                              <td class=3Dxl97 width=3D102 style=3D'width:76pt'>#getTimeLogged3( $!a.timeLogged)</td>
+                              <td class=3Dxl97 width=3D102 style=3D'width:76pt'>#getDuration($!rv.timeLogged)</td>
                               ##<td class=3Dxl67 width=3D125 style=3D'width:94pt'>??</td>
                               #set( $revSummaryProgressDTO = $revisionUserService.getUserRevisionSummary( $mathTool.toInteger($v.id), $mathTool.toInteger($rv.user.id)))
                               #set( $revProgressDTO = $revSummaryProgressDTO.getReviewProgress()) 
