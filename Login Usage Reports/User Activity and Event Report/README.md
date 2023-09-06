@@ -1,6 +1,6 @@
 <h1>User Login Activity and Event Report</h1>
 <h2>Description</h2>
-<p>This report gathers User Login Activity and User Events for a selected time frame, and outputs an Excel multisheet report.
+<p>This report gathers User Login Activity and User Events for a selected time frame, and outputs an Excel multisheet report. The maximum time frame is 6 months as a large pull could affect a customer’s instance and other tenants. 
 
 On the first sheet, “Login Activity”, the report builds a row per user, showing login stats, like how many login activities, and the latest login activity.
   *Please note that this data itself is suspect due to the fact that logoff time is not accurate. The logoff timestamp can be either a user directly selecting the logoff button, the session timing out, or a user closing their browser.*
