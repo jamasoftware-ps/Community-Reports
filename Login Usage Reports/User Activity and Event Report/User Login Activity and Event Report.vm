@@ -2,20 +2,6 @@ MIME-Version: 1.0
 X-Document-Type: Workbook
 Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
 
-#########################################################################################################################
-## ======================================================================================================================
-##
-##  Boundaries are necessary deliminators for a Multisheet .xlsx report. In the conversion 
-##  of .mht to .xlsx, the file is parsed to distinguish and separate sheets, i.e:
-##
-##  1. Check Content-Type: multipart/related; boundary="----=_NextPart_01D8D1DD.28209070" to get “boundary”
-##  2. Split .mht to HTML files by boundary and name each HTML file with the value of “Content-Location”
-##  3. Parse “x:ExcelWorkbook” xml section to get HREF of “x:WorksheetSource”,
-##  4. Gets the HTML stream of the worksheet by comparing HREF of “x:WorksheetSource” and “Content-Location”
-##  5. Read the data of the worksheet.
-##
-#########################################################################################################################
-
 
 #########################################################################################################################
 ## ======================================================================================================================
@@ -52,7 +38,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
 ## 2023_01_05   1.1        Anna FitzGerald   Added error message if User Name parameter is not an exact match
 ##                                           Cleaned up formatting
 ##                                           Found bug in sort and added condition to prevent it
-##
+## 2023_09_06   1.2        Anna FitzGerald   Removed One Year time parameter
+##                                           Minor update styles
 ##
 ##
 ## ===================================================================================================================== 
@@ -65,7 +52,6 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
 ##      Boolean    One month                   reportC_oneMonth        #### 30 days, 720 hours
 ##      Boolean    Three months                reportD_threeMonths     #### 91 days, 2184 hours 
 ##      Boolean    Six months                  reportE_sixMonths       #### 182 days, 4368 hours 
-##      Boolean    One year                    reportF_oneYear         #### 365 days, 8760 hours  
 ##      String     Filter By User (Full Name)  reportG_userFilter
 ##                    
 ##
@@ -81,7 +67,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
 ##     o Find: =3D Replace: =
 ##     o Remove any JS <script>...</script> tags and content between tags
 ##     o Remove <frameset>...</frameset> tags and content between tags
-##     o Remove all "Content-Transfer-Encoding: quoted-printable" (this is important because it can ruin styles if present)
+##     o Remove all "" (this is important because it can ruin styles if present)
 ##     o Remove the entire Tab Sheet ( you only will need the xml in the "HEAD" for the tabs )
 ##  2. Find the HEAD section of this template, and from you Mockup copy and paste all the content that matches to the HEAD section 
 ##  3. Find the STYLES section, and from your Mockup copy and paste all the content that matches to the STYLES section 
@@ -186,7 +172,6 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
 
 ##
 ##
-##
 ## Report Constants 
 ## -------------------------------------------
 #set( $cmpKey = "CMP") ##
@@ -227,12 +212,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
   #set( $hours = 4368 )
   #set( $timeFrame = "Six Months")
 
-#elseif( $reportF_oneYear )
-  #set( $hours = 8760 )
-  #set( $timeFrame = "Year")
-
 #end 
-
 
 
 #set( $userActivitySource = $userDao.getLoginsForLastHours( $hours, $orgId ) )
@@ -307,11 +287,11 @@ xmlns="http://www.w3.org/TR/REC-html40">
 
 ------=_NextPart_01D91BCC.85EC6240
 Content-Location: file:///C:/AA89CAB4/UserLoginActivityandEventReport_files/stylesheet.css
-Content-Transfer-Encoding: quoted-printable
 Content-Type: text/css; charset="utf-8"
 
 tr
-  {mso-height-source:auto;}
+  {mso-height-source:auto;
+height:auto;}
 col
   {mso-width-source:auto;}
 br
@@ -504,7 +484,7 @@ td
   border-right:none;
   border-bottom:none;
   border-left:.5pt solid gray;
-  background:#FCE4D6;
+  background:#ffcc80;
   mso-pattern:black none;}
 .xl82
   {mso-style-parent:style0;
@@ -969,10 +949,10 @@ td
         #set( $license =  "#getLicenseType($license)")
         #set( $license = "#formatRichTextCell($license)")
         #set( $license = $license.trim())
+        #set( $userName = $userName.concat(" $license"))
 
         <tr height=21 style='height:15.75pt'>
-          <td colspan=1 height=21 class=xl81 style='display:inline;overflow-wrap:normal;height:15.75pt;text-align:right;'>$userName</td>
-          <td colspan=5 class=xl81 style='border-left:none;text-align:left;border-right:solid gray .5pt;'>$license</td>
+          <td colspan=6 height=21 class=xl81 style='height:15.75pt;text-align:left;padding-left:3pt;border-right:solid gray .5pt;'>$userName</td>
         </tr>
         #set( $licenseFound = true )
         #break
@@ -1009,9 +989,9 @@ td
       #if( !$eventProject || $eventProject == "null" || $eventProject == "" )
         #set( $eventProject = "N/A")
       #end 
-
-     <tr height=60 style='height:15.0pt'>
-      <td height=60 class=xl79 style='height:15.0pt'>$!date</td>
+ ##height=60 style='height:15.0pt'
+     <tr>
+      <td class=xl79>$!date</td>
       <td class=xl79 style='border-left:none'>$!content</td>
       <td class=xl79>$!action</td>
       <td class=xl79>$!eventDocument</td>
@@ -1072,7 +1052,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
  </tr>
 
  <tr height=32 style='mso-height-source:userset;height:24.0pt'>
-  <td colspan=6 height=32 class=xl72 style='border-right:.5pt solid gray;height:24.0pt'>User Login Activity for the $!timeFrame prior to: #getDate($dateTool.date $timeZone)</td>
+  <td colspan=6 height=32 class=xl72 style='border-right:.5pt solid gray;height:24.0pt'>User Login Activity for the $!timeFrame prior to:#getDate($dateTool.date $timeZone)</td>
  </tr>
 
 
@@ -1184,7 +1164,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
 <table border=0 cellpadding=0 cellspacing=0 width=1765 style='border-collapse:collapse;table-layout:fixed;width:1325pt'>
 
   <tr height=32 style='mso-height-source:userset;height:24.0pt'>
-    <td colspan=6 height=32 class=xl72 style='border-right:.5pt solid gray;height:24.0pt'>User Event Activity for the $!timeFrame prior to: #getDate($dateTool.date $timeZone)</td>
+    <td colspan=6 height=32 class=xl72 style='border-right:.5pt solid gray;height:24.0pt'>User Event Activity for the $!timeFrame prior to:#getDate($dateTool.date $timeZone)</td>
   </tr>
 
   <tr height=20 style='height:15.0pt'>
