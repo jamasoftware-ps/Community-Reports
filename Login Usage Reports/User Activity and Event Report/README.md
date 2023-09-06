@@ -14,12 +14,15 @@ If the Report Runner would like to narrow in on particular “Event Activity” 
 
 <h3>Preview Image Sheet 1: "Login Activity"</h3>
 
-![Login_Activity](https://user-images.githubusercontent.com/99203913/210880285-92768c46-3f53-4273-bcc3-c34da68de390.png)
+
+![Login_Activity](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/b69f31fe-b973-4ad3-a68e-97c98cfc7a8a)
 
 
 <h3>Preview Image Sheet 2: "Event Activity"</h3>
 
-![Event_Activity](https://user-images.githubusercontent.com/99203913/210880319-07126b08-0368-44d8-ab17-bdaf8b6eb950.png)
+
+![Event Activity](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/aff577e6-c90f-4049-acb3-033d4d9f5cec)
+
 
 <h1>Installation Instructions</h1>
 <ol>
@@ -31,7 +34,8 @@ If the Report Runner would like to narrow in on particular “Event Activity” 
 </ol>
 <p>Helpful description to add at install: <em>Check one time parameter and the report will show data from the date the report is run. Outputs a two sheet Excel report with tabs: "Login Activity", "Event Activity". Filter by User Name, considering larger time parameters.</em></p>
 
-![InstallReport png](https://github.com/jamasoftware-ps/Community-Reports/blob/eeb5e1fc1a7cc504dd3f9a0a8a1f0aa431349e78/Login%20Usage%20Reports/User%20Activity%20and%20Event%20Report/InstallReport.png)
+![Install_Report](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/31415f16-1afe-401b-b219-c6e4029edd72)
+
 
 <h3>Report parameters:</h3>
 
@@ -42,8 +46,8 @@ If the Report Runner would like to narrow in on particular “Event Activity” 
 |Boolean| One Month| reportC_oneMonth|
 |Boolean| Three Months| reportD_threeMonths|
 |Boolean| Six Months| reportE_sixMonths|
-|Boolean| One Year| reportF_oneYear|
 |String Parameter| User Filter (Full Name)|reportG_userFilter|
+
 
  <h2>Report Run Instructions</h2>
  <ol>
@@ -54,7 +58,5 @@ If the Report Runner would like to narrow in on particular “Event Activity” 
   <li>If filtering the report by user enter String value- first and last name (not case sensitive)</li>
  </ol>
  
- ![RunReport png](https://github.com/jamasoftware-ps/Community-Reports/blob/eeb5e1fc1a7cc504dd3f9a0a8a1f0aa431349e78/Login%20Usage%20Reports/User%20Activity%20and%20Event%20Report/RunReport.png)
-
- 
   
+![Screenshot (3933)](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/051902f7-bef9-4e96-ac29-dc99d30b6121)
