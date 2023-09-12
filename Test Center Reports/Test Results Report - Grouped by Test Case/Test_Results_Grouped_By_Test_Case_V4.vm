@@ -17,7 +17,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                            the master template due to errors in test run steps having images.
 ## 2023-07-06   1.1        Shawnna Williams  - Add code to remove blank image tags in formatText macro  
 ## 2023-08-02   1.2        Liam Rotchford    - Updated report to Master Template version 2.6.1
-##                                             
+## 2023-09-12   1.3        Anna FitzGerald   - Commented out debug print statement
+##                                           - Corrected variable name in #formatTableCell macro                                             
 ##
 ## ======================================================================================================================
 ##
@@ -2919,7 +2920,7 @@ td.TableCell
 				#set( $find = $find.replaceAll("\{", "[") )
 				#set( $find = $find.replaceAll("\}", "]") )
 				
-				Debug find: $find <br>
+				##Debug find: $find <br>
 
 			    #######################################################################################
 				## Find Img Location 
@@ -4263,14 +4264,14 @@ $string
 		#set( $string = "#formatText($string)" )
 		#if( $format == 'pdf')
 			## First re-format tables for consistent look and feel, and fixed column widths
-			#set( $string = "#formatTables($string, $maxPageWidth, 'left')" )
+			#set( $string = "#formatTables($string, $maxImageWidth, 'left')" )
 			## Then prep figures to base64 after formatting tables
-			#set( $string = "#convertFigures($string, $maxPageWidth)" )
+			#set( $string = "#convertFigures($string, $maxImageWidth)" )
 		#else
 			## Prep figures for Word- figures go in invisible table class
-			#set( $string = "#convertFigures($string, $maxPageWidth)" )
+			#set( $string = "#convertFigures($string, $maxImageWidth)" )
 			## then Re-format tables for consistent look and feel
-			#set( $string = "#formatTables($string, $maxPageWidth, 'left')" )
+			#set( $string = "#formatTables($string, $maxImageWidth, 'left')" )
 		#end 
 		## format lists appropriately
 		#set( $string = $string.replaceAll('<li>','<li class=TableCell>') )
