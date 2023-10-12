@@ -31,7 +31,7 @@ xmlns=3D"http://www.w3.org/TR/REC-html40">
 ## 8-APR-2019   D          Shawnna Williams  - Fix Approval status on second page                                    
 ## 2-OCT-2019   E          Shawnna Williams  - Modify for new velocity
 ## 21-AUG-2023  F          Liam Rotchford    - Resolved "Time Spent" column value bug by implementing #getDuration() macro.
-## 
+## 11-OCT-2023  G          Shawnna Williams  - Fix broken hyperlinks
 ##
 ## ========================================================================== 
 ## ======================================================================================================================
@@ -670,9 +670,11 @@ id=3D"webarch_temp_base_tag">
 
 ####Local instance#####
 ##set( $jamaURL = '<a href=3D"')
-#set( $jamaURL = '"')
-#set( $jamaURL = $jamaURL.concat($baseUrl))
-#set( $jamaURL = $jamaURL.concat( 'review.req#/r:REV'))  ##>
+##set( $jamaURL = ''')
+#*#set( $jamaURL = $jamaURL.concat($baseUrl))
+#set( $jamaURL = $jamaURL.concat( '/review.req#/r:REV'))  ##>
+*#
+#set( $jamaURL = $baseUrl + '/' + 'review.req#/r:REV-')
 
 ################
 #*
@@ -1001,9 +1003,12 @@ Sorted Archived: $sortedArchived<br>*#
                                 #set( $status = 'In Progress')
                               #end
                               <td class=3Dxl69 width=3D100 style=3D'width:75pt;vertical-align:top'>$!status</td>
-                              #set( $href = $jamaURL.concat( '-'))
+                              ##set( $href = $jamaURL.concat( '-'))
+							  #set( $link = "")
+							  #set( $link = $jamaURL + $r.sequence.toString())
                               <td class=3Dxl70 width=3D112 style=3D'width:84pt'>
-                                    <a href=3D$href$r.sequence"><span style=3D'text-decoration:none'>$r.sequence</span></a>
+                                    ##<a href=3D$href$r.sequence"><span style=3D'text-decoration:none'>$r.sequence</span></a>
+									<a href=3D'$link'><span style=3D'text-decoration:none'>$r.sequence</span></a>
                               </td>
                               <td class=3Dxl65 width=3D112 style=3D'width:84pt'>$!v.sequenceNumber</td>
                               <td class=3Dxl65 width=3D130 style=3D'width:97pt'>$r.name</td>
@@ -1086,7 +1091,10 @@ Sorted Archived: $sortedArchived<br>*#
                               ##Reviewers don't approve the review 
                               <td class=3Dxl69 width=3D100 style=3D'width:75pt'>N/A</td>
                               <td class=3Dxl70 width=3D112 style=3D'width:84pt'>
-                                    <a href=3D$href$r.sequence"><span style=3D'text-decoration:none'>$r.sequence</span></a>
+							  #set( $link = "")
+							  #set( $link = $jamaURL + $r.sequence.toString())
+                                    ##<a href=3D$href$r.sequence"><span style=3D'text-decoration:none'>$r.sequence</span></a>
+									<a href=3D'$link'><span style=3D'text-decoration:none'>$r.sequence</span></a>
                               </td>
                               <td class=3Dxl65 width=3D112 style=3D'width:84pt'>$!v.sequenceNumber</td>
                               <td class=3Dxl65 width=3D130 style=3D'width:97pt'>$r.name</td>
@@ -1444,8 +1452,10 @@ h:77pt'>
         #end
     #end
          <tr height=3D19 style=3D'height:14.4pt'>
+			#set( $link = "")
+			#set( $link = $jamaURL + $r.sequence.toString())
               <td class=3Dxl65 width=3D136 style=3D"border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;
-			  border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext"><a href=3D$href$r.sequence">$r.name</a></td>
+			  border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext"><a href=3D'$link'>$r.name</a></td>
 			  <td class=3Dxl65 width=3D149 style=3D"border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;
 			  border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext">#getAuthors3( $r )</td>
 			 <td class=3Dxl65 width=3D149 style=3D"border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;
