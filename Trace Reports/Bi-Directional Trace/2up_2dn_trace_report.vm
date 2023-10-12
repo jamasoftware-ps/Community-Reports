@@ -345,9 +345,9 @@ a:visited {
     #set( $string = $string.replaceAll("<div.*?>|<\/div>",""))
     
 
-    ##remove table tags, tables within table cells are not possible 
-      in excel because they read as actual excel rows/cells, throwing 
-      off the report's entire structure ##
+    ##remove table tags, tables within table cells are not possible ##
+    ##  in excel because they read as actual excel rows/cells, throwing ##
+    ##  off the report's entire structure ##
     #set( $string = $string.replaceAll("<table.*>|<\/table>",""))
     #set( $string = $string.replaceAll("<col.*?>|<\/col>", ""))
     #set( $string = $string.replaceAll("<tbody.*?>|<\/tbody>",""))
