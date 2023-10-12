@@ -19,7 +19,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 2023-08-02   1.2        Liam Rotchford    - Updated report to Master Template version 2.6.1
 ## 2023-09-12   1.3        Anna FitzGerald   - Commented out debug print statement
 ##                                           - Corrected variable name in #formatTableCell macro                                             
-##
+## 2023-10-06   1.4        Anna FitzGerald   - Added conditional logic to ensure only Test Runs show from the user selected Test Plan
+##                                           - and Test Run status .display shows now 
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -4842,7 +4843,7 @@ $string
   #set($testRunID = $mathTool.toInteger($testRunID))
   #set($testRun = $tRunDao.getTestRun($mathTool.toInteger($testRunID)))
   
-  #if($testRun.active)
+  #if($testRun.active && $testRun.testPlan.id == $testPlanID)
     #set($success = $activeTestRuns.add($testRun))
   #end
 #end
@@ -4862,7 +4863,7 @@ $string
     #set($success = $collectedTestCases.add($testCase.id))
 
     #foreach($checkRun in $activeTestRuns)
-      #if($checkRun.testCase.id == $testCase.id)
+      #if($checkRun.testCase.id == $testCase.id )
         #set($success = $caseGroupedTestRuns.add($checkRun))
       #end
     #end
@@ -4955,7 +4956,7 @@ $string
             <td width="20%"><p class=MsoNormal>#if($step.action) #formatTableCell($step.action, "left", 200) #end</p></td>
             <td width="20%"><p class=MsoNormal>#if($step.expectedResult) #formatTableCell($step.expectedResult, "left", 200) #end</p></td>
             <td width="20%"><p class=MsoNormal>#if($step.notes) #formatTableCell($step.notes, "left", 200) #end</p></td>
-            <td width="10%"><p class=MsoNormal>#if($step.status) #formatTableCell($step.status, "left", 100) #end</p></td>
+            <td width="10%"><p class=MsoNormal>#if($step.status) #formatTableCell($step.status.display, "left", 100) #end</p></td>
             <td width="20%">#if($step.result) #formatTableCell($step.result , "left", 200)  #end</td>
           </tr>
         #end
@@ -4981,7 +4982,7 @@ $string
         ## Test Run Status
         <tr bgcolor="ffffff">
             <td width="15%"><p class=MsoNormal><b>Test Status:</b></p></td>
-            <td colspan="5" width="85%"><p class=MsoNormal>#if($testRun.testRunStatus) $testRun.testRunStatus #end</p></td>
+            <td colspan="5" width="85%"><p class=MsoNormal>#if($testRun.testRunStatus) $testRun.testRunStatus.display #end</p></td>
         </tr>
 
         ## Pass with Errors
