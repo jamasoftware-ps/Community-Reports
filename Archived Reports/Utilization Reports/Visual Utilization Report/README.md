@@ -4,7 +4,7 @@
 The Visual Utilization Report shows how active your Jama Connect instance is by displaying charts showing how active your users are in a given date range. 
 
 ## Visual Utilization Preview Image
-![Utilization by Project Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Utilization%20Reports/Visual%20Utilization%20Report/VisualUtilizationPreviewImage.png)
+![Utilization by Project Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Archived%20Reports/Utilization%20Reports/Visual%20Utilization%20Report/VisualUtilizationPreviewImage.png)
 
 ## Installation Instructions
 1. Go to the Admin section of Jama
@@ -13,7 +13,7 @@ The Visual Utilization Report shows how active your Jama Connect instance is by 
 4. Fill in the Add/Edit Report form as shown below.
 5. Click Save
 
-![Report Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Utilization%20Reports/Visual%20Utilization%20Report/VisualUtilizationReportSetup.png)
+![Report Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Archived%20Reports/Utilization%20Reports/Visual%20Utilization%20Report/VisualUtilizationReportSetup.png)
 
 ## NOTES: 
 - Your Organization field will have a different value.  
