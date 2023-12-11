@@ -23,6 +23,18 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                           - Ensured compare relationships show for items that are same version but that have relationship difference
 ## 2033-08-09   3.1.2      Anna FitzGerald   - Ensured totalRels variables are set to 0 incase no total results are returned so that they 
 ##                                             do not trigger a null error
+## 2023-10-05   3.2        Liam Rotchford    - Updated report logic for gathering baseline items to utilize the new documentSource interface
+##                                             method .getContourItemDTOsForBaseline() for latest immutable baselines change to the Jama Connect Tool. 
+## 2023-11-21   3.3        Liam Rotchford    - Added new macro #getBaselineItems() for calling logic on larger baseline datasets. 
+##                                           - Updated #extractBaselineItems() macro to account for Velocity recursive depth limitation of 20. 
+##                                           - Updated #buildRelationshipsCounts() macro to resolve bug with extracting baseline related items following
+##                                             Jama 9.6 changes.
+## 2023-11-28   3.4        Liam Rotchford    - Updated #extractBaselineItems() & #getBaselineItems() macros to account for the macro depth traversal limit
+##                                             to account for the starting depth level, account for the # of extraction calls calculated by the baseline 
+##                                             total items and it's relation to the macro recursion depth, and additional early #break calls for better 
+##                                             performance as soon as all baseline items have been collected.
+## 2023-11-29   3.4.1      Liam Rotchford    - Minor adjustments for baseline extraction items call & #formatAddedItems() macro to gather item global Ids 
+##                                             for comparison to ensure item counts for Added items is accurate. 
 ##                                        
 ##                             
 ## ======================================================================================================================
@@ -35,12 +47,12 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##
 ##      Type:       Display Name:           Report Global Variable:   Function:
 ##      ----------------------------------------------------------------------------------------------------------------------
-##      Baseline	Baseline 1				report_baseline1
-##      Baseline    Baseline 2				report_baseline2
+##      Baseline	  Baseline 1				       report_baseline1
+##      Baseline    Baseline 2				       report_baseline2
 ##      Boolean     Include Relationships    includeRelationships
 ##      Boolean     Include Version Comments report_showComment
 ##      Boolean     Show Finished Text       report_showFinText
-##      Boolean     Exclude Status Field     report_excludeStatus##
+##      Boolean     Exclude Status Field     report_excludeStatus
 ##    
 ##
 ## ======================================================================================================================
@@ -210,10 +222,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## Report Parameters
 ##-------------------------------------------
 
-#set($baseDocNodes = [] )
-#set($baseOrgIds = [])
-#set($compareOriginIds = [])
-#set($compareDocIds = [])
+#set($compareDocs = [] )
 #set($deleted = [] )
 #set($docList = [] )
 #set($found = 'no')
@@ -2078,7 +2087,7 @@ page-break-before: always;
 .TOF_table-of-figures-item {
   font-family:"${primaryFont}",sans-serif !important;
   font-size:10pt !important;
-  padding: 0 !important!;
+  padding: 0 !important;
   overflow:hidden !important;
   width:90% !important;
 }
@@ -2485,11 +2494,11 @@ td.TableCell
   ##
   #set($baseRelsPage = $velocityServiceWrapper.getRelationships($orginDocId,$baselineId,$start,$count))
   ##
-  #set( $totalRels = 0)
+  #set( $totalRels = [])
   #set( $totalRels = $baseRelsPage.getPageInfo().getTotalResults())
-  ## DEBUG Baseline Page Info: $baseRelsPage.getPageInfo() <br><br>
-  ## DEBUG Baseline Relationship Count: $baseRelsPage.getPageInfo().getTotalResults()<br><br>
-  ## DEBUG Baseline Results: $baseRelsPage.getResults() 
+  ##DEBUG Baseline Page Info: $baseRelsPage.getPageInfo() <br><br>
+  ##DEBUG Baseline Relationship Count: $baseRelsPage.getPageInfo().getTotalResults()<br><br>
+  ##DEBUG Baseline Results: $baseRelsPage.getResults() 
 
   #if( $totalRels && $totalRels > 0)
     #set( $page_count = $mathTool.floor($mathTool.div($totalRels,$pageSize)) )
@@ -2552,7 +2561,7 @@ td.TableCell
 ##          Creates: $returnRels - list of relationships with sub-elements of "fromItem" and "toItem" each of type 
 ##                   item
 #########################################################################################################################
-#macro( getRelationships $inDoc $inDownstream )
+#macro( getRelationships $inDoc $inDownstream $baselineId)
   #set( $returnRels = [] )
 
   #if( $baselineMode && $baselineId )
@@ -4477,6 +4486,88 @@ $string
     $string
   #end
 #end
+
+#########################################################################################################################
+##          Macro: getBaselineItems
+##          Input: $baselineId
+##          Desc: - Velocity has a recursion depth limit of 20 requiring a unique indirect baseline extraction 
+##                  macro calling system based on the total number of baseline items. 
+##                - This caller macro determines the number of #extractBaselineItems() calls to make based on 
+##                  the total number of baseline items we plan to extracted via the supplied baseline id. 
+##                - Baselines hold 50 items per baseline page which is what is extracted per each call of the 
+##                  #extractBaselineItems() macro. 
+##                - Reaching the #getBaselineItems() macro equates to 2 depth traversals #createBody() -> #getBaselineItems()
+##                  meaning we only can pull at most (18 valid recursive cycles * 50 items per baseline page == 800 baseline 
+##                  items per call of the #extractBaselineItems() macro.
+##                - This macro determines the number of primary calls we will make to the #extractBaselineItems() macro in order
+##                  to track and ensure that we never breach the Velocity recursion depth of 20 ensuring we can extract all
+##                  baseline items as expected.
+##                - This is managed by the $recursionDepth variable which at it's base accounts for our already 2 level depth + 1
+##                  to ensure we are always 1 under the Velocity limit (i.e prevent an error). 
+##                - This variable is additionally incremented with the number of extraction call cycles that must take place
+##                  to ensure that we can extract at least 800 items per call without hitting the depth error.
+#########################################################################################################################
+#macro( getBaselineItems $baselineId) 
+
+  #set($baselineItems = [])
+  #set($baselineTotalItems = $mathTool.toDouble($documentSource.getContourItemDTOsForBaseline($baselineId, 0, 1, 'sequence ASC').getPageInfo().getTotal()))
+
+  #if($baselineTotalItems > 800)
+    #set($extractionCalls = $mathTool.ceil($mathTool.toDouble($baselineTotalItems / 800.0)))
+
+    #foreach($cycle in [1..$extractionCalls])
+      #set($recursionDepth = 3 + $extractionCalls)
+      
+      #if($foreach.first)
+        #set($baselinePagedResults = $documentSource.getContourItemDTOsForBaseline($baselineId, 0, 50, 'sequence ASC') )
+      #else
+        #set($baselinePagedResults = $documentSource.getContourItemDTOsForBaseline($baselineId, $pageIndex, 50, 'sequence ASC') )
+      #end
+      
+      #extractBaselineItems($baselineId $baselinePagedResults $baselineItems $recursionDepth) 
+ 
+      #if($baselineItems == $baselineTotalItems)
+        #break
+      #end
+    #end
+
+  #else
+    #set($recursionDepth = 3)
+    #set($baselinePagedResults = $documentSource.getContourItemDTOsForBaseline($baselineId, 0, 50, 'sequence ASC') )
+    #extractBaselineItems($baselineId $baselinePagedResults $baselineItems $recursionDepth)
+  #end
+
+  ## returns populated $baselineItems
+#end
+
+#########################################################################################################################
+##          Macro: extractBaselineItems
+##          Input: $baselineId $baselinePagedResults $baselineItems $recursionDepth
+##          Return: $baselineItems filled with all selected baseline items & last used $pageIndex
+#########################################################################################################################
+#macro( extractBaselineItems $baselineId $baselinePagedResults $baselineItems $recursionDepth)
+  
+  #if( !$baselinePagedResults || $baselinePagedResults.getResults().size() <= 0 || $baselineItems.size() == $baselinePagedResults.getPageInfo().getTotal())
+    #break
+  #else
+
+    #foreach( $baselineItem in $baselinePagedResults.results)
+      #set($success = $baselineItems.add($baselineItem))
+    #end
+    
+    #if($baselineItems.size() == $baselinePagedResults.getPageInfo().getTotal() || $recursionDepth >= 20)
+      #break
+    #else
+      #set($recursionDepth = $recursionDepth + 1)
+      #set($pageIndex = $baselineItems.size())  
+      #set($baselinePagedResults = $documentSource.getContourItemDTOsForBaseline($baselineId, $pageIndex, 50, 'sequence ASC') )
+      #extractBaselineItems($baselineId $baselinePagedResults $baselineItems $recursionDepth)
+    #end
+
+  #end
+
+#end
+
 #########################################################################################################################
 ## **********************************************************************************************************************
 ##
@@ -4617,6 +4708,7 @@ $string
 <h2 style='text-align:left !important;'>
 	#set( $lk = "")
 	#set( $lk = "#createLink( $baseDoc.currentVersion.originDocument, $baseDoc.currentVersion.versionNumber.toString())")
+  #set( $lk = $lk.trim())
     <a style='font-size:12pt !important;' href="$!lk">$baseDoc.documentKey</a> 
     $baseDoc.name
 </h2>
@@ -4819,10 +4911,10 @@ $string
 #end 
 #########################################################################################################################
 ##          buildRelationshipCounts 
-##          Input: $baseDoc $originDoc $rl $r2 
+##          Input: $baseDoc $originDoc $r1 $r2 
 ##          Return: $base1RelsSize, $base2RelsSize, $relsMatch, $base1Resls $base2Rels
 #########################################################################################################################  
-#macro( buildRelationshipCounts $baseDoc $compareDoc $rl $r2 ) 
+#macro( buildRelationshipCounts $baseDoc $compareDoc $r1 $r2 ) 
   #set( $start = 0)
   #set( $count = 20)
   #set( $pageSize = 20 )
@@ -4838,12 +4930,11 @@ $string
   #set( $addedRelationship = [] ) 
   #set( $removedRelationship = [] )
 
-  ##$baseDoc.documentKey, Baseline id 1: $r1, item id: $baseDoc.id, Version: $baseDoc.currentVersion.versionNumber<br>
-  ##$compareDoc.documentKey, Baseline id 2: $r2, item id: $compareDoc.id, Version: $compareDoc.currentVersion.versionNumber<br>
+  ##CHECK B1: $baseDoc.documentKey, Baseline id 1: $r1, item id: $baseDoc.id, $baseDoc.currentVersion.id  Version: $baseDoc.currentVersion.versionNumber<br>
+  ##CHECK B2: $compareDoc.documentKey, Baseline id 2: $r2, item id: $compareDoc.id, Version: $compareDoc.currentVersion.versionNumber<br>
 
-  #set( $base1RelsPage = $documentSource.getRelationships( $baseDoc.id,$r1,$start,$count))
-  #set( $base2RelsPage = $documentSource.getRelationships( $compareDoc.id,$r2,$start,$count))
-
+  #set( $base1RelsPage = $documentSource.getRelationships($baseDoc.currentVersion.originDocument.id,$r1,$start,$count))
+  #set( $base2RelsPage = $documentSource.getRelationships($compareDoc.currentVersion.originDocument.id,$r2,$start,$count))
   ##$base1RelsPage 
   ##$base2RelsPage 
   
@@ -4864,7 +4955,7 @@ $string
 
       #foreach( $page in [0..$page_count])
 
-        #set($base1RelsPage = $documentSource.getRelationships($baseDoc.id,$r1,$start,$count))
+        #set($base1RelsPage = $documentSource.getRelationships($baseDoc.currentVersion.originDocument.id,$r1,$start,$count))
 
         ##Base1RelsPage: $base1RelsPage.getResults().size()<br>
         #set( $base1PageResults = $base1RelsPage.getResults())
@@ -4886,7 +4977,7 @@ $string
       #set( $page_count = $mathTool.floor($mathTool.div($totalRels2,$pageSize)) )
       #set( $page_count = $page_count + 1)
       #foreach( $page in [0..$page_count])
-        #set($base2RelsPage = $documentSource.getRelationships($compareDoc.id,$r2,$start,$count))
+        #set($base2RelsPage = $documentSource.getRelationships($compareDoc.currentVersion.originDocument.id,$r2,$start,$count))
          #set( $base2PageResults = $base2RelsPage.getResults())
 
          #if( $base2PageResults )
@@ -4939,7 +5030,7 @@ $string
       #end 
     #end 
 
-   ## BASE 1: $allBase1IDs, BASE 2: $allBase2IDs <br>
+    ##BASE 1: $allBase1IDs, BASE 2: $allBase2IDs <br>
 
     #if( $base1RelsSize == $base2RelsSize)
       #if( $base1RelsSize == 0 && $base2RelsSize == 0)
@@ -4976,7 +5067,7 @@ $string
 
     #end ##if( $base1RelsSize == $base2RelsSize)
 
-## returns $base1RelsSize, $base2RelsSize, $relsMatch, $finalListBase1Rels, $finalListBase2Rels
+ ##returns $base1RelsSize, $base2RelsSize, $relsMatch, $finalListBase1Rels, $finalListBase2Rels
 #end 
 ##
 #########################################################################################################################
@@ -5062,9 +5153,11 @@ $string
 	  #set( $toItemDoc = $documentSource.getDocument( $toItem.id))
 	  #set( $lk = "")
 		#set( $lk = "#createLink( $fromItemDoc.currentVersion.originDocument, $fromVersion)")
+    #set( $lk = $lk.trim())
          &#8226; <a href="$lk">$!fromName ($!fromDocumentKey)</a>
 	  #set( $lk = "")
 		#set( $lk = "#createLink( $toItemDoc.currentVersion.originDocument, $toVersion)")
+    #set( $lk = $lk.trim())
         &#8594; <a href="$lk">$!toName ($!toDocumentKey)</a>
         <br><br>
       #end
@@ -5132,9 +5225,11 @@ $string
 	     #set( $toItemDoc = $documentSource.getDocument( $toItem.id))
 		   #set( $lk = "")
 		   #set( $lk = "#createLink( $fromItemDoc.currentVersion.originDocument, $fromItemVersion)")
+       #set( $lk = $lk.trim())
         &#8226; <a href="$!lk">$!fromName ($!fromDocumentKey)</a>
 		   #set( $lk = "")
 		   #set( $lk = "#createLink( $toItemDoc.currentVersion.originDocument, $toItemVersion)")
+       #set( $lk = $lk.trim())
         &#8594; <a href="$!lk">$!toName ($!toDocumentKey)</a>
          <br> <br>
      
@@ -5280,22 +5375,20 @@ $string
 #end 
 #########################################################################################################################
 ##          formatAddedItems
-##          Input: compareOriginIds 
+##          Input: $baseline2Items 
 ##          Return: Added Items section 3.0 formatted for Word
 #########################################################################################################################
 
-#macro( formatAddedItems $compareOriginIds )
-#set( $showAdded = [] )
-#set( $addedBase2Rels = [] )
+#macro( formatAddedItems $baseline2Items )
+  #set( $showAdded = [] )
+  #set( $addedBase2Rels = [] )
 
-#foreach($aa in $compareOriginIds)
-    #if(!$baseOrgIds.contains($aa))
-	  ###set($cDoc = $docDao.getDocument($aa))
-	  #set( $bDN2 = $documentSource.getDocumentNodeForBaseLine(5,$compareDocIds.get($compareOriginIds.indexOf( $aa )), $r2))
-      #set( $cDoc = $documentSource.getDocument( $bDN2.refId) )
-      #set( $success = $showAdded.add($cDoc))
-    #end 
-#end 
+  #foreach($baseline2Item in $baseline2Items)
+    #if(!$baseline1Ids.contains($baseline2Item.globalId))
+      #set( $success = $showAdded.add($baseline2Item))
+    #end
+  #end
+
 
 <h1 style='page-break-after:avoid;page-break-before:always !important;text-align:left !important;'>Added Items</h1>
 
@@ -5305,6 +5398,7 @@ $string
     <h2>
       #set( $lk = "")
       #set( $lk = "#createLink( $cDoc.currentVersion.originDocument, $cDoc.currentVersion.versionNumber.toString())")
+      #set( $lk = $lk.trim())
       <a style='font-size:12pt !important;' href="$!lk">$cDoc.documentKey</a> $cDoc.name
     </h2>
 
@@ -5414,57 +5508,47 @@ $string
 #end ##
  ##
 
-#foreach( $docId in $baselineSource.getDocumentIds($r1))
-	#set($docNode1=$documentSource.getDocumentNodeForBaseLine( 5, $docId, $r1))
-	#if($docNode1.scopeId == 5)
-		#if( $baseDocNodes.add($docNode1))#end
-		#getFields( $documentSource.getDocument($docNode1.refId))
-	#end ##if($docNode1.scopeId == 5)
-#end
-#*
-#################### Load list of first baseline document nodes - nodes so can sort on global ID #################
-#foreach($doc1 in $baseDao.getDocumentIds($r1))
-    #set($dN1=$docNodeDao.getDocumentNodeForBaseLine( 5, $doc1, $r1))
-    #if($dN1.scopeId == 5)
-        #if( $baseDocNodes.add($dN1))#end
-        ###################### check to see if item type field's have been collected ###################
-        #foreach($a in $docList)
-            #if($a.get(0) == $docDao.getDocument($dN1.refId).documentType.id)
-                #set($found = 'yes')
-                #break
-            #end
-            #set($count=$count+1)
-        #end
-        ###################### load item type fields ###################
-        #if($found == 'no')
-            #set($docField = [] )
-            #if($docField.add($docDao.getDocument($dN1.refId).documentType.id))#end
-            #foreach($d in $dtDao.getDocumentTypeFieldListByType($docDao.getDocument($dN1.refId).documentType.id))
-                #if($docField.add($d.documentField.name))#end
-            #end
-            #if($docList.add($docField))#end
-             #set($count=$count+1)
-        #end
-        #set($found = 'no')
-    #end
-#end
-*#
-#################### Load list of original IDs of first baseline ids for update & deletion check #################
-#foreach($dn in $baseDocNodes)
-    #if($baseOrgIds.add($documentSource.getVersionByDocumentId($dn.refId).originDocument.id))#end
+
+#################### extract selected baseline 1 items #################
+
+#getBaselineItems($r1) ## returns $baselineItems
+#set($baseline1Items = $baselineItems)
+#set($baseline1Ids = [])
+
+#foreach($baseline1Item in $baseline1Items)
+    #getFields($baseline1Item)
+    ##Load list of original IDs of first baseline ids for update & deletion check
+    #set($success = $baseline1Ids.add($baseline1Item.globalId))
 #end
 
-#################### Load list of original IDs of second baseline ids for update & deletion check #################
-#foreach($cmp in $baselineSource.getDocumentIds( $r2))
-    #set($dN2=$documentSource.getDocumentNodeForBaseLine(5,$cmp,$r2))
-    #if($dN2.scopeId == 5)
-        #if($compareOriginIds.add($documentSource.getVersionByDocumentId($dN2.refId).originDocument.id))#end
-        #if($compareDocIds.add($dN2.refId))#end
-    #end
+
+
+
+#################### extract selected baseline 2 items #################
+
+#getBaselineItems($r2) ## returns $baselineItems
+#set($baseline2Items = $baselineItems)
+#set($baseline2Ids = [])
+
+#foreach($baseline2Item in $baseline2Items)
+    #getFields($baseline2Item)
+    ##Load list of original IDs of first baseline ids for update & deletion check
+    #################### Load list of original IDs of second baseline ids for update & deletion check #################
+    #set($success = $baseline2Ids.add($baseline2Item.globalId))
+    #set($base2Doc = $docDao.getDocument($baseline2Item.id))
+    #if($compareDocs.add($base2Doc))#end
 #end
 
+
+
+#################### Load Selected Baseline Objects #################
 #set( $bData1 = $baselineSource.getBaseLine( $mathTool.toInteger( $report_baseline1 )))
 #set( $bData2 = $baselineSource.getBaseLine( $mathTool.toInteger( $report_baseline2 )))
+
+
+
+
+
 
 #########################################################################################################################
 ##
@@ -5874,14 +5958,18 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 #set( $hasUpdated = false)
   ##----  Build Section 1.0 Updated Items  ----##
 
-  #foreach( $node1 in $sortTool.sort( $baseDocNodes,"globalSortOrder") )
+  #foreach( $baseline1Item in $baseline1Items)
 
-  #set( $baseDoc = $documentSource.getDocument($node1.refId))
-  #set( $baseOrigin = $documentSource.getVersionByDocumentId($baseDoc.id).originDocument.id)
+    #set( $baseDoc = $docDao.getDocument($baseline1Item.id))
+    #set( $baseOrigin = $baseDoc.currentVersion.originDocument.id)
 
-    #if( $compareOriginIds.contains( $baseOrigin ) )
-      #set( $baseDN2 = $documentSource.getDocumentNodeForBaseLine(5,$compareDocIds.get($compareOriginIds.indexOf( $baseOrigin )), $r2))
-      #set( $compareDoc = $documentSource.getDocument( $baseDN2.refId) )
+    #if( $baseline2Ids.contains( $baseline1Item.globalId ) )
+      #set( $compareItemIndex = $baseline2Ids.indexOf( $baseline1Item.globalId ))
+      
+      #if($compareDocs.size() > $compareItemIndex)
+        #set( $compareDoc = $compareDocs[$compareItemIndex])
+      #end
+
       #set( $bVer = $documentSource.getVersionByDocumentId( $baseDoc.id) )
       #set( $aVer = $documentSource.getVersionByDocumentId( $compareDoc.id) )
 
@@ -5889,8 +5977,9 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 
       ##------ Check for relationships changes ------##
       #if( $includeRelationships == true)
-        #buildRelationshipCounts( $baseDoc $compareDoc $rl $r2 ) 
+        #buildRelationshipCounts( $baseDoc $compareDoc $r1 $r2 ) 
         ## returns $base1RelsSize, $base2RelsSize, $relsMatch, $base1Rels $base2Rels
+       
       #end ##if( $includeRelationships == true)
 
       ##Basedoc: $baseDoc.id Compare: $compareDoc.id<br> 
@@ -6010,8 +6099,8 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 
 
     #else
-      #if($deleted.add($baseDoc))#end
-    #end ##if( $compareOriginIds.contains( $baseOrigin ) )
+      #if($deleted.add($baseline1Item))#end
+    #end ##if( $baseline2Ids.contains( $baseline1Item.globalId ) )
 
   #end ##foreach( $node1 in $sortTool.sort( $baseDocNodes,"globalSortOrder") )
 
@@ -6027,7 +6116,7 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 
 ##------  Build the Added Item Section 3.0  ------##
 <section>
-#formatAddedItems( $compareOriginIds )
+#formatAddedItems( $baseline2Items )
 </section>
 
 </div> ##<div class="reportBodyCounterContainer">
