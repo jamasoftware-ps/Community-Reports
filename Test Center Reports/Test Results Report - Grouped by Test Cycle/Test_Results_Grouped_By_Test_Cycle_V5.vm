@@ -30,6 +30,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                             SOS-DEF-7285 where not all runs were being collected. 
 ##                                           - Updated #findSourceMHTML() macro to the latest implementation for improved 
 ##                                             image source extraction. 
+## 2023-12-28   1.5.1      Liam Rotchford    - Minor logic adjustment to ensure look ahead to next cycle can be properly extracted
+##                                             to utilization of final report content structure storage system. 
 ##
 ## ======================================================================================================================
 ##
@@ -4906,7 +4908,7 @@ $string
     #if( $foreach.hasNext )
       #set( $nextIndex = $foreach.index + 1 )
       #set( $nextInList = $sortedTestCycle.get($nextIndex))
-      #set( $nextCycle = $nextInList.testCycle )
+      #set( $nextCycle = $nextInList.get("TestCycle") )
     #else
       #set( $nextCycle = false )
     #end
