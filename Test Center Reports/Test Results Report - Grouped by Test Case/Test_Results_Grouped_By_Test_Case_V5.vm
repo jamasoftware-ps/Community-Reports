@@ -21,6 +21,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                           - Corrected variable name in #formatTableCell macro                                             
 ## 2023-10-06   1.4        Anna FitzGerald   - Added conditional logic to ensure only Test Runs show from the user selected Test Plan
 ##                                           - and Test Run status .display shows now 
+## 2023-12-28   1.5        Liam Rotchford    - Updated #findSourceMHTML() macro to the latest implementation for improved image source
+##                                             extraction. 
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -2381,16 +2383,41 @@ td.TableCell
   #foreach( $x in [$startCheck..$lastImageIndex])
     #if( $x == $sText.indexOf( "<img", $x))  ##>
       #set($end = $sText.indexOf(">", $mathTool.toInteger($x)))
-      #set( $imgString = ( $sText.substring( $mathTool.toInteger($x), $mathTool.toInteger($end))))
+      #set($imgString = ( $sText.substring( $mathTool.toInteger($x), $mathTool.toInteger($end))))
       #### Debug: $imgString
-      #set( $srcStart = $imgString.indexOf("src="))
-      #set( $srcStart = $srcStart + 5)
-      #set( $srcEnd = $imgString.indexOf('"', $srcStart))
-      #set($imgSrc = $imgString.substring( $srcStart, $srcEnd ))
-      #set($imgSrc = $imgSrc.replaceAll("\?dpi.*$", ""))
-      #if( $imgString.indexOf( $baseUrl) > -1 && $imgString.indexOf( "blob:http") == -1)
-        #set( $success = $findSourceMHTMLReturn.add( $imgSrc))
+      #set($imgStringCaseMod = $imgString.toLowerCase())
+
+      #set($srcStart = $imgStringCaseMod.indexOf("src="))
+      #if($imgStringCaseMod.contains('src="'))
+        #set($srcStart = $srcStart + 5)
+      #else
+        #set($srcStart = $srcStart + 4)
       #end
+
+      #if($imgStringCaseMod.contains(".png"))
+        #set( $srcEnd = $imgStringCaseMod.indexOf('.png', $srcStart))
+      #elseif($imgStringCaseMod.contains(".jpg"))
+        #set( $srcEnd = $imgStringCaseMod.indexOf('.jpg', $srcStart))
+      #elseif($imgStringCaseMod.contains(".jpeg"))
+        #set( $srcEnd = $imgStringCaseMod.indexOf('.jpeg', $srcStart))
+      #elseif($imgStringCaseMod.contains(".svg"))
+        #set( $srcEnd = $imgStringCaseMod.indexOf('.svg', $srcStart))
+      #end
+      
+      #if($imgStringCaseMod.contains(".jpeg"))
+        #set( $srcEnd = $srcEnd + 5)
+      #else
+        #set( $srcEnd = $srcEnd + 4)
+      #end
+
+      #if( $srcStart < $srcEnd )
+        #set($imgSrc = $imgString.substring( $srcStart, $srcEnd ))
+        #set($imgSrc = $imgSrc.replaceAll("\?dpi.*$", ""))
+
+        #if($imgString.indexOf( $baseUrl) > -1 && $imgString.indexOf( "blob:http") == -1)
+          #set( $success = $findSourceMHTMLReturn.add( $imgSrc))
+        #end
+    #end 
     #end
   #end
 #end
