@@ -17,6 +17,13 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                           - Report also handles upstream requirements for the test cases and runs. 
 ## 2023-07-06   1.1        Shawnna Williams    Update formatText macro to remove blank image tags
 ## 2023-08-02   1.2        Liam Rotchford    - Updated report to Master Template version 2.6.1
+## 2023-12-27   1.3        Liam Rotchford    - Commented out debug print statement.
+##                                           - Corrected variable name in #formatTableCell macro.  
+##                                           - Updated report data extraction and organization implementation to utilize 
+##                                             workaround method .getTestRunIdsForTestCases() following identified defect 
+##                                             SOS-DEF-7285 where not all runs were being collected. 
+##                                           - Updated #findSourceMHTML() macro to the latest implementation for improved 
+##                                             image source extraction. 
 ##                                             
 ##
 ## ======================================================================================================================
@@ -2379,16 +2386,41 @@ td.TableCell
   #foreach( $x in [$startCheck..$lastImageIndex])
     #if( $x == $sText.indexOf( "<img", $x))  ##>
       #set($end = $sText.indexOf(">", $mathTool.toInteger($x)))
-      #set( $imgString = ( $sText.substring( $mathTool.toInteger($x), $mathTool.toInteger($end))))
+      #set($imgString = ( $sText.substring( $mathTool.toInteger($x), $mathTool.toInteger($end))))
       #### Debug: $imgString
-      #set( $srcStart = $imgString.indexOf("src="))
-      #set( $srcStart = $srcStart + 5)
-      #set( $srcEnd = $imgString.indexOf('"', $srcStart))
-      #set($imgSrc = $imgString.substring( $srcStart, $srcEnd ))
-      #set($imgSrc = $imgSrc.replaceAll("\?dpi.*$", ""))
-      #if( $imgString.indexOf( $baseUrl) > -1 && $imgString.indexOf( "blob:http") == -1)
-        #set( $success = $findSourceMHTMLReturn.add( $imgSrc))
+      #set($imgStringCaseMod = $imgString.toLowerCase())
+
+      #set($srcStart = $imgStringCaseMod.indexOf("src="))
+      #if($imgStringCaseMod.contains('src="'))
+        #set($srcStart = $srcStart + 5)
+      #else
+        #set($srcStart = $srcStart + 4)
       #end
+
+      #if($imgStringCaseMod.contains(".png"))
+        #set( $srcEnd = $imgStringCaseMod.indexOf('.png', $srcStart))
+      #elseif($imgStringCaseMod.contains(".jpg"))
+        #set( $srcEnd = $imgStringCaseMod.indexOf('.jpg', $srcStart))
+      #elseif($imgStringCaseMod.contains(".jpeg"))
+        #set( $srcEnd = $imgStringCaseMod.indexOf('.jpeg', $srcStart))
+      #elseif($imgStringCaseMod.contains(".svg"))
+        #set( $srcEnd = $imgStringCaseMod.indexOf('.svg', $srcStart))
+      #end
+      
+      #if($imgStringCaseMod.contains(".jpeg"))
+        #set( $srcEnd = $srcEnd + 5)
+      #else
+        #set( $srcEnd = $srcEnd + 4)
+      #end
+
+      #if( $srcStart < $srcEnd )
+        #set($imgSrc = $imgString.substring( $srcStart, $srcEnd ))
+        #set($imgSrc = $imgSrc.replaceAll("\?dpi.*$", ""))
+
+        #if($imgString.indexOf( $baseUrl) > -1 && $imgString.indexOf( "blob:http") == -1)
+          #set( $success = $findSourceMHTMLReturn.add( $imgSrc))
+        #end
+    #end 
     #end
   #end
 #end
@@ -2919,7 +2951,7 @@ td.TableCell
 				#set( $find = $find.replaceAll("\{", "[") )
 				#set( $find = $find.replaceAll("\}", "]") )
 				
-				Debug find: $find <br>
+				##Debug find: $find <br>
 
 			    #######################################################################################
 				## Find Img Location 
@@ -4263,14 +4295,14 @@ $string
 		#set( $string = "#formatText($string)" )
 		#if( $format == 'pdf')
 			## First re-format tables for consistent look and feel, and fixed column widths
-			#set( $string = "#formatTables($string, $maxPageWidth, 'left')" )
+			#set( $string = "#formatTables($string, $maxImageWidth, 'left')" )
 			## Then prep figures to base64 after formatting tables
-			#set( $string = "#convertFigures($string, $maxPageWidth)" )
+			#set( $string = "#convertFigures($string, $maxImageWidth)" )
 		#else
 			## Prep figures for Word- figures go in invisible table class
-			#set( $string = "#convertFigures($string, $maxPageWidth)" )
+			#set( $string = "#convertFigures($string, $maxImageWidth)" )
 			## then Re-format tables for consistent look and feel
-			#set( $string = "#formatTables($string, $maxPageWidth, 'left')" )
+			#set( $string = "#formatTables($string, $maxImageWidth, 'left')" )
 		#end 
 		## format lists appropriately
 		#set( $string = $string.replaceAll('<li>','<li class=TableCell>') )
@@ -4815,67 +4847,84 @@ $string
 ## Test Runs Per Test Cycle (Inactive) ~~ Data Gathering & Organization
 ##
 #################################################################
+  #set( $testCaseIdsForTestPlan = [] )
+  #set( $testRuns = [] )
+  #set( $sortedTestRuns = [] )
+  #set( $testRunsByCycle = [] )
+  #set( $sorted_testCycle_testRuns = []) 
+  #set( $sortedTestCycle = [] )
+  #set( $uniqueTestRunGlobalIDs = [] )
 
+  ## Extract Test Plan
+  #set( $testPlanID = $mathTool.toInteger($report_testPlanId))
+  #set( $testPlan = $testPlanDao.getTestPlan($testPlanID))
 
-## Gather Test Plan
-#set($testPlanID = $mathTool.toInteger($report_testPlanId))
+  ## Extract Test Plan Test Cases
+  #set( $testSets = $testPlan.testSets )
+  #foreach( $testSet in $testSets )
+    #set( $testSetCases = $testSet.testSetCases )
+    
+    #foreach( $testCase in $testSetCases )
+      #set( $testCase = $testCase.testCase )
+      #set( $success = $testCaseIdsForTestPlan.add($testCase.id))
+    #end 
+  #end 
 
-## Fetch Test Plan & Test Plans Test Sets
-#set($testPlan = $testPlanDao.getTestPlan($testPlanID))
-#set($testSets = $testPlan.testSets)
+  ## Extract Test Runs From Test Cases
+  #set( $testRunIds = $testSource.getTestRunIdsForTestCases($testCaseIdsForTestPlan))
+  #foreach( $tr in $testRunIds )
+    #set( $tRun = $testSource.getTestRun($numberTool.toNumber($tr).intValue()))
+    
+    ## Only gather inactive Test Runs
+    #if( !$tRun.active && $tRun.testPlan.id == $testPlan.id )
+      #set( $success = $testRuns.add({"TestRun":$tRun, "GlobalID":$tRun.globalId}))
+    #end 
+  #end 
 
-## Gather all Test Plan Test Case IDs
-#set($testCaseIds = [])
+  ## Associate Each Test Run To Corresponding Test Cycle
+  #set( $sortedTestRuns = $sortTool.sort( $testRuns, "GlobalID:desc" ))
+  #foreach( $tr in $sortedTestRuns )
+    #set( $testRun = $tr.get("TestRun"))
 
-#foreach($testSet in $testSets)
-  #set($testSetCases = $testSet.testSetCases)
+    #if( !$uniqueTestRunGlobalIDs.contains( $testRun.globalId  ) )
+      #set( $success = $uniqueTestRunGlobalIDs.add($testRun.globalId))
+      #set( $success = $testRunsByCycle.add({"TestCycle":$testRun.testCycle, "TestCycleId": $testRun.testCycle.id,  "TestRun":$testRun}))
+    #end 
+  #end 
+      
+  ## Organize Test Run Collections Per Cycle 
+  #set( $sortedTestCycle = $sortTool.sort( $testRunsByCycle, "TestCycleID:asc" ))
+  #set( $cycleTestRuns = [] )
+  #foreach( $tc in $sortedTestCycle )
+    #set( $testCycle = $tc.get("TestCycle"))
+    #set( $testRun = $tc.get("TestRun"))
 
-  #foreach($testSetCase in $testSetCases)
-    #set($testCaseID = $mathTool.toInteger($testSetCase.testCase.id))
-    #set($success = $testCaseIds.add($testCaseID))
-  #end
-#end
-
-## Gather all test runs from each test case id
-#set( $testCaseTestRunIDs = $tRunDao.getTestRunIdsForTestCases($testCaseIds) )
-
-## From all test runs gather only inactive test runs of test plan test cases (I.e deleted test runs)
-#set( $inactiveTestRuns = [])
-
-#foreach($testRunID in $testCaseTestRunIDs)
-  #set($testRunID = $mathTool.toInteger($testRunID))
-  #set($testRun = $tRunDao.getTestRun($mathTool.toInteger($testRunID)))
-  
-  #if(!$testRun.active)
-    #set($success = $inactiveTestRuns.add($testRun))
-  #end
-#end
-
-## Sort all inactive test runs by ID to set runs in correct order in line with cycles
-#set( $inactiveTestRuns = $sortTool.sort($inactiveTestRuns, "id:asc"))
-
-## Gather inactive test runs grouped by their test cycle (orgnaize data into usable format for test run tables)
-#set($finalTestRunCollection = [])
-#set($collectedTestCycles = [])
-
-#foreach($run in $inactiveTestRuns)
-  #set($testCycle = $run.testCycle)
-
-  #if(!$collectedTestCycles.contains($testCycle.id))
-    #set($cycleGroupedTestRuns = [])
-    #set($success = $collectedTestCycles.add($testCycle.id))
-
-    #foreach($checkRun in $inactiveTestRuns)
-      #if($checkRun.testCycle.id == $testCycle.id)
-        #set($success = $cycleGroupedTestRuns.add($checkRun))
-      #end
+    #if( $foreach.hasNext )
+      #set( $nextIndex = $foreach.index + 1 )
+      #set( $nextInList = $sortedTestCycle.get($nextIndex))
+      #set( $nextCycle = $nextInList.get("TestCycle") )
+    #else
+      #set( $nextCycle = false )
     #end
 
-    #set($success = $finalTestRunCollection.add({"TestCycle": $testCycle, "TestRuns": $cycleGroupedTestRuns}))
+    #set( $success = $cycleTestRuns.add($testRun ))
+     
+    #if( $nextCycle.id != $testCycle.id || !$nextCycle )
+      #set( $success = $sorted_testCycle_testRuns.add({"TestCycle":$testCycle, "TestRuns":$cycleTestRuns}))
+      #set( $cycleTestRuns = [] )
+    #end 
+  #end 
 
-  #end
-#end
 
+
+
+
+
+#################################################################
+##
+## Report Content
+##
+#################################################################
 
 
 
@@ -4893,7 +4942,7 @@ $string
 
 <h1>Detailed Results</h1>
 
-#foreach($testData in $finalTestRunCollection)
+#foreach($testData in $sorted_testCycle_testRuns)
   #set($cycle = $testData.get("TestCycle"))
   #set($testRuns = $testData.get("TestRuns"))
 

@@ -23,8 +23,15 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                             order per test cycle.
 ## 2023-07-06   1.2        Shawnna Williams  - minor adjustment to remove blank img tags in test results fields
 ## 2023-08-02   1.3        Liam Rotchford    - Updated report to Master Template version 2.6.1
-## 2023-09-12   1.3        Anna FitzGerald   - Commented out debug print statement
-##                                           - Corrected variable name in #formatTableCell macro                                                   
+## 2023-09-12   1.4        Anna FitzGerald   - Commented out debug print statement
+##                                           - Corrected variable name in #formatTableCell macro    
+## 2023-12-27   1.5        Liam Rotchford    - Updated report data extraction and organization implementation to utilize 
+##                                             workaround method .getTestRunIdsForTestCases() following identified defect 
+##                                             SOS-DEF-7285 where not all runs were being collected. 
+##                                           - Updated #findSourceMHTML() macro to the latest implementation for improved 
+##                                             image source extraction. 
+## 2023-12-28   1.5.1      Liam Rotchford    - Minor logic adjustment to ensure look ahead to next cycle can be properly extracted
+##                                             to utilization of final report content structure storage system. 
 ##
 ## ======================================================================================================================
 ##
@@ -2386,16 +2393,41 @@ td.TableCell
   #foreach( $x in [$startCheck..$lastImageIndex])
     #if( $x == $sText.indexOf( "<img", $x))  ##>
       #set($end = $sText.indexOf(">", $mathTool.toInteger($x)))
-      #set( $imgString = ( $sText.substring( $mathTool.toInteger($x), $mathTool.toInteger($end))))
+      #set($imgString = ( $sText.substring( $mathTool.toInteger($x), $mathTool.toInteger($end))))
       #### Debug: $imgString
-      #set( $srcStart = $imgString.indexOf("src="))
-      #set( $srcStart = $srcStart + 5)
-      #set( $srcEnd = $imgString.indexOf('"', $srcStart))
-      #set($imgSrc = $imgString.substring( $srcStart, $srcEnd ))
-      #set($imgSrc = $imgSrc.replaceAll("\?dpi.*$", ""))
-      #if( $imgString.indexOf( $baseUrl) > -1 && $imgString.indexOf( "blob:http") == -1)
-        #set( $success = $findSourceMHTMLReturn.add( $imgSrc))
+      #set($imgStringCaseMod = $imgString.toLowerCase())
+
+      #set($srcStart = $imgStringCaseMod.indexOf("src="))
+      #if($imgStringCaseMod.contains('src="'))
+        #set($srcStart = $srcStart + 5)
+      #else
+        #set($srcStart = $srcStart + 4)
       #end
+
+      #if($imgStringCaseMod.contains(".png"))
+        #set( $srcEnd = $imgStringCaseMod.indexOf('.png', $srcStart))
+      #elseif($imgStringCaseMod.contains(".jpg"))
+        #set( $srcEnd = $imgStringCaseMod.indexOf('.jpg', $srcStart))
+      #elseif($imgStringCaseMod.contains(".jpeg"))
+        #set( $srcEnd = $imgStringCaseMod.indexOf('.jpeg', $srcStart))
+      #elseif($imgStringCaseMod.contains(".svg"))
+        #set( $srcEnd = $imgStringCaseMod.indexOf('.svg', $srcStart))
+      #end
+      
+      #if($imgStringCaseMod.contains(".jpeg"))
+        #set( $srcEnd = $srcEnd + 5)
+      #else
+        #set( $srcEnd = $srcEnd + 4)
+      #end
+
+      #if( $srcStart < $srcEnd )
+        #set($imgSrc = $imgString.substring( $srcStart, $srcEnd ))
+        #set($imgSrc = $imgSrc.replaceAll("\?dpi.*$", ""))
+
+        #if($imgString.indexOf( $baseUrl) > -1 && $imgString.indexOf( "blob:http") == -1)
+          #set( $success = $findSourceMHTMLReturn.add( $imgSrc))
+        #end
+    #end 
     #end
   #end
 #end
@@ -4822,77 +4854,81 @@ $string
 ##
 #################################################################
 
+  #set( $testCaseIdsForTestPlan = [] )
+  #set( $testRuns = [] )
+  #set( $sortedTestRuns = [] )
+  #set( $testRunsByCycle = [] )
+  #set( $sorted_testCycle_testRuns = []) 
+  #set( $sortedTestCycle = [] )
+  #set( $uniqueTestRunGlobalIDs = [] )
 
-#set($testRunsPerCycle = [])
-#set($testRuns = [])
-#set($testPlanID = $mathTool.toInteger($report_testPlanId))
+  ## Extract Test Plan
+  #set( $testPlanID = $mathTool.toInteger($report_testPlanId))
+  #set( $testPlan = $testPlanDao.getTestPlan($testPlanID))
 
-## Fetch Test Plan & Test Plans Test Cycles
-#set($testPlan = $testPlanDao.getTestPlan($testPlanID))
-#set($testCycles = $testPlan.testCycles)
+  ## Extract Test Plan Test Cases
+  #set( $testSets = $testPlan.testSets )
+  #foreach( $testSet in $testSets )
+    #set( $testSetCases = $testSet.testSetCases )
+    
+    #foreach( $testCase in $testSetCases )
+      #set( $testCase = $testCase.testCase )
+      #set( $success = $testCaseIdsForTestPlan.add($testCase.id))
+    #end 
+  #end 
 
-## Loop through each Test Cycle in Test Plan
-  ## If Test Cycle is active fetch the cycles testRunSets (I.e Test case groups)
-  ## From each test run set fetch it's test runs for the current cycle
-  ## Add test runs of current test set in the given test cycle to array
-#foreach($testCycle in $testCycles)
-  #if($testCycle.active)
-    #set($testRunSets = $testCycle.testRunSets)
+  ## Extract Test Runs From Test Cases
+  #set( $testRunIds = $testSource.getTestRunIdsForTestCases($testCaseIdsForTestPlan))
+  #foreach( $tr in $testRunIds )
+    #set( $tRun = $testSource.getTestRun($numberTool.toNumber($tr).intValue()))
+    
+    #if( $tRun.active && $tRun.testPlan.id == $testPlan.id )
+      #set( $success = $testRuns.add({"TestRun":$tRun, "GlobalID":$tRun.globalId}))
+    #end 
+  #end 
 
-    #foreach($testRunSet in $testRunSets)
-      #set($testRuns = $testRunSet.testRuns)
-      ## To maintain performance we organize this data later to avoid a 3 layered for loop.
-      ## As one test cycle can have multiple test run sets this array can have multiple test run arrays with the same test cycle
-      #set($success = $testRunsPerCycle.add({"TestCycle": $testCycle, "TestRuns": $testRuns}))
+  ## Associate Each Test Run To Corresponding Test Cycle
+  #set( $sortedTestRuns = $sortTool.sort( $testRuns, "GlobalID:desc" ))
+  #foreach( $tr in $sortedTestRuns )
+    #set( $testRun = $tr.get("TestRun"))
+
+    #if( !$uniqueTestRunGlobalIDs.contains( $testRun.globalId  ) )
+      #set( $success = $uniqueTestRunGlobalIDs.add($testRun.globalId))
+      #set( $success = $testRunsByCycle.add({"TestCycle":$testRun.testCycle, "TestCycleId": $testRun.testCycle.id, "TestRun":$testRun}))
+    #end 
+  #end 
+      
+  ## Organize Test Run Collections Per Cycle 
+  #set( $sortedTestCycle = $sortTool.sort( $testRunsByCycle, "TestCycleId:asc" ))
+  #set( $cycleTestRuns = [] )
+  #foreach( $tc in $sortedTestCycle )
+    #set( $testCycle = $tc.get("TestCycle"))
+    #set( $testRun = $tc.get("TestRun"))
+
+    #if( $foreach.hasNext )
+      #set( $nextIndex = $foreach.index + 1 )
+      #set( $nextInList = $sortedTestCycle.get($nextIndex))
+      #set( $nextCycle = $nextInList.get("TestCycle") )
+    #else
+      #set( $nextCycle = false )
     #end
 
-  #end
-#end
+    #set( $success = $cycleTestRuns.add($testRun ))
+     
+    #if( $nextCycle.id != $testCycle.id || !$nextCycle )
+      #set( $success = $sorted_testCycle_testRuns.add({"TestCycle":$testCycle, "TestRuns":$cycleTestRuns}))
+      #set( $cycleTestRuns = [] )
+    #end 
+  #end 
 
 
-## Organize test runs into a final data list to be used for test run tables
-#set($finalTestResultsPerCycle = [])
-#set($finalTestRuns = [])
-#set($sortedTestRuns = [])
-
-## Loop through each item in our created array
-  ## Cycle through each test run set per array index gathering only active test runs
-  ## Fetch the next test cycle in the array (Look ahead method)
-  ## If the current test cycle id and next test cycle id in this array match then continue adding to this test run array
-  ## If the current test cycle id and next test cycle id in this array do not match then add the test cycle and full
-    ## test runs array for this one test cycle to the final organized data array and reset finalTestRuns array.
-#foreach($item in $testRunsPerCycle)
-  #set($cycle = $item.get("TestCycle"))
-
-  #foreach($testRun in $item.get("TestRuns"))
-    #if($testRun.active)
-      #set($success = $finalTestRuns.add({"TestCaseID": $testRun.testCase.id, "TestRun": $testRun}))
-    #end
-  #end
-
-  #if( $foreach.hasNext )
-    #set( $nextIndex = $foreach.index + 1 )
-    #set( $nextCycle = $testRunsPerCycle.get($nextIndex))
-  #else
-    #set( $nextCycle = false )
-  #end
-
-  #if($cycle.id != $nextCycle.get("TestCycle").id || !$nextCycle)
-    #set( $finalTestRuns = $sortTool.sort($finalTestRuns, "TestCaseID:asc"))
-
-    #foreach($testRunData in $finalTestRuns)
-      #set($sortedTestRun = $testRunData.get("TestRun"))
-      #set($success = $sortedTestRuns.add($sortedTestRun))
-    #end
-
-    #set($success = $finalTestResultsPerCycle.add({"TestCycle": $cycle, "TestRuns": $sortedTestRuns}))
-    #set($finalTestRuns = [])
-    #set($sortedTestRuns = [])
-  #end
-
-#end
 
 
+#################################################################
+##
+## Report Content
+##
+#################################################################
 
 ########### Display Test Plan ###########################
 <h1>$testPlan.name ($testPlan.documentKey)</h1>
@@ -4908,7 +4944,7 @@ $string
 
 <h1>Detailed Results</h1>
 
-#foreach($testData in $finalTestResultsPerCycle)
+#foreach($testData in $sorted_testCycle_testRuns)
   #set($cycle = $testData.get("TestCycle"))
   #set($testRuns = $testData.get("TestRuns"))
 
