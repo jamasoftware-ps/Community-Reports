@@ -7,19 +7,21 @@ Role, Email, Phone Number, Location, Entry Date, Groups, License Type, Total Hou
 
 ### Preview 
 
-
+Excel Output
 ![Excel Output](https://github.com/jamasoftware-ps/Community-Reports/blob/fdaff41916d8dcc4ef692c296727d4b75f79adcc/Login%20Usage%20Reports/User%20Usage%20Report/excel_output.png "Excel Output")
 
+PDF Output
+![PDF Output](https://github.com/jamasoftware-ps/Community-Reports/blob/fdaff41916d8dcc4ef692c296727d4b75f79adcc/Login%20Usage%20Reports/User%20Usage%20Report/pdf_output.png "PDF Output")
 
-![PDF Output](https://github.com/jamasoftware-ps/Community-Reports/blob/fdaff41916d8dcc4ef692c296727d4b75f79adcc/Login%20Usage%20Reports/User%20Usage%20Report/pdf_output.png)
+HTML Output
+![HTML Output](https://github.com/jamasoftware-ps/Community-Reports/blob/fdaff41916d8dcc4ef692c296727d4b75f79adcc/Login%20Usage%20Reports/User%20Usage%20Report/html_output.png "HTML Output")
 
-![HTML Output]https://github.com/jamasoftware-ps/Community-Reports/blob/fdaff41916d8dcc4ef692c296727d4b75f79adcc/Login%20Usage%20Reports/User%20Usage%20Report/html_output.png
-
-![Word Output]https://github.com/jamasoftware-ps/Community-Reports/blob/fdaff41916d8dcc4ef692c296727d4b75f79adcc/Login%20Usage%20Reports/User%20Usage%20Report/word_output.png
+Word Output
+![Word Output](https://github.com/jamasoftware-ps/Community-Reports/blob/fdaff41916d8dcc4ef692c296727d4b75f79adcc/Login%20Usage%20Reports/User%20Usage%20Report/word_output.png "Word Output")
 
 # Installation Instructions 
 
-![Installation Configuration]https://github.com/jamasoftware-ps/Community-Reports/blob/fdaff41916d8dcc4ef692c296727d4b75f79adcc/Login%20Usage%20Reports/User%20Usage%20Report/Installation_Configuration.png
+![Installation Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/fdaff41916d8dcc4ef692c296727d4b75f79adcc/Login%20Usage%20Reports/User%20Usage%20Report/Installation_Configuration.png)
 
 <ul> 
   <li>Report Type: Select Velocity</li>
