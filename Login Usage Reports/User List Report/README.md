@@ -29,7 +29,7 @@ PDF Output
 <ul> 
   <li>Report Type: Select Velocity</li>
   <li>Report Formats: Select your preferred format</li>
-  <li>Report File Name: Upload the 'User_Usage_Report.vm file</li>
+  <li>Report File Name: Upload the 'User_List_Report.vm' file</li>
   <li>Organization: select</li>
   <li>Save</li>
 </ul>
