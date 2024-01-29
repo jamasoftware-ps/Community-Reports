@@ -8,16 +8,16 @@ Role, Email, Phone Number, Location, Entry Date, Groups, License Type, Total Hou
 ### Preview 
 
 Excel Output
-![Excel Output](https://github.com/jamasoftware-ps/Community-Reports/blob/fdaff41916d8dcc4ef692c296727d4b75f79adcc/Login%20Usage%20Reports/User%20Usage%20Report/excel_output.png "Excel Output")
+![Excel Output](https://github.com/jamasoftware-ps/Community-Reports/blob/b1f002f285c668f960f7aa1ce8852d83b1f222e9/Login%20Usage%20Reports/User%20Usage%20Report/excel-example-user-usage.png "Excel Output")
 
 PDF Output
-![PDF Output](https://github.com/jamasoftware-ps/Community-Reports/blob/fdaff41916d8dcc4ef692c296727d4b75f79adcc/Login%20Usage%20Reports/User%20Usage%20Report/pdf_output.png "PDF Output")
+![PDF Output](https://github.com/jamasoftware-ps/Community-Reports/blob/b1f002f285c668f960f7aa1ce8852d83b1f222e9/Login%20Usage%20Reports/User%20Usage%20Report/pdf-example-user-usage.png "PDF Output")
 
 HTML Output
-![HTML Output](https://github.com/jamasoftware-ps/Community-Reports/blob/fdaff41916d8dcc4ef692c296727d4b75f79adcc/Login%20Usage%20Reports/User%20Usage%20Report/html_output.png "HTML Output")
+![HTML Output](https://github.com/jamasoftware-ps/Community-Reports/blob/b1f002f285c668f960f7aa1ce8852d83b1f222e9/Login%20Usage%20Reports/User%20Usage%20Report/html-example-user-usage.png "HTML Output")
 
 Word Output
-![Word Output](https://github.com/jamasoftware-ps/Community-Reports/blob/fdaff41916d8dcc4ef692c296727d4b75f79adcc/Login%20Usage%20Reports/User%20Usage%20Report/word_output.png "Word Output")
+![Word Output](https://github.com/jamasoftware-ps/Community-Reports/blob/b1f002f285c668f960f7aa1ce8852d83b1f222e9/Login%20Usage%20Reports/User%20Usage%20Report/word-example-user-usage.png "Word Output")
 
 # Installation Instructions 
 
