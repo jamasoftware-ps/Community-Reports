@@ -4,7 +4,7 @@
 The Usage Report generates a report of user account infomation based on the users who accessed the Jama Connect instance in the supplied date range.
 
 ## Usage Report Preview Image
-![Utilization by Project Report Preview]([https://github.com/jamasoftware-ps/Community-Reports/blob/master/Login%20Usage%20Reports/User%20Usage%20Report/Usage_Report_Screenshot.png](https://github.com/jamasoftware-ps/Community-Reports/blob/0325eda9683f381dd4332b35ac594bba4b2a64a8/Archived%20Reports/Login%20Usage%20Reports/User%20Usage%20Report/Usage_Report_Screenshot.png))
+![Utilization by Project Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/0325eda9683f381dd4332b35ac594bba4b2a64a8/Archived%20Reports/Login%20Usage%20Reports/User%20Usage%20Report/Usage_Report_Screenshot.png))
 
 ## Installation Instructions
 1. Go to the Admin section of Jama
@@ -13,7 +13,7 @@ The Usage Report generates a report of user account infomation based on the user
 4. Fill in the Add/Edit Report form as shown below.
 5. Click Save
 
-![Report Configuration]([https://github.com/jamasoftware-ps/Community-Reports/blob/master/Login%20Usage%20Reports/User%20Usage%20Report/UsageReportInstallationInstructions.png](https://github.com/jamasoftware-ps/Community-Reports/blob/0325eda9683f381dd4332b35ac594bba4b2a64a8/Archived%20Reports/Login%20Usage%20Reports/User%20Usage%20Report/UsageReportInstallationInstructions.png))
+![Report Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/0325eda9683f381dd4332b35ac594bba4b2a64a8/Archived%20Reports/Login%20Usage%20Reports/User%20Usage%20Report/UsageReportInstallationInstructions.png))
 
 ## NOTES: 
 - Your Organization field will have a different value.  
