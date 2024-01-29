@@ -9,19 +9,19 @@ This report lists the active users of the organization and for each user their U
 
 Excel Output
 
-![Example Excel Output](https://github.com/jamasoftware-ps/Community-Reports/blob/7bb96f6d625a2d88cb54dadec5ae1246f2ab39ae/Login%20Usage%20Reports/User%20List%20Report/excel_output.png "Example Excel")
+![Example Excel Output](https://github.com/jamasoftware-ps/Community-Reports/blob/6d435538c9c9b6511fec7a76bde9190eb7ffb085/Login%20Usage%20Reports/User%20List%20Report/excel-example-user-list.png "Example Excel")
 
 HTML Output 
 
-![Example HTML](https://github.com/jamasoftware-ps/Community-Reports/blob/7bb96f6d625a2d88cb54dadec5ae1246f2ab39ae/Login%20Usage%20Reports/User%20List%20Report/html_output.png "Example HTML")
+![Example HTML](https://github.com/jamasoftware-ps/Community-Reports/blob/6d435538c9c9b6511fec7a76bde9190eb7ffb085/Login%20Usage%20Reports/User%20List%20Report/html-example-user-list.png "Example HTML")
 
 Word Output
 
-![Example Word](https://github.com/jamasoftware-ps/Community-Reports/blob/7bb96f6d625a2d88cb54dadec5ae1246f2ab39ae/Login%20Usage%20Reports/User%20List%20Report/word_output.png "Example Word") 
+![Example Word](https://github.com/jamasoftware-ps/Community-Reports/blob/6d435538c9c9b6511fec7a76bde9190eb7ffb085/Login%20Usage%20Reports/User%20List%20Report/word-example-user-list.png "Example Word") 
 
 PDF Output 
 
-![Example PDF](https://github.com/jamasoftware-ps/Community-Reports/blob/7bb96f6d625a2d88cb54dadec5ae1246f2ab39ae/Login%20Usage%20Reports/User%20List%20Report/pdf_output.png "Example PDF")
+![Example PDF](https://github.com/jamasoftware-ps/Community-Reports/blob/6d435538c9c9b6511fec7a76bde9190eb7ffb085/Login%20Usage%20Reports/User%20List%20Report/pdf-example-user-list.png "Example PDF")
 
 # Installation Instructions 
 ![Installation Configuration](https://github.com/jamasoftware-ps/Community-Reports/blob/7bb96f6d625a2d88cb54dadec5ae1246f2ab39ae/Login%20Usage%20Reports/User%20List%20Report/Installation_Configuration.png)
