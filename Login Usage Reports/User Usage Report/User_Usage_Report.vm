@@ -407,6 +407,7 @@ div.SectionLandscape {
 						#set( $success = $groups.add( $group.display))
 					#end 
 				#end
+				#if( $userInOrg.email != "systemuser") ## skip core instance user ## 
 				<tr>
 					<td class=cell width='25pt' style='text-align:center;'>$userInOrg.id</td>
 					<td class=cell width='60pt'>$!userInOrg.userName</td>
@@ -435,6 +436,7 @@ div.SectionLandscape {
 					<td class=cell width='70pt' style='text-align:center;'>$eventSource.getUserLogins($userInOrg.id)</td>
 
 				</tr>
+				#end ##if( $userInOrg.email != "systemuser")
 			#end
 			<tr>
 				<td colspan=15 class=cell style='text-align:left;border:none;'>*Shows licenses for users that have logged in within the last 6 months from the date the report was run. If the user has not logged in within the last 6 months it will show 'No license usage last 6 months'.</td>
