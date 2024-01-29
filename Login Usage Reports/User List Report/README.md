@@ -38,6 +38,6 @@ PDF Output
 <ol>
   <li>Log into any project</li>
   <li>Go to 'Reports' in upper right navigation > Run Report</li>
-  <li>Find 'User_Usage_Report' > Run </li>
+  <li>Find 'User_List_Report' > Run </li>
 </ol>
 
