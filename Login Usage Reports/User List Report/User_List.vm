@@ -303,6 +303,7 @@ div.SectionLandscape {
 						#set( $success = $groups.add( $group.display))
 					#end 
 				#end
+				#if( $userInOrg.email != "systemuser") ## skip core instance user ## 
 				<tr>
 					<td class=cell width='100pt'>$userInOrg.userName</td>
 					<td class=cell width='100pt'>$userInOrg.fullName</td>
@@ -317,6 +318,7 @@ div.SectionLandscape {
 					#end
 					<td class=cell width='145pt'>#if($licenses.size() == 0) No license usage last 6 months #else #foreach( $license in $licenses ) #if( !$foreach.last)$!license, #else $!license #end #end #end</td>
 				</tr>
+				#end 
 			#end
 			<tr>
 				<td colspan=5 class=cell style='text-align:left;border:none;'>*Shows licenses for users that have logged in within the last 6 months from the date the report was run. If the user has not logged in within the last 6 months it will show 'No license usage last 6 months'.</td>
