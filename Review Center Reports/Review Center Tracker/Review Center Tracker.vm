@@ -1,0 +1,1825 @@
+MIME-Version: 1.0
+X-Document-Type: Workbook
+Content-Type: multipart/related; boundary="----=_NextPart_01D8DBD5.4D8FB410"
+
+
+#########################################################################################################################
+## ======================================================================================================================
+## Name: Review Center Tracker.vm
+##
+## Output Type: Excel XLXS
+## 
+## Description/Notes:
+##   - Export report from the context insensitive reports menu to generate a two sheet report output. 
+##   - Sheet 1 holds 'Per Reviewer' data which is a summary of reviewer information on reviews the associated users have
+##     participated in. 
+##   - Sheet 2 holds 'Per Review' data which is a summary of review information identified. 
+##   - Provided parameters allow for expanded filtering options based on project, revisions, revision status, and reviews.
+##   - The 'Show Only These Reviews' is a string comma delimited parameter of review id's to filter reviews by. 
+## 
+## Context Sensitive: F
+## 
+##
+## ======================================================================================================================
+## MODIFICATION HISTORY 
+## 
+## Date         Revision   Person            Comments 
+## -----------  ---------  ----------------  -------------------------------------------------------------------------
+## 13-JUL-2016  A          Shawnna Williams  - Created. 
+## 28-JAN-2019  B          Shawnna Williams  - Modified    
+## 03-APR-2019  C          Shawnna Williams                                      
+## 08-APR-2019  D          Shawnna Williams  - Fix Approval status on second page                                    
+## 02-OCT-2019  E          Shawnna Williams  - Modify for new velocity
+## 21-AUG-2023  F          Liam Rotchford    - Resolved "Time Spent" column value bug by implementing #getDuration() macro.
+## 11-OCT-2023  G          Shawnna Williams  - Fix broken hyperlinks
+## 08-FEB-2024  H          Liam Rotchford    - Updated report to Excel Multisheet Master Template version 1.2.1
+##                                           - Applied additional indentation cleaning and removal of commented out / unused code. 
+##
+##
+##
+##
+## ===================================================================================================================== 
+## Criteria: 
+##
+##      Type:     Display Name:                 Report Global Variable:      Function: 
+##      ----------------------------------------------------------------------------------------------------------------
+##      Boolean     Show All Projects?          report_showAllProjects       - Include reviews from all projects or not.
+##      Boolean     Show All Revisions?         report_showAllRevs           - Show all review revisions or just latest. 
+##      Boolean     Show Completed Revisions    showCompleted                - Include 'Completed' status revisions.
+##      Boolean     Show In Progress Revisions  showInProgress               - Include 'In Progress' status revisions.
+##      String      Show Only These Reviews     report_showReviews           - Filter report by specific reviews. 
+##
+##
+#########################################################################################################################
+
+#########################################################################################################################
+## ======================================================================================================================
+## Template Steps:
+## -----------------
+##  1. In your Mockup .mhtml file: 
+##     o Find: =\n Replace: <nothing>
+##     o Find: =3D Replace: =
+##     o Remove any JS <script>...</script> tags and content between tags
+##     o Remove <frameset>...</frameset> tags and content between tags
+##     o Remove all "Content-Transfer-Encoding: quoted-printable" (this is important because it can ruin styles if present)
+##     o Remove the entire Tab Sheet ( you only will need the xml in the "HEAD" for the tabs )
+##  2. Find the HEAD section of this template, and from you Mockup copy and paste all the content that matches to the HEAD section 
+##  3. Find the STYLES section, and from your Mockup copy and paste all the content that matches to the STYLES section 
+##  4. Find the BODY section, and from your Mockup copy and paste all the Worksheets to the BODY section
+##  5. Find the FILE LIST section, and from your Mockup copy and paste the content that matches to the FILE LIST section
+##  6. Replace the initial boundary in this template, "Content-Type: multipart/related; boundary="----=_NextPart_01D8DBD5.4D8FB410""
+##      with the initial boundary from your mockup. 
+##  7. Do not place comments above the opening code of the file "MIME-Version: 1.0..."
+## 
+## ======================================================================================================================
+#########################################################################################################################
+#########################################################################################################################
+##
+##  1. DATA_SOURCES
+##
+#########################################################################################################################
+##
+## Data Sources available without declaration
+##-------------------------------------------
+## $format
+## $project
+## $documentList
+## $baseUrl
+## $contextType
+## $contextId
+## $report_name
+##
+## Data Sources loaded for this report
+##-------------------------------------------
+
+#if( $documentSource ) ##
+  ## Jama 8.44 or greater
+  ## Jama 8.42 if New Velocity Feature Flag Enabled
+  #set( $docDao = $documentSource )
+  #set( $documentNodeDao = $documentSource )
+  #set( $attachmentDao = $documentSource )
+  #set( $attachmentService = $documentSource )
+  #set( $docTypeFieldDao = $documentSource )
+  #set( $relDao = $documentSource )
+  #set( $reviewDao = $reviewSource)
+  #set( $revisionUserService = $reviewSource)
+  #set( $commentDao = $commentSource)
+  #set( $versionDao = $documentSource )
+  #set( $testRunDao = $testSource )
+  #set( $testPlanDao = $testSource)
+  #set( $testSetDao = $testSource)
+  #set( $testCycleDao = $testSource)
+  #set( $velocityServiceWrapper = $documentSource )
+  #set( $baselineDao = $baselineSource )
+  #set( $contourItemDao = $documentSource )
+  #set( $userDao = $userSource )
+  #set( $lookupDao = $documentSource )
+#else
+  ## Jama 8.43 or older
+  ## Jama 8.43 or older ## Zoll is version 8.42.1 without the Velocity Feature Flag Enabled
+  #set( $contourItemDao = $applicationContext.getBean("contourItemDao"))
+  #set( $docDao = $applicationContext.getBean("documentDao"))
+  #set( $documentNodeDao = $applicationContext.getBean("documentNodeDao"))
+  #set( $attachmentDao = $applicationContext.getBean("attachmentDao"))
+  #set( $attachmentService = $applicationContext.getBean("attachmentService"))
+  #set( $relDao = $applicationContext.getBean("relationshipDao") )
+  #set( $reviewDao = $applicationContext.getBean("reviewDao") )
+  #set( $revisionUserService = $applicationContext.getBean("reviewDao") )
+  #set( $commentDao = $applicationContext.getBean("commentDao") )
+  #set( $versionDao = $applicationContext.getBean("versionDao") )
+  #set( $testRunDao = $applicationContext.getBean("testRunDao") )
+  #set( $testPlanDao = $applicationContext.getBean("testPlanDao"))
+  #set( $testSetDao = $applicationContext.getBean("testSetDao"))
+  #set( $testCycleDao = $applicationContext.getBean("testCycleDao"))
+  #set( $userDao = $applicationContext.getBean("userDao"))
+  #set( $baselineDao = $applicationContext.getBean("baseLineDao") )
+##
+#end
+##
+
+## Report Parameters
+##-------------------------------------------
+
+#if($!contextType && $contextType.toUpperCase().contains("BASELINE") )
+  #set( $baselineMode = true)
+  #set( $baselineId = $mathTool.toInteger($contextId))
+  #set( $reportBaseline = $baselineDao.getBaseLine( $baselineId ))
+#else
+  #if( $reportBaseline )
+    #set( $baselineMode = $reportBaseline )
+  #else
+    #set( $baselineMode = false )
+  #end
+#end
+
+#if( $reportTestRuns )
+  #set( $testRunMode = $reportTestRuns )
+#else
+  #set( $testRunMode = false )
+#end
+
+
+## Review Ids Filter
+## -----------------------------
+#set($reviewsToShow = [])
+#if($report_showReviews.length() > 0)
+  #set($reviewsToShow = $report_showReviews.split(","))
+#end
+
+## Review Status Types
+## -----------------------------
+#set($checkStatus = [])
+#set($inProgress = $mathTool.toInteger(2))
+#set($completed = $mathTool.toInteger(3))
+
+#if($showInProgress == true)
+  #if($checkStatus.add($inProgress)) #end
+#end
+#if($showCompleted == true)
+  #if($checkStatus.add($completed)) #end
+#end
+
+#if($checkStatus.size() == 0)
+  #if($checkStatus.add( $inProgress)) #end
+  #if($checkStatus.add( $completed)) #end
+#end
+
+#set($reviews = $reviewDao.getAllReviewsByStatus( $checkStatus , "createdDate"))
+
+##
+## Report Constants 
+## -------------------------------------------
+#set( $cmpKey = "CMP") ##
+#set( $setKey = "SET") ##
+#set( $fldKey = "FLD") ##
+#set( $txtKey = "TXT") ##
+#set( $objectTypeField = "object_type" ) ##
+#set( $timeZone = "America/Los_Angeles" ) ##
+##
+## 
+#########################################################################################################################
+
+
+#########################################################################################################################
+##
+##  HEAD 
+##
+#########################################################################################################################
+
+## Replace below with the equivalent from your .mhtml mockup file, delete the Tab x:Worksheet.../x:Worksheet ## 
+
+------=_NextPart_01D8DBD5.4D8FB410
+Content-Location: file:///C:/116BA2D4/MultisheetTest.htm
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+
+<head>
+<meta name="Excel Workbook Frameset">
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link rel=File-List href="MultisheetTest_files/filelist.xml">
+<![if !supportTabStrip]>
+<link id="shLink" href="MultisheetTest_files/sheet001.htm">
+<link id="shLink" href="MultisheetTest_files/sheet002.htm">
+
+<link id="shLink">
+
+
+<![endif]><!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>Per Reviewer</x:Name>
+    <x:WorksheetSource HRef="MultisheetTest_files/sheet001.htm"/>
+   </x:ExcelWorksheet>
+   <x:ExcelWorksheet>
+    <x:Name>Review</x:Name>
+    <x:WorksheetSource HRef="MultisheetTest_files/sheet002.htm"/>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:Stylesheet HRef="MultisheetTest_files/stylesheet.css"/>
+  <x:WindowHeight>12165</x:WindowHeight>
+  <x:WindowWidth>25890</x:WindowWidth>
+  <x:WindowTopX>930</x:WindowTopX>
+  <x:WindowTopY>32767</x:WindowTopY>
+  <x:ActiveSheet>0</x:ActiveSheet>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+</xml><![endif]-->
+</head>
+
+</html>
+
+
+#########################################################################################################################
+##
+##  STYLES 
+##
+#########################################################################################################################
+
+## Replace below with the equivalent from your .mhtml mockup file (you do not need <style></style> tags) ## 
+
+------=_NextPart_01D8DBD5.4D8FB410
+Content-Location: file:///C:/116BA2D4/MultisheetTest_files/stylesheet.css
+Content-Type: text/css; charset="utf-8"
+
+table {mso-displayed-decimal-separator:"\.";
+   mso-displayed-thousand-separator:"\,";}
+br
+	{mso-data-placement:same-cell;}
+
+tr
+  {mso-height-source:auto;}
+col
+  {mso-width-source:auto;}
+br
+  {mso-data-placement:same-cell;}
+.style16
+  {color:blue;
+  font-size:11.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:underline;
+  text-underline-style:single;
+  font-family:Calibri, sans-serif;
+  mso-font-charset:0;
+  mso-style-name:Hyperlink;
+  mso-style-id:8;}
+a:link
+  {color:blue;
+  font-size:11.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:underline;
+  text-underline-style:single;
+  font-family:Calibri, sans-serif;
+  mso-font-charset:0;}
+a:visited
+  {color:purple;
+  font-size:11.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:underline;
+  text-underline-style:single;
+  font-family:Calibri, sans-serif;
+  mso-font-charset:0;}
+.style0
+  {mso-number-format:General;
+  text-align:general;
+  vertical-align:bottom;
+  white-space:normal;
+  mso-rotate:0;
+  mso-background-source:auto;
+  mso-pattern:auto;
+  color:black;
+  font-size:11.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:none;
+  font-family:Calibri, sans-serif;
+  mso-font-charset:0;
+  border:none;
+  mso-protection:locked visible;
+  mso-style-name:Normal;
+  mso-style-id:0;}
+td
+  {mso-style-parent:style0;
+  padding-top:1px;
+  padding-right:1px;
+  padding-left:1px;
+  mso-ignore:padding;
+  color:black;
+  font-size:11.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:none;
+  font-family:Calibri, sans-serif;
+  mso-font-charset:0;
+  mso-number-format:General;
+  text-align:general;
+  vertical-align:top;
+  border:.25pt;
+  mso-background-source:auto;
+  mso-pattern:auto;
+  mso-protection:locked visible;
+  white-space:normal;
+  mso-rotate:0;}
+.xl65
+  {mso-style-parent:style0;
+  text-align:center;
+  white-space:normal;}
+.xl66
+  {mso-style-parent:style0;
+  mso-number-format:0%;
+  text-align:center;
+  white-space:normal;}
+.xl67
+  {mso-style-parent:style0;
+  mso-number-format:"Short Time";
+  text-align:center;
+  white-space:normal;}
+.xl68
+  {mso-style-parent:style0;
+  text-align:center;}
+.xl69
+  {mso-style-parent:style0;
+  text-align:center;
+  vertical-align:top;
+  white-space:normal;}
+.xl70
+  {mso-style-parent:style16;
+  color:blue;
+  text-align:center;
+  white-space:normal;
+  vertical-align:top;}
+.xl71
+  {mso-style-parent:style0;
+  text-align:center;
+  vertical-align:top;}
+.xl75
+  {mso-style-parent:style0;
+  font-weight:700;
+  text-align:center;
+  border-top:.5pt solid windowtext;
+  border-right:.5pt solid windowtext;
+  border-bottom:.5pt solid windowtext;
+  border-left:.5pt solid windowtext;
+  white-space:normal;}
+.xl76
+  {mso-style-parent:style0;
+  border-top:none;
+  border-right:none;
+  border-bottom:.5pt solid windowtext;
+  border-left:none;}
+.xl77
+  {mso-style-parent:style0;
+  vertical-align:top;}
+.xl79
+  {mso-style-parent:style0;
+  font-weight:700;
+  text-align:center;
+  vertical-align:top;
+  border-top:none;
+  border-right:none;
+  border-bottom:.5pt solid windowtext;
+  border-left:none;
+  white-space:normal;}
+.xl81
+  {mso-style-parent:style0;
+  vertical-align:top;
+  border-top:none;
+  border-right:none;
+  border-bottom:.5pt solid windowtext;
+  border-left:none;}
+.xl85
+  {mso-style-parent:style0;
+  font-weight:700;
+  text-align:center;
+  border-top:none;
+  border-right:none;
+  border-bottom:.5pt solid windowtext;
+  border-left:none;
+  background:yellow;
+  mso-pattern:black none;
+  white-space:normal;}
+.xl86
+  {mso-style-parent:style0;
+  text-align:center;
+  background:yellow;
+  mso-pattern:black none;
+  white-space:normal;}
+.xl90
+  {mso-style-parent:style0;
+  font-weight:700;
+  border-top:none;
+  border-right:none;
+  border-bottom:.5pt solid windowtext;
+  border-left:none;
+  background:yellow;
+  mso-pattern:black none;}
+.xl91
+  {mso-style-parent:style0;
+  background:yellow;
+  mso-pattern:black none;}
+.xl94
+  {mso-style-parent:style0;
+  text-align:center;
+  mso-number-format:"mm\/dd\/yyyy hh\:mm\ AM\/PM";
+  border-top:.5pt solid windowtext;
+  border-right:.5pt solid windowtext;
+  border-bottom:.5pt solid windowtext;
+  border-left:.5pt solid windowtext;
+  white-space:normal;}
+.xl95
+  {mso-style-parent:style0;
+  mso-number-format:"mm\/dd\/yyyy hh\:mm\ AM\/PM";
+  text-align:center;
+  background:yellow;
+  mso-pattern:black none;
+  white-space:normal;}
+.xl96
+  {mso-style-parent:style0;
+  mso-number-format:"mm\/dd\/yyyy";
+  text-align:center;
+  background:yellow;
+  mso-pattern:black none;
+  white-space:normal;}    
+.xl97
+  {mso-style-parent:style0;
+  mso-number-format:"\@";
+  text-align:center;
+  mso-pattern:black none;
+  white-space:normal;}
+.xl98
+  {mso-style-parent:style0;
+  color:white;
+  font-weight:700;
+  text-align:center;
+  background:#666666;
+  mso-pattern:#666666 none;
+  white-space:normal;}
+.xl99
+  {mso-style-parent:style0;
+  color:white;
+  font-weight:700;
+  text-align:center;
+  border-top:none;
+  border-right:none;
+  border-bottom:.5pt solid black;
+  border-left:none;
+  background:#666666;
+  mso-pattern:#666666 none;
+  white-space:normal;}
+.xl100
+  {mso-style-parent:style0;
+  color:white;
+  font-weight:700;
+  text-align:center;
+  border:.5pt solid black;
+  background:#418FDE;
+  mso-pattern:#418FDE none;
+  white-space:normal;}
+.xl101
+  {mso-style-parent:style0;
+  color:white;
+  font-weight:700;
+  text-align:center;
+  border:.5pt solid black;
+  background:#44AE26;
+  mso-pattern:#44AE26 none;
+  white-space:normal;}
+.xl102
+  {mso-style-parent:style0;
+  color:white;
+  font-weight:700;
+  text-align:center;
+  border:.5pt solid black;
+  background:#ED8B00;
+  mso-pattern:#ED8B00 none;
+  white-space:normal;}
+
+	
+
+#########################################################################################################################
+##
+##  MACROS
+##
+#########################################################################################################################
+##
+#########################################################################################################################
+#########################################################################################################################
+##          Macro: formatRichTextCell
+##          Desc: Use on purly textual Rich Text Fields (I.e use directly in Cells)
+##          Input: $inString - input string
+##          Return: string, ready for opening in Word
+#########################################################################################################################
+#macro( formatRichTextCell $inString )
+  #if( $inString )
+    #set( $string = $inString.toString())
+    #set( $string = $string.replaceAll("\n{2}",""))
+
+    #set( $string = $string.replaceAll("<span.*?>",""))
+    #set( $string = $string.replaceAll("<\/span>",""))
+    #set( $string = $string.replaceAll("<h\d*?.*?>","<p><strong>"))
+    #set( $string = $string.replaceAll("<\/h\d*?>","</strong></p>"))
+    #set( $string = $string.replaceAll("<div.*?>",""))
+    #set( $string = $string.replaceAll("<\/div>",""))
+    ## Remove content that doesn't work well in Excel
+    #set( $string = $string.replaceAll("<table.*?>|<\/table>",""))
+    #set( $string = $string.replaceAll("(<caption.*?>(?:.|\s)*?<\/caption>)",""))
+    #set( $string = $string.replaceAll("<thead.*?>|<\/thead>",""))
+    #set( $string = $string.replaceAll("(<th.*?>(?:.|\s)*?<\/th>)",""))
+    #set( $string = $string.replaceAll("<tbody.*>|<\/tbody>",""))
+    #set( $string = $string.replaceAll("<tr.*?>|<\/tr>",""))
+    #set( $string = $string.replaceAll("(<td.*?>(?:.|\s)*?<\/td>)",""))
+    #set( $string = $string.replaceAll("<a.*?>|<\/a>",""))
+    #set( $string = $string.replaceAll("\xA0",""))
+
+    #set( $string = $string.replaceAll("<p>&nbsp;<\/p>",""))
+    #set( $string = $string.replaceAll("<p>-","<p>&#10;-"))
+    #set( $string = $string.replaceAll("&nbsp;<\/p>","<\/p>"))
+    #set( $string = $string.replaceAll("<p.*?>",""))
+    #set( $string = $string.replaceAll("<\/p>","&#10;"))
+    #set( $string = $string.replaceAll(" \n|(&#10;)\n","$1"))
+    #set( $string = $string.replaceAll("&nbsp;"," "))
+
+    #set( $string = $string.replaceAll("<br.*?>","&#10;"))
+    #set( $string = $string.replaceAll("<br />","&#10;"))
+    #set( $string = $string.replaceAll("<br/>","&#10;"))
+    #set( $string = $string.replaceAll("<em.*?>|<\/em>",""))
+    #set( $string = $string.replaceAll("<pre.*?>|<\/pre>",""))
+    #set( $string = $string.replaceAll("<strong.*?>|<\/strong>",""))
+    #set( $string = $string.replaceAll("<u.*?>|<\/u>",""))
+    #set( $string = $string.replaceAll("<sup.*?>|<\/sup>",""))
+    #set( $string = $string.replaceAll("<sub.*?>|<\/sub>",""))
+
+    #set( $string = $string.replaceAll("<ul.*?>",""))
+    #set( $string = $string.replaceAll("<\/ul>","&#10;"))
+    #set( $string = $string.replaceAll("<ol.*?>",""))
+    #set( $string = $string.replaceAll("<\/ol>","&#10;"))
+    #set( $string = $string.replaceAll("\t<li.*?>|<li.*?>","• &#032;"))
+    #set( $string = $string.replaceAll("<\/li>","&#10;"))
+   
+    #set( $string = $string.replaceAll("<img.*?>",""))
+
+    #set( $string = $string.replaceAll("<","&lt;"))
+    #set( $string = $string.replaceAll(">","&gt;"))
+
+    #set( $string = $string.replaceAll("\s+", " "))
+
+    $!string
+
+  #end
+#end
+
+#########################################################################################################################
+#########################################################################################################################
+##
+
+#########################################################################################################################
+##          Macro: formatPlainText
+##          Desc: Remove all possibly present html tags from text box field content
+#########################################################################################################################
+#macro( formatPlainText $inString)
+  #if( $inString )
+    #set( $string = $inString.toString() )
+    #set( $string = $string.replaceAll("<(.|\n)*?>", ""))
+
+    $string
+  #end
+#end
+
+#########################################################################################################################
+#macro( stripPlainText $text )
+  #set($text = $text.replaceAll("<"," &lt;"))
+  #set($text = $text.replaceAll(">"," &gt;"))
+  $text
+#end
+#########################################################################################################################
+##
+
+#########################################################################################################################
+##          lookupPickListColor
+##          Input: item, the unique custom field name, the fetched picklist item
+##          Output: String type hex code color 
+##          Note: see example at base of template
+##          Call Example: #lookupPickListColor($doc "<unique field name>" $<item variable with item data> )
+##          Apply to cell: style='background:#$color;mso-pattern:#$color none;''
+#########################################################################################################################
+#macro( lookupPickListColor $doc $uniqueFieldName $fetchedFieldValue )
+              
+  #set( $docTypeField = $docTypeFieldDao.getDocumentTypeFieldByName( $uniqueFieldName, $doc.documentType.id ))
+  #set( $lookupTypeId = $docTypeField.getLookupTypeId())
+  #set( $fieldId = $docTypeField.documentField.id)
+  #set( $lookupTypeList = [])
+  #if( $lookupTypeList.add( $lookupTypeId ))#end
+  #set( $getLookupIdsReturn = $lookupDao.getLookupIdsByLookupTypes($lookupTypeList))
+  #set( $lookupValues = [])
+  
+  #foreach( $l in $getLookupIdsReturn)
+  #set( $lookup = $lookupDao.getLookup($mathTool.toInteger($l)))
+    #if( $lookupValues.add( $lookup)) #end
+  #end
+  #set( $color = 'FFFFFF')
+  #foreach( $l in $lookupValues)
+    #if( $l.name == $fetchedFieldValue )
+      #set( $color = $l.color)
+      #break
+    #end
+  #end
+
+#end 
+##
+#########################################################################################################################
+##          Macro: getHierarchyLevel
+##          Input: $doc - document object
+##                 $baselineMode - true: export was from a baseline, false: export was from the project
+##                 $baselineId   - ID of the baseline that the items are part of, if in baseline mode
+##          Output: $hierarchyLevel - number, which heading level this item is in Jama relative to the container
+#########################################################################################################################
+#macro( getHierarchyLevel $doc $baselineMode $baselineId )
+  #set( $seqSubStrings = [] )
+  #set( $hierarchyLevel = 1)
+  ## Get hierarchy from the baseline
+  #if( $baselineMode )
+    #set( $docNode = $documentNodeDao.getDocumentNodeForBaseLine(5, $doc.id, $baselineId))
+  ## Get hierarchy from the project
+  #else
+    #set( $docNode = $documentNodeDao.getDocumentNode(5, $doc.id))
+  #end
+  ##Debug: $docNode
+  #set( $seqSubStrings = $docNode.sequence.split("\."))
+  ##Debug: $seqSubStrings
+  #set( $hierarchyLevel = $seqSubStrings.size())
+  #if( !$hierarchyLevelTop )
+    #set($hierarchyLevelTop = $hierarchyLevel)
+  #end
+
+  #set($hierarchyLevel = $hierarchyLevel - $hierarchyLevelTop + 1)
+#end
+
+
+#########################################################################################################################
+##           Macro: getStatus
+##           Input: $doc - document object
+##           Output: $docStatus - status of the item
+#########################################################################################################################
+#macro( getStatus $doc )
+  #set( $docStatus = false )
+  #foreach( $docTypeField in $doc.documentType.documentTypeFields )
+    #if( $docTypeField.documentField.name == "status" )
+      #set ( $docStatus = $doc.status.name )
+      #break
+    #end
+  #end
+#end
+##
+
+#########################################################################################################################
+##
+
+#########################################################################################################################
+##          Macro: getDate
+##          Input: Java Time Zone ID to determine which timezone to display the date in
+##          Output: Formatted date in the desired timezone
+#########################################################################################################################
+#macro( getDate $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  $dateTool.format( 'MM/dd/yyyy', $inputDate, $locale, $outTz )
+#end
+
+#########################################################################################################################
+##
+
+#########################################################################################################################
+##          Macro: getBaselineRelationships
+##          Input: $orginDocId - ID of a current item
+##                 $baselineId - ID of a baseline   
+##                 $inDoc - current item
+##                 $inDownstream - true provides downstream relationships, false provides upstream relationships    
+##          Creates: $returnBaselineRels list of upstream Or downstream baseline relationships 
+#########################################################################################################################
+#macro( getBaselineRelationships $orginDocId $baselineId $inDoc $inDownstream )
+  #set( $start = 0 )
+  #set( $count = 20 )
+  #set( $versionedRelationships = [] )
+  #set( $returnBaselineRels = [])
+  #set( $pageSize = 20)
+  #set( $relatedIds = [] )
+  ##
+  #set($baseRelsPage = $velocityServiceWrapper.getRelationships($orginDocId,$baselineId,$start,$count))
+  ##
+  #set( $totalRels = [])
+  #set( $totalRels = $baseRelsPage.getPageInfo().getTotalResults())
+  ## DEBUG Baseline Page Info: $baseRelsPage.getPageInfo() <br><br>
+  ## DEBUG Baseline Relationship Count: $baseRelsPage.getPageInfo().getTotalResults()<br><br>
+  ## DEBUG Baseline Results: $baseRelsPage.getResults() 
+
+  #if( $totalRels && $totalRels > 0)
+    #set( $page_count = $mathTool.floor($mathTool.div($totalRels,$pageSize)) )
+    #foreach( $page in [0..$page_count])
+      #set( $baseRelsPage = $velocityServiceWrapper.getRelationships($orginDocId,$baselineId,$start,$count))
+      #set( $baseRelsPageResults = $baseRelsPage.getResults())
+
+      #if( $baseRelsPageResults )
+       #set( $success = $versionedRelationships.addAll($baseRelsPageResults ))
+      #end 
+
+      #set( $start = $start + $count)
+
+    #end
+  #end
+  ##
+  #foreach( $versionedRelationship in $versionedRelationships )
+    #if( $inDownstream ) ## Get Downstream Relationships
+      #set( $upItemId = $versionedRelationship.getFromItem().getValue().get(0) )
+      #set( $upItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
+      #set( $upDoc = $documentSource.getItem($upItemId, $upItemVersion) ) ## necessary to get by version
+
+      #if( $inDoc.id == $upItemId ) 
+        #set( $dnItemId = $versionedRelationship.getToItem().getValue().get(0) )
+        #set( $dnItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
+        #set( $dnDoc = $velocityServiceWrapper.getItem($dnItemId, $dnItemVersion) )
+        #if( !$relatedIds.contains($dnDoc.id) )
+          #set( $success = $relatedIds.add($dnDoc.id) )
+          #set( $success = $returnBaselineRels.add( {"fromDocument":$inDoc,"toDocument":$dnDoc} ) )
+        #end
+      #end 
+
+    #else
+      #set( $dnItemId = $versionedRelationship.getToItem().getValue().get(0) )
+      #set( $dnItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
+      #set( $dnDoc = $documentSource.getItem($dnItemId, $dnItemVersion) ) ## necessary to get by version
+
+      #if( $inDoc.id == $dnDoc.id ) ## Get Upstream Relationships
+        #set( $upItemId = $versionedRelationship.getFromItem().getValue().get(0) )
+        #set( $upItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
+        #set( $upDoc = $documentSource.getItem($upItemId, $upItemVersion) )
+        #if( !$relatedIds.contains( $upDoc.id) )
+          #set( $success = $relatedIds.add( $upDoc.id) )
+          #set( $success = $returnBaselineRels.add( {"fromDocument":$upDoc,"toDocument":$inDoc} ) )
+        #end
+      #end
+
+    #end 
+  #end
+
+#end
+
+#########################################################################################################################
+##          Macro: getRelationships
+##          Inputs: $baselineMode - GLOBAL, tells the report if the export was from a baseline or not 
+##                  $baselineId - GLOBAL, ID of a baseline       
+##                  $inDoc - current item
+##                  $inDownstream - true provides downstream relationships, false provides upstream relationships
+##          Creates: $returnRels - list of relationships with sub-elements of "fromItem" and "toItem" each of type 
+##                   item
+#########################################################################################################################
+#macro( getRelationships $inDoc $inDownstream )
+  #set( $returnRels = [] )
+
+  #if( $baselineMode && $baselineId )
+      #set( $currentVersion = $inDoc.currentVersion )
+      #set( $orginDocId = $currentVersion.originDocument.id )
+      #getBaselineRelationships( $orginDocId, $baselineId, $inDoc, $inDownstream ) ## Creates $returnBaselineRels
+      ##DEBUG $returnBaselineRels
+      #set( $returnRels = $returnBaselineRels )
+  #else
+
+    #set( $rels = [] )
+    #set ( $rels = $relDao.getRelationshipsForDocument($inDoc.id, $inDownstream) )
+    #foreach( $rel in $rels )
+      #if( $inDownstream )  ## Get Downstream Relationships
+        #if ( $rel.toDocument.active )
+          #set( $success = $returnRels.add( $rel ) )
+        #end
+      #else                 ## Get Upstream Relationships
+        #if ( $rel.fromDocument.active )
+          #set( $success = $returnRels.add( $rel ) )
+        #end
+      #end
+    #end
+  #end
+#end
+
+#########################################################################################################################
+##          Macro: getDuration
+##          Input: testRun Duration int
+##          Output: Formatted duration time
+#########################################################################################################################
+#macro (getDuration $duration)
+ 
+ #set($formattedDuration = '')
+
+  #if($duration)
+    #set ($durationSec = $!duration / 1000)
+    #set( $durationSec = $mathTool.floor($durationSec))
+
+    #set( $durationHr = $durationSec / 3600)
+    #set( $durationHr =  $mathTool.floor($durationHr))
+    #set( $durationHrString = $durationHr.toString())
+    #if( $durationHrString.length() == 1)
+      #set( $durationHrString = "0$!durationHrString")
+    #end
+
+    #set($remainingSec = $durationSec - ($durationHr * 3600))
+
+    #set( $durationMin = $remainingSec / 60)
+    #set( $durationMin =  $mathTool.floor($durationMin))
+    #set( $durationMinString = $durationMin.toString())
+    #if( $durationMinString.length() == 1)
+      #set( $durationMinString = "0$!durationMinString")
+    #end
+    
+    #set($formattedDuration = "$!durationHrString:$!durationMinString")   
+  #end
+
+  $formattedDuration
+
+#end
+
+#########################################################################################################################
+##          Macro: getAuthors
+##          Input: $review
+##          Output: Review author list
+#########################################################################################################################
+#macro( getAuthors $review )
+
+    #set( $authors = $review.authors)
+                                
+    #set( $i = 1)
+    #set( $authorList = '')
+    #foreach( $author in $authors)
+                                    
+        #if( $i < $authors.size()) ##>
+            #set( $authorList = $authorList.concat( $author.fullName))
+            #set( $authorList = $authorList.concat( ", "))
+        #else
+            #set( $authorList = $authorList.concat( $author.fullName))
+        #end
+        #set( $i = $i + 1)
+    #end
+    
+    $!authorList
+#end
+#########################################################################################################################
+##          Macro: getFinishDate
+##          Input: $approvers
+##          Output: Review finshed date
+#########################################################################################################################
+#macro( getFinishDate $approvers )
+    
+    #set( $finishDate = '')
+    #set( $allApproved = false)
+    #set( $finishDates = [])
+    #foreach( $app in $approvers)
+        ##not going to check to see if they are "finished" but will count it if they have approved all
+        #if( $app.approvedRevision == 'true')
+            ##Last Activity: $!app.latestActivity
+            #if( $!app.latestActivity)
+                #if( $finishDates.add( $!app.latestActivity)) #end
+            #else
+                #if( $finishDates.add( $!app.lastLogged)) #end
+            #end
+        #end
+    #end
+    #if( $finishDates.size() == $approvers.size())
+        #set( $allApproved = true)
+        #foreach( $d in $sortTool.sort( $finishDates, "desc"))
+            #if( $d)
+                #set( $finishDate = $d)
+                #break
+            #end
+        #end
+    #end
+    
+    #if( $finishDate != '')
+        $dateTool.format('MM/dd/yyyy', $!finishDate)
+    #end
+#end
+#########################################################################################################################
+##          Macro: getNameList
+##          Input: $names
+##          Output: reviewer/approver names lists (i.e participants)
+#########################################################################################################################
+#macro( getNameList $names )
+
+                            
+    #set( $i = 1)
+    #set( $nameList = '')
+    #foreach( $name in $names)
+                                    
+        #if( $i < $names.size()) ##>
+            #if( $name.fullName.length() > 0)
+                #set( $nameList = $nameList.concat( $name.fullName))
+                #set( $nameList = $nameList.concat( ", "))
+            #end
+        #else
+            #if( $name.fullName.length() > 0)
+                #set( $nameList = $nameList.concat( $name.fullName))
+            #end
+        #end
+        #set( $i = $i + 1)
+    #end
+    
+    $!nameList
+#end
+######################################################################################################################
+######################################################################################################################
+
+
+
+
+
+#########################################################################################################################
+##
+##  Review Data gathering
+##
+#########################################################################################################################
+
+## Sort the reviews
+## Most recent first - In Progress, then Closed descending by date (similar to Review Center today).
+#set( $sortedReviews = [])
+#set( $sortedDrafts = [])
+#set( $sortedInProgress = [])
+#set( $sortedCompleted = [])
+#set( $sortedArchived = [])
+
+#foreach( $r in $reviews)
+  #set( $revs = $r.getRevisions())
+  #set( $counter = 0)
+  #foreach( $v in $sortTool.sort($revs, "startDate:desc"))
+    #if( $counter ==0)
+      #if( $v.status.name == "Draft")
+        #if( $sortedDrafts.add( $r)) #end
+      #elseif( $v.status.name == "In Progress")
+        #if( $sortedInProgress.add( $r)) #end
+      #elseif( $v.status.name == "Completed")
+        #if( $sortedCompleted.add( $r)) #end
+      #else
+        #if( $sortedArchived.add( $r)) #end
+      #end
+    #end
+    #set( $counter = 1)
+  #end
+#end
+
+#foreach( $s in $sortTool.sort($sortedDrafts, "modifiedDate:desc"))
+  #if( $sortedReviews.add( $s)) #end
+#end
+
+#foreach( $s in $sortTool.sort($sortedInProgress, "modifiedDate:desc"))
+  #if( $sortedReviews.add( $s)) #end
+#end
+
+#foreach( $s in $sortTool.sort($sortedCompleted, "modifiedDate:desc"))
+  #if( $sortedReviews.add( $s)) #end
+#end
+
+#foreach( $s in $sortTool.sort($sortedArchived, "modifiedDate:desc"))
+  #if( $sortedReviews.add( $s)) #end
+#end
+
+
+
+
+#########################################################################################################################
+##
+##  BODY
+##
+#########################################################################################################################
+
+
+
+
+
+#########################################################################################################################
+##  Per Reviewer Sheet
+#########################################################################################################################
+
+
+------=_NextPart_01D8DBD5.4D8FB410
+Content-Location: file:///C:/116BA2D4/MultisheetTest_files/sheet001.htm
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link id=Main-File rel=Main-File href="../MultisheetTest.htm">
+<link rel=File-List href=filelist.xml>
+<![if IE]>
+<base href="file:///C:/116BA2D4/MultisheetTest_files/sheet001.htm"
+id="webarch_temp_base_tag">
+<![endif]>
+<link rel=Stylesheet href=stylesheet.css>
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:.75in .7in .75in .7in;
+	mso-header-margin:.3in;
+	mso-footer-margin:.3in;}
+-->
+</style>
+
+</head>
+
+<body link="#0563C1" vlink="#954F72">
+
+
+<table border=1 cellpadding=0 cellspacing=0 width=2129 style='border-collapse:collapse;table-layout:fixed;width:1599pt'>
+  <col width=149 span=2 style='mso-width-source:userset;mso-width-alt:5290;width:112pt'>
+  <col class=xl68 width=100 style='mso-width-source:userset;mso-width-alt:3555;width:75pt'>
+  <col width=136 style='mso-width-source:userset;mso-width-alt:4835;width:102pt'>
+  <col width=136 style='mso-width-source:userset;mso-width-alt:4835;width:102pt'>
+  <col width=112 style='mso-width-source:userset;mso-width-alt:3982;width:84pt'>
+  <col width=130 style='mso-width-source:userset;mso-width-alt:4608;width:97pt'>
+  <col width=102 style='mso-width-source:userset;mso-width-alt:3612;width:76pt'>
+  <col width=125 style='mso-width-source:userset;mso-width-alt:4437;width:94pt'>
+  <col width=94 style='mso-width-source:userset;mso-width-alt:3356;width:71pt'>
+  <col width=134 style='mso-width-source:userset;mso-width-alt:4778;width:101pt'>
+  <col width=133 style='mso-width-source:userset;mso-width-alt:4721;width:100pt'>
+  <col width=116 style='mso-width-source:userset;mso-width-alt:4124;width:87pt'>
+  <col width=134 style='mso-width-source:userset;mso-width-alt:4778;width:101pt'>
+  <col width=145 style='mso-width-source:userset;mso-width-alt:5148;width:109pt'>
+  <col width=134 span=2 style='mso-width-source:userset;mso-width-alt:4778;width:101pt'>
+  <col width=102 style='mso-width-source:userset;mso-width-alt:3612;width:76pt'>
+
+  ## Column Headers Row
+  <tr class=xl76 height=58 style='height:43.2pt'>
+    <td height=58 class=xl75 width=149 style='height:43.2pt;width:112pt'>Participant</td>
+    <td class=xl75 width=149 style='width:112pt'>Participant Email</td>
+    <td class=xl75 width=100 style='width:75pt'>Role</td>
+    <td class=xl75 width=100 style='width:75pt'>Participant Finished/Not Finished</td>
+    <td class=xl75 width=136 style='width:102pt'>Participant Status</td>
+    <td class=xl75 width=112 style='width:84pt'>Review ID</td>
+    <td class=xl75 width=112 style='width:84pt'>Revision</td>
+    <td class=xl75 width=130 style='width:97pt'>Review Name</td>
+    <td class=xl75 width=102 style='width:76pt'>Participant Overall Time Spent</td>
+    <td class=xl75 width=94 style='width:71pt'>Progress</td>
+    <td class=xl75 width=134 style='width:101pt'>Participant Last Activity Date</td>
+    <td class=xl85 width=133 style='width:100pt'>Review Author</td>
+    <td class=xl85 width=116 style='width:101pt'>Review Start Date</td>
+    <td class=xl85 width=134 style='width:110pt'>Review Modified Date</td>
+    <td class=xl85 width=145 style='width:109pt'>Revision Start Date</td>
+    <td class=xl85 width=134 style='width:101pt'>Due Date</td>
+    <td class=xl85 width=134 style='width:101pt'>Approved Date</td>
+    <td class=xl90 width=102 style='width:76pt'>Review Status</td>
+  </tr>
+
+  #set( $secondSheetReviews = [])
+  #set( $showReview = false)
+  
+  #foreach( $r in $sortedReviews)
+    
+    #if( $report_showAllProjects == true)
+      #set( $showReview = true)
+    #else
+      #if( $r.project.id == $project.id)
+        #set( $showReview = true)
+      #elseif( $report_showReviews.length() > 0)
+        ## Going to override the show all projects if they enter specific reviews
+        #set( $showReview = true) 
+      #else
+        #set( $showReview = false)
+      #end
+    #end
+    
+    #set( $inList = false)
+    #if( $report_showReviews.length() > 0)
+      #foreach( $w in $reviewsToShow)
+        #if( $r.sequence == $w.trim())
+            #set( $inList = true)
+        #end
+      #end
+
+      #if( $inList == false)
+        #set( $showReview = false)
+      #end
+    #end
+    
+    #if( $showReview == true)
+      #set( $visibleRevisions = [])
+      #if( $secondSheetReviews.add( $r)) #end
+      #set( $revs = $r.getRevisions()) 
+      #set( $i = 0)
+      
+      ## sort in the revs list by id ascending. This will be the bottom (highest) rev.
+      #foreach( $rev in $sortTool.sort($revs, "startDate:desc"))
+        #set( $revision = $rev)
+        #set( $revStatus = $rev.status)
+        #set( $rs = $revStatus.name)
+        #set( $i = $i + 1)
+        
+        ## Report show revs: $report_showAllRevs, I: $i<br>
+        #if( $report_showAllRevs == true)
+          #if( $visibleRevisions.add( $rev)) #end
+        #else
+          #if( $i == 1)
+            #if( $visibleRevisions.add( $rev)) #end
+          #end
+        #end
+          
+      #end
+        
+    
+        
+      #set( $revShow = true)  ## this is to show all or only latest revision - if only want most recent revisions, the flag will
+      #if( $revShow == true)
+        #foreach( $v in $sortTool.sort($visibleRevisions, "startDate:desc"))
+          #if( $revShow == true)
+            #set( $approvers = [])
+            #set( $approversNotFinished = [])
+            #set( $reviewersNotFinished = [])
+            #set( $iApprovers = 0)
+            #set( $finished = 0)
+            #set( $iApproved = 0)
+            #set( $iNeedsWork = 0)
+            #set( $iAppNotFinished = 0)
+            #set( $reviewers = [])
+            #set( $iReviewers = 0)
+            #set( $iRevNotFinished = 0)
+            #set( $iRevFinished = 0)
+
+            ## Get the approvers
+            #foreach($ru in $v.revisionUsers)
+              #if( $ru.isApprover == 'true')
+                #if( $approvers.add($ru)) 
+                  #set( $iApprovers = $iApprovers + 1)
+
+                  #if( $ru.finishedRevision == 'true')
+                    #set( $finished = $finished + 1)
+                    #if( $ru.approvedRevision == 'true')
+                      #set( $iApproved = $iApproved + 1)
+                    #else
+                      #set( $iNeedsWork = $iNeedsWork + 1)
+                    #end
+                  #else
+                    #set( $iAppNotFinished = $iAppNotFinished + 1)
+                    #if( $approversNotFinished.add( $ru)) #end
+                  #end
+
+                #end
+
+              #else ## Reviewer
+                #if( $reviewers.add($ru)) 
+                  #set( $iReviewers = $iReviewers + 1)
+                  
+                  #if( $ru.finishedRevision=='true')
+                    #set( $iRevFinished = $iRevFinished + 1)
+                  #else
+                    #set( $iRevNotFinished = $iRevNotFinished + 1)
+                    #if( $reviewersNotFinished.add( $ru)) #end
+                  #end
+
+                #end
+              #end
+            #end
+
+
+            ## -------------------------------------------------
+            ## Approvers
+            ## -------------------------------------------------
+            #foreach( $a in $approvers)
+              <tr>
+                ## Participant
+                <td class=xl65 width=149 style='width:112pt'>$!a.user.fullName</td>
+
+                ## ## Participant Email
+                <td class=xl65 width=149 style='width:112pt'>$!a.user.email</td>
+
+                ## Role
+                <td class=xl69 width=100 style='width:75pt;vertical-align:top'>Approver</td>
+                #if( $a.finishedRevision == 'true')
+                  #set( $finished = 'Finished')
+                #else
+                  #set( $finished = 'Not Finished')
+                #end
+
+                ## Participant Finished/Not Finished
+                <td class=xl69 width=100 style='width:75pt;vertical-align:top'>$!finished</td>
+               
+                ## Participant Status
+                #if( $a.approvedRevision == 'true')
+                  #set( $status = 'Approved')
+                #elseif( $finished == 'Finished' && $a.approvedRevision == 'false')
+                  #set( $status = 'Needs Work')
+                #else
+                  #set( $status = 'In Progress')
+                #end
+                <td class=xl69 width=100 style='width:75pt;vertical-align:top'>$!status</td>
+                
+                ## Review ID
+                #set( $link = "")
+                #set( $link = $jamaURL + $r.sequence.toString())
+                <td class=xl70 width=112 style='width:84pt'><a href='$link'><span style='text-decoration:none'>REV-$r.sequence</span></a></td>
+
+                ## Revision
+                <td class=xl65 width=112 style='width:84pt'>$!v.sequenceNumber</td>
+
+                ## Review Name
+                <td class=xl65 width=130 style='width:97pt'>$r.name</td>
+
+                ## Participant Overall Time Spent
+                <td class=xl97 width=102 style='width:76pt'>#getDuration($!a.timeLogged)</td>
+
+                ## Progress
+                #set( $revSummaryProgressDTO = $revisionUserService.getUserRevisionSummary( $mathTool.toInteger($v.id), $mathTool.toInteger($a.user.id)))
+                #set( $revProgressDTO = $revSummaryProgressDTO.getReviewProgress())     
+                <td class=xl66 width=94 style='width:71pt'>
+                  #if( $revProgressDTO.getPercentage())
+                    $revProgressDTO.getPercentage()%
+                  #else 
+                    0%
+                  #end
+                </td>
+
+                ## Participant Last Activity Date
+                <td class=xl94 width=134 style='width:101pt'>
+                  #if( $a.latestActivity)
+                    $dateTool.format('MM/dd/yyyy hh:mm a', $!a.latestActivity)
+                  #end
+                </td>
+
+                ## Review Author
+                <td class=xl86 width=133 style='width:100pt'>#getAuthors($r)</td>
+                
+                ## Review Start Date
+                <td class=xl95 width=116 style='width:110pt'>$dateTool.format('MM/dd/yyyy hh:mm a', $!r.createdDate)</td>
+
+                ## Review Modified Date
+                <td class=xl95 width=134 style='width:101pt'>$dateTool.format('MM/dd/yyyy hh:mm a', $!r.modifiedDate)</td>
+
+                ## Revision Start Date
+                <td class=xl96 width=145 style='width:109pt'>$dateTool.format('MM/dd/yyyy', $!v.startDate)</td>
+
+                ## Due Date
+                <td class=xl96 width=134 style='width:101pt'>$dateTool.format('MM/dd/yyyy', $!v.endDate)</td>
+
+                ## Approved Date
+                <td class=xl96 width=134 style='width:101pt'>#getFinishDate( $approvers )</td>
+
+                ## Review Status
+                <td class=xl91>
+                  #if( $allApproved == true)
+                    #set( $revisionStatus = "Closed")
+                  #elseif( $allApproved == false && $!v.status.name == "Completed")
+                    #set( $revisionStatus = "Closed but not approved")
+                  #else
+                    #set( $revisionStatus = "In progress")
+                  #end
+                  $!revisionStatus
+                </td>
+              </tr>
+            #end ## #foreach( $a in $approvers)
+
+
+            ## -------------------------------------------------
+            ## Reviewers
+            ## -------------------------------------------------
+            #foreach( $rv in $reviewers)
+              <tr>
+                ## Participant
+                <td class=xl65 width=149 style='width:112pt'>$!rv.user.fullName</td>
+                
+                ## Participant Email
+                <td class=xl65 width=149 style='width:112pt'>$!rv.user.email</td>
+                
+                ## Role
+                <td class=xl69 width=100 style='width:75pt'>Reviewer</td>
+                
+                ## Participant Finished/Not Finished
+                #if( $rv.finishedRevision == 'true')
+                  #set( $finished = 'Finished')
+                #else
+                  #set( $finished = 'Not Finished')
+                #end
+                <td class=xl69 width=100 style='width:75pt'>$!finished</td>
+                
+                ## Participant Status
+                <td class=xl69 width=100 style='width:75pt'>N/A</td>
+                
+                ## Review ID
+                #set( $link = "")
+                #set( $link = $jamaURL + $r.sequence.toString())
+                <td class=xl70 width=112 style='width:84pt'><a href='$link'><span style='text-decoration:none'>REV-$r.sequence</span></a></td>
+                
+                ## Revision
+                <td class=xl65 width=112 style='width:84pt'>$!v.sequenceNumber</td>
+                
+                ## Review Name
+                <td class=xl65 width=130 style='width:97pt'>$r.name</td>
+                
+                ## Participant Overall Time Spent
+                <td class=xl97 width=102 style='width:76pt'>#getDuration($!rv.timeLogged)</td>
+
+                ## Progress
+                #set( $revSummaryProgressDTO = $revisionUserService.getUserRevisionSummary( $mathTool.toInteger($v.id), $mathTool.toInteger($rv.user.id)))
+                #set( $revProgressDTO = $revSummaryProgressDTO.getReviewProgress()) 
+                <td class=xl66 width=94 style='width:71pt'>
+                  #if( $revProgressDTO.getPercentage())
+                    $revProgressDTO.getPercentage()%
+                  #else 
+                    0%
+                  #end
+                </td>
+
+                ## Participant Last Activity Date
+                <td class=xl94 width=134 style='width:101pt'>
+                  #if( $rv.latestActivity)
+                    $dateTool.format('MM/dd/yyyy hh:mm a', $!rv.latestActivity)
+                  #end
+                </td>
+
+                ## Review Author
+                <td class=xl86 width=133 style='width:100pt'>#getAuthors( $r )</td>
+
+                ## Review Start Date
+                <td class=xl95 width=116 style='width:110pt'>$dateTool.format('MM/dd/yyyy hh:mm a', $!r.createdDate)</td>
+                
+                ## Review Modified Date
+                <td class=xl95 width=134 style='width:101pt'>$dateTool.format('MM/dd/yyyy hh:mm a', $!r.modifiedDate)</td>
+                
+                ## Revision Start Date
+                <td class=xl96 width=145 style='width:109pt'>$dateTool.format('MM/dd/yyyy', $!v.startDate)</td>
+                
+                ## Due Date
+                <td class=xl96 width=134 style='width:101pt'>$dateTool.format('MM/dd/yyyy', $!v.endDate)</td>
+                
+                ## Approved Date
+                <td class=xl96 width=134 style='width:101pt'>#getFinishDate( $approvers )</td>
+                
+                ## Review Status
+                <td class=xl91>$!revisionStatus</td>
+              </tr>
+            #end ## #foreach( $rv in $reviewers)
+
+          #end ## #if( $revShow == true)
+            
+          #if( $report_showAllRevs == 'false')
+            #set( $revShow = false)
+          #else
+            #set( $revShow = true)
+          #end
+
+        #end ## # #foreach( $v in $sortTool.sort($visibleRevisions, "startDate:desc"))
+      #end ## #if( $revShow == true)
+
+    #end ## #if( $showReview == true)
+  #end ## #foreach( $r in $sortedReviews)
+
+</table>
+
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#########################################################################################################################
+##  Per Review Sheet
+#########################################################################################################################
+
+
+------=_NextPart_01D8DBD5.4D8FB410
+Content-Location: file:///C:/116BA2D4/MultisheetTest_files/sheet002.htm
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link id=Main-File rel=Main-File href="../MultisheetTest.htm">
+<link rel=File-List href=filelist.xml>
+<![if IE]>
+<base href="file:///C:/116BA2D4/MultisheetTest_files/sheet002.htm"
+id="webarch_temp_base_tag">
+<![endif]>
+<link rel=Stylesheet href=stylesheet.css>
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:.75in .7in .75in .7in;
+	mso-header-margin:.3in;
+	mso-footer-margin:.3in;}
+-->
+</style>
+</head>
+
+<body link="#0563C1" vlink="#954F72">
+
+  <table border=0 cellpadding=0 cellspacing=0 width=4519 style='border-collapse:collapse;table-layout:fixed;width:3396pt'>
+    <col width=145 style='mso-width-source:userset;mso-width-alt:5302;width:109pt'>
+    <col width=133 style='mso-width-source:userset;mso-width-alt:4864;width:100pt'>
+    <col width=150 span=3 style='mso-width-source:userset;mso-width-alt:5485;width:113pt'>
+    <col width=145 style='mso-width-source:userset;mso-width-alt:5302;width:109pt'>
+    <col width=150 style='mso-width-source:userset;mso-width-alt:5485;width:113pt'>
+    <col width=175 style='mso-width-source:userset;mso-width-alt:6400;width:131pt'>
+    <col width=179 style='mso-width-source:userset;mso-width-alt:6546;width:134pt'>
+    <col width=95 style='mso-width-source:userset;mso-width-alt:3474;width:71pt'>
+    <col width=97 style='mso-width-source:userset;mso-width-alt:3547;width:73pt'>
+    <col width=188 style='mso-width-source:userset;mso-width-alt:6875;width:141pt'>
+    <col width=135 style='mso-width-source:userset;mso-width-alt:4937;width:101pt'>
+    <col width=150 style='mso-width-source:userset;mso-width-alt:5485;width:113pt'>
+    <col width=179 style='mso-width-source:userset;mso-width-alt:6546;width:134pt'>
+    <col width=95 style='mso-width-source:userset;mso-width-alt:3474;width:71pt'>
+    <col width=97 style='mso-width-source:userset;mso-width-alt:3547;width:73pt'>
+    <col width=188 style='mso-width-source:userset;mso-width-alt:6875;width:141pt'>
+    <col width=135 style='mso-width-source:userset;mso-width-alt:4937;width:101pt'>
+    <col width=97 style='mso-width-source:userset;mso-width-alt:3547;width:73pt'>
+    <col width=145 style='mso-width-source:userset;mso-width-alt:5302;width:109pt'>
+    <col width=133 style='mso-width-source:userset;mso-width-alt:4864;width:100pt'>
+    <col width=112 style='mso-width-source:userset;mso-width-alt:4096;width:84pt'>
+    <col width=114 style='mso-width-source:userset;mso-width-alt:4169;width:86pt'>
+    <col width=127 style='mso-width-source:userset;mso-width-alt:4644;width:95pt'>
+    <col width=102 style='mso-width-source:userset;mso-width-alt:3730;width:77pt'>
+    <col width=101 span=4 style='width:76pt'>
+    <col width=61 span=9 style='mso-width-source:userset;mso-width-alt:2230;width:46pt'>
+
+    ## Group Headers (Approvers & Reviewers)
+    <tr height=19 style='mso-height-source:userset;height:14.25pt'>
+      <td height=19 class=xl65 width=145 style='height:14.25pt;width:109pt'></td>
+      <td class=xl65 width=133 style='width:100pt'></td>
+      <td class=xl65 width=150 style='width:113pt'></td>
+      <td class=xl65 width=150 style='width:113pt'></td>
+      <td class=xl65 width=150 style='width:113pt'></td>
+      <td colspan=3 class=xl98 width=504 style='width:378pt'>Approvers</td>
+      <td class=xl70 width=95 style='width:71pt'></td>
+      <td class=xl70 width=97 style='width:73pt'></td>
+      <td class=xl70 width=188 style='width:141pt'></td>
+      <td class=xl70 width=135 style='width:101pt'></td>
+      <td colspan=2 class=xl98 width=329 style='width:247pt'>Reviewers</td>
+      <td class=xl70 width=95 style='width:71pt'></td>
+      <td class=xl70 width=97 style='width:73pt'></td>
+      <td class=xl70 width=188 style='width:141pt'></td>
+      <td class=xl70 width=135 style='width:101pt'></td>
+      <td class=xl70 width=97 style='width:73pt'></td>
+      <td class=xl70 width=145 style='width:109pt'></td>
+      <td class=xl70 width=133 style='width:100pt'></td>
+      <td class=xl70 width=112 style='width:84pt'></td>
+      <td class=xl70 width=114 style='width:86pt'></td>
+      <td class=xl70 width=127 style='width:95pt'></td>
+      <td class=xl70 width=102 style='width:77pt'></td>
+      <td width=101 style='width:76pt'></td>
+      <td width=101 style='width:76pt'></td>
+      <td width=101 style='width:76pt'></td>
+      <td width=101 style='width:76pt'></td>
+      <td width=61 style='width:46pt'></td>
+      <td width=61 style='width:46pt'></td>
+      <td width=61 style='width:46pt'></td>
+      <td width=61 style='width:46pt'></td>
+      <td width=61 style='width:46pt'></td>
+      <td width=61 style='width:46pt'></td>
+      <td width=61 style='width:46pt'></td>
+      <td width=61 style='width:46pt'></td>
+      <td width=61 style='width:46pt'></td>
+    </tr>
+
+    ## Column Headers Row
+    <tr height=19 style='mso-height-source:userset;height:14.25pt'>
+      <td height=19 class=xl99 width=145 style='height:14.25pt;width:109pt'>Title</td>
+      <td class=xl99 width=133 style='width:100pt'>Author</td>
+      <td class=xl99 width=150 style='width:113pt'>Items Under Review</td>
+      <td class=xl99 width=150 style='width:113pt'>Number of Comments</td>
+      <td class=xl99 width=145 style='width:109pt'>Review Status</td>
+      <td class=xl99 width=150 style='width:113pt'>Approved by</td>
+      <td class=xl99 width=175 style='width:131pt'>Not Finished</td>
+      <td class=xl99 width=179 style='width:134pt'>Requested New by</td>
+      <td class=xl99 width=95 style='width:71pt'># of Approvers</td>
+      <td class=xl99 width=97 style='width:73pt'># Approved</td>
+      <td class=xl99 width=188 style='width:141pt'># Approvers Not Finished</td>
+      <td class=xl99 width=135 style='width:101pt'># Requested New <br>
+      <td class=xl99 width=150 style='width:113pt'>Approved by</td>
+      <td class=xl99 width=179 style='width:134pt'>Requested New by</td>
+      <td class=xl99 width=95 style='width:71pt'># of Reviewers</td>
+      <td class=xl99 width=97 style='width:73pt'># Reviewers Finished</td>
+      <td class=xl99 width=188 style='width:141pt'># Reviewers Not Finished</td>
+      <td class=xl99 width=97 style='width:73pt'>Current Revision</td>
+      <td class=xl99 width=145 style='width:109pt'>State</td>
+      <td class=xl99 width=133 style='width:100pt'>Start Date</td>
+      <td class=xl99 width=112 style='width:84pt'>Due Date</td>
+      <td class=xl99 width=114 style='width:86pt'>Closed Date</td>
+      <td class=xl99 width=127 style='width:95pt'>Last Revision Upload Date</td>
+      <td class=xl99 width=102 style='width:77pt'>Last Activity Date (any)</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class=xl69>&nbsp;</td>
+      <td class=xl69>&nbsp;</td>
+      <td class=xl69>&nbsp;</td>
+      <td class=xl69>&nbsp;</td>
+      <td class=xl69>&nbsp;</td>
+      <td class=xl69>&nbsp;</td>
+      <td class=xl69>&nbsp;</td>
+      <td class=xl69>&nbsp;</td>
+      <td class=xl69>&nbsp;</td>
+    </tr>
+
+
+    #foreach( $r in $secondSheetReviews)
+      #set( $revs = $r.getRevisions())
+      
+      #foreach( $v in $sortTool.sort($revs, "startDate:desc"))
+        #set( $currentRevision = $v)
+        #break
+      #end
+      
+      #set( $totalComments = 0)
+      #foreach( $v in $sortTool.sort($revs, "startDate:desc"))
+        ## Revision items
+        #foreach( $ri in $v.revisionItems)
+          #set( $commentCount = $commentDao.getCommentCount($mathTool.toInteger(11), $!ri.id))
+          #set( $totalComments = $totalComments + $commentCount)
+        #end
+      #end
+      
+      #set( $approvers = [])
+      #set( $reviewers = [])
+      #set( $approved = [])
+      #set( $approversNeedWork = [])
+      #set( $approversNotFinished = [])
+      #set( $reviewersFinished = [])
+      #set( $reviewersNotFinished = [])
+      #set( $iApprovers = 0)
+      #set( $finished = 0)
+      #set( $iApproved = 0)
+      #set( $iNeedsWork = 0)
+      #set( $iAppNotFinished = 0)
+      #set( $iReviewers = 0)
+      #set( $iRevNotFinished = 0)
+      #set( $iRevFinished = 0)
+                            
+      ## Get the approvers
+      #foreach($ru in $currentRevision.revisionUsers)
+        #if( $ru.isApprover == 'true')
+          #if( $approvers.add($ru))                
+            #set( $iApprovers = $iApprovers + 1)
+              
+            #if( $ru.finishedRevision == 'true')
+              #set( $finished = $finished + 1)
+              #if( $ru.approvedRevision == 'true')
+                #if( $approved.add( $ru.user)) #end
+                #set( $iApproved = $iApproved + 1)
+              #else
+                #if( $approversNeedWork.add( $ru.user)) #end
+                #set( $iNeedsWork = $iNeedsWork + 1)
+              #end
+            #else
+              #set( $iAppNotFinished = $iAppNotFinished + 1)
+              #if( $approversNotFinished.add( $ru.user)) #end
+            #end
+
+          #end
+
+        ## Get the Reviewers
+        #else 
+          #if( $reviewers.add($ru)) 
+            #set( $iReviewers = $iReviewers + 1)
+            
+            #if( $ru.finishedRevision=='true')
+              #set( $iRevFinished = $iRevFinished + 1)
+              #if( $reviewersFinished.add( $ru.user)) #end
+            #else
+              #set( $iRevNotFinished = $iRevNotFinished + 1)
+              #if( $reviewersNotFinished.add( $ru.user)) #end
+            #end
+
+          #end
+        #end ## #if( $ru.isApprover=='true')
+      #end ## #foreach($ru in $currentRevision.revisionUsers)
+
+
+      <tr>
+        ## Title
+        #set( $link = "")
+        #set( $link = $jamaURL + $r.sequence.toString())
+        <td class=xl65 width=136 style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext"><a href='$link'>$r.name</a></td>
+        
+        ## Author
+        <td class=xl65 width=149 style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext">#getAuthors( $r )</td>
+        
+        ## Items Under Review
+        <td class=xl65 width=149 style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext">$!currentRevision.revisionItems.size()</td>
+        
+        ## Number of Comments
+        #set( $commentCount = $commentDao.getCommentCount(13, $!currentRevision.review.id))
+        <td class=xl65 width=149 style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext">$!totalComments</td>
+
+        ## Review Status
+        #set( $allApproved = false)
+        #set( $finishDates = [])
+        #foreach( $app in $approvers)
+          ## not going to check to see if they are "finished" but will count it if they have approved all
+          #if( $app.approvedRevision == 'true')
+            #if( $finishDates.add( $!app.latestActivity)) #end
+          #end
+        #end
+        #if( $finishDates.size() == $approvers.size())
+          #set( $allApproved = true)
+          #foreach( $d in $sortTool.sort( $finishDates, "desc"))
+            #set( $finishDate = $d)
+            #break
+          #end
+        #end
+                            
+        ## Getting the finishDate also gets whether all have approved
+        ## the revision is considered closed if all approvers have approved it. Doesn't matter about the reviewers.
+        #set( $class = "69") ## not colored
+        #if( $allApproved == true)
+          #set( $revisionStatus = "Approved")
+          #set( $class = 100)
+        #elseif( ($allApproved == false) && ($!currentRevision.status.name == "Completed"))
+          #set( $revisionStatus = "Closed but not approved")
+          #set( $class = 102)
+        #else
+          #set( $revisionStatus = "In progress")
+          #set( $class = 101)
+        #end
+        <td class=xl$class width=154 style='width:112pt;border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext'>$!revisionStatus</td>
+         
+        ## Approved by
+        <td class=xl$class style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext">
+          #if( $approved.size() >0)
+            #getNameList( $approved )
+          #end
+        </td>
+
+        ## Not Finished
+        #if( $approversNotFinished.size() >0)
+          <td class=xl$class style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext">#getNameList( $approversNotFinished )</td>
+        #else
+          <td class=xl65 style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext"></td>
+        #end
+        
+        ## Requested New by
+        #if( $approversNeedWork.size() >0)
+          <td class=xl$class style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext">#getNameList( $approversNeedWork )</td>
+        #else
+          <td class=xl65 style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext"></td>
+        #end
+        
+        ## # of Approvers
+        <td class=xl65 style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext">$!approvers.size() </td>
+        
+        ## # Approved
+        <td class=xl65 style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext">$!approved.size()</td>
+
+        ## # Approvers Not Finished
+        <td class=xl65 style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext">$!approversNotFinished.size()</td>
+
+        ## # Requested New 
+        <td class=xl65 style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext">$!approversNeedWork.size()</td>
+
+        ## Approved by
+        <td class=xl69 style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext">
+          #if( $reviewersFinished.size() >0)
+            #getNameList( $reviewersFinished )
+          #end
+        </td>
+
+        ## Requested New by
+        <td class=xl69 style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext">
+          #if( $reviewersNotFinished.size() >0)
+            #getNameList( $reviewersNotFinished )
+          #end
+        </td>
+
+        ## # of Reviewers
+        <td class=xl65 style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext">$!reviewers.size()</td>
+
+        ## # Reviewers Finished
+        <td class=xl65 style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext">$!reviewersFinished.size()</td>
+
+        ## # Reviewers Not Finished
+        <td class=xl65 style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext">$!reviewersNotFinished.size()</td>
+
+        ## Current Revision
+        <td class=xl65 width=112  style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext">$currentRevision.sequenceNumber</td>
+        
+        ## Review State
+        <td class=xl65 width=154  style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext">$currentRevision.status.name</td>
+
+        ## Start Date
+        <td class=xl65 width=137 style='width:103pt;mso-number-format:"mm\/dd\/yyyy";vertical-align:top;border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext'>$dateTool.format('MM/dd/yyyy', $!r.createdDate)</td>
+
+        ## Due Date
+        <td class=xl65 width=100 style='width:75pt;mso-number-format:"mm\/dd\/yyyy";vertical-align:top;border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext'>$dateTool.format('MM/dd/yyyy', $!currentRevision.endDate)</td>
+
+        ## Closed Date
+        ## Closed means the date that all of the approvers have approved the review/revision
+        <td class=xl65 style='width:75pt;mso-number-format:"mm\/dd\/yyyy";vertical-align:top;border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext'>
+            #getFinishDate( $approvers )
+        </td>
+
+        ## Last Revision Upload Date
+        <td class=xl65 style='width:75pt;mso-number-format:"mm\/dd\/yyyy";vertical-align:top;border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext'>$dateTool.format('MM/dd/yyyy', $!currentRevision.createdDate)</td>
+
+        ## Last Activity Date (any)
+        #set( $lastActivities = [])
+        #foreach( $app in $approvers)
+          #if( $!app.latestActivity)
+            #if( $lastActivities.add( $!app.latestActivity)) #end
+          #end
+        #end
+
+        #foreach( $rev in $reviewers)
+          #if( $!rev.latestActivity)
+            #if( $lastActivities.add( $!rev.latestActivity)) #end
+          #end
+        #end
+        
+        #set( $lastDate = '')
+        #foreach( $d in $sortTool.sort( $lastActivities, "desc"))
+          #set( $lastDate = $d)
+          #break
+        #end
+        <td class=xl65 style='width:75pt;mso-number-format:"mm\/dd\/yyyy";vertical-align:top;border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext'>
+          #if( $!lastDate != "")
+            $dateTool.format('MM/dd/yyyy', $!lastDate)
+          #end
+        </td>
+
+      </tr>
+
+    #end ## #foreach( $r in $secondSheetReviews)
+   
+  </table>
+
+</body>
+
+</html>
+
+#########################################################################################################################
+##
+##  FILE LIST 
+##
+#########################################################################################################################
+#### Replace everything below with the matching content from your Mockup. Remember to remove the tab sheet link ####
+
+------=_NextPart_01D8DBD5.4D8FB410
+Content-Location: file:///C:/116BA2D4/MultisheetTest_files/filelist.xml
+Content-Type: text/xml; charset="utf-8"
+
+<xml xmlns:o="urn:schemas-microsoft-com:office:office">
+ <o:MainFile HRef="../MultisheetTest.htm"/>
+ <o:File HRef="stylesheet.css"/>
+ <o:File HRef="sheet001.htm"/>
+ <o:File HRef="sheet002.htm"/>
+ <o:File HRef="filelist.xml"/>
+</xml>
+------=_NextPart_01D8DBD5.4D8FB410--
