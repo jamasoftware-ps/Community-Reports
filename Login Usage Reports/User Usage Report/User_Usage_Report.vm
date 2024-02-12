@@ -1,0 +1,448 @@
+<html>
+
+## ======================================================================================================================
+## Name: User_Usage_Report.vm 
+## 
+## Description: Context Insensitive Report that can be exported to Excel, Word, PDF or HTML. 
+##              It lists all the users for the organization and for each user their ID, Username, First Name, Last Name,
+##              Role, Email, Phone Number, Location, Entry Date, Groups, License Type, Total Hours Logged in last 6 months, 
+##              Total Logins Last 6 months, Total Logins of All Time. 
+##            
+##              *In order to get license data for the user, the user would need to have logged in within 6 months prior to 
+##              the report being run. If the user has not logged in within the last 6 months then it will show
+##              'No license usage last 6 months'
+##          
+##              
+## ======================================================================================================================
+## MODIFICATION HISTORY 
+## 
+## Date         Revision   Person             Comments 
+## -----------  ---------  ----------------   ---------------------------------- 
+## 2024-01-19   1.0        Anna FitzGerald    Initial Build
+##
+##                                                                                 
+##
+## ======================================================================================================================
+##
+## Report Criteria:
+## ---------------------------    
+##  * Note: If being used this criteria will need to be added to the report configuration.  
+##
+##      Type:       Display Name:           Report Global Variable:   Function:
+##      -----------------------------------------------------------------------------------------------------------------
+##      [None]
+##
+## ======================================================================================================================
+## 
+## Sources Utilized: 
+## $userSource, $eventSource
+##  
+## Constants:
+## --------------------------
+##
+## Timezone 
+#set( $timeZone = "America/Los_Angeles" )
+
+## Formatting
+#if( $format == 'pdf' || $format == 'html')
+	#set( $primaryFont = "Arimo")  	
+#else 
+	#set( $primaryFont = "Calibri")
+#end
+
+##
+#########################################################################################################################
+<head>
+## .pdf & .html typeface link
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+
+<style>
+/* .doc & .xlsx @font-face rule */
+@font-face
+  {font-family:"Calibri";
+  panose-1:2 15 5 2 2 2 4 3 2 4;
+  mso-font-charset:0;
+  mso-generic-font-family:swiss;
+  mso-font-pitch:variable;
+  mso-font-signature:-1610611985 1073750139 0 0 159 0;}
+body {
+	margin:auto;
+	width:80%;
+}
+table {
+	border-collapse:collapse;
+}
+tr {
+	mso-height-source:auto;
+	height:auto;
+}
+col {
+	mso-width-source:auto;
+}
+br {
+	mso-data-placement:same-cell;
+}
+td.title {
+	font-size:13pt;
+	font-weight:700;
+	font-family:'$primaryFont',sans-serif;
+}
+td.header {
+	white-space:normal;
+	word-wrap:break-word;
+	overflow-wrap:break-word;
+	font-weight:700;
+	font-size:11pt;
+	font-family:'$primaryFont',sans-serif;
+	background-color:#e6e6e6;
+	border:.5pt solid #999999;
+	vertical-align:middle;
+	text-align:center;
+}
+td.cell {
+	white-space:normal;
+	word-wrap:break-word;
+	overflow-wrap:break-word;
+	font-weight:300;
+	font-size:9pt;
+	border:.5pt solid #999999;
+	vertical-align:middle;
+	text-align:left;
+	font-family:'$primaryFont',sans-serif;
+	padding:.5pt 1pt .5pt 1pt;
+	margin:0;
+}
+#if( $format == 'pdf') /*no named pages w/ .pdf*/
+@page {
+	size:17.0in 11in;
+}
+#end 
+#if( $format != 'pdf') 
+@page SectionLandscape {
+	size:17.0in 11.0in;
+	margin:.5in .5in .5in .5in;
+}
+div.SectionLandscape {
+	page: SectionLandscape;
+	margin:.5in .5in .5in .5in;
+}
+#end
+
+</style>
+</head>
+## =================================================================================================================
+##
+##
+## MACROS 
+##
+##
+## =================================================================================================================
+####################################################################################################################
+##          Macro: getDate
+##          Input: Java Time Zone ID to determine which timezone to display the date in
+##          Output: Formatted date in the desired timezone
+####################################################################################################################
+#macro( getDate $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  #set( $date = $dateTool.format( 'MM/dd/yyyy', $inputDate, $locale, $outTz ))
+  $!date
+#end
+####################################################################################################################
+##          Macro: getDateTime
+##          Input: Java Time Zone ID to determine which timezone to display the date in
+##          Output: Formatted date in the desired timezone
+####################################################################################################################
+#macro( getDateTime $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  #set( $dateTime = $dateTool.format( 'MM/dd/yyyy hh:mm a', $inputDate, $locale, $outTz ))
+  $!dateTime
+#end
+####################################################################################################################
+####################################################################################################################
+##      Macro: getLicenseType 
+##      Input: $userLicenseType - enum code of user license type 
+##      Output: $userLicenseDisplay - display name of license type 
+## 
+####################################################################################################################
+#macro( getLicenseType $userLicenseType )
+
+  #if( $userLicenseType == "N")
+    #set( $userLicenseDisplay = "Creator")
+  #elseif( $userLicenseType == "C")
+    #set( $userLicenseDisplay = "Creator (Float)")
+  #elseif( $userLicenseType == "S")
+    #set( $userLicenseDisplay = "Stakeholder")
+  #elseif( $userLicenseType == "FC")
+    #set( $userLicenseDisplay = "Collaborator (Float)")
+  #elseif( $userLicenseType == "R")
+    #set( $userLicenseDisplay = "Collaborator (Reserved)")
+  #elseif( $userLicenseType == "V")
+    #set( $userLicenseDisplay = "Reviewer (Float)")
+  #elseif( $userLicenseType == "RV")
+    #set( $userLicenseDisplay = "Reviewer (Reserved)")
+  #elseif( $userLicenseType == "NV")
+    #set( $userLicenseDisplay = "Reviewer")
+  #elseif( $userLicenseType == "ET")
+    #set( $userLicenseDisplay = "Expiring Trial")
+  #elseif( $userLicenseType == "I")
+    #set( $userLicenseDisplay = "Inactive")
+  #elseif( $userLicenseType == "TR")
+    #set( $userLicenseDisplay = "Test runner")
+  #end 
+
+  ##$userLicenseDisplay
+
+#end 
+##
+####################################################################################################################
+##  		Macro: groupUsagePerUser
+##      Input: $userLogHistory
+##      Output: $userUsage 
+## 
+####################################################################################################################
+#macro( groupUsagePerUser $userLogHistory )
+
+  #foreach( $activity in $userLogHistory ) ## Ensure user data is sorted per user, and aggregate login/logout data per user 
+    #set( $user = $activity.get("user"))
+    #set( $userID = $user.id)
+    #set( $license = $activity.get("license"))
+    #set( $login = $activity.get( "login"))
+    #set( $logout = $activity.get( "logout"))
+    #set( $license = $activity.get("license"))
+
+    #if( $foreach.hasNext )
+      #set( $nextIndex = $foreach.index + 1 )
+      #set( $nextItem = $userLogHistory.get($nextIndex))
+      #set( $nextItemID = $nextItem.get("userId"))
+    #else
+      #set( $nextItem = false )
+    #end
+
+  	#set( $success = $allLoginsLogouts.add({"login":$login, "logout":$logout }))
+
+  	#if( !$licenses.contains( $license ))
+  		#set( $success = $licenses.add($license))
+  	#end 
+
+    #if( $userID != $nextItemID || !$nextItem ) 
+       #set( $success = $userUsage.add({ "user": $user, "logHistory": $allLoginsLogouts, "licenses": $licenses }))
+       #set( $allLoginsLogouts = [] )
+       #set( $licenses = [] )
+    #end
+
+  #end 
+#end 
+##
+###################################################################################################################
+##      Macro: calculateTimeLoggedIn
+##      Input: $loginsLogouts 
+##      Output: $totalLoginsLast6Months, $dateLastLogin, $totalHours (total hours logged in last six months)
+##
+##
+###################################################################################################################
+#macro( calculateTimeLoggedIn $loginsLogouts ) 
+	#set( $totalHours = 0 )
+	#set( $totalMinutes = 0 )
+	#set( $totalSeconds = 0 )
+	#set( $totalLoginsLast6Months = 0 )
+
+  #foreach( $log in $loginsLogouts )
+
+    #set( $login = $log.get("login"))
+    #set( $logout = $log.get("logout"))  
+    #if( !$login || !$logout )
+    		#if( $login )
+    				#set( $totalLoginsLast6Months = $totalLoginsLast6Months + 1 )
+    				## session active, but login counted
+    		#end 
+    	  ## No tally of time if session still active
+    #else  
+    	#set( $dateLastLogin = $login ) 
+    	#set( $totalLoginsLast6Months = $totalLoginsLast6Months + 1 )
+      #set( $sessionTime = $comparisonDateTool.difference($login, $logout))
+      #set( $sessionTimeMinutes = $sessionTime.getMinutes())
+
+      #if( $sessionTimeMinutes == 0)
+        #set( $seconds = $sessionTime.getSeconds())
+        #set( $totalSeconds = $seconds + $totalSeconds )
+      #else
+        #set( $hours = $mathTool.floor( $mathTool.div( $sessionTimeMinutes,60 ) ))
+        #set( $totalHours = $hours + $totalHours )
+
+        #set( $minutes = $mathTool.floor( $mathTool.mod( $sessionTimeMinutes,60 )))
+        #set( $totalMinutes = $minutes + $totalMinutes )
+       
+      #end 
+    #end
+  #end ##foreach( $log in $logHistory )
+
+
+  #if( $totalSeconds > 59 )
+    #set( $minutes = $mathTool.floor( $mathTool.div( $totalSeconds,60 ) ))
+    #set( $totalMinutes = $minutes + $totalMinutes )
+    #set( $totalSeconds = $mathTool.floor( $mathTool.mod( $totalSeconds,60 )))
+  #end 
+
+  #if( $totalMinutes > 59 )
+    #set( $hours = $mathTool.floor( $mathTool.div( $totalMinutes,60 ) ))
+    #set( $totalMinutes = $mathTool.floor( $mathTool.mod( $totalMinutes,60 ) ))
+    #set( $totalHours = $totalHours + $hours )
+  #end 
+
+  #if( $totalMinutes > 30 )
+    #set( $totalHours = $totalHours + 1)
+  #end 
+	#set( $dateLastLogin = $dateTool.format("MM/dd/yyyy", $!dateLastLogin))
+#end
+######################################################################################################################
+######################################################################################################################
+## ===================================================================================================================
+##
+##
+## REPORT BODY
+##
+##
+## ===================================================================================================================
+##-----------------## 
+##  Get User Data  ## 
+##-----------------## 
+#set( $licenses = [] )
+#set( $userUsage = [] )
+#set( $userLogHistory = [] )
+#set( $allLoginsLogouts = [] )
+
+#set( $usersInOrg = $userSource.getActiveUserListByOrgId($project.organizationId)) 
+#set( $usageForLastSixMonths = $userSource.getLoginsForLastHours(4380, $project.organizationId))
+
+#foreach( $activity in $usageForLastSixMonths ) 
+  #set( $user = $activity.user )
+  #set( $userId = $user.id )
+  #set( $license = $activity.actualLicenseType)
+  #set( $loginTime = $activity.getLoginTime() )
+  #set( $logoutTime = $activity.getLogoutTime() )
+  #getLicenseType($license)
+  #set( $licenseDisplay = "${license} - ${userLicenseDisplay}")
+  #set( $success = $userLogHistory.add({ "userId":$userId, "user": $user, "login": $loginTime, "logout": $logoutTime, "license": $licenseDisplay }))
+#end 
+
+#set( $userLogHistory = $sortTool.sort( $userLogHistory,"userId:asc" ))
+#groupUsagePerUser( $userLogHistory ) ## Returns $userUsage
+<body>
+	<div class=SectionLandscape>
+		<table style='width:100%;table-layout:fixed;'>
+## ===================================================================================================================
+##
+##
+## 		TABLE COL Definitions & HEADINGS
+##
+##
+## ===================================================================================================================
+			<colgroup> ## 1152
+				<col style='width:25pt'/>
+				<col style='width:60pt'/>
+				<col style='width:50pt'/>
+				<col style='width:60pt'/>
+				<col style='width:60pt'/>
+				<col style='width:137pt'/>
+				<col style='width:80pt'/>
+				<col style='width:65pt'/>
+				<col style='width:50pt'/>
+				<col style='width:160pt'/>
+				<col style='width:130pt'/>
+				<col style='width:50pt'/>
+				<col style='width:70pt'/>
+				<col style='width:70pt'/>
+				<col style='width:70pt'/>
+			</colgroup>
+			<thead>
+				<tr>
+					<td colspan=4 class=title style='text-align:left;border:none;font-size:11pt'>$project.organization.name</td>
+					<td colspan=2 class=cell rowspan=2 style='border:none;'></td>
+					<td colspan=4 class=title rowspan=2 style='text-align:center;border:none;'>JAMA USER USAGE REPORT</td>
+					<td colspan=2 class=cell rowspan=2 style='border:none;'></td>
+					<td colspan=3 class=cell style='text-align:right;border:none;'>#getDateTime($dateTool.date, $timeZone)</td>
+				</tr>
+				<tr> 
+					<td colspan=4 class=cell style='text-align:left;border:none;'>Report Runner: $userSource.currentUser.fullName</td>
+					<td colspan=3 class=cell style='text-align:left;border:none;'></td>
+				</tr>
+				<tr>
+					<td class=header width='25pt'>ID</td>
+					<td class=header width='60pt'>Username</td>
+					<td class=header width='50pt'>First Name</td>
+					<td class=header width='60pt'>Last Name</td>
+					<td class=header width='60pt'>Role</td>
+					<td class=header width='137pt'>Email</td>
+					<td class=header width='80pt'>Phone</td>
+					<td class=header width='65pt'>Location</td>
+					<td class=header width='50pt'>Entry Date</td>
+					<td class=header width='160pt'>User Groups</td>
+					<td class=header width='130pt'>License Type*</td>
+					<td class=header width='50pt'>Date of Last Login</td>
+					<td class=header width='70pt'>Total Hours Logged in Last 6 months</td>
+					<td class=header width='70pt'>Total Logins Last 6 months</td>
+					<td class=header width='70pt'>Total Logins of All Time</td>
+				</tr>
+			</thead>
+
+			<tbody>
+## ===================================================================================================================
+##
+##
+## 		DYNAMIC ROWS, One row per active user
+##
+##
+## ===================================================================================================================
+			#foreach( $userInOrg in $usersInOrg )
+				#set( $loginsLogouts = [] )
+				#set( $licenses = [])
+				#set( $groups = [] )
+	
+				#foreach( $group in $userInOrg.roles )
+					#if( !$groups.contains($group.display))
+						#set( $success = $groups.add( $group.display))
+					#end 
+				#end
+				#if( $userInOrg.email != "systemuser") ## skip core instance user ## 
+				<tr>
+					<td class=cell width='25pt' style='text-align:center;'>$userInOrg.id</td>
+					<td class=cell width='60pt'>$!userInOrg.userName</td>
+					<td class=cell width='50pt'>$!userInOrg.firstName</td>
+					<td class=cell width='60pt'>$!userInOrg.lastName</td>
+					<td class=cell width='60pt'>$!userInOrg.title</td>
+					<td class=cell width='137pt'>$!userInOrg.email</td>
+					<td class=cell width='80pt'>$!userInOrg.phone</td>
+					<td class=cell width='65pt'>$!userInOrg.location</td>
+					<td class=cell width='50pt'>#getDate($!userInOrg.createdDate, $timeZone)</td>
+					<td class=cell width='160pt'>#foreach( $group in $groups ) #if( !$foreach.last)$!group, #else $!group #end #end</td>
+					#foreach( $u in $userUsage )
+						#set( $user = $u.get("user"))
+						#if( $userInOrg.id == $user.id )
+							#set( $loginsLogouts = $u.get("logHistory"))
+							#set( $licenses = $u.get("licenses"))
+							#break
+						#end 
+					#end
+					<td class=cell width='130pt'>#if($licenses.size() == 0) No license usage last 6 months #else #foreach( $license in $licenses ) #if( !$foreach.last) $!license, #else $!license #end #end #end</td>
+					#calculateTimeLoggedIn( $loginsLogouts )
+				
+					<td class=cell width='50pt'>$!dateLastLogin</td>
+					<td class=cell width='70pt' style='text-align:center;'>$!totalHours</td>
+					<td class=cell width='70pt' style='text-align:center;'>$!totalLoginsLast6Months</td>
+					<td class=cell width='70pt' style='text-align:center;'>$eventSource.getUserLogins($userInOrg.id)</td>
+
+				</tr>
+				#end ##if( $userInOrg.email != "systemuser")
+			#end
+			<tr>
+				<td colspan=15 class=cell style='text-align:left;border:none;'>*Shows licenses for users that have logged in within the last 6 months from the date the report was run. If the user has not logged in within the last 6 months it will show 'No license usage last 6 months'.</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>
