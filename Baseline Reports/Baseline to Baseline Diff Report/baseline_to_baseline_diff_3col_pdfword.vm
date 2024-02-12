@@ -18,6 +18,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##											 SOS-DEF-7380 - Relationship of first added item shows rels for second added item if second added item is blank
 ##											 SOS-DEF-7382 - HTML encoding for item name in relationship row 
 ## 2024-01-23   3.1.1      Shawnna Williams  Remove stray parenthesis
+## 2024-02-12   3.1.2      Shawnna Williams  Changed it so baseDoc is retrieved from .getDocument. If use .originDocument, built in fields weren't being exported if the item was the current version.
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -5969,9 +5970,14 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
       ###set( $baseDN2 = $documentSource.getDocumentNodeForBaseLine(5,$compareDocIds.get($compareOriginIds.indexOf( $baseOrigin )), $r2))
       ##set( $compareDoc = $documentSource.getDocument( $baseDN2.refId) )
 	  #set( $compareDocId = $compareDocIds.get($compareOriginIds.indexOf( $baseOrigin )))
-	  ##set( $compareDoc = $documentSource.getDocument( $compareDocId) )
+
 	  #set( $compareDoc = $documentSource.getVersionByDocumentId($compareDocId).document )
-	  
+	  ##for regular item types, need to use .getDocument so we can get predefined fields
+	  #if( $compareDoc.documentType.display != "Test Run" && 
+			$compareDoc.documentType.display != "Test Cycle" && 
+			$compareDoc.documentType.display != "Test Plan")
+		#set( $compareDoc = $documentSource.getDocument( $compareDocId) )
+	  #end
 	  #set( $bVer = $documentSource.getVersionByDocumentId( $baseDocId) )
       #set( $aVer = $documentSource.getVersionByDocumentId( $compareDocId) )
 

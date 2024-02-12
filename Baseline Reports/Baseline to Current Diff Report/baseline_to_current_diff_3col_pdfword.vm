@@ -17,6 +17,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 											 SOS-DEF-7379 - Click DocumentId link in relationships and Added items broken
 ##											 SOS-DEF-7380 - Relationship of first added item shows rels for second added item if second added item is blank
 ##											 SOS-DEF-7382 - HTML encoding for item name in relationship row 
+## 2024-02-12   1.1.1      Shawnna Williams  Changed it so baseDoc is retrieved from .getDocument. If use .originDocument, built in fields weren't being exported if the item was the current version.
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -5906,9 +5907,16 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 	  ##set($baseDoc = $documentSource.getDocument($node.refId))
 	  #set($baseDoc = $documentSource.getVersionByDocumentId($baseDocId).document)
 	  
-	  ##set($activeId = $documentSource.getVersionByDocumentId($baseDoc.id).originDocument.id)
-	  ##set($activeDoc = $documentSource.getDocument($activeId))
-	  #set( $activeDoc = $baseDoc.currentVersion.originDocument)
+	  #set( $activeDocId = $baseDoc.currentVersion.originDocument.id)
+	  ##Have to use .getDocument for regular item types because if current version, it doesn't have built-in fields.
+	  ## But can't use .getDocument for test runs, plans, cycles
+	  #set( $activeDoc = $documentSource.getVersionByDocumentId($activeDocId).originDocument)
+	  #if( $activeDoc.documentType.display != "Test Run" && 
+			$activeDoc.documentType.display != "Test Cycle" && 
+			$activeDoc.documentType.display != "Test Plan")
+		#set( $activeDoc = $documentSource.getDocument( $activeDocId) )
+	  #end
+
 	  #set( $activeId = $activeDoc.id)
 	  #set($actDN = $documentSource.getDocumentNode(5,$activeDoc.id))
   
@@ -6031,6 +6039,7 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 									##------ check to see if field for b1 is different than same field for b2 ------##
 									#set($val1 = $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat))
 									#set($val2 = $velocityReportUtil.getValueForField($activeDoc, $b, $dateFormat))
+									
 								#end	
 								
 								#if( $val1 != $val2)
