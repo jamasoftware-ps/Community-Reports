@@ -18,6 +18,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##											 SOS-DEF-7380 - Relationship of first added item shows rels for second added item if second added item is blank
 ##											 SOS-DEF-7382 - HTML encoding for item name in relationship row 
 ## 2024-02-12   1.1.1      Shawnna Williams  Changed it so baseDoc is retrieved from .getDocument. If use .originDocument, built in fields weren't being exported if the item was the current version.
+## 2024-02-20   1.1.2      Shawnna Williams  Encode all name fields
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -5270,8 +5271,10 @@ $string
     
 
       #foreach($k in $deleted)
-
-        <h2>$k.documentKey $k.name</h2>
+		#set( $kName = $k.name )
+		#encodeText( $kName)
+		#set( $kName = $encodeTextReturn)
+        <h2>$k.documentKey $kName</h2>
 
 	  <table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
 		 style='border-collapse:collapse;border:none;mso-border-alt:solid #404040 .5pt;
@@ -5428,8 +5431,9 @@ $string
 #macro( encodeText $textToClean)
 	
 	#set( $encodeTextReturn = "")
-	#set($textValCleaned = $textToClean.replaceAll("(<[^>]+>)|[^*]","$1"))
-
+	##set($textValCleaned = $textToClean.replaceAll("(<[^>]+>)|[^*]","$1"))
+	
+	#set($textValCleaned = $textToClean.replaceAll("<[^>]+?[^>]*?>.*?<\/.*>?|([^*])","$1"))
 	#if($textValCleaned != '')
 		##encode
 		#set($encodeTextReturn = $escapeTool.url($textToClean))
@@ -5976,7 +5980,8 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 
 					#foreach($f in $fields)
 						#set( $b = $f.fieldName)
-						#if( $spot != 0 )
+						
+						##if( $spot != 0 )
 							#if( ($report_excludeStatus == false) || ( $report_excludeStatus == true && $b != "status" && $b != "modifiedDate" ))
 								
 								#if( $baseDoc.documentType.display == "Test Run" || $baseDoc.documentType.display == "Test Cycle" || 
@@ -6037,13 +6042,22 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 									##B: $b, BASEDOCVALUE: $val1, $baseDoc.description<br>COMP VALUE: $val2<br>
 								#else
 									##------ check to see if field for b1 is different than same field for b2 ------##
+									##B: $b<br>
 									#set($val1 = $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat))
 									#set($val2 = $velocityReportUtil.getValueForField($activeDoc, $b, $dateFormat))
+									#if( $b == "name")
 									
+										#set( $baseName = $val1 )
+										#encodeText( $baseName)
+										#set( $val1 = $encodeTextReturn)
+										#set( $compareName = $val2 )
+										#encodeText( $compareName)
+										#set( $val2 = $encodeTextReturn)
+									#end
 								#end	
 								
 								#if( $val1 != $val2)
-								
+						
 									#set( $foundChg = 1 )
 
 								  <tr>
@@ -6066,9 +6080,9 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 
 								#end ##if( $val1 != $val2)
 							#end ##if( ($report_excludeStatus == false) || ( $report_excludeStatus == true && $b != "status" && $b != "modifiedDate" ))
-						#end ##if( $spot != 0 )
+						##end ##if( $spot != 0 )
 
-						#set( $spot = 1 )
+						##set( $spot = 1 )
 
 					#end ##foreach($f in $fields)
 

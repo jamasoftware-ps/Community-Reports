@@ -18,7 +18,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##											 SOS-DEF-7380 - Relationship of first added item shows rels for second added item if second added item is blank
 ##											 SOS-DEF-7382 - HTML encoding for item name in relationship row 
 ## 2024-01-23   3.1.1      Shawnna Williams  Remove stray parenthesis
-## 2024-02-12   3.1.2      Shawnna Williams  Changed it so baseDoc is retrieved from .getDocument. If use .originDocument, built in fields weren't being exported if the item was the current version.
+## 2024-02-12   3.1.2      Shawnna Williams  Changed it so baseDoc is retrieved from .getDocument (for regular item types). If use .originDocument, built in fields weren't being exported if the item was the current version.
+## 2024-02-20   3.1.3      Shawnna Williams  Encode all name fields
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -5280,8 +5281,10 @@ $string
     
 
       #foreach($k in $deleted)
-
-        <h2>$k.documentKey $k.name</h2>
+		#set( $kName = $k.name )
+		#encodeText( $kName)
+		#set( $kName = $encodeTextReturn)
+        <h2>$k.documentKey $kName</h2>
 
 	  <table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
 		 style='border-collapse:collapse;border:none;mso-border-alt:solid #404040 .5pt;
@@ -5472,8 +5475,10 @@ $string
 #macro( encodeText $textToClean)
 	
 	#set( $encodeTextReturn = "")
-	#set($textValCleaned = $textToClean.replaceAll("(<[^>]+>)|[^*]","$1"))
+	###set($textValCleaned = $textToClean.replaceAll("(<[^>]+>)|[^*]","$1"))
 
+	#set($textValCleaned = $textToClean.replaceAll("<[^>]+?[^>]*?>.*?<\/.*>?|([^*])","$1"))
+	
 	#if($textValCleaned != '')
 		##encode
 		#set($encodeTextReturn = $escapeTool.url($textToClean))
@@ -6012,7 +6017,7 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
             #foreach($f in $fields)
 			  #set( $b = $f.fieldName)
 				##B: $b, $spot<br>
-              #if( $spot != 0 )
+              ##if( $spot != 0 )
                 #if( ($report_excludeStatus == false) || ( $report_excludeStatus == true && $b != "status" && $b != "modifiedDate" ))
 
                 ##------ check to see if field for b1 is different than same field for b2 ------##
@@ -6075,6 +6080,14 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 				#else
 					#set( $baseDocValue = $velocityReportUtil.getValueForField( $baseDoc, $b, $dateFormat))
 					#set( $compareDocValue = $velocityReportUtil.getValueForField( $compareDoc, $b, $dateFormat ))
+					#if( $b == "name")
+						#set( $baseName = $baseDocValue )
+						#encodeText( $baseName)
+						#set( $baseDocValue = $encodeTextReturn)
+						#set( $compareName = $compareDocValue )
+						#encodeText( $compareName)
+						#set( $compareDocValue = $encodeTextReturn)
+					#end
 				#end
 				
                 ##if( $velocityReportUtil.getValueForField( $baseDoc, $b, $dateFormat) != $velocityReportUtil.getValueForField( $compareDoc, $b, $dateFormat ))
@@ -6103,7 +6116,7 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
                 
 				#end ##if( ($report_excludeStatus == false) || ( $report_excludeStatus == true && $b != "status" && $b != "modifiedDate" ))
               
-			  #end ##if( $spot != 0 )
+			  ##end ##if( $spot != 0 )
 
               #set( $spot = 1 )
 
