@@ -4,7 +4,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 #end
 
 ## ======================================================================================================================
-## Name: baseline_to_baseline_diff_3col_pdfword.vm 
+## Name: baseline_to_current_diff_3col_pdfword.vm 
 ## 
 ## Description: Master Template for exporting specifications from Jama to Word and PDF
 ## ======================================================================================================================
@@ -12,13 +12,34 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 
 ## Date         Revision   Person            Comments 
 ## -----------  ---------  ----------------  ---------------------------------- 
-## 2023-03-21   1.0        Shawnna Williams  Created from baseline to baseline diff
-## 2024-01-18   1.1        Shawnna Williams  Add test runs/cycles to report
+## 2023-03-21   1.0        Shawnna Williams  - Created from baseline to baseline diff
+## 2023-07-28   1.3        Anna FitzGerald   - Converted activeDoc into a Document before proceeding to get fields
+## 2023-08-01   3.1        Anna FitzGerald   - Updated Get Relationships Macro to match Master Word PDF Template 
+##                                           - Put conditions around .getResults to prevent Null Pointer Error
+##                                           - Fixed argument call to get relationships for base1
+##                                           - Updated #formatText macro and #findSourceMHTML with latest macros
+## 2023-08-02   3.1.1      Anna FitzGerald   - Reduced maxImageWidth considering images that are taller than wider and must fit in landscape layout 
+##                                           - Adjusted styles for more room for comparison tables (margin, font size)
+##                                           - Ensured compare relationships show for items that are same version but that have relationship difference
+## 2023-10-05   3.2        Liam Rotchford    - Added new #extractBaselineItems() macro to properly extract selected baseline items utilizing the 
+##                                             new immutable baseline item extraction method $documentSource.getContourItemDTOsForBaseline(...) 
+## 2023-11-21   3.3        Liam Rotchford    - Added new macro #getBaselineItems() for calling logic on larger baseline datasets. 
+##                                           - Updated #extractBaselineItems() macro to account for Velocity recursive depth limitation of 20. 
+##                                           - Updated #buildRelationshipsCounts() macro to resolve bug with extracting baseline related items following
+##                                             Jama 9.6 changes.
+## 2023-11-28   3.4        Liam Rotchford    - Updated #extractBaselineItems() & #getBaselineItems() macros to account for the macro depth traversal limit
+##                                             to account for the starting depth level, account for the # of extraction calls calculated by the baseline 
+##                                             total items and it's relation to the macro recursion depth, and additional early #break calls for better 
+##                                             performance as soon as all baseline items have been collected.
+## 2023-11-29   3.4.1      Liam Rotchford    - Minor adjustments for baseline extraction items call & #formatAddedItems() macro to gather item global Ids 
+##                                             for comparison to ensure item counts for Added items is accurate. 
+## 2024-01-18   3.5        Shawnna Williams  Add test runs/cycles to report
 ## 											 SOS-DEF-7379 - Click DocumentId link in relationships and Added items broken
 ##											 SOS-DEF-7380 - Relationship of first added item shows rels for second added item if second added item is blank
 ##											 SOS-DEF-7382 - HTML encoding for item name in relationship row 
-## 2024-02-12   1.1.1      Shawnna Williams  Changed it so baseDoc is retrieved from .getDocument. If use .originDocument, built in fields weren't being exported if the item was the current version.
-## 2024-02-20   1.1.2      Shawnna Williams  Encode all name fields
+## 2024-02-12   3.5.1      Shawnna Williams  Changed it so baseDoc is retrieved from .getDocument. If use .originDocument, built in fields weren't being exported if the item was the current version.
+## 2024-02-20   3.5.2      Shawnna Williams  Encode all name fields                                  
+##                                        
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -29,11 +50,11 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##
 ##      Type:       Display Name:           Report Global Variable:   Function:
 ##      ----------------------------------------------------------------------------------------------------------------------
-##      Baseline	Baseline	     		 report_baseline
+##      Baseline	  Baseline	     		       report_baseline
 ##      Boolean     Include Relationships    includeRelationships
 ##      Boolean     Include Version Comments report_showComment
 ##      Boolean     Show Finished Text       report_showFinText
-##      Boolean     Exclude Status Field     report_excludeStatus##
+##      Boolean     Exclude Status Field     report_excludeStatus
 ##    
 ##
 ## ======================================================================================================================
@@ -203,11 +224,9 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## Report Parameters
 ##-------------------------------------------
 
-#set($baseDocNodes = [] )
-#set( $baseData = [])
+#set($baseData = [])
 #set($deleted = [] )
 #set($docList = [] )
-#set($dnIdList = [])
 #set($allActives = [])
 #set($found = 'no')
 #set($count=0)
@@ -253,7 +272,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 612 pt is equivalant to 8.5"
 #set ($maxPageWidth = 468) ##
 #set ($maxPageHeight = 612) ##
-#set( $maxImageWidth = 400)
+#set( $maxImageWidth = 250) ## Keep maxImageWidth below 300 so that an image that is 
+## taller than wider does not split table across more than 2 pages in the landscape layout ## 
 ##
 
 #set( $tableRefNum = 0) ## 'doc' Counter -> Tables
@@ -285,11 +305,10 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
   	##set( $primaryFont = "Helvetica")
 #end
 
-##set( $primaryFontSize = "10.5pt")
 #set( $primaryFontSize = "10pt")
-#set( $h1FontSize = "16pt")
-#set( $h2FontSize = "13pt")
-#set( $h3FontSize = "12pt")
+#set( $h1FontSize = "12pt")
+#set( $h2FontSize = "11pt")
+#set( $h3FontSize = "11pt")
 #set( $h4FontSize = "11pt")
 #set( $h5FontSize = "11pt")
 #set( $h6FontSize = "11pt")
@@ -1045,7 +1064,7 @@ h1
   mso-style-unhide:no;
   mso-style-qformat:yes;
   mso-style-next:Normal;
-  margin:12pt 0pt 3pt .3in;
+  margin:2pt 0pt 2pt .3in;
   text-indent:-.3in;
   mso-pagination:widow-orphan lines-together;
   page-break-after:avoid;
@@ -1053,12 +1072,13 @@ h1
   mso-list:l0 level1 lfo1;
   font-size:${h1FontSize};
   mso-font-kerning:0pt;
-  font-weight:normal;}
+  font-weight:bold;
+text-transform:uppercase;}
 h2
   {mso-style-priority:9;
   mso-style-qformat:yes;
   mso-style-next:Normal;
-  margin:6pt 0pt 3pt .4in;
+  margin:2pt 0pt 2pt .4in;
   text-indent:-.4in;
   mso-pagination:widow-orphan lines-together;
   page-break-after:avoid;
@@ -1561,7 +1581,7 @@ div.WordSectionPortrait
 @page WordSectionLandscape
   {size:11.0in 8.5in;
   mso-page-orientation:landscape;
-  margin:1.0in 0.5in 1.0in .5in;
+  margin:0.5in 0.5in 0.5in .5in;
   mso-header-margin:.5in;
   mso-footer-margin:.5in;
   mso-title-page:yes;
@@ -1706,20 +1726,22 @@ p.error
 {margin-bottom:.0001pt;
 color:red;}
 h1
-{margin:12pt 0pt 3pt .3in;
+{margin:2pt 0pt 2pt .3in;
 text-indent:-.3in;
 page-break-after:avoid;
 page-break-inside:avoid;
 font-size:${h1FontSize};
-##color:#2F5496;
-font-weight:normal;}
+/*color:#2F5496;*/
+
+  font-weight:bold;
+text-transform:uppercase;}
 h2 
-{margin:6pt 0pt 3pt .4in;
+{margin:2pt 0pt 2pt .4in;
 text-indent:-.4in;
 font-size:${h2FontSize};
 page-break-after:avoid;
 page-break-inside:avoid;
-##color:#2F5496;
+/*color:#2F5496;*/
 font-weight:normal;}
 h3 
 {margin:6pt 0pt 3pt .5in;
@@ -1727,7 +1749,7 @@ text-indent:-.5in;
 font-size:${h3FontSize};
 page-break-after:avoid;
 page-break-inside:avoid;
-##color:#1F3763;
+/*color:#1F3763;*/
 font-weight:normal;}
 h4 
 {margin:6pt 0pt 3pt .6in;
@@ -1736,7 +1758,7 @@ font-size:${h4FontSize};
 font-style:italic;
 page-break-after:avoid;
 page-break-inside:avoid;
-##color:#2F5496;
+/*color:#2F5496;*/
 font-weight:normal;}
 h5 
 {margin:6pt 0pt 3pt .7in;
@@ -1744,7 +1766,7 @@ text-indent:-.7in;
 font-size:${h5FontSize};
 page-break-after:avoid;
 page-break-inside:avoid;
-##color:#2F5496;
+/*color:#2F5496;*/
 font-weight:normal;}
 h6 
 {margin:6pt 0pt 3pt .8in;
@@ -1752,14 +1774,14 @@ text-indent:-.8in;
 font-size:${h6FontSize};
 page-break-after:avoid;
 page-break-inside:avoid;
-##color:#1F3763;
+/*color:#1F3763;*/
 font-weight:normal;}
 p.MsoHeading7, li.MsoHeading7, div.MsoHeading7
 {margin:6pt 0pt 3pt .8in;
 text-indent:-.8in;
 page-break-after:avoid;
 font-size:12.0pt;
-##color:#1F3763;
+/*color:#1F3763;*/
 font-weight:normal;}
 p.MsoTitle, li.MsoTitle, div.MsoTitle
 {margin:0pt;
@@ -2060,7 +2082,7 @@ page-break-before: always;
 .TOF_table-of-figures-item {
   font-family:"${primaryFont}",sans-serif !important;
   font-size:10pt !important;
-  padding: 0 !important!;
+  padding: 0 !important;
   overflow:hidden !important;
   width:90% !important;
 }
@@ -2452,43 +2474,76 @@ td.TableCell
 #########################################################################################################################
 ##          Macro: getBaselineRelationships
 ##          Input: $orginDocId - ID of a current item
-##                 $baselineId - ID of a baseline       
-##          Creates: $returnBaselineRels - list of relationships with sub-elements of "fromItem" and "toItem" each of type 
-##                   item
+##                 $baselineId - ID of a baseline   
+##                 $inDoc - current item
+##                 $inDownstream - true provides downstream relationships, false provides upstream relationships    
+##          Creates: $returnBaselineRels list of upstream Or downstream baseline relationships 
 #########################################################################################################################
-#macro( getBaselineRelationships $orginDocId $baselineId )
+#macro( getBaselineRelationships $orginDocId $baselineId $inDoc $inDownstream )
   #set( $start = 0 )
   #set( $count = 20 )
   #set( $versionedRelationships = [] )
   #set( $returnBaselineRels = [])
   #set( $pageSize = 20)
-##
+  #set( $relatedIds = [] )
+  ##
   #set($baseRelsPage = $velocityServiceWrapper.getRelationships($orginDocId,$baselineId,$start,$count))
-##
+  ##
   #set( $totalRels = [])
   #set( $totalRels = $baseRelsPage.getPageInfo().getTotalResults())
-  ##DEBUG BASELINE RELATIONSHIP PAGE INFO: $baseRelsPage.getPageInfo()
-  ##DEBUG BASELINE RELATIONSHIP COUNT: $baseRelsPage.getPageInfo().getTotalResults()
+  ## DEBUG Baseline Page Info: $baseRelsPage.getPageInfo() <br><br>
+  ## DEBUG Baseline Relationship Count: $baseRelsPage.getPageInfo().getTotalResults()<br><br>
+  ## DEBUG Baseline Results: $baseRelsPage.getResults() 
+
   #if( $totalRels && $totalRels > 0)
     #set( $page_count = $mathTool.floor($mathTool.div($totalRels,$pageSize)) )
     #foreach( $page in [0..$page_count])
-      #set($baseRelsPage = $velocityServiceWrapper.getRelationships($orginDocId,$baselineId,$start,$count))
-      ##DEBUG BASELINE RELATIONSHIPS: $baseRelsPage.getResults()
-      #set( $addIsSuccessful = $versionedRelationships.addAll($baseRelsPage.getResults()))
+      #set( $baseRelsPage = $velocityServiceWrapper.getRelationships($orginDocId,$baselineId,$start,$count))
+      #set( $baseRelsPageResults = $baseRelsPage.getResults())
+
+      #if( $baseRelsPageResults )
+       #set( $success = $versionedRelationships.addAll($baseRelsPageResults ))
+      #end 
+
       #set( $start = $start + $count)
+
     #end
   #end
-##
+  ##
   #foreach( $versionedRelationship in $versionedRelationships )
-    #set( $fromItemId = $versionedRelationship.getFromItem().getValue().get(0) )
-    #set( $fromItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
-    #set( $fromItem = $velocityServiceWrapper.getItem($fromItemId , $fromItemVersion) )
-    #set( $toItemId = $versionedRelationship.getToItem().getValue().get(0) )
-    #set( $toItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
-    #set( $toItem = $velocityServiceWrapper.getItem($toItemId , $toItemVersion) )
-    #set( $return = $returnBaselineRels.add({"fromItem":$fromItem,"toItem":$toItem}) )
+    #if( $inDownstream ) ## Get Downstream Relationships
+      #set( $upItemId = $versionedRelationship.getFromItem().getValue().get(0) )
+      #set( $upItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
+      #set( $upDoc = $documentSource.getItem($upItemId, $upItemVersion) ) ## necessary to get by version
+
+      #if( $inDoc.id == $upItemId ) 
+        #set( $dnItemId = $versionedRelationship.getToItem().getValue().get(0) )
+        #set( $dnItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
+        #set( $dnDoc = $velocityServiceWrapper.getItem($dnItemId, $dnItemVersion) )
+        #if( !$relatedIds.contains($dnDoc.id) )
+          #set( $success = $relatedIds.add($dnDoc.id) )
+          #set( $success = $returnBaselineRels.add( {"fromDocument":$inDoc,"toDocument":$dnDoc} ) )
+        #end
+      #end 
+
+    #else
+      #set( $dnItemId = $versionedRelationship.getToItem().getValue().get(0) )
+      #set( $dnItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
+      #set( $dnDoc = $documentSource.getItem($dnItemId, $dnItemVersion) ) ## necessary to get by version
+
+      #if( $inDoc.id == $dnDoc.id ) ## Get Upstream Relationships
+        #set( $upItemId = $versionedRelationship.getFromItem().getValue().get(0) )
+        #set( $upItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
+        #set( $upDoc = $documentSource.getItem($upItemId, $upItemVersion) )
+        #if( !$relatedIds.contains( $upDoc.id) )
+          #set( $success = $relatedIds.add( $upDoc.id) )
+          #set( $success = $returnBaselineRels.add( {"fromDocument":$upDoc,"toDocument":$inDoc} ) )
+        #end
+      #end
+
+    #end 
   #end
-##
+
 #end
 #########################################################################################################################
 ##
@@ -2503,33 +2558,15 @@ td.TableCell
 #########################################################################################################################
 #macro( getRelationships $inDoc $inDownstream )
   #set( $returnRels = [] )
-  #if( $baselineMode )
-    #if( $baselineId )
+
+  #if( $baselineMode && $baselineId )
       #set( $currentVersion = $inDoc.currentVersion )
       #set( $orginDocId = $currentVersion.originDocument.id )
-      #set( $relatedIds = [] )
-      #getBaselineRelationships( $orginDocId, $baselineId ) ## Creates $returnBaselineRels
-      #foreach ( $rel in $returnBaselineRels )
-        #set($dnDoc = $rel.toItem)
-        #set($upDoc = $rel.fromItem)
-        #if( $inDownstream )  ## Get Downstream Relationships
-          #if( $upDoc.id == $inDoc.id )
-            #if( !$relatedIds.contains($dnDoc.id) )
-              #set( $success = $relatedIds.add($dnDoc.id) )
-              #set( $success = $returnRels.add( {"fromDocument":$upDoc,"toDocument":$dnDoc} ) )
-            #end
-          #end
-        #else                 ## Get Upstream Relationships
-          #if( $dnDoc.id == $inDoc.id )
-            #if( !$relatedIds.contains($upDoc.id) )
-              #set( $success = $relatedIds.add($upDoc.id) )
-              #set( $success = $returnRels.add( {"fromDocument":$upDoc,"toDocument":$dnDoc} ) )
-            #end
-          #end
-        #end
-      #end
-    #end
+      #getBaselineRelationships( $orginDocId, $baselineId, $inDoc, $inDownstream ) ## Creates $returnBaselineRels
+      ##DEBUG $returnBaselineRels
+      #set( $returnRels = $returnBaselineRels )
   #else
+
     #set( $rels = [] )
     #set ( $rels = $relDao.getRelationshipsForDocument($inDoc.id, $inDownstream) )
     #foreach( $rel in $rels )
@@ -2639,12 +2676,15 @@ td.TableCell
       #set( $imgString = ( $sText.substring( $mathTool.toInteger($x), $mathTool.toInteger($end))))
       #### Debug: $imgString
       #set( $srcStart = $imgString.indexOf("src="))
-      #set( $srcStart = $srcStart + 5)
-      #set( $srcEnd = $imgString.indexOf('"', $srcStart))
-      #set($imgSrc = $imgString.substring( $srcStart, $srcEnd ))
-      #if( $imgString.indexOf( $baseUrl) > -1 && $imgString.indexOf( "blob:http") == -1)
-        #set( $success = $findSourceMHTMLReturn.add( $imgSrc))
-      #end
+      #if( $srcStart > -1)
+        #set( $srcStart = $srcStart + 5)
+        #set( $srcEnd = $imgString.indexOf('"', $srcStart))
+        #set($imgSrc = $imgString.substring( $srcStart, $srcEnd ))
+        #set($imgSrc = $imgSrc.replaceAll("\?dpi.*$", ""))
+        #if( $imgString.indexOf( $baseUrl) > -1 && $imgString.indexOf( "blob:http") == -1)
+          #set( $success = $findSourceMHTMLReturn.add( $imgSrc))
+        #end
+      #end 
     #end
   #end
 #end
@@ -3287,21 +3327,21 @@ td.TableCell
 				## - PDF img and figcaption $replace handling: One of the following macros will 
 				##		                  set $replace accordingly with the base64 of that img.
 				#######################################################################################
-				#elseif( $format == "pdf") 
+				#elseif( $format == "pdf" || $format == "html") 
+					## FOR BASELINE TO CURRENT COMPARE ALL IMGS OUTPUT TO TABLE FORMAT AS SUCH ##
+					##if( $find.contains("equation"))
+						##formatEquation_PDF( $imgIndex $targetWidth $imageBase64s $imgAlignMargin )
 					
-					#if( $find.contains("equation"))
-						#formatEquation_PDF( $imgIndex $targetWidth $imageBase64s $imgAlignMargin )
-					
-					#elseif( $imgInTable ) 
+					##elseif( $imgInTable ) 
 						#formatImgInTable_PDF( $imgIndex $targetWidth $imageBase64s ) 
 
-					#elseif( $imgInFigure )
-						#formatFigWithCaptions_PDF( $imgIndex $targetWidth $imageBase64s $imgAlignMargin $figCapAlign $figCaptionContent )
+					##elseif( $imgInFigure )
+						##formatFigWithCaptions_PDF( $imgIndex $targetWidth $imageBase64s $imgAlignMargin $figCapAlign $figCaptionContent )
 			
-					#else 
-						#formatImgWithOptionForCaptions_PDF( $imgIndex $targetWidth $imageBase64s $imgAlignMargin $figCapAlign )    
+					##else 
+						##formatImgWithOptionForCaptions_PDF( $imgIndex $targetWidth $imageBase64s $imgAlignMargin $figCapAlign )    
 
-					#end 
+					##end 
 				#end 
 		   	
 		        ########################################################################################
@@ -3742,15 +3782,16 @@ $string
 #set( $string = $inString )
 ## Remove divs for pdf so that there are no unexpected formatting containers
 #set( $string = $string.replaceAll("<div.*?>|<\/div>", ""))
-### COMMENTED OUT FOR FORMAT TESTING ## 
-## clear all span satements to remove character formatting
+#set( $string = $string.replaceAll("<p>&nbsp;</p>", ""))
+## clear all span satements to remove character formatting 
 ##set( $string = $string.replaceAll("<span.*?>",""))
 ##set( $string = $string.replaceAll("<\/span>",""))
 ## clear all embedded headings from rich text fields
 #set( $string = $string.replaceAll("<h\d*?.*?>","<p><strong>"))
 #set( $string = $string.replaceAll("<\/h\d*?>","</strong></p>"))
 ## remove any empty image strings
-#set( $string = $string.replaceAll("<img alt=[\x27\x22][\x27\x22] />", ""))
+#set( $string = $string.replaceAll("<img alt=[\x27\x22][\x27\x22] \/>", ""))
+#set( $string = $string.replaceAll("<img \/>",""))
 ## replace Micro aka Legacy Symbol to prevent overlapping characters, issue with pdf
 #set( $string = $string.replaceAll("µsec", "&mu;sec"))
 #if( $format == 'pdf')
@@ -4437,6 +4478,69 @@ $string
     $string
   #end
 #end
+
+#########################################################################################################################
+##          Macro: getBaselineItems
+##          Input: $baselineId
+##          Desc: - Velocity has a recursion depth limit of 20 requiring a unique indirect baseline extraction 
+##                  macro calling system based on the total number of baseline items. 
+##                - This caller macro determines the number of #extractBaselineItems() calls to make based on 
+##                  the total number of baseline items we plan to extracted via the supplied baseline id. 
+##                - Baselines hold 50 items per baseline page which is what is extracted per each call of the 
+##                  #extractBaselineItems() macro. 
+##                - Reaching the #getBaselineItems() macro equates to 2 depth traversals #createBody() -> #getBaselineItems()
+##                  meaning we only can pull at most (18 valid recursive cycles * 50 items per baseline page == 800 baseline 
+##                  items per call of the #extractBaselineItems() macro.
+##                - This macro determines the number of primary calls we will make to the #extractBaselineItems() macro in order
+##                  to track and ensure that we never breach the Velocity recursion depth of 20 ensuring we can extract all
+##                  baseline items as expected.
+##                - This is managed by the $recursionDepth variable which at it's base accounts for our already 2 level depth + 1
+##                  to ensure we are always 1 under the Velocity limit (i.e prevent an error). 
+##                - This variable is additionally incremented with the number of extraction call cycles that must take place
+##                  to ensure that we can extract at least 800 items per call without hitting the depth error.
+#########################################################################################################################
+#macro( getBaselineItems $baselineId) 
+
+  #set($baselineItems = [])
+
+ 
+
+  #set($extractedBaselineItems = [])
+  #set($baselineTotalItems = $mathTool.toDouble($documentSource.getContourItemDTOsForBaseline($baselineId, 0, 1, 'sequence ASC').getPageInfo().getTotal()))
+  #set($extractionCalls = $mathTool.ceil($mathTool.toDouble($baselineTotalItems / 50.0)))
+
+  #foreach($cycle in [1..$extractionCalls])
+    #set($pageIndex = $extractedBaselineItems.size())  
+    #set($baselinePagedResults = $documentSource.getContourItemDTOsForBaseline($baselineId, $pageIndex, 50, 'sequence ASC') )
+    #set($success = $extractedBaselineItems.addAll($baselinePagedResults.results))
+
+    #if($extractedBaselineItems.size() == $baselineTotalItems)
+      #break
+    #end
+  #end
+
+ 
+
+  ## Extract Baseline Items Sequence Value and create object key value pair mapping structure
+  #set($baselineItemSortPairs = [])
+  #foreach($baselineItem in $extractedBaselineItems)
+    #set($docNode = $documentSource.getDocumentNodeForBaseLine(5, $mathTool.toInteger($baselineItem.id), $mathTool.toInteger($baselineId)))
+
+    #set($success = $baselineItemSortPairs.add({"BaselineItem": $baselineItem, "SortOrder": $docNode.globalSortOrder}))
+  #end
+
+ 
+
+  ## Sort constructed mapping structure by item sequence values and store into new baseline item list to ensure baseline list is in proper order
+  #foreach($seqSortedItemObj in $sortTool.sort($baselineItemSortPairs, "SortOrder"))
+    #set($baselineItemSorted = $seqSortedItemObj.get("BaselineItem"))
+    #set($success = $baselineItems.add($baselineItemSorted))
+  #end
+
+ 
+#end
+
+
 #########################################################################################################################
 ## **********************************************************************************************************************
 ##
@@ -4575,15 +4679,18 @@ $string
 #end 
 
 <h2 style='text-align:left !important;'>
-	#set( $lk = "")
-	#createLink( $baseDoc.currentVersion.originDocument, $baseDoc.currentVersion.versionNumber.toString())
+	  #set( $lk = "")
+    #createLink( $baseDoc.currentVersion.originDocument, $baseDoc.currentVersion.versionNumber.toString())
 	#set( $lk = $createLinkReturn)
+	#set( $baseName = $baseDoc.name)
+	#encodeText( $baseName)
+	#set( $baseName = $encodeTextReturn)
     <a style='font-size:12pt !important;' href="$!lk">$baseDoc.documentKey</a> 
-    $baseDoc.name
+    $baseName
 </h2>
 
 
-<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0 align=left width='100%' style='width:100%;border-collapse:collapse;border:none;margin:0 !important;overflow-wrap:break-word !important;'>
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0 align=left width='100%' style='width:100%;border-collapse:collapse;border:none;margin:0 !important;overflow-wrap:break-word !important;margin-bottom:5pt !important;'>
 	<thead>
 		<tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
 			<td width="9%" valign=top style='width:10%;border:solid windowtext 1.0pt;
@@ -4639,7 +4746,12 @@ $string
 #if( $b != "testCaseSteps" && $b != "testRunSteps" )
   
   #if( $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat))
-    #formatTableCell( $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat), "left", 130)
+      #if( $report_showFinText == false)
+        #set( $imageWid = $maxImageWidth)
+      #else
+        #set( $imageWid = 175)
+      #end
+    #formatTableCell( $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat), "left", $imageWid)
   #end ##if( $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat))
 #elseif( $b == "testCaseSteps" || $b == "testRunSteps")
   #set($i = 1)
@@ -4649,7 +4761,6 @@ $string
     #set( $steps = $baseDoc.testRunSteps)
   #end
   
-  ##foreach($baseTS in $baseDoc.testCaseSteps)
   #foreach($baseTS in $steps)
     <p class="MsoNormal" style='margin-left:0in'><b>$i.</b> 
     #if( $baseTS.action.length() > 0)  
@@ -4657,6 +4768,7 @@ $string
       #set( $print = "")
       #set( $print = $baseTS.action)
       #set( $print = "#convertFigures($print, 150)" )
+      #set( $print = "#formatText($print)")
       $!print
     #end ##if( $baseTS.action.length() > 0)  
     </p>
@@ -4666,6 +4778,7 @@ $string
       #set( $print = "")
       #set( $print = $baseTS.expectedResult)
       #set( $print = "#convertFigures($print, 150)" )
+      #set( $print = "#formatText($print)")
       $!print
     #end ##if( $baseTS.expectedResult.length() > 0) 
     </p>
@@ -4675,10 +4788,11 @@ $string
       #set( $print = "")
       #set( $print = $baseTS.notes)
       #set( $print = "#convertFigures($print, 150)" )
+      #set( $print = "#formatText($print)")
       $!print
     #end ##if( $baseTS.notes.length() > 0) 
     </p>
-	#if( $b == "testRunSteps")
+    #if( $b == "testRunSteps")
 		<p class="MsoNormal" style='margin-left:8pt'><b>Result:</b> 
 		#if( $baseTS.result.length() > 0) 
 		  ##$baseTS.result 
@@ -4734,9 +4848,9 @@ $string
       #set( $print = "")
       #set( $print = $diffService.getDiff($beforeVal, $afterVal))
       #if( $report_showFinText == false)
-        #set( $imageWid = $maxImageWidth)
+        #set( $imageWid = 250)
       #else
-        #set( $imageWid = 200)
+        #set( $imageWid = 175)
       #end
       #set( $print = "#convertFigures($print, $imageWid)" )
 	  #set( $print = $print.replaceAll("<h\d>", "<strong><p class=MsoNormal>"))
@@ -4854,21 +4968,21 @@ $string
 				#set($afterStepText =
 				"<p class='MsoNormal' style='margin-left:0in'><b>"+ $i +
 				".</b> ")
-			#end ##if( $i <= $activeSteps.size() )
+			#end ##if( $i <= $activeSteps.size() ) ##>
 		#end
 	#end ##foreach( $i in $stepNum )
 	
 #end
 #########################################################################################################################
 ##          buildRelationshipCounts 
-##          Input: $activeId
+##          Input: $baseDoc $activeDoc $r1
 ##          Return: $uniqueBase1Rels $uniqueActiveRels $base1RelsSize $activeRelsSize $relsMatch 
 ##                  $removedRelationship $addedRelationship 
 #########################################################################################################################  
-#macro( buildRelationshipCounts $activeId ) 
+#macro( buildRelationshipCounts $baseDoc $activeDoc $r1) 
   ##Get relationship changes
-  #set($start = 0)
-  #set($count = 20)
+  #set( $start = 0)
+  #set( $count = 20)
   #set( $pageSize = 20)
  
   #set( $base1RelsPage = [])
@@ -4885,24 +4999,27 @@ $string
   #set( $addedRelationship = [] ) 
   #set( $removedRelationship = [] )
 
-  ##Baseline id: $r1, item id: $baseDoc.id, Origin Doc: $orginDoc.id
-  ##Active id:  $activeId, BaseDoc: $baseDoc.id<br>
+  #set($activeId = $activeDoc.id)
+
+  ##Baseline id: $r1, $baseDoc.currentVersion.versionNumber
+  ##Active id:  $activeId, $activeDoc.currentVersion.versionNumber<br>
 
   #set($activeRelsDown = $relDao.getRelationshipsForDocument($activeId, true))
   #set($activeRelsUp = $relDao.getRelationshipsForDocument($activeId, false))
 
-  #set($base1RelsPage = $documentSource.getRelationships($activeId,$mathTool.toInteger( $report_baseline),$start,$count))
+  #set($base1RelsPage = $documentSource.getRelationships($baseDoc.currentVersion.originDocument.id,$r1,$start,$count))
   #set( $totalRels1 = [])
   #set( $totalRels1 = $base1RelsPage.getPageInfo().getTotalResults())
 
   #if( $totalRels1)
       #set( $page_count = $mathTool.floor($mathTool.div($totalRels1,$pageSize)) )
       #foreach( $page in [0..$page_count])
-          #set($base1RelsPage = $documentSource.getRelationships($activeId,$mathTool.toInteger( $report_baseline),$start,$count))
-          #if( $base1RelsPage.getResults())
-              ##Base1: $base1RelsPage.getResults()
-              #set( $addIsSuccessful = $base1Rels.addAll( $base1RelsPage.getResults()) )
-          #end
+          #set($base1RelsPage = $documentSource.getRelationships($baseDoc.currentVersion.originDocument.id,$r1,$start,$count))
+          #set( $base1PageResults = $base1RelsPage.getResults())
+
+          #if( $base1PageResults )
+            #set( $addIsSuccessful = $base1Rels.addAll( $base1PageResults))
+          #end 
           #set( $start = $start + $count)
       #end
   #end
@@ -5016,47 +5133,34 @@ $string
     <tr>
       <td rowspan='2' width="9%" valign=top style='width:9.84%;border-top:none;border-left:
       solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
-        <p class=MsoNormal style='margin-bottom:0in;line-height:normal;'>Relationships</p>
+      Relationships
       </td>
       <td valign=top style='width:${cellWidth}%;border-top:none;border-left:
       none;border-bottom:solid #404040 1.0pt;border-right:solid windowtext 1.0pt;
       mso-border-top-alt:solid windowtext .5pt;background:#D9D9D9;padding:0in 5.4pt 0in 5.4pt'>
-        <p class=MsoNormal style='margin-bottom:0in;line-height:normal;'>
-
+       
         #set( $baselineVersion = "")
-        ##set( $baselineVersion = "Baselined Item v")
-        ##set( $baselineVersion = $baselineVersion.concat( $bVer.versionNumber))
-		#set( $baselineVersion = "<b>Baselined Item v" + $bVer.versionNumber.toString() + "</b>")
+		    #set( $baselineVersion = "<b>Baselined Item v" + $bVer.versionNumber.toString() + "</b>")
         #formatTableCell( $baselineVersion, "left", 30)
-        </p>
       </td>
-
-
 
       <td width="38%" valign=top style='vertical-align:top;width:38.06%;border-top:none;border-left:
       none;border-bottom:solid #404040 1.0pt;border-right:solid windowtext 1.0pt;background:#D9D9D9 !important;padding:0in 5.4pt 0in 5.4pt'>
-      <p class=MsoNormal style='line-height:normal;vertical-align:top'><b>Added and Removed Relationships</b></p>
+     <b>Added and Removed Relationships</b>
       </td>
-
-
 
       <td valign=top style='width:${cellWidth}%;border-top:none;border-left:
       none;border-bottom:solid #404040 1.0pt;border-right:solid windowtext 1.0pt;
       mso-border-top-alt:solid windowtext .5pt;background:#D9D9D9;padding:0in 5.4pt 0in 5.4pt'>
-        <p class=MsoNormal style='margin-bottom:0in;line-height:normal;'>
-
         #set( $currentVersion = "")
-        ##set( $currentVersion = "<b>Current Item v")
-        ##set( $currentVersion = $currentVersion.concat( $aVer.versionNumber))
-		#set( $currentVersion = "<b>Current Item v" + $aVer.versionNumber.toString() + "</b>")
+		    #set( $currentVersion = "<b>Current Item v" + $aVer.versionNumber.toString() + "</b>")
         #formatTableCell( $currentVersion, "left", 30)
-        </p>
       </td>
     </tr>
     <tr>
       <td valign=top style='width:${cellWidth}%;border-top:none;border-left:
       none;border-bottom:solid #404040 1.0pt;border-right:solid #404040 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
-      <p class=MsoNormal style='margin-bottom:0in;line-height:normal;'>
+
       #foreach( $versionedRelationship in $uniqueBase1Rels )
         #set( $base1ID = $versionedRelationship.id.toString())
         #set($fromItemId = $versionedRelationship.getFromItem().getValue().get(0))
@@ -5077,11 +5181,15 @@ $string
         #set( $toDocumentKey = $toItem.documentKey )
 
         #if( $removedRelationship.contains( $base1ID ))
-          ##set( $rel1String = $rel1String.concat("$!fromName ($fromDocumentKey) &#8594; $!toName ($toDocumentKey)<br>") )
-          #set( $rel1String = "$!fromName ($fromDocumentKey) &#8594; $!toName ($toDocumentKey)<br>")
+          ##set( $rel1String = $rel1String.concat("$fromName ($fromDocumentKey) &#8594; $toName ($toDocumentKey)<br>") )
+          #set( $rel1String = "$fromName ($fromDocumentKey) &#8594; $toName ($toDocumentKey)<br>")
 		  #set( $success = $rel1Strings.add( $rel1String))
 		#end 
-
+		
+		
+        #*&#8226; <a href="perspective.req?projectId=$fromItem.project.id&docId=$fromItem.id">$!fromName ($!fromDocumentKey)</a>
+        &#8594; <a href="perspective.req?projectId=$toItem.project.id&docId=$toItem.id">$!toName ($!toDocumentKey)</a>*#
+		
 		#set( $lk = "")
 		#createLink( $fromItem false)
 		#set( $lk = $createLinkReturn)
@@ -5093,7 +5201,7 @@ $string
         &#8594; <a href="$lk">$!toName ($!toDocumentKey)</a>
       <br><br>
       #end
-      </p>
+
       </td>
 
       #foreach( $rel in $uniqueActiveRels )   
@@ -5135,7 +5243,7 @@ $string
 
       <td valign=top style='width:${cellWidth}%;border-top:none;border-left:
       none;border-bottom:solid #404040 1.0pt;border-right:solid #404040 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
-        <p class=MsoNormal style='margin-bottom:0in;line-height:normal;'>
+
 
         #foreach( $rel in $uniqueActiveRels )   
           #set( $activeID = $rel.id.toString())                     
@@ -5151,7 +5259,10 @@ $string
           #set( $fromDocumentKey = $fromItem.documentKey )
           #set( $toDocumentKey = $toItem.documentKey )
 
-			#set( $lk = "")
+          #*&#8226; <a href="perspective.req?projectId=$fromItem.project.id&docId=$fromItem.id">$!fromName ($!fromDocumentKey)</a>
+          &#8594; <a href="perspective.req?projectId=$toItem.project.id&docId=$toItem.id">$!toName ($!toDocumentKey)</a>*#
+		  
+ 		    #set( $lk = "")
 			#createLink( $fromItem false)
 			#set( $lk = $createLinkReturn)
           &#8226; <a href="$lk">$!fromName ($!fromDocumentKey)</a>
@@ -5161,7 +5272,7 @@ $string
           &#8594; <a href="$lk">$!toName ($!toDocumentKey)</a>
           <br> <br>
         #end ##foreach( $versionedRelationship in $uniqueActiveRels )
-      </p>
+
       </td>
     </tr>
   #end ##if( $relsMatch == false)
@@ -5311,20 +5422,19 @@ $string
 #end 
 #########################################################################################################################
 ##          formatAddedItems
-##          Input:  $baseData $allActives $dnIdList
+##          Input:  $baseData $allActives
 ##          Return: Added Items section 3.0 formatted for Word or PDF
 #########################################################################################################################
-#macro(formatAddedItems $baseData $allActives $dnIdList )
+#macro(formatAddedItems $baseData $allActives )
 
 #set( $addedDocs = [] ) 
 <h1 style='page-break-after:avoid;page-break-before:always !important;text-align:left !important;'>Added Items</h1>
 
 #if( $allActives.size() > 0 )
-
   #if(( $baseData.scopeId != 8 ) && ( $baseData.scopeId != 14 ))
     #foreach($aa in $allActives)
       #set($cDoc = $documentSource.getDocument($aa))
-      #if( !$dnIdList.contains($aa) && $cDoc.active )
+      #if( !$baselineIds.contains($cDoc.globalId) && $cDoc.active )
         #set( $success = $addedDocs.add($cDoc))
       #end 
     #end 
@@ -5339,12 +5449,12 @@ $string
 
     #foreach($cDoc in $addedDocs)
         <h2>
-			#set( $lk = "")
+          #set( $lk = "")
 			#createLink( $cDoc.currentVersion.originDocument, $cDoc.currentVersion.versionNumber.toString())
 			#set( $lk = $createLinkReturn)
 			#encodeText( $cDoc.name)
 			#set( $docName = $encodeTextReturn)
-            <a style='font-size:12pt !important;' href="$!lk">$cDoc.documentKey</a> $docName ##$cDoc.name
+            <a style='font-size:12pt !important;' href="$!lk">$cDoc.documentKey</a> $docName
         </h2>
 
         
@@ -5360,7 +5470,7 @@ $string
 				<p class=MsoNormal style='margin-left:0in'>
 				  <b>Description</b>
 				</p>
-				#if( $cDoc.description) #formatTableCell( $cDoc.description, "left", 650) #end
+				#if( $cDoc.description) #formatTableCell( $cDoc.description, "left", 250) #end
 			</td>
 		  </tr>
 		  #end
@@ -5376,7 +5486,7 @@ $string
 
               ##CDocId: $cDoc.id, AA: $aa Start: $start, Count: $count, B2: $r2<br>
 			  ##Get current relationships for newly added items, so get all of it's related items
-              #set($addedUpRels = $documentSource.getRelationshipsForDocument($cDoc.id,false))
+			  #set($addedUpRels = $documentSource.getRelationshipsForDocument($cDoc.id,false))
 			  #set($addedDownRels = $documentSource.getRelationshipsForDocument($cDoc.id,true))
 
 			  #set( $addedRels = [])
@@ -5427,7 +5537,9 @@ $string
 #end 
 
 #end ##end macro
-#######################################################################################################################
+
+##
+######################################################################################################################
 #macro( encodeText $textToClean)
 	
 	#set( $encodeTextReturn = "")
@@ -5441,7 +5553,6 @@ $string
 		#set($encodeTextReturn = $textToClean)
 	#end
 #end
-##
 ##
 #########################################################################################################################
 ##  5.3 BODY_MACRO - Creates the body of the report
@@ -5467,23 +5578,15 @@ $string
 #end ##
  ##
 
-#set( $baseDocIds= [])
-#foreach( $docId in $baselineSource.getDocumentIds($r1))
-	#set($docNode1=$documentSource.getDocumentNodeForBaseLine( 5, $docId, $r1))
-	#if($docNode1.scopeId == 5)
-		#if( $baseDocNodes.add($docNode1))#end
-		#getFields( $documentSource.getDocument($docNode1.refId))
-		##build baseOrgIds here instead of lower because need to stay in order (if have test runs, etc.)
-		#if($baseOrgIds.add($documentSource.getVersionByDocumentId($docNode1.refId).originDocument.id))#end
-		#if( $baseDocIds.add($docId)) #end
-	#elseif( !$docNode1)
-		##test run, cycle, etc.
-		##getFields( $documentSource.getDocument($docId))
-		#getFields($documentSource.getVersionByDocumentId($docId).document)
-		##build baseOrgIds here instead of lower because need to stay in order
-		#if($baseOrgIds.add($documentSource.getVersionByDocumentId($docId).originDocument.id))#end
-		#if( $baseDocIds.add($docId)) #end
-	#end ##if($docNode1.scopeId == 5)
+
+
+#################### extract selected baseline items #################
+#getBaselineItems($r1) ## returns $baselineItems
+#set($baselineIds = [])
+
+#foreach($baselineItem in $baselineItems)
+  #getFields($baselineItem)
+  #set($success = $baselineIds.add($baselineItem.globalId))
 #end
 
 #################### get data about first baseline #################
@@ -5491,7 +5594,7 @@ $string
 
 #################### if first baseline created from release, go get all current versions for said release #################
 #if($baseData.scopeId == 9)
-    #set($firstItem = $documentSource.getDocument($baseDocNodes.get(0).refId))
+    #set($firstItem = $documentSource.getDocument($baselineItems.get(0).refId))
     #foreach($r in $releaseSource.getDocumentsForRelease( $firstItem.release.id ) )
         #if( $allActives.add($r.id))#end
     #end
@@ -5764,7 +5867,7 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
   mso-border-right-alt:solid #BFBFBF .5pt;$!tdPadding;
   height:17.5pt'>
   <p class=MsoNormal style='margin-bottom:0in;line-height:normal'><span
-  style='font-size:10.0pt'>Created By: $!userSource.getUserFullName( $mathTool.toInteger($baseData.createdBy))</span></p>
+  style='font-size:10.0pt'>Created By: $!userSource.getUserFullName( $mathTool.toInteger($!baseData.createdBy))</span></p>
   </td>
   <td width="50%" style='width:50.0%;border:none;border-right:solid #BFBFBF 1.0pt;
   mso-border-left-alt:solid #BFBFBF .5pt;mso-border-left-alt:solid #BFBFBF .5pt;
@@ -5906,11 +6009,12 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 
   ##----  Build Section 1.0 Updated Items  ----##
 #set( $hasUpdated = false)
-  ##foreach( $node in $sortTool.sort( $baseDocNodes,"globalSortOrder") )
-  #foreach( $baseDocId in $baseDocIds)
-	  ##set($baseDoc = $documentSource.getDocument($node.refId))
-	  #set($baseDoc = $documentSource.getVersionByDocumentId($baseDocId).document)
+  #foreach( $baselineItem in $baselineItems)
+
+	  ##set( $baseDoc = $docDao.getDocument($baselineItem.id))
+	  #set($baseDoc = $documentSource.getVersionByDocumentId($baselineItem.id).document)
 	  
+	  ##set( $activeDoc = $docDao.getDocument($baseDoc.currentVersion.originDocument.id))
 	  #set( $activeDocId = $baseDoc.currentVersion.originDocument.id)
 	  ##Have to use .getDocument for regular item types because if current version, it doesn't have built-in fields.
 	  ## But can't use .getDocument for test runs, plans, cycles
@@ -5920,9 +6024,7 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 			$activeDoc.documentType.display != "Test Plan")
 		#set( $activeDoc = $documentSource.getDocument( $activeDocId) )
 	  #end
-
 	  #set( $activeId = $activeDoc.id)
-	  #set($actDN = $documentSource.getDocumentNode(5,$activeDoc.id))
   
   #################### look for containers and load active versions into list of all active version of baselined items #################
         #if(($activeDoc.documentType.display == "Set" || $activeDoc.documentType.display == "Component" || $activeDoc.documentType.display == "Folder")
@@ -5939,14 +6041,14 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
             #if( $deleted.add( $activeDoc ) )#end
             #set($relChg = true)
         #elseif(!$activeDoc.active)
-            #if( $deleted.add( $baseDoc ) )#end
+            #if( $deleted.add( $baselineItem ) )#end
         #end
 
       #set( $relsMatch = true )
 
       ##------ Check for relationships changes ------##
       #if( $includeRelationships == true)
-        #buildRelationshipCounts( $activeId ) 
+        #buildRelationshipCounts( $baseDoc $activeDoc $r1) 
         ##returns $uniqueBase1Rels $uniqueActiveRels $base1RelsSize $activeRelsSize $relsMatch $removedRelationship $addedRelationship
       #else
 		##Making it so the report thinks the relationships match (because the user doesn't care about relationships)
@@ -5956,35 +6058,34 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 	  
     #set( $bVer = $documentSource.getVersionByDocumentId( $baseDoc.id ) )
     #set( $aVer = $documentSource.getVersionByDocumentId( $activeId ) ) 
-	
+	   
     #if((( $baseDoc.id != $activeId ) && $activeDoc.active ) || ( $relsMatch == false && $activeDoc.active ) )
-		#set( $hasUpdated = true)
+		  #set( $hasUpdated = true)
+
         ##$baseDoc.documentKey Base doc: $baseDoc.id ActiveDoc: $activeDoc.id RelsMatch: $relsMatch  $activeDoc.active<br>
-         #if(!$relChg)
-			#if( $dnIdList.add( $activeDoc.id))#end
-			#set($index = $count - 1)
-			#set($spot = 0)
+      #if(!$relChg)
+  			#set($index = $count - 1)
+  			#set($spot = 0)
 
-			#formatUpdatedItemsHeader( $baseDoc $baseData )
+  			#formatUpdatedItemsHeader( $baseDoc $baseData )
 
-			##------ go through list of item types and find the one that matched the item being checked ------##
-			#set($foundChg = 0)
+  			##------ go through list of item types and find the one that matched the item being checked ------##
+  			#set($foundChg = 0)
 
-			#foreach($dl in $docList)
-				#set( $fields = $dl.docFields)
-				#set( $docTypeId = $dl.docTypeId)
-		  
-				#if( $docTypeId == $baseDoc.documentType.id )
+  			#foreach($dl in $docList)
+  				#set( $fields = $dl.docFields)
+  				#set( $docTypeId = $dl.docTypeId)
 
-					##------ once you have the item type, check field values and build comparison btwn baseDoc and activeDoc------##
+  				#if( $docTypeId == $baseDoc.documentType.id )
+  					##------ once you have the item type, check field values and build comparison btwn baseDoc and activeDoc------##
 
-					#foreach($f in $fields)
-						#set( $b = $f.fieldName)
-						
-						##if( $spot != 0 )
-							#if( ($report_excludeStatus == false) || ( $report_excludeStatus == true && $b != "status" && $b != "modifiedDate" ))
-								
-								#if( $baseDoc.documentType.display == "Test Run" || $baseDoc.documentType.display == "Test Cycle" || 
+  					#foreach($f in $fields)
+  						#set( $b = $f.fieldName)
+
+  						##if( $spot != 0 )
+  							#if( ($report_excludeStatus == false) || ( $report_excludeStatus == true && $b != "status" && $b != "modifiedDate" ))
+
+  								#if( $baseDoc.documentType.display == "Test Run" || $baseDoc.documentType.display == "Test Cycle" || 
 										$baseDoc.documentType.display == "Test Plan")
 									
 									#if( $baseDoc.documentType.display == "Test Run")
@@ -6054,62 +6155,61 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 										#encodeText( $compareName)
 										#set( $val2 = $encodeTextReturn)
 									#end
-								#end	
+								#end
 								
 								#if( $val1 != $val2)
-						
-									#set( $foundChg = 1 )
+  									#set( $foundChg = 1 )
+                    
+  								  <tr>
+  									<td valign=top style='width:9.84% !important;border:solid windowtext 1.0pt;
+  									border-top:none;padding:0in 5.4pt 0in 5.4pt;overflow-wrap:break-word !important;'> 
+  									#formatTableCell( $documentSource.getDocumentTypeFieldByName($b, $baseDoc.documentType.id).label, "left", 130)       
+  									</td>
 
-								  <tr>
-									<td valign=top style='width:9.84% !important;border:solid windowtext 1.0pt;
-									border-top:none;padding:0in 5.4pt 0in 5.4pt;overflow-wrap:break-word !important;'> 
-									#formatTableCell( $documentSource.getDocumentTypeFieldByName($b, $baseDoc.documentType.id).label, "left", 130)       
-									</td>
+  									#if( $report_showFinText == true )
+  									#formatFieldOrTestStepsBaseDoc( $b $baseDoc )
+  									#end ##if( $report_showFinText == true )
 
-									#if( $report_showFinText == true )
-									#formatFieldOrTestStepsBaseDoc( $b $baseDoc )
-									#end ##if( $report_showFinText == true )
+  									#showComparisonForFields( $b $baseDoc $activeDoc )
 
-									#showComparisonForFields( $b $baseDoc $activeDoc )
+  									#if( $report_showFinText == true )
+  									##formatFieldOrTestCaseStepsCompareDoc( $b $activeDoc )
+  									#formatFieldOrTestStepsBaseDoc( $b $activeDoc )
+  									#end ##if( $report_showFinText == true)
+  									</tr>
 
-									#if( $report_showFinText == true )
-									##formatFieldOrTestCaseStepsCompareDoc( $b $activeDoc )
-									#formatFieldOrTestStepsBaseDoc( $b $activeDoc )
-									#end ##if( $report_showFinText == true)
-									</tr>
+  								#end ##if( $val1 != $val2)
+  							#end ##if( ($report_excludeStatus == false) || ( $report_excludeStatus == true && $b != "status" && $b != "modifiedDate" ))
+  						##end ##if( $spot != 0 )
 
-								#end ##if( $val1 != $val2)
-							#end ##if( ($report_excludeStatus == false) || ( $report_excludeStatus == true && $b != "status" && $b != "modifiedDate" ))
-						##end ##if( $spot != 0 )
+  						##set( $spot = 1 )
 
-						##set( $spot = 1 )
+  					#end ##foreach($f in $fields)
 
-					#end ##foreach($f in $fields)
+  					#if($foundChg == 0)
+  						<tr>
+  						  #set( $colSpan = 3)
+  						  #if( $report_showFinText == true || $includeRelationships == true)
+  						  #set( $colSpan = 4)
+  						  #else
+  						  #set( $colSpan = 3)
+  						  #end  ##if( $report_showFinText == true)
 
-					#if($foundChg == 0)
-						<tr>
-						  #set( $colSpan = 3)
-						  #if( $report_showFinText == true || $includeRelationships == true)
-						  #set( $colSpan = 4)
-						  #else
-						  #set( $colSpan = 3)
-						  #end  ##if( $report_showFinText == true)
+  						  <td colspan=$colSpan valign=top style='border:solid windowtext 1.0pt;border-top:none;mso-border-top-alt:solid windowtext .5pt;
+  						  mso-border-alt:solid windowtext .5pt; padding:5.4pt 5.4pt 0in 4.05pt'>
+  						  <p class=MsoNormal style='margin-left:0in'>All item fields have been reset to the Baseline 1 state or have not been
+  						  changed. Refer to version comments for history. If no version comments exist, the fields have not changed.</p>
+  						  </td>
+  						</tr>
+  					#end ##if($foundChg == 0)
 
-						  <td colspan=$colSpan valign=top style='border:solid windowtext 1.0pt;border-top:none;mso-border-top-alt:solid windowtext .5pt;
-						  mso-border-alt:solid windowtext .5pt; padding:5.4pt 5.4pt 0in 4.05pt'>
-						  <p class=MsoNormal style='margin-left:0in'>All item fields have been reset to the Baseline 1 state or have not been
-						  changed. Refer to version comments for history. If no version comments exist, the fields have not changed.</p>
-						  </td>
-						</tr>
-					#end ##if($foundChg == 0)
+  				#end  ##if( $docTypeId == $baseDoc.documentType.id )
 
-				#end  ##if( $docTypeId == $baseDoc.documentType.id )
+  			#end  ##foreach($dl in $docList)	
+  				
+  		#end ##if(!$relChg)
+  		
 
-			#end  ##foreach($dl in $docList)	
-				
-		#end ##if(!$relChg)
-		
-	##end  ##if((( $baseDoc.id != $activeId ) && $activeDoc.active ) || ( $relsMatch == false && $activeDoc.active ) )
 
 
 
@@ -6123,23 +6223,24 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
       ##------ Build Versioned Comment Row ------##
       #set( $count=0 )
 
-	  #set($next = $mathTool.toInteger($bVer.versionNumber)+1)
+	    #set($next = $mathTool.toInteger($bVer.versionNumber)+1)
       #set($total = $mathTool.toInteger($aVer.versionNumber)+1)
 
       #if($report_showComment == true)
         #formatVersionCommentRow( $next $total $activeId )
       #end ##if($report_showComment == true)
 
-    #end ##if((( $baseDoc.id != $activeId ) && $activeDoc.active ) || ( $relsMatch == false && $activeDoc.active ) )
-
     </table> ## Closes Updated Items Section 1.0 
     #if( $format == 'doc')
       </div>
     #end 
     </section>
+    #end ##if((( $baseDoc.id != $activeId ) && $activeDoc.active ) || ( $relsMatch == false && $activeDoc.active ) )
+
+  
 
 
-  #end ##foreach( $node in $sortTool.sort( $baseDocNodes,"globalSortOrder") )
+  #end ##foreach( $baseDoc in $baselineItems)
 #if( !$hasUpdated)
 	<section>
 	<p class=MsoNormal>No items have been updated since the baseline.</p>
@@ -6151,11 +6252,8 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 </section>
 
 ##------  Build the Added Item Section 3.0  ------##
-#foreach($dn in $baseDocNodes)
-  #if($dnIdList.add($dn.refId))#end
-#end
 <section>
-#formatAddedItems( $baseData $allActives $dnIdList )
+#formatAddedItems( $baseData $allActives)
 </section>
 
 </div> ##<div class="reportBodyCounterContainer">
@@ -6165,39 +6263,6 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 #end
 #########################################################################################################################
 ## **********************************************************************************************************************
-#########################################################################################################################
-##
-#########################################################################################################################
-##
-##  6. DOCUMENT_INITIALIZATION
-##
-##  All code the executes before the report loops through $documentList goes here.
-##
-##  Outputs the following information for use in the rest of the report:
-##  --> $containerDoc - Set or Component that contains the items in the document.  Used for Headers, Footers and Title page.
-##  --> $documentRev - Name of the baseline that all items are part of. Appended with an asterisk if some items have 
-##                     changed since latest baseline.
-##  --> $referenencableDocIds - List of all items that will have bookmark references available in the doc
-##
-#########################################################################################################################
-##getContainer( $baselineMode ) ## Creates: $containerDoc
-#### Debug: $containerDoc.documentKey: $containerDoc.name
-## Only show a revision if exporting from a baseline
-#*
-#if( $baselineMode )
-  #if($!contextId)
-    #set( $baseline = $baselineDao.getBaseLine($mathTool.toInteger($contextId)))
-    #set( $documentRev = $baseline.name)
-    #set( $baselineId = $baseline.id)
-  #else
-    #getDocumentRev() ## Creates: $documentRev, $baselineId
-  #end
-  #### Debug $documentRev
-#else
-  #set( $documentRev = "N/A" )
-  #set( $baselineId = false )
-#end
-*#
 #########################################################################################################################
 
 #########################################################################################################################
