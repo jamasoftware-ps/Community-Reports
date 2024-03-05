@@ -63,7 +63,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D8DFBE.2078AF30"
 ## 2024-02-29   2.1         Anna Fitzgerald   - Major update of report code html, fixed revisionItem stored values, adjusted logic
 ##                                            - Updated #formatRichTextCell() macro for Aspose.cells upgrage v23.10 and enhanced 
 ##                                              rich text capabilities.
-## 
+## 2024-03-05   2.1.1       Anna Fitzgerald   - Updated variable name spelling for revisionCount 
 ##
 ##
 ##
@@ -887,7 +887,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
         ## Extract Review Users Data and Review Item Approval / Rejection Data by updating supplied values
         #if($revision)
           #gatherReviewData($doc $revision) 
-          #if( $revisionItemCount > 0 )
+          #if( $revisionCount > 0 )
             <tr>
           #end 
           ## Review Data Group
@@ -906,7 +906,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
           #####################################
           #reviewItemReviewersDataGroupCells()
 
-          #set( $revisionItemCount = $revisionItemCount + 1 )
+          #set( $revisionCount = $revisionCount+ 1 )
         #end  
         </tr>
       #else 
