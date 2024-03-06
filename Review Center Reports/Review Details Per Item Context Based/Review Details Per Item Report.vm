@@ -64,6 +64,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D8DFBE.2078AF30"
 ##                                            - Updated #formatRichTextCell() macro for Aspose.cells upgrage v23.10 and enhanced 
 ##                                              rich text capabilities.
 ## 2024-03-05   2.1.1       Anna Fitzgerald   - Updated variable name spelling for revisionCount 
+## 2024-03-05   2.1.2       Anna Fitzgerald   - Added condition to ensure only active items in the report 
+##                                            - Updated logical && to ensure Deleted && Archived reviews are excluded                               
 ##
 ##
 ##
@@ -830,47 +832,49 @@ xmlns="http://www.w3.org/TR/REC-html40">
     #set($itemReviewData = [])
 
     #set($doc = $vDoc.document )
-    #set($versions = $docDao.getAllVersionsByDocumentId($doc.id))
-    #set($versionsSorted = $sortTool.sort($versions, "createdDate:desc"))
 
-    ## Extract All Reviews From Every Item Version
-    #####################################################
-    #set( $latestRevision = false )
-    #if($versionsSorted.size() > 0)
-      #foreach($version in $versionsSorted)
-        #set($revisions = $reviewSource.getRevisionsForItemId($version.document.id) )
-        #set($revisionsSorted = $sortTool.sort($revisions, "createdDate:desc"))
+    #if( $doc.active )
+      #set($versions = $docDao.getAllVersionsByDocumentId($doc.id))
+      #set($versionsSorted = $sortTool.sort($versions, "createdDate:desc"))
 
-        #if($revisionsSorted.size() > 0)
-          #set( $range = $revisionsSorted.size() - 1)
+      ## Extract All Reviews From Every Item Version
+      #####################################################
+      #set( $latestRevision = false )
+      #if($versionsSorted.size() > 0)
+        #foreach($version in $versionsSorted)
+          #set($revisions = $reviewSource.getRevisionsForItemId($version.document.id) )
+          #set($revisionsSorted = $sortTool.sort($revisions, "createdDate:desc"))
 
-          ## Extract Only Latest Review Revision
-          #######################################
-          #if($reportLatestReview)
-            #foreach( $x in [0..$range])
-              #set( $revision = $revisionsSorted[$x])
-              #if( $revision.status.name != "Deleted" || $revision.status.name != "Archived")
-                #if( !$latestRevision )
-                  #set($success = $itemReviewData.add($revision))
-                  #set( $latestRevision = true)
-                  #break ## Break out of $versions forloop upon extracting latest revision from latest item version to move to next item
+          #if($revisionsSorted.size() > 0)
+            #set( $range = $revisionsSorted.size() - 1)
+
+            ## Extract Only Latest Review Revision
+            #######################################
+            #if($reportLatestReview)
+              #foreach( $x in [0..$range])
+                #set( $revision = $revisionsSorted[$x])
+                #if( $revision.status.name != "Deleted" && $revision.status.name != "Archived")
+                  #if( !$latestRevision )
+                    #set($success = $itemReviewData.add($revision))
+                    #set( $latestRevision = true)
+                    #break ## Break out of $versions forloop upon extracting latest revision from latest item version to move to next item
+                  #end
                 #end
               #end
-            #end
-          ## Extract Every Review Revision
-          #######################################
-          #else
-            #foreach( $x in [0..$range])
-              #set( $revision = $revisionsSorted[$x])
-              #if( $revision.status.name != "Deleted" || $revision.status.name != "Archived")
-                #set($success = $itemReviewData.add($revision))
+            ## Extract Every Review Revision
+            #######################################
+            #else
+              #foreach( $revision in $revisionsSorted)
+                #if( $revision.status.name != "Deleted" && $revision.status.name != "Archived")
+                  #set($success = $itemReviewData.add($revision))
+                #end 
               #end 
-            #end 
-          #end
+            #end
 
-        #end ## #if($revisionsSorted.size() != 0)
-      #end ## #foreach($version in $versionsSorted)
-    #end ## #if($versionsSorted.size() != 0)
+          #end ## #if($revisionsSorted.size() != 0)
+        #end ## #foreach($version in $versionsSorted)
+      #end ## #if($versionsSorted.size() != 0)
+
 
     ## Build Colgroup for the Item and set rowspan to be how many revisions the item has, default 1 ## 
     ##################################################################################
@@ -917,7 +921,9 @@ xmlns="http://www.w3.org/TR/REC-html40">
       #buildBlankRow()
       </tr>
     #end  ##if( $itemReviewData.size() > 0 )
-  #end ## #foreach( $vDoc in $documentList )
+
+  #end ##if( $doc.active )
+#end ## #foreach( $vDoc in $documentList )
 
 
   </table>
