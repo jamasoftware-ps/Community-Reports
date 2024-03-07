@@ -66,7 +66,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D8DFBE.2078AF30"
 ## 2024-03-05   2.1.1       Anna Fitzgerald   - Updated variable name spelling for revisionCount 
 ## 2024-03-05   2.1.2       Anna Fitzgerald   - Added condition to ensure only active items in the report 
 ##                                            - Updated logical && to ensure Deleted && Archived reviews are excluded                               
-##
+## 2024-03-07   2.1.3       Anna Fitzgerald   - Updated getting the Revision User Items from the Revision Item itself and not the Revision
+##                                   
 ##
 ##
 ## ===================================================================================================================== 
@@ -529,22 +530,23 @@ td
   
   ## Define Revision Item Data Variables
   #####################################################
-  #set($revisionItem = '')
-  #set($revisionItemId = '')
-  #set($revisionItemStatus = '')
   #set($approvers = '')
   #set($approverUserCount = 0)
+
   #set($reviewers = '')
   #set($reviewerUserCount = 0)
+
   #set($approvedItemUsers = '')
   #set($rejectedItemUsers = '')
-  #set($approvalCount = 0)
-  #set($rejectionCount = 0)
   #set($reviewedItemUsers = '')
   #set($notReviewedItemUsers = '')
+
+  #set($approvalCount = 0)
+  #set($rejectionCount = 0)
   #set($reviewedCount = 0)
   #set($notReviewedCount = 0)
 
+  
   ## Get Revision Item 
   #####################################################
   #set( $revisonItem = false )
@@ -558,39 +560,43 @@ td
 
   ## Gather Reviewer & Approver Users and find revisionUserItem status 
   #####################################################
-  #set($revisionUsers = $revision.revisionUsers)
 
-  #foreach($revisionUser in $revisionUsers)
-    #set($revUserItems = $revisionUser.revisionUserItems)
+  #set( $revisionUserItems = $revisionItem.revisionUserItems )
 
-    #if($revisionUser.isApprover)
-      #set($approvers = "$approvers,<br>$revisionUser.user.fullName")
+  #foreach($revUserItem in $revisionUserItems )
+  ##<tr><td colspan=20> $revUserItem.revisionItem.version.document.globalId, $doc.globalId</td></tr>
+   #if( $revUserItem.revisionItem.version.document.globalId == $doc.globalId )
+    #set( $revisionUserName = $revUserItem.revisionUser.user.fullName ) 
+    #set( $revUserItemId = $revUserItem.id )
+    #if($revUserItem.revisionUser.isApprover)
+      #set($approvers = "$approvers,<br>$revisionUserName")
       #set($approverUserCount = $approverUserCount + 1)
     #else
-      #set($reviewers = "$reviewers,<br>$revisionUser.user.fullName")
+      #set($reviewers = "$reviewers,<br>$revisionUserName")
       #set($reviewerUserCount = $reviewerUserCount + 1)
     #end 
-
-    #foreach($revUserItem in $revUserItems)
-      #if($revUserItem.version.document.globalId == $doc.globalId)       
-        #set($revisionItemStatus = $revUserItem.status.name)
-        #if($revisionItemStatus == "Approved")
-          #set($approvedItemUsers = "$approvedItemUsers,<br>$revisionUser.user.fullName")
-          #set($approvalCount = $approvalCount + 1)
-        #elseif($revisionItemStatus == "Needs More Work")
-          #set($rejectedItemUsers = "$rejectedItemUsers,<br>$revisionUser.user.fullName")
-          #set($rejectionCount = $rejectionCount + 1)
-        #elseif($revisionItemStatus == "Reviewed")
-          #set($reviewedItemUsers = "$reviewedItemUsers,<br>$revisionUser.user.fullName")
-          #set($reviewedCount = $reviewedCount + 1)
-        #elseif($revisionItemStatus == "Not Reviewed")
-          #set($notReviewedItemUsers = "$notReviewedItemUsers,<br>$revisionUser.user.fullName")
-          #set($notReviewedCount = $notReviewedCount + 1)
-        #end
-        #break 
-      #end ## #if($reviewItemGlobalId == $doc.globalId)
-    #end ## #foreach($revItem in $revItems)
-  #end ## #foreach($revisionUser in $revisionUsers)
+    
+    #set($revisionItemStatus = $revUserItem.status.name)
+   
+    #if($revisionItemStatus == "Approved")
+      #set($approvedItemUsers = "$approvedItemUsers,<br>$revisionUserName")
+      #set($approvalCount = $approvalCount + 1)
+    
+    #elseif($revisionItemStatus == "Needs More Work")
+      #set($rejectedItemUsers = "$rejectedItemUsers,<br>$revisionUserName")
+      #set($rejectionCount = $rejectionCount + 1)
+    
+    #elseif($revisionItemStatus == "Reviewed")
+      #set($reviewedItemUsers = "$reviewedItemUsers,<br>$revisionUserName")
+      #set($reviewedCount = $reviewedCount + 1)
+    
+    #elseif($revisionItemStatus == "Not Reviewed")
+      #set($notReviewedItemUsers = "$notReviewedItemUsers,<br>$revisionUserName")
+      #set($notReviewedCount = $notReviewedCount + 1)
+    #end
+    #break 
+  #end ##if( $revUserItem.revisionItem.version.document.globalId == $doc.globalId )
+#end ##foreach($revUserItem in $revisionUserItems )
 
   ## String Clean User Name Lists
   ######################################
@@ -659,10 +665,10 @@ td
 #macro(reviewItemDataGroupCells)
   ## Latest review revision item hyperlink
   #if($latestRevision && $latestRevision.sequenceNumber == $revision.sequenceNumber)
-    <td class=x167 style='border:.5pt solid windowtext;text-align:center;vertical-align:middle'><a href="$baseUrl/review.req#/r:REV-$review.sequence/rp:i$revisionItemDocumentId">REV-$!revisionItemDocument.documentKey</a></td>
+    <td class=x167 style='border:.5pt solid windowtext;text-align:center;vertical-align:middle'><a href="$baseUrl/review.req#/r:REV-$review.sequence/rp:i$revisionItemId">REV-$!revisionItemDocument.documentKey</a></td>
     ## Previous review revision item hyperlink
   #else
-    <td class=x167 style='border:.5pt solid windowtext;text-align:center;vertical-align:middle'><a href="$baseUrl/review.req#/r:REV-$review.sequence,V$revision.sequenceNumber/rp:i$revisionItemDocumentId">REV-$!revisionItemDocument.documentKey</a></td>
+    <td class=x167 style='border:.5pt solid windowtext;text-align:center;vertical-align:middle'><a href="$baseUrl/review.req#/r:REV-$review.sequence,V$revision.sequenceNumber/rp:i$revisionItemId">REV-$!revisionItemDocument.documentKey</a></td>
   #end  
   ## Review Item Name
   <td class=x167 style='border:.5pt solid windowtext;text-align:center;vertical-align:middle'>$!revisionItemDocument.name</td>
