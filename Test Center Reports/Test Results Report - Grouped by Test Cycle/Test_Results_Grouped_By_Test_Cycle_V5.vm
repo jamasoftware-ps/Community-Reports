@@ -32,7 +32,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                             image source extraction. 
 ## 2023-12-28   1.5.1      Liam Rotchford    - Minor logic adjustment to ensure look ahead to next cycle can be properly extracted
 ##                                             to utilization of final report content structure storage system. 
-##
+## 2024-03-12   1.6        Anna FitzGerald   - Updated with latest formatTables macro and convertWidths macro
+##                                             Removed fixedColumnWidths and calculateMaxColsAndSetColGroup macros
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -2060,59 +2061,37 @@ td.TableCell
 ##          Creates: $containerDoc - document: creates $containerDoc to used for the remainder of the report
 #########################################################################################################################
 #macro( getContainer $baselineMode )
-##
-  #set( $firstDocInList = $documentList[0].document )
-  #set( $firstDocInListTypeKey = $firstDocInList.documentType.documentTypeKey )
-##
-  ## export from a baseline
-  #if( $baselineMode )
-    #### Debug: Baseline Mode
-    ## baseline of a set or component will include the set or component as the first item
-    #if( $firstDocInListTypeKey == $cmpKey ||
-         $firstDocInListTypeKey == $setKey ||
-         $firstDocInListTypeKey == "TSTPL" ||
-         $firstDocInListTypeKey == "TSTCY" )
-      #set( $containerDoc = $firstDocInList )
-    ## if the first item is not a set or component, then the baseline is of a filter
-    ## and a meaningful parent is not available
-    #else
-      #set( $containerDoc = false )
-    #end
-##
-  ## export from the project explorer
+
+  ## Export From Baseline
+  #if($baselineMode)
+    #set($containerDoc = $baselineDao.getBaseLine($mathTool.toInteger($contextId)))
   #else
-    ## Test Plan Mode
-    #if( $firstDocInList.documentType.documentTypeKey == "TSTPL" )
-      #set( $containerDoc = $firstDocInList )
-    ## Test Cycle Mode
-    #elseif( $firstDocInList.documentType.documentTypeKey == "TSTRN" )
-      #set( $containerDoc = $firstDocInList.testCycle )
-    ## Component / Set Mode
+    #set($docNode = $documentNodeDao.getDocumentNode(5, $documentList[0].document.id))
+    #set($parentNode = $docNode.getParentNode())
+    
+    ## Export From Project
+    #if(!$parentNode.parentNode.id && $contextType.length() == 0)
+      #set($containerDoc = $project)
+    ## Export From Test Plan
+    #elseif($documentList[0].document.documentType.documentTypeKey == "TSTPL")
+      #set($containerDoc = $documentList[0].document)
+    ## Export From Test Cycle
+    #elseif($contextType.toUpperCase() == "TESTCYCLE")
+      #set($containerDoc = $documentList[0].document.testCycle)
     #else
-      #set( $docNode = $documentNodeDao.getDocumentNode(5, $documentList[0].document.id) )
-      #set( $parentNode = $docNode.getParentNode())
-      ## ## Debug: $parentNode.sequence
-      ## if the parent is the projec, then assume the user exported from a baseline and forgot
-      ## to select Baseline Mode, otherwise get the parent
-      #if( $parentNode.globalSortOrder == 1000 )
-        #if( $firstDocInListTypeKey == $cmpKey ||
-             $firstDocInListTypeKey == $setKey )
-          #set( $containerDoc = $firstDocInList )
+      #if($!contextId)
+        ## Export From Filter
+        #if($contextType.toUpperCase() == "ADVANCED FILTER")
+          #set($containerDoc = $filterDao.getSmartFilter($mathTool.toInteger($contextId)))
+        ## Export From Project Tree
         #else
-          #set( $containerDoc = false )
+          #set($containerDoc = $docDao.getDocument($mathTool.toInteger($contextId)))
         #end
       #else
-        #set( $parentDoc = $docDao.getDocument($parentNode.refId) )
-        #set( $parentTypeKey = $parentDoc.documentType.documentTypeKey )
-        #### Debug: $parentTypeKey
-        #if( $parentTypeKey == $cmpKey ||
-             $parentTypeKey == $setKey )
-          #set( $containerDoc = $parentDoc )
-        #else
-          #set( $containerDoc = false )
-        #end
+        #set($containerDoc = false)
       #end
     #end
+
   #end
 #end
 #########################################################################################################################
@@ -3557,473 +3536,609 @@ $string
 #macro( formatTables $inString $maxWidth $tableAlign)
 ##
   #if( $inString.contains("<table") )
+
     ## Clear variables used in the macro
     #set( $output = "" ) ##
     #set( $table = false ) ##
-    #set( $tableHeader = false ) ##
+    #set( $maxWidth = $mathTool.toDouble( $maxWidth ))
     #set( $tableCell = false ) ##
+    #set( $tableHeader = false ) ## 
     #set( $tableCellParagraph = false ) ##
-##
+    #set( $originalTableWidthInPt = false ) ## 
+##   
     ## For tables, each tag that makes up the table needs to be independently processed, so split the description into
     ## an array where each each value in the array is a single tag of the HTML, split on '>'
     ## $sub = array of individual tags in the description
     #set ( $subs = $inString.split(">"))##
-##
+
     ## Iterate on each substring
     #foreach ($sub in $subs) ##
       ## append > to each sub except the last one since the split cut it off
       #if( !$foreach.last) #set( $sub = "${sub}>") #end ##
-##
       ## Determine where in a table we are
       #if( $sub.contains("<table") ) 
         #set( $table = true )  
-        #set( $ogTableWidthPt = false ) ## clear value since this table is new 
-        #set( $newTableWidthPt = false ) ## clear value since this table is new 
-        #set( $tableScaleFactor = false ) ## clear value since this table is new 
-      #end ##
+      #end 
       #if( $sub.contains("<thead") ) #set( $tableHeader = true )  #end ##
       #if( $sub.contains("<td") || $sub.contains("<th") ) #set( $tableCell = true )  #end ##
       #if( $sub.contains("<p") || $sub.contains("<li") ) #set( $tableCellParagraph = true )  #end ##
 ##
-      ###########################################################################
-      ## - make sure all table cells include a paragraph with an appropriate class
-      ###########################################################################
-     #if( $table && !$tableHeader && $tableCell)
-        #set($sub = $sub.replaceAll('<p(.*)','<p class=TableCell$1')) ##
-        #set( $sub = $sub.replaceAll('<li(.*?)>','<li class=TableCell$1>'))
-      #end
+      #if( !$sub.contains("invisibleTableContainsFIGURE"))
+        ###########################################################################
+        ## - make sure all table cells include a paragraph with an appropriate class
+        ###########################################################################
+   
 
+        #if( $table && !$tableHeader && $tableCell )
+          #set($sub = $sub.replaceAll('<p(.*)','<p class=TableCell$1')) ##
+          #set( $sub = $sub.replaceAll('<li(.*?)>','<li class=TableCell$1>'))
+        #end
 
-      #if($table && $tableHeader && $tableCell)
-        #set($sub = $sub.replaceAll('<p(.*)','<p class=TableHeader$1')) ##
-        #set( $sub = $sub.replaceAll('<li(.*?)>','<li class=TableHeader$1>'))
-      #end
+        #if($table && $tableHeader && $tableCell)
+          #set($sub = $sub.replaceAll('<p(.*)','<p class=TableHeader$1')) ##
+          #set( $sub = $sub.replaceAll('<li(.*?)>','<li class=TableHeader$1>'))
+        #end
 
-      ## cells with no formatting
-      #if( $sub.contains("<td") &&
-            !$subs[$nextSubIndex].contains("<p") && 
-            !$subs[$nextSubIndex].contains("<li") )
-        #set( $sub = "$sub<p class=TableCell>")
-      #end
+        ## cells with no formatting
+        #if( $sub.contains("<td") &&
+              !$subs[$nextSubIndex].contains("<p") && 
+              !$subs[$nextSubIndex].contains("<li") )
+          #set( $sub = "$sub<p class=TableCell>")
+        #end
 
-      #if( $sub.contains("<th") && ($docName != "Inspection Plan" && $docName != "Release History") &&
-            !$subs[$nextSubIndex].contains("<p") && 
-            !$subs[$nextSubIndex].contains("<li") )
-        #set( $sub = "$sub<p class=TableHeader>")
-      #end
-      #if( ($sub.contains("</td") || $sub.contains("</th")) &&
-            !$subs[$prevSubIndex].contains("</p") && 
-            !$subs[$prevSubIndex].contains("</li") )
-        #set( $end = $sub.indexOf("</t") )
-        #set( $contents = $sub.substring(0, $end) ) ##
-        #set( $endTag = $sub.substring($end, $sub.length()) )
-        #set( $sub = "$contents</p>$endTag")
-      #end
-      ###########################################################################
-##
-      ###########################################################################
-      ## - make sure all tables have the borders collapsed
-      ###########################################################################
-      #if( $sub.contains("<table") && !$sub.contains("border-collapse") )
+        #if( $sub.contains("<th") && ($docName != "Inspection Plan" && $docName != "Release History") &&
+              !$subs[$nextSubIndex].contains("<p") && 
+              !$subs[$nextSubIndex].contains("<li") )
+          #set( $sub = "$sub<p class=TableHeader>")
+        #end
+        #if( ($sub.contains("</td") || $sub.contains("</th")) &&
+              !$subs[$prevSubIndex].contains("</p") && 
+              !$subs[$prevSubIndex].contains("</li") )
+          #set( $end = $sub.indexOf("</t") )
+          #set( $contents = $sub.substring(0, $end) ) ##
+          #set( $endTag = $sub.substring($end, $sub.length()) )
+          #set( $sub = "$contents</p>$endTag")
+        #end
+  
+        ###########################################################################
+        ## - make sure all tables have the borders collapsed
+        ###########################################################################
+        #if( $sub.contains("<table") && !$sub.contains("border-collapse") )
           #if( $sub.contains("style") )
             #set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1$2$3;border-collapse:collapse$4") )
           #else
             #set( $sub = $sub.replaceAll("(<table)(.*?)(>)","$1$2 style='border-collapse:collapse'$3") )
           #end
-      #end
-
-      ###########################################################################  
-      ## - make if the table has a border definition that the border attribute 
-      ##   is placed to ensure the outer border box is created
-      ###########################################################################
-      #set( $tableInlineStyle = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$3") )
-
-      #if($tableInlineStyle.contains("border:"))  ## Ensure the outside border is created if the table has a border style definition 
-        #set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1 border='1' $2$3$4") )
-      #end
-
-      ###########################################################################
-##
-      ###########################################################################
-      ## - add header background color
-      ###########################################################################
-      #if( ($tableHeader && $sub.contains("<td")) || $sub.matches("(?s).*<th[^e].*") )
-         
-        ## If user has table header color set then use that color
-        #set($tableHeaderColor = $sub.replaceAll('background-color:(.*?)[;|"]|[^*]', "$1"))
-         
-        #if($tableHeaderColor != '' || $!tableHeaderColor)
-          #set($tableHeaderBackgroundColor = $tableHeaderColor.trim())
         #end
+        ###########################################################################  
+        ## - make if the table has a border definition that the border attribute 
+        ##   is placed to ensure the outer border box is created
+        ###########################################################################
+        #set( $tableInlineStyle = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$3") )
 
-        ## Remove old background color from style attribute with multiple CSS or where Background-Color is the only
-        ##  style attribute.
-        #set($sub = $sub.replaceAll("background-color:.*?;", ""))
-        #set($sub = $sub.replaceAll("style='background-color:.*?'", ""))
-        #set($sub = $sub.replaceAll('style="background-color:.*?"', ""))
-        #set($sub = $sub.replaceAll('style=""|style=" "', ""))
-        #set($sub = $sub.replaceAll("style=''|style=' '", ""))
+        #if( $tableInlineStyle.contains("border:"))  ## Ensure the outside border is created if the table has a border style definition 
+          #set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1 border='1' $2$3$4") )
+        #end
+        ###########################################################################
+        ## - add header background color
+        ###########################################################################
+        #if( ($tableHeader && $sub.contains("<td")) || $sub.matches("(?s).*<th[^e].*") )
+           
+          ## If user has table header color set then use that color
+          #set($tableHeaderColor = $sub.replaceAll('background-color:(.*?)[;|"]|[^*]', "$1"))
+           
+          #if($tableHeaderColor != '' || $!tableHeaderColor)
+            #set($tableHeaderBackgroundColor = $tableHeaderColor.trim())
+          #end
 
-        ## Preserve already assigned cell color if already set to prevent double inline style setting.
-        #if( $sub.contains("style") && !$sub.contains("background-color"))
-          #if( $sub.contains("style") )
+          ## Remove old background color from style attribute with multiple CSS or where Background-Color is the only
+          ##  style attribute.
+          #set($sub = $sub.replaceAll("background-color:.*?;", ""))
+          #set($sub = $sub.replaceAll("style='background-color:.*?'", ""))
+          #set($sub = $sub.replaceAll('style="background-color:.*?"', ""))
+          #set($sub = $sub.replaceAll('style=""|style=" "', ""))
+          #set($sub = $sub.replaceAll("style=''|style=' '", ""))
+
+          ## Preserve already assigned cell color if already set to prevent double inline style setting.
+          #if( $sub.contains("style") && !$sub.contains("background-color"))
             #set( $replace = "$1$2;background-color:$tableHeaderBackgroundColor$3" )
             #set( $sub = $sub.replaceAll("(<t.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)",$replace) )
-          #else
+          #elseif(!$sub.contains("style") && !$sub.contains("background-color"))
             #set( $replace = "$1 style='background-color:$tableHeaderBackgroundColor'$2" )
             #set( $sub = $sub.replaceAll("(<t.*?)(>)",$replace) )
           #end
+
         #end
-      #end
-      ###########################################################################
-##
-      ###########################################################################
-      ## - add border color
-      ###########################################################################
-      #*
-      #if( $sub.contains("<table") )
+        ###########################################################################
+        ###########################################################################
+        ## - add border color
+        ###########################################################################
+        #*
+        #if( $sub.contains("<table") )
+            #if( $sub.contains("style") )
+              #set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1$2$3;border: 0.5pt solid $tableBorderColor$4") )
+            #else
+              #set( $sub = $sub.replaceAll("(<table)(.*?)(>)","$1$2 style='border: 0.5pt solid $tableBorderColor'$3") )
+            #end
+        #end
+        *#
+        #if( $sub.contains("<td") || $sub.matches("(?s).*<th[^e].*") )
           #if( $sub.contains("style") )
-            #set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1$2$3;border: 0.5pt solid $tableBorderColor$4") )
+            #set( $replace = "$1$2;border-color: $tableBorderColor$3" )
+            #set( $sub = $sub.replaceAll("(<t.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)",$replace) )
           #else
-            #set( $sub = $sub.replaceAll("(<table)(.*?)(>)","$1$2 style='border: 0.5pt solid $tableBorderColor'$3") )
+            #set( $replace = "$1 style='border-color: $tableBorderColor'$2" )
+            #set( $sub = $sub.replaceAll("(<t.*?)(>)",$replace) )
           #end
-      #end
-      *#
-      #if( $sub.contains("<td") || $sub.matches("(?s).*<th[^e].*") )
-        #if( $sub.contains("style") )
-          #set( $replace = "$1$2;border-color: $tableBorderColor$3" )
-          #set( $sub = $sub.replaceAll("(<t.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)",$replace) )
-        #else
-          #set( $replace = "$1 style='border-color: $tableBorderColor'$2" )
-          #set( $sub = $sub.replaceAll("(<t.*?)(>)",$replace) )
         #end
-      #end
-      ###########################################################################
-##
-      ###########################################################################
-      ## - resize table widths to fit the page and use only point-based widths
-      ###########################################################################
-     #if( $sub.contains("<table") )
-        ## Try finding a width
-        #set( $tableWidth = $sub.replaceAll("(?s).*[\x22\x27; ]width.*?:.*?(\d*.*?)[;\x27\x22].*","$1") )
-        ## there is no width already, see if the cells can be added up to calculate a width
-        #if( $tableWidth == $sub)
-          #set( $calcTableWidth = 0 )
-          #set( $rowWidth = 0)
+
+        ###########################################################################
+        ###########################################################################
+        ##  Map <key, value> each table so that it is possible to recall each row 
+        ##   and col of the the table, and to calculate cell widths as a proportion 
+        ##    to the longest width of the table. And size PDF and Word tables 
+        ##    as % in relation to maxWidth
+        ###########################################################################
+        #set( $findWidth = "(?s).*(?:\s|;|\x27|\x22)width\s*(=|:)([\s*|\x27\x22])*(\d*.*?)(pt|px|in|%)[;|\x27\x22](?:.*)|[^*]")
+        #set( $findHeight = "(?s).*(?:\s|;|\x27|\x22)height\s*(=|:)([\s*|\x27\x22])*(\d*.*?)(pt|px|in|%)[;|\x27\x22](?:.*)|[^*]")
+        #set( $findColSpan = "(?s).*(?:\s|;|\x27|\x22)colspan\s*(=|:)([\s*|\x27\x22])*(\d*.*?)[;|\x27\x22|\s*](?:.*)|[^*]")
+
+        #set( $imgCount = 0 )
+  
+        #if( $sub.contains("<table" ) )
+
+          ## Create a Map of the Table 
+          #set( $tableMap = {} )
+          #set( $tableWidthFound = false )
+          #set( $rowCount = 0 )
           #set( $start = $foreach.index )
           #set( $end = $subs.size() - 1 )
-          ## Iterate through each sub between the current position and the end of the table
-          #foreach( $i in [$start..$end] )
-            #set( $iSub = $subs.get($i) )
-            #if( $iSub.contains("<td") )
-              #set( $cellWidth = $iSub.replaceAll("(?s).*[\x22\x27; ]width\s*:\s*(\d*.*?)[;\x27\x22].*","$1") )
-              ## cell width found
-              #if( $cellWidth != $iSub)
-                ## width in pt
-                #if( $cellWidth.contains("pt") ) ##
-                  #set( $cellWidth = $mathTool.toDouble($cellWidth.substring(0,$cellWidth.indexOf("pt"))) ) ##
-                ## width in px
-                #elseif( $cellWidth.contains("px") ) ##
-                  #set( $cellWidth = $mathTool.toDouble($cellWidth.substring(0,$cellWidth.indexOf("px"))) ) ## Extract number part
-                  #set( $cellWidth = $cellWidth * 0.75 ) ## Convert px to pt
-                ## width in % or other.  Essentially ignoring
-                #else
-                  #set( $cellWidth = 0 )
+
+          ## check for table widths and add <table = width> to map
+          #if( $sub.contains( "width" ))
+            #convertWidths( $sub $findWidth $start)
+            #if( !$elementWidth )
+              #set( $success = $tableMap.put("table","no width"))
+            #else
+              #set( $success = $tableMap.put("table", "${elementWidth}"))
+              #set( $tableWidthFound = true)
+            #end 
+          #elseif( $sub.contains("<table") && !$sub.contains("width"))
+            #set( $success = $tableMap.put("table","no width"))
+          #end 
+
+  
+          #foreach( $i in [$start..$end] )  
+            #set( $colSpan = false )
+
+            ## add each <img# = $i> to tableMap ## 
+            #if( $subs[$i].contains("<v:shape") && $format == 'doc') ## store location of v:shape img 
+              #set( $imgCount = $imgCount + 1) 
+              #set( $success = $tableMap.put("image${imgCount}", $i))
+            #end 
+
+            #if( $subs[$i].contains("<tr"))
+              #set( $rowCount = $rowCount + 1 )
+              #set( $rowCellWidths = [] )
+            #end 
+
+            #if( $subs[$i].contains("<td") || $subs[$i].contains("<th")) 
+              #if( $subs[$i].contains("colspan"))
+                #set( $colSpan = true ) 
+                #set( $colSpanCount = $mathTool.toNumber($subs[$i].replaceAll( $findColSpan,"$3")))
+                #foreach( $x in [1..$colSpanCount ])
+                  #if( $foreach.first && $subs[$i].contains("width"))
+                    #convertWidths($subs[$i] $findWidth $i)
+                    #set( $success = $rowCellWidths.add([$elementWidth, $i, $colSpanCount]))
+                    #break 
+                  #else 
+                    #set( $success = $rowCellWidths.add(["col", $i]) )
+                  #end 
+                #end 
+
+              #elseif( $subs[$i].contains("width") && !$colSpan ) 
+                #convertWidths( $subs[$i] $findWidth $i) 
+                #if( !$elementWidth )
+                  #set( $success = $rowCellWidths.add(["col", $i]) )
+                #else 
+                  #set( $success = $rowCellWidths.add( [$elementWidth, $i] ))
                 #end
-              ## no cell width found
-              #else
-                #set( $cellWidth = 0 )
-              #end
-              #set( $rowWidth = $rowWidth + $cellWidth )
-            #end
-            ## calculate width for each row and take the widest one
-            #if( $iSub.contains("</tr") )
-              #if( $rowWidth > $calcTableWidth )
-                #set( $calcTableWidth = $rowWidth )
-              #end
-              #set( $rowWidth = 0)
-            #end
-            ## stop once the end of the table is reached in case there are mutliple tables
-            #if( $iSub.contains("</table>") )
+
+              #else 
+                #set( $success = $rowCellWidths.add(["col", $i]) )
+              #end 
+            #end 
+
+            ## add each <row# = [[colWidth, $i]...]> to tableMap ## 
+            #if( $subs[$i].contains("</tr") )
+              #set( $success = $tableMap.put("$rowCount", $rowCellWidths))
+            #end 
+
+            #if( $subs[$i].contains("</table") )
               #break
             #end
-          #end
-##
-          ## Save table width in pt for cell processing 
-          #set( $ogTableWidthPt = $calcTableWidth ) 
-          #set( $newTableWidthPt = $calcTableWidth ) 
-          #set( $newTableWidthPerc = 0 )
-##        
-          ## Resize all tables greater than 100% to 100% || Resize all tables less than 1% to 100%
-          #if( $ogTableWidthPt > $maxWidth ||  $ogTableWidthPt < 1 )
-             #set( $newTableWidthPerc = 100 )
-          #end
+        
+          #end ##foreach( $i in [$start..$end] )  
     
-          ## Calculate resize factor for use later
-          ## Debug New Table Width (Calc): $newTableWidthPt
-          #set( $tableScaleFactor = $newTableWidthPt / $ogTableWidthPt )
-          ## Debug Scale Factor (Calc): $tableScaleFactor
 
-          #if( $newTableWidthPerc == 0)
-          	#set( $widthCalculation = $newTableWidthPt / $maxWidth)
-	      	#set( $newTableWidthPerc = $mathTool.round( $widthCalculation * 100 ))
-          #end
-          ###NEW Table Width Perc $newTableWidthPerc <br>
-          ## add a table width to the table
-            #if( $sub.contains("style") )
-                #set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1$2$3;width:${newTableWidthPerc}% !important;$4") )
-            #else
-                #set( $sub = $sub.replaceAll("(<table)(.*?)(>)","$1$2 style='width:${newTableWidthPerc}% !important!'$3") )
-            #end
-      
-        ## There is a width, convert it to a point-based width equal or less than maxWidth
-        #else
-          ## widths in pt
-          #if( $tableWidth.contains("pt") ) ##
-            #set( $tableWidth = $mathTool.toDouble($tableWidth.substring(0,$tableWidth.indexOf("pt"))) ) ##
-            ##<p>DEBUG FOUND TABLE WIDTH (pt) 1: $tableWidth</p>
-            #set( $ogTableWidthPt = $tableWidth ) ## Save table width in pt for cell processing 
-            ##<p>DEBUG FOUND TABLE WIDTH (pt) 2: $tableWidth</p>
-          ## widths in px
-          #elseif( $tableWidth.contains("px") ) ##
-            #set( $tableWidth = $mathTool.toDouble($tableWidth.substring(0,$tableWidth.indexOf("px"))) ) ## Extract number part
-            ##<p>DEBUG FOUND TABLE WIDTH (px) 1: $tableWidth</p>
-            #set( $tableWidth = $tableWidth * 0.75 ) ## Convert px to pt
-            #set( $ogTableWidthPt = $tableWidth ) ## Save table width in pt for cell processing 
-            ##<p>DEBUG FOUND TABLE WIDTH (px) 2: $tableWidth</p>
-          ## widths in %
-          #elseif( $tableWidth.contains("%") ) ##
-            #set( $tableWidth = $mathTool.toDouble($tableWidth.substring(0,$tableWidth.indexOf("%"))) ) ##
-            #set( $ogTableWidthPt = $maxWidth * ($tableWidth/100) ) ## Save table width in pt for cell processing
-            ##<p>DEBUG FOUND TABLE WIDTH (%) 1: $tableWidth</p>
-          ## unknown width, force to 100%
-          #else
-            #set( $ogTableWidthPt = $maxWidth ) ## Save table width in pt for cell processing
-          #end
-          ##<p>DEBUG FOUND TABLE WIDTH 3: $tableWidth</p>
-          #set( $newTableWidthPt = $ogTableWidthPt )
-          ## Resize all tables greater than 100% to 100%
-          #if( $ogTableWidthPt > $maxWidth )
-            #set( $newTableWidthPt = $maxWidth )
-          #end
-          ##<p>DEBUG FOUND TABLE WIDTH 4: $tableWidth</p>
-          ## Calculate resize factor for use later
-          ## Debug New Table Width: $newTableWidthPt
-          #set( $tableScaleFactor = $newTableWidthPt / $ogTableWidthPt )
-          ##<p>Debug Scale Factor: $tableScaleFactor = $newTableWidthPt divided by $ogTableWidthPt</p>
-##
-          ## replace width with new value
-          #if( $newTableWidthPt ) ## size both pdf and word tables as percentages in relation to page 
-	          #set( $widthCalculation = $newTableWidthPt / $maxWidth)
-	          #set( $newTableWidthPerc = $mathTool.round( $widthCalculation * 100 ))
-	          #if( $newTableWidthPerc > 100 )
-	            #set( $newTableWidthPerc = 100 )
-	          #end 
-	          #set( $find = "(?s)(.*[\x22\x27;* ]width.*?:.*?)(\d*.*?)([;\x27\x22].*)")
-	          #set( $replace = "$1${newTableWidthPerc}% !important$3" )
-	          #set( $sub = $sub.replaceAll($find, $replace) )
-          #end
-        #end
-      #end ##if( $sub.contains("<table") )
-      ###########################################################################
-##
-      ###########################################################################
-      ## - resize cell widths to use only point-based widths
-      ## - requires the following values from the table width sizing
-      ##   $newTableWidthPt
-      ##   $tableScaleFactor
-      ###########################################################################
-      #if( $sub.contains("<td") || $sub.matches("(?s).*<th[^e].*"))
-        #set( $cellWidth = $sub.replaceAll("(?s).*[\x22\x27; ]width\s*:\s*(\d*.*?)[;\x27\x22].*","$1") )
-        ##<p>DEBUG cell width: |$cellWidth|</p>
-        ##<p>DEBUG table scale: |$tableScaleFactor|</p>
-        ## if there is a width, convert to % and scale with table resizing
-        #if( $cellWidth != $sub)
-          ## widths in pt
-          #if( $cellWidth.contains("pt") ) ##
-            #if( $tableScaleFactor && $newTableWidthPt)
-              #set( $cellWidth = $mathTool.toDouble($cellWidth.substring(0,$cellWidth.indexOf("pt"))) ) ##
-              ## Debug Start Width (pt): $cellWidth
-              ## Debug Scale Factor: $tableScaleFactor
-              #set( $cellWidthPt = $cellWidth * $tableScaleFactor ) ## Scale cell proportial to table
-              ## Debug scaled Width (pt): $cellWidth
-            #end
-          ## widths in px
-          #elseif( $cellWidth.contains("px") ) ##
-            #if( $tableScaleFactor && $newTableWidthPt)
-              #set( $cellWidth = $mathTool.toDouble($cellWidth.substring(0,$cellWidth.indexOf("px"))) ) ## Extract number part
-              #set( $cellWidth = $cellWidth * 0.75 ) ## Convert px to pt
-              #set( $cellWidthPt = $cellWidth * $tableScaleFactor ) ## Scale cell proportial to table
-              ##<p>Debug scaled Width (%): $cellWidth</p>
-            #end
-          ## widths in %
-          #elseif( $cellWidth.contains("%") ) ##
-            #set( $cellWidth = $mathTool.toDouble($cellWidth.substring(0,$cellWidth.indexOf("%"))) ) ##
-            #if( $newTableWidthPt )
-              #if( $newTableWidthPt == 0)
-                #set( $newTableWidthPt = $newTableWidthPerc)
-              #end
-              #set( $cellWidthPt = ($cellWidth/100) * $newTableWidthPt ) ## Convert % to pt
-            #else
-              #set( $cellWidthPt = ($cellWidth/100) * $maxWidth )
-            #end
-          #else
-            ## Ignoring widths uzing unknown units
-          #end
-          ## replace width with new value
-          #if( $cellWidthPt ) ## size both pdf and word tables as percentages in relation to page 
-              #set( $cellWidthPt = $cellWidthPt - 4 ) ## account for cell padding
-              #set( $widthCalculation = $cellWidthPt / $newTableWidthPt )
-              #set( $cellWidthPerc = $mathTool.round($widthCalculation * 100 ))    
-              #set( $find = "(?s)(.*[\x22\x27; ]width.*?:.*?)(\d*.*?)([;\x27\x22].*)")
-              #set( $replace = "$1${cellWidthPerc}% !important$3" )
-              #set( $sub = $sub.replaceAll($find, $replace) )
-          #else
-            #set( $cellWidthPt = false )
-          #end
-        #end
-      #end
-      ###########################################################################
-      ## - resize any images in the table
-      ###########################################################################
-      #if( $tableCell && $sub.contains("<v:shape") )
-        ## Width
-        #set( $start = $mathTool.toNumber($sub.indexOf("width")) + 6 )
-        #set( $end = $mathTool.toNumber($sub.indexOf("pt",$start)) )
-        #if($start != -1 && $end != -1)
-          #set( $width = $mathTool.toDouble($sub.substring($start,$end)) )
-        #else
-          #set($width =$mathTool.toDouble("180")) ## else default set to 2.5 inches 
-        #end
-        ## Height
-        #set( $start = $mathTool.toNumber($sub.indexOf("height")) + 7 )
-        #set( $end = $mathTool.toNumber($sub.indexOf("pt",$start)) )
-        #if($start != -1 && $end != -1)
-          #set( $height = $mathTool.toDouble($sub.substring($start,$end)) )
-        #else
-           #set($height = $mathTool.toDouble("180")) ## else default set to 2.5 inches 
-        #end
+          ## End of Creating Map of Table ##
+          #############################################
+          ##<p>Debug Table Map $tableMap
 
-        #set( $aspectRatio = $height / $width )
-        ##<p>DEUBG cell width: $cellWidthPt</p>
-        ##<p>DEUBG img width: $width</p>
+          #############################################
+          ## Find Max Row Width and set colGroupKey 
+          #############################################
+          #set( $maxWidthCount = 0 )
+          #set( $maxRowWidth = 0 )
+          #set( $maxTotalCols = 0)
+          #foreach( $element in $tableMap.entrySet())
+            #set( $tableMapKey = $element.key )
+            #set( $row = $element.value )
+            #set( $tempRowWidth = 0 )
+            #set( $tempWidthCount = 0 )
+            #set( $tempTotalCols = 0 )
+            #set( $totalRowWidthFound = 0 )
+            #set( $totalPercWidthFound = 0 )
 
-        #if( $cellWidthPt )
-          #if( $width > ($cellWidthPt - 8) )
-            #set( $width = $cellWidthPt - 8 )
-            #set( $height = $width * $aspectRatio )
-            #set( $replace = "width:${width}pt" )
-            #set( $sub = $sub.replaceAll("width:([\d\.]*?)pt",$replace) )
-            #set( $replace = "height:${height}pt" )
-            #set( $sub = $sub.replaceAll("height:([\d\.]*?)pt",$replace) )
-          #end
-        #end
-      #end
-      ###########################################################################
-      ## - align table per $tableAlign, find unique alignments coming from Jama 
-      ##   and preserve them. If a unique alignment is not found the parameter 
-      ##   value of $tableAlign is preserved. 
-      ## - DOC alignments can be removed from the table and set to a parent div.
-      ## - PDF alignments also must be removed from the table and set via margins 
-      ###########################################################################
-    
-        #if( $sub.contains("<table") && $sub.contains("align") )
-        	#set( $isAlignTable = $sub )
-        	#set( $isAlignTable= $isAlignTable.replaceAll("\n|\t", ""))
-            #set( $isAlignTable = $isAlignTable.replaceAll("[^*]*?align=([\x27\x22].*?[\x27\x22]|\w*)(?:.*)", "$1") )
-            #set( $isAlignTable = $isAlignTable.replaceAll("\x27|\x22", ""))
-            #set( $isAlignTable = $isAlignTable.trim())
-            #if( $isAlignTable == "center" || $isAlignTable == "right" || $isAlignTable == "left" )
-            	#set( $tableAlign = $isAlignTable)
+
+          
+            #if( $tableMapKey != "table" && !$tableMapKey.contains("image") )
+              #foreach( $cell in $row )
+                #set( $tempTotalCols = $tempTotalCols + 1)
+                #if( !$cell[0].contains("col") && !$cell[0].contains("%"))
+                  #set( $cellWidth = $mathTool.toDouble($cell[0]) )
+                  #set( $tempWidthCount = $tempWidthCount + 1 )
+                  #set( $tempRowWidth = $tempRowWidth + $cellWidth )
+                  ##<p>Debug Temp: $cellWidth, $tempWidthCount, $tempRowWidth</p>
+                #end  
+              #end 
+
+              #if( $tempWidthCount >= $maxWidthCount ) ## store the row with the most unique widths
+                #set( $maxWidthCount = $tempWidthCount )
+                #set( $colGroupKey = $tableMapKey )
+              #end 
+              #if( $tempRowWidth > $maxRowWidth ) ## store the greatest width 
+                #set( $maxRowWidth = $mathTool.toDouble( $tempRowWidth ) )
+              #end 
+              #if( $tempTotalCols > $maxTotalCols )
+                #set( $maxTotalCols = $tempTotalCols )
+              #end 
             #end 
-        #end 
-        #set( $sub = $sub.replaceAll("(margin-left|margin-right|margin):.*?([\x27\x22])", "$2") )
+            ## if we have an abnormally small maxRowWidth for a table expecting 4 or more cols 
+            ## set maxRowWidth to the page maxWidth 
+            #if( $row.size() >= 4 && $maxRowWidth < 200 )
+              #set( $maxRowWidth = $maxWidth )
+            #end 
+          #end 
+          
+          #if( $maxRowWidth < 1 )
+            #set( $maxRowWidth = $maxWidth )
+          #end 
+          ## if there is no table width and there are columns without widths found 
+          #if( !$tableWidthFound && $maxTotalCols > $maxWidthCount ) ## ensure the maxRowWidth 
+          ## has additional width set so no columns have zero width. 
+            #set( $additionalWidth = $mathTool.floor($maxRowWidth * .2)) 
+            #set( $maxRowWidth = $maxRowWidth + $additionalWidth)
+          #end 
+          ############################################################
+          ##<p>Debug final max: $colGroupKey, $maxWidthCount, $maxRowWidth</p>
+
+          ############################################################
+          ## Replace Table Widths and Cell Widths with Percent Widths  
+          ############################################################
+
+          #set( $colGroup = "<colgroup>")
+          #foreach( $element in $tableMap.entrySet())
+            #set( $tableMapKey = $element.key )
+            #set( $tableMapValue = $element.value )
+      
+            #if( $tableMapKey == "table" )
+
+              ## Table Width Replace 
+              #if( $tableMapValue.contains("no width"))
+
+                ## No Table Width Found 
+
+                #if( $maxRowWidth > 0 && $maxRowWidth < $maxWidth )
+                  #set( $tableWidthPerc = $maxRowWidth / $maxWidth * 100 )    
+                #else 
+                  #set( $tableWidthPerc = 100 )
+                #end 
+                
+                #set( $tableWidthPerc = $mathTool.round( $tableWidthPerc ))
+                #set( $find = "(<table)(.*?)(>)")
+                #set( $replace = "$1$2 width=${tableWidthPerc}% $3")
+
+                ##<p>Debug final tableWidthPerc: ${tableWidthPerc}%</p>
+                #set( $sub = $sub.replaceAll($find, $replace)) 
+
+              #else 
+
+                ## Table Width Found 
+
+                #if( $tableMapValue.contains("%") )
+                  #set( $tableWidthPerc = $mathTool.toDouble($tableMapValue.replaceAll("%", "")))
+
+                #else
+                  #set( $tableWidth = $mathTool.toDouble($tableMapValue))
+                
+                  #if( $tableWidth > $maxWidth )
+                    #set( $tableWidthPerc = 100 )
+                  #else
+                    #set( $tableWidthPerc = $tableWidth / $maxWidth * 100 )
+                  #end 
+                  #if( $tableWidth > $maxRowWidth ) 
+                    #set( $maxRowWidth = $tableWidth )
+                  #end 
+                #end 
+
+                #if( $tableWidthPerc > 100 && $tableWidthPerc < 1 || !$tableWidthPerc )
+                  #set( $tableWidthPerc = 100 )
+                #end 
+                #set( $tableWidthPerc = $mathTool.round( $tableWidthPerc)) 
+                #set( $find = "(width)(=|:)([\s*|\x27\x22|])?(\d*.*?)(pt|px|in|%)")
+                #set( $replace = "$1$2$3${tableWidthPerc}% !important" )
+                
+                ##<p>Debug final tableWidthPerc: ${tableWidthPerc}%</p>
+                #set( $sub = $sub.replaceAll($find, $replace) )
+
+              #end 
+
+      
+
+            #elseif( $tableMapKey.contains("image") )
+
+              ## Word <v:shape replace pt according to cell width ##
+
+              #set( $imgIndex = $tableMapValue )
+              #set( $imgSub = $subs[$imgIndex] )
+              
+              #set( $height = $mathTool.toDouble($imgSub.replaceAll( $findHeight, "$3")))
+              #set( $width = $mathTool.toDouble( $imgSub.replaceAll( $findWidth, "$3")))
+              #if( $height != $imgSub && $width != $imgSub )
+                #set( $aspectRatio = $mathTool.toDouble( $width / $height )) 
+              #else 
+                #set( $width = $mathTool.toDouble( 180 ))
+                #set( $aspectRatio = $mathTool.toDouble( 1.3 )) 
+              #end 
+          
+              ## cellPerc gathered from last map iteration
+              #set( $cellWidthPt = 0 )
+              #set( $cellPerc = $mathTool.toDouble( $cellPerc ))
+              
+              #set( $maxImgWidth = $maxWidth - 100 ) ## give space for table
+              #set( $cellWidthPt = $cellPerc / 100 * $maxImgWidth )
+          
+              #if( $cellWidthPt > 0 )
+                #if( $width > $cellWidthPt ) 
+                  #set( $width = $cellWidthPt )
+                  #set( $height = $width / $aspectRatio ) 
+                  #set( $replace = "width:${width}pt" )
+                
+                  #set( $subs[$imgIndex] = $subs[$imgIndex].replaceAll("width:([\d\.]*?)pt",$replace) )
+                  #set( $replace = "height:${height}pt" )
+                  #set( $subs[$imgIndex] = $subs[$imgIndex].replaceAll("height:([\d\.]*?)pt",$replace) )
+                #end
+              #end
+  
+
+            #else 
+
+              ## Cell Width Replace ## 
+              ## Else the tableMapKey is a row# and holds the cols in the row e.g if a row had 2 cols:
+              ## <key row#> = <value [[colWidth, subs index #],[[colWidth, subs index #]] > 
+              
+
+              #foreach( $col in $tableMapValue )
+                #set( $cellPerc = 0 )
+                #set( $cellWidth = $col[0])
+                #set( $cellIndex = $col[1])
+          
+                ## if there is only one cell in the row without rowspan size to 100% width 
+                #if( $tableMapValue.size() == 1 )
+                  #set( $cellPerc = 100 )
+
+                ## if cell is already a % then get the double value
+                #elseif( $cellWidth.contains("%"))
+                  #set( $cellPerc = $mathTool.toDouble( $cellWidth.replaceAll("%", "")) )   
+
+                ## else convert cellWidth from pt to % width in proportion to table
+                #elseif( $cellPerc == 0 && !$cellWidth.contains("col")) 
+                  #if( $cellWidth > 0 )
+                    #set( $cellPerc = $cellWidth / $maxRowWidth * 100 )
+                  #end 
+                #end 
+
+                ## replace $subs[$i] width with % value
+                #if( !$cellWidth.contains("col"))
+                  #set( $cellPerc = $mathTool.round( $cellPerc)) 
+                  #if( $cellPerc > 100 && $cellPerc < 1 ) 
+                    #set( $cellPerc = 100 ) 
+                  #end 
+
+                  ##<p>Debug Row# $tableMapKey, cellPerc ${cellPerc}%, maxRowWidth $maxRowWidth, cellIndex $cellIndex</p>
+                  #set( $find = "(width)(=|:)([\s*|\x27\x22|])?(\d*.*?)(pt|px|in|%)")
+                  #set( $replace = "$1$2$3${cellPerc}%" )
+                  #set( $subs[$cellIndex] = $subs[$cellIndex].replaceAll($find, $replace))
+                #end 
+          
+                #if( $tableMapKey == $colGroupKey ) 
+                  #if( $maxWidthCount >= 2 )
+                    #if( $col.size() == 3 ) 
+                      #set( $colCount = $col[2])
+                      #foreach( $x in [1..$colCount])
+                        #set( $colGroup = "${colGroup}<col>" )
+                      #end 
+                    #elseif( $cellWidth.contains("col")) 
+                      #set( $colGroup = "${colGroup}<col>" )
+                    #else
+                      #set( $colGroup = "${colGroup}<col style='width:${cellPerc}%'>" )
+                    #end 
+                    #if( $foreach.last )
+                      #set( $colGroup = "${colGroup}</colgroup>")
+                    #end 
+                  #end 
+                #end 
+      
+              #end ##foreach( $col in $tableMapValue )    
+
+            #end ##if( $tableMapKey == "table" )
+          #end ##foreach( $element in $tableMap.entrySet())
+
+          ###########################################################################
+          ##  PDF Add <colgroup> to ensure fixed column widths
+          ###########################################################################
+          #if( $format == 'pdf' && $maxWidthCount >= 2) 
+            #set( $sub = "${sub}${colGroup}")
+          #end    
     
-        #if( $sub.contains("<table") )
-        	#if( $format == 'doc')
-				#set( $sub = $sub.replaceAll("align=([\x27\x22].*?[\x27\x22]|\w*)", "") )
-				#set( $sub = $sub.replaceAll("<table", "<div align=$tableAlign><table"))
-			
-			#elseif( $format == 'pdf')
-				#if( $tableAlign == "left")
-					## Default alignment is left so take left alignment off to stop float left
-					#set( $sub = $sub.replaceAll("align=([\x27\x22].*?[\x27\x22]|\w*)", "") )
-				#elseif( $tableAlign == "center")
-					#set( $sub = $sub.replaceAll("align=([\x27\x22].*?[\x27\x22]|\w*)", "") )
-					#if( $sub.contains("style"))
-						#set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1$2$3;margin:auto;$4"))
-					#else 
-						#set( $sub = $sub.replaceAll("(<table)","$1 style='margin:auto'"))
-					#end 
-				#elseif( $tableAlign == "right")
-					#set( $sub = $sub.replaceAll("align=([\x27\x22].*?[\x27\x22]|\w*)", "") )
-					#if( $sub.contains("style"))
-						#set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1$2$3;margin-left:auto;margin-right:0pt;$4"))
-					#else 
-						#set( $sub = $sub.replaceAll("(<table)","$1 style='margin-left:auto;margin-right:0pt;'"))
-					#end 
-				#end 	
-			#end 
+  
+
+        #end ##if( $sub.contains("<table" ) ) ## End of checking table for widths
+      #end ##if( !$sub.contains("invisibleTableContainsFIGURE")) 
+
+      ###########################################################################
+    
+      ###########################################################################
+      ## Find unique alignments coming from Jama and preserve them. 
+      ## If a unique alignment is not found the parameter value of $tableAlign is preserved. 
+      ## - DOC alignments are removed from the table and set to a parent div
+      ## - PDF alignments must be removed from the table and set via margins 
+      ###########################################################################
+      #if( $sub.contains("<table") )  
+
+        #set( $isAlignTable = $sub.replaceAll("(?s).*align\s*=(?:[\s*|\x27\x22])*(\w*.*?)[;|\x27\x22|\s*](?:.*)", "$1") )
+        #set( $isAlignTable = $isAlignTable.trim())
+
+        #if( $isAlignTable == "center" || $isAlignTable == "right" || $isAlignTable == "left" )
+          #set( $tableAlign = $isAlignTable)
         #end 
 
-        #if( $sub.contains("</table") && $format == 'doc')
-          #set( $sub = "$sub</div>")  
+        #set( $sub = $sub.replaceAll("(margin-left|margin-right|margin)(:.*?)(;|[\x27\x22])", "$3") )
+        #set( $sub = $sub.replaceAll("align=([\x27\x22].*?[\x27\x22]|\w*)", "") ) ## take alignment off
+
+
+        #if( $format == 'doc')  
+          #set( $sub = $sub.replaceAll("<table", "<div align=$tableAlign><table"))
+        #elseif( $format == 'pdf')
+          #if( $tableAlign == "center")
+            #if( $sub.contains("style"))
+              #set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1$2$3;margin:auto;$4"))
+            #else 
+              #set( $sub = $sub.replaceAll("(<table)","$1 style='margin:auto'"))
+            #end 
+          #elseif( $tableAlign == "right")
+            #if( $sub.contains("style"))
+              #set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1$2$3;margin-left:auto;margin-right:0pt;$4"))
+            #else 
+              #set( $sub = $sub.replaceAll("(<table)","$1 style='margin-left:auto;margin-right:0pt;'"))
+            #end 
+          #end  
         #end 
-    
- 		#if( $format == 'pdf')
- 			#set( $sub = $sub.replaceAll("writing-mode:tb-rl",""))
-        #end
- 		
-		#if( $sub.contains("<td") || $sub.contains("<th") )
-    	  #set( $sub = $sub.replaceAll("padding.*?([;\x27\x22])", "$1") )
-    	#end 
-    	## Handle text content alignment for vertical text on tables
-    	#if($sub.contains("transform:rotate(180deg);"))
-        	#set( $sub = $sub.replaceAll("transform:rotate\(180deg\);","mso-rotate:90;") )
-      	#end 
-           
-   
+      #end
+      ##<p>Debug Table Align: $tableAlign<p>
+
+
+      ###########################################################################
+
+      ## close the parent div which has the alignment for the table if Word
+      #if( $sub.contains("</table") && $format == 'doc')
+        #set( $sub = "$sub</div>")  
+      #end 
+ 
+      ###########################################################################
+
+      ###########################################################################
+      ## Miscellaneous cell style transformations
+      ###########################################################################
+      #set( $sub = $sub.replaceAll("padding.*?([;|\x27\x22])", "$1") )
+      #set( $sub = $sub.replaceAll('(style=")[;| ]+', '$1'))
+      #if( $format == 'pdf')
+        #set( $sub = $sub.replaceAll("writing-mode:tb-rl",""))
+      #end
+
+      ## Handle text content alignment for vertical text on tables
+      #if($sub.contains("transform:rotate(180deg);"))
+        #set( $sub = $sub.replaceAll("transform:rotate\(180deg\);","mso-rotate:90;") )
+      #end  
+
+
       ###########################################################################
       ## add the processed sub to the output string
       #set ( $output = "${output}${sub}" ) ##
+
       ## Determine where in a table we are
       #if( $sub.contains("</p") || $sub.contains("</li") ) #set( $tableCellParagraph = false )  #end ##
       #if( $sub.contains("</thead") ) #set( $tableHeader = false ) #end ##
       #if( $sub.contains("</td") || $sub.contains("</th") ) #set( $tableCell = false ) #end ##
       #if( $sub.contains("</table") ) #set( $table = false ) #end ##
-    #end ##foreach ($sub in $subs)
-  #else ##
-    #set ( $output = $inString )
-  #end ##if( $inString.contains("<table") )
 
+    
+    #end ##foreach ($sub in $subs)
+
+  #else
+    
+    #set ( $output = $inString )
+  
+  #end ##if( $inString.contains("<table") )
   #######################################################################################
   ## - Word caption handling by extracting caption and creating a new single cell table on top
   ## - This allows preservation of the caption alignment and prevents word from applying
-  ## - Heading formatting to the caption as it does when caption is still present on 
-  ## - original table as the first table row.
-  ##   #buildTableCaptions_DOC will add captions to tables that do not have them
+  ##   heading formatting to the caption as it does when caption is still present on 
+  ##   original table as the first table row.
+  ##
+  ## - #buildTableCaptions_DOC will add captions to tables that do not have them
   ##   if $TOT_includeAllTables is true so that they can be included in the TOT
   #######################################################################################
   #######################################################################################
   ## - PDF captions are automatically found by the template and do not need to be reformatted
-  ##  #buildTableCaptions_PDF will add captions to tables that do not have them
+  ##
+  ## - #buildTableCaptions_PDF will add captions to tables that do not have them
   ##   if $TOT_includeAllTables is true so that they can be included in the TOT
   #######################################################################################
-  
-  
-    ## check each table for table captions and format accordingly,format pdf tables with fixed column widths 
-	#if($output.contains("</table>"))
-	  	#if( $format == 'pdf') 
-	  		#buildTableCaptions_PDF( $output $tableAlign) 
-	  		#fixedColumnWidths( $output ) ## Ensure fixed column widths 	
-	  	#else 
-	  		#buildTableCaptions_DOC( $output )
-	  	#end 
-	#end	 
-	$output 	 
+
+  #if($output.contains("</table>"))
+      #if( $format == 'pdf') 
+        #buildTableCaptions_PDF( $output $tableAlign ) 
+      #else 
+        #buildTableCaptions_DOC( $output )
+      #end 
+  #end  
+
+  $output    
 
 #end 
-##
+###########################################################################################################################
+##   convertWidths 
+##   convert widths found on a table element to pt unless its a percent width. 
+##   Input: $inputElement $findWidth 
+##   Output: pt width unless its a percent width 
+#########################################################################################################################
+#macro( convertWidths $inputElement $findWidth $idx )
+  #set( $elementPerc = false )
+  #set( $elementWidth = $inputElement.replaceAll( $findWidth,"$3") )
+  #set( $elementWidth = $mathTool.toInteger( $elementWidth.trim())) 
+
+  #if( $elementWidth > 0 )
+    #set( $elementMeasurement = $inputElement.replaceAll( $findWidth,"$4") )
+
+    #if( $elementMeasurement.contains("px") ) 
+      #set( $elementWidth = $mathTool.round($elementWidth * 0.75 ))
+
+    #elseif( $elementMeasurement.contains("in"))
+      #set( $elementWidth = $mathTool.round($elementWidth * 72 ))
+
+    #elseif( $elementMeasurement.contains("%") ) 
+      #set( $elementWidth = "${elementWidth}%" )
+    #end
+  #elseif( $elementWidth == 0 ) 
+    ## replace zero found widths with nothing
+    #set( $subs[$idx] = $subs[$idx].replaceAll("(width)(=|:)([\s*|\x27\x22|])?(\d*.*?)(pt|px|in|%);*", ""))
+    #set( $elementWidth = false)
+  #else 
+    #set( $elementWidth = false)
+  #end
+#end 
 ##
 #########################################################################################################################
 ##  DOC                                                                                                                ## 
@@ -4040,64 +4155,64 @@ $string
 #set( $output = $output.replaceAll("<table", "<table[TABLE]"))
 #set( $splitList = $output.split("<table"))
 ##
-	#foreach ($splitItem in $splitList)
-	    #if( $splitItem.contains("[TABLE]"))
-		    ## Replace the placeholder with the <table tag that was removed in split
-		    #set( $splitItem = $splitItem.replaceAll("\[TABLE\]", "<table"))
-		    ## Extract table width
+  #foreach ($splitItem in $splitList)
+      #if( $splitItem.contains("[TABLE]"))
+        ## Replace the placeholder with the <table tag that was removed in split
+        #set( $splitItem = $splitItem.replaceAll("\[TABLE\]", "<table"))
+        ## Extract table width
 
-		    #if( !$splitItem.contains("invisibleTableContainsFIGURE"))
-			    #set( $tableWidth = '')
-			    #set( $tableWidth = $splitItem.replaceAll("<table.*width.*?:.*?(\d*.*?)[;\x27\x22].*|[\w|\W]","$1") )
+        #if( !$splitItem.contains("invisibleTableContainsFIGURE"))
+          #set( $tableWidth = '')
+          #set( $tableWidth = $splitItem.replaceAll("<table.*width.*?:.*?(\d*.*?)[;\x27\x22].*|[\w|\W]","$1") )
 
-			    #set( $captionContent = "")
-			    #if( $splitItem.contains("</caption>"))
-			      #set( $tableRefNum = $tableRefNum + 1) 
-			      ## Extract Caption Content
+          #set( $captionContent = "")
+          #if( $splitItem.contains("</caption>"))
+            #set( $tableRefNum = $tableRefNum + 1) 
+            ## Extract Caption Content
 
-			      #set( $captionContent = $splitItem.replaceAll("(<caption.*\s*.*\s*<\/caption>)|[\w|\W]", "$1"))
-			      #set( $captionContent = $captionContent.replaceAll("<\/caption>", ""))
-			      #set( $getAlign = $captionContent.replaceAll("<caption(.*?)>", "$1"))
-			      #set( $captionContent = $captionContent.replaceAll("<caption.*?>", ""))
-		          
-		          #set( $captionAlign = '')
-		          #set( $captionAlign = $getAlign.replaceAll("[^*]*?text-align:(\w*).*(?:.*)", "$1"))
+            #set( $captionContent = $splitItem.replaceAll("(<caption.*\s*.*\s*<\/caption>)|[\w|\W]", "$1"))
+            #set( $captionContent = $captionContent.replaceAll("<\/caption>", ""))
+            #set( $getAlign = $captionContent.replaceAll("<caption(.*?)>", "$1"))
+            #set( $captionContent = $captionContent.replaceAll("<caption.*?>", ""))
+              
+              #set( $captionAlign = '')
+              #set( $captionAlign = $getAlign.replaceAll("[^*]*?text-align:(\w*).*(?:.*)", "$1"))
 
 
-		          #set( $captionContent = $captionContent.replaceAll("<\/p>", ""))
-		          #set( $captionContent = $captionContent.replaceAll("<p.*?>", ""))
+              #set( $captionContent = $captionContent.replaceAll("<\/p>", ""))
+              #set( $captionContent = $captionContent.replaceAll("<p.*?>", ""))
 
-		          #if( $!captionContent && $captionContent != '')
-		            #if( $captionAlign != '')
-			          #set($caption = "<table border='0' cellpadding='1' cellspacing='0' style='border-collapse:collapse;borders:none;width:$tableWidth'><tr><td style='width:$tableWidth'><p class=MsoNormal style='text-align:$captionAlign;font-size:10pt;font-family:'Helvetica',sans-serif;font-weight:bold'><p class=MsoCaption style='text-align:$captionAlign !important;margin-top:6pt;page-break-after:avoid'><a name='_TBL${tableRefNum}'>Table </a><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-begin'></span><span style='mso-bookmark:_TBL${tableRefNum}'>SEQ Table \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'><span style='mso-no-proof:yes'>$tableRefNum</span></span><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'></span> $!captionContent</p></td></tr></table>" )
-			        #else
-			          #set($caption = "<table border='0' cellpadding='1' cellspacing='0' style='border-collapse:collapse;borders:none;width:$tableWidth'><tr><td style='width:$tableWidth'><p class=MsoNormal style='text-align:$tableAlign;font-size:10pt;font-family:'Helvetica',sans-serif;font-weight:bold'><p class=MsoCaption style='text-align:$tableAlign;margin-top:6pt;page-break-after:avoid'><a name='_TBL${tableRefNum}'>Table </a><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-begin'></span><span style='mso-bookmark:_TBL${tableRefNum}'>SEQ Table \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'><span style='mso-no-proof:yes'>$tableRefNum</span></span><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'></span> $!captionContent</p></td></tr></table>" )
-			        #end
-			      #end
+              #if( $!captionContent && $captionContent != '')
+                #if( $captionAlign != '')
+                #set($caption = "<table border='0' cellpadding='1' cellspacing='0' style='border-collapse:collapse;borders:none;width:$tableWidth'><tr><td style='width:$tableWidth'><p class=MsoNormal style='text-align:$captionAlign;font-size:10pt;font-family:'Helvetica',sans-serif;font-weight:bold'><p class=MsoCaption style='text-align:$captionAlign !important;margin-top:6pt;page-break-after:avoid'><a name='_TBL${tableRefNum}'>Table </a><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-begin'></span><span style='mso-bookmark:_TBL${tableRefNum}'>SEQ Table \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'><span style='mso-no-proof:yes'>$tableRefNum</span></span><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'></span> $!captionContent</p></td></tr></table>" )
+              #else
+                #set($caption = "<table border='0' cellpadding='1' cellspacing='0' style='border-collapse:collapse;borders:none;width:$tableWidth'><tr><td style='width:$tableWidth'><p class=MsoNormal style='text-align:$tableAlign;font-size:10pt;font-family:'Helvetica',sans-serif;font-weight:bold'><p class=MsoCaption style='text-align:$tableAlign;margin-top:6pt;page-break-after:avoid'><a name='_TBL${tableRefNum}'>Table </a><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-begin'></span><span style='mso-bookmark:_TBL${tableRefNum}'>SEQ Table \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'><span style='mso-no-proof:yes'>$tableRefNum</span></span><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'></span> $!captionContent</p></td></tr></table>" )
+              #end
+            #end
 
-			      #set($splitItem = $splitItem.replaceAll("<caption.*\s*.*\s*<\/caption>", ""))
-			      #set($splitItem = $splitItem.replaceAll("<table", "$caption<table"))
+            #set($splitItem = $splitItem.replaceAll("<caption.*\s*.*\s*<\/caption>", ""))
+            #set($splitItem = $splitItem.replaceAll("<table", "$caption<table"))
 
-			    ## Add captions to All Tables ##
-			    ## Comment out this block if you only want captions for tables that have captions
-			    #else
-			    	#if( $TOT_includeAllTables )
-			    		#set( $tableRefNum = $tableRefNum + 1)
-			    		#set($caption = "<table border='0' cellpadding='1' cellspacing='0' style='border-collapse:collapse;borders:none;width:$tableWidth'><tr><td style='width:$tableWidth'><p class=MsoNormal style='text-align:$tableAlign;font-size:10pt;font-family:'Helvetica',sans-serif;font-weight:bold'><p class=MsoCaption style='text-align:center;margin-top:6pt;page-break-after:avoid'><a name='_TBL${tableRefNum}'>Table </a><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-begin'></span><span style='mso-bookmark:_TBL${tableRefNum}'>SEQ Table \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'><span style='mso-no-proof:yes'>$tableRefNum</span></span><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'></span></p></td></tr></table>" )
-			    		#set($splitItem = $splitItem.replaceAll("<table", "$caption<table"))
-			    	#end 
-	    		#end  ##if($splitItem.contains("</caption>"))
-	    	#end ##if( !$splitItem.contains("invisibleTableContainsFIGURE"))
-		#end  ##if( $splitItem.contains("[TABLE]"))
+          ## Add captions to All Tables ##
+          ## Comment out this block if you only want captions for tables that have captions
+          #else
+            #if( $TOT_includeAllTables )
+              #set( $tableRefNum = $tableRefNum + 1)
+              #set($caption = "<table border='0' cellpadding='1' cellspacing='0' style='border-collapse:collapse;borders:none;width:$tableWidth'><tr><td style='width:$tableWidth'><p class=MsoNormal style='text-align:$tableAlign;font-size:10pt;font-family:'Helvetica',sans-serif;font-weight:bold'><p class=MsoCaption style='text-align:center;margin-top:6pt;page-break-after:avoid'><a name='_TBL${tableRefNum}'>Table </a><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-begin'></span><span style='mso-bookmark:_TBL${tableRefNum}'>SEQ Table \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'><span style='mso-no-proof:yes'>$tableRefNum</span></span><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'></span></p></td></tr></table>" )
+              #set($splitItem = $splitItem.replaceAll("<table", "$caption<table"))
+            #end 
+          #end  ##if($splitItem.contains("</caption>"))
+        #end ##if( !$splitItem.contains("invisibleTableContainsFIGURE"))
+    #end  ##if( $splitItem.contains("[TABLE]"))
 ##
-	  	## Rebuild the now modified inString content
-	  	#set ( $tempInString = "${tempInString}${splitItem}" )
+      ## Rebuild the now modified inString content
+      #set ( $tempInString = "${tempInString}${splitItem}" )
 
-	#end  ##foreach ($splitItem in $splitList)
+  #end  ##foreach ($splitItem in $splitList)
 
-	## Reassign inString to its now caption modified version
+  ## Reassign inString to its now caption modified version
 
-	#set($output = $tempInString)
+  #set($output = $tempInString)
 ##
   ##------------------------------##
   ## Returns $output
@@ -4120,21 +4235,21 @@ $string
 #set( $splitList = $output.split("<table"))
 
 #foreach ($splitItem in $splitList)
-  	#if( $splitItem.contains("[TABLE]"))
-		## Replace the placeholder with the <table tag that was removed in split
-		#set( $splitItem = $splitItem.replaceAll("\[TABLE\]", "<table"))
+    #if( $splitItem.contains("[TABLE]"))
+    ## Replace the placeholder with the <table tag that was removed in split
+    #set( $splitItem = $splitItem.replaceAll("\[TABLE\]", "<table"))
 
-		#if(!$splitItem.contains("</caption>") && $TOT_includeAllTables )
-			#if( $tableAlign=='center')
-				#set($caption = "<caption style='text-align:center !important;margin:auto !important'></caption>" )
-			#elseif( $tableAlign =='right')
-				#set($caption = "<caption style='text-align:right !important;margin-right:0pt !important;'></caption>" )
-			#else 
-				#set($caption = "<caption style='text-align:center !important;margin:auto !important;'></caption>" ) ## set default caption align
-			#end 
-		#set($splitItem = $splitItem.replaceAll("(<table.*?>)", "$1 $caption"))
+    #if(!$splitItem.contains("</caption>") && $TOT_includeAllTables )
+      #if( $tableAlign=='center')
+        #set($caption = "<caption style='text-align:center !important;margin:auto !important'></caption>" )
+      #elseif( $tableAlign =='right')
+        #set($caption = "<caption style='text-align:right !important;margin-right:0pt !important;'></caption>" )
+      #else 
+        #set($caption = "<caption style='text-align:center !important;margin:auto !important;'></caption>" ) ## set default caption align
+      #end 
+    #set($splitItem = $splitItem.replaceAll("(<table.*?>)", "$1 $caption"))
 
-	#end  ##if(!$splitItem.contains("</caption>"))
+  #end  ##if(!$splitItem.contains("</caption>"))
   #end  ##if( $splitItem.contains("[TABLE]"))
   
   ## Rebuild the now modified inString content
@@ -4151,143 +4266,6 @@ $string
 ##------------------------------##
 
 #end 
-##
-#########################################################################################################################
-##          Macro: fixedColumnWidths
-##          Input: $formatTablesOutput      
-##          Return: $returnFixedColumnWidths string, ready for opening in Word
-#########################################################################################################################
-#macro( fixedColumnWidths $formatTablesOutput )
-#set( $output = "")
-#set( $checkAllTables = $formatTablesOutput )
-#set( $checkAllTables = $checkAllTables.replaceAll("<table", "<table[TABLE]"))
-#set( $split_Col_List = [])
-#set( $split_Table_List = $checkAllTables.split("<table"))
-#set( $tableCount = 0 )
-##
-	#foreach( $table in $split_Table_List)
-		#if( $table.contains("[TABLE]"))
-			#set( $tableCount = $tableCount +1)
-		#end 
-	#end 
-	#if( $tableCount > 1 )
-		#foreach( $table in $split_Table_List )
-			#if( $table.contains("[TABLE]"))
-				#set( $table = $table.replaceAll( "\[TABLE\]", "<table"))
-				#calculateMaxColsAndSetColGroup( $table )
-				#set( $output = $output.concat( $returnTableString ))	
-			#else 
-				#set( $output = $output.concat( $table ))
-			#end 
-		#end 
-	#else 
-		#calculateMaxColsAndSetColGroup( $formatTablesOutput )
-		#set( $output = $returnTableString )
-	#end 
-
-#end 
-##
-##DEBUG returnTableString #set( $TESTreturnTableString = $returnTableString.replaceAll("<|>", "&nbsp;&nbsp;"))<br>***<br> $TESTreturnTableString <br>***<br> ##
-#########################################################################################################################
-##          Macro: calculateMaxColsAndSetColGroup
-##          Input: $inputTable           
-##          Return: string, ready for opening in Word
-#########################################################################################################################
-#macro( calculateMaxColsAndSetColGroup $inputTable )
-##
-##  In order to have reliable fixed widths we need to find the row with the most unique width specifications ## 
-#set( $checkRowsForWidths = $inputTable.replaceAll("<tr", "<tr[ROW]"))
-#set( $split_Row_List = $checkRowsForWidths.split("<tr"))
-#set( $maxWidthCount = 0 )
-#set( $tempWidthCount = 0 )
-#set( $rowForColGroup = "")
-#set( $colWidthPresent = false )
-##
-	#foreach( $row in $split_Row_List )
-		#if( $row.contains("[ROW]"))
-			#set( $row = $row.replaceAll("\[ROW\]", "<tr"))
-			#set( $isThereWidth = "")
-			#set( $isThereWidth = $row.replaceAll("([^*]*?)(<td.*?|<th.*?)(width)", "$1$2[wid][WIDTH]"))	
-			#if( $isThereWidth.contains("[WIDTH]"))			
-				#set( $colWidthPresent = true )
-				#set( $widthFound = [] )
-				#set( $widthFound = $isThereWidth.split("[wid]"))
-##
-				#foreach( $wid in $widthFound )
-					#if( $wid.contains("[WIDTH]"))
-						#set( $tempWidthCount = $tempWidthCount +1)
-					#end 
-				#end 
-			#end 
-			#if( $tempWidthCount > $maxWidthCount )
-				#set( $maxWidthCount = $tempWidthCount )
-				#set( $rowForColGroup = $row )
-			#end 
-			#set( $tempWidthCount = 0)
-		#end 
-	#end 
-    ##DEBUG Max Columns with Width Present: $maxWidthCount <br>
-##
-    ## Ensure that we are looking at a table with cell widths present
-	#if( $colWidthPresent == true )
-		#set( $columnList = $rowForColGroup )
-		#set( $columnList = $columnList.replaceAll("<th", "<th[COL]"))
-		#set( $columnList = $columnList.replaceAll("<td", "<td[COL]"))
-		#set( $split_Col_List = $columnList.split("<td|<th"))
-		#set( $colGroup = "<colgroup>")
-		#set( $colsReplaceString = "" )
-		##-------------------------------------------------------------------------------##                
-		##   Build the colgroup- for each td || th in the row add a <col> HTML element   ##
-		##   to the $colGroup string, utilizing width if found. If a cell has colspan,   ##
-		##   for each count in colspan add <col> to the colgroup                         ## 
-		##-------------------------------------------------------------------------------##
-		#foreach( $col in $split_Col_List )			
-			#if(  $col.contains("[COL]") && $col.contains("</th"))
-				#set( $col = $col.replaceAll("\[COL\]", "<th "))
-			#elseif( $col.contains("[COL]") && $col.contains("</td")) 
-				#set( $col = $col.replaceAll("\[COL\]", "<td "))
-			#end 
-			#if( $col.contains("<td") || $col.contains("<th"))
-				#set( $colWidth = "")
-				#if( $col.contains("width"))
-					#set( $colWidth = $col.replaceAll("[^*]*?(<td.*?|th.*?)(width\s*)(:|=)\s*\x27?\x22?(\d*.*?)[;\x27\x22].*(?:.*)", "$4"))
-				#end					
-				#if( $col.contains("colspan") )
-					#set( $colspanFound = $col.replaceAll( "[^*]*?(<td.*?|th.*?)(colspan\s*=)[\x27\x22](\d*.*?)[\x27\x22].*(?:.*)", "$3"))
-					#set( $colspanFound = $colspanFound.trim())
-					#set( $colspanCount = $mathTool.toInteger($colspanFound))
-					#foreach( $x in [1..$colspanCount])
-						#set( $colGroup = "${colGroup}<col>" )
-					#end 
-				#elseif( $colWidth != "")
-					#set( $colGroup = "${colGroup}<col style='width:${colWidth}'>" )
-				#else 
-					#set( $colGroup = "${colGroup}<col>" )
-				#end 
-				#set( $colsReplaceString = "${colsReplaceString}${col}")
-			#end 
-		#end ##foreach( $col in $split_Col_List )
-##
-	    #set( $colGroup = "$colGroup" + "<\/colgroup>") ## close the colgroup ## 
-	    ## DEBUG ColGroup #set( $testColGroup = $colGroup.replaceAll("<|<\/|>", "")) $testColGroup
-
-		##   Ensure the table element has 'table-layout:fixed' ##
-		#set( $isTableLayoutFixed = $inputTable.replaceAll("[^*]*?(<table.*?)(table-layout\s*:)(\s*fixed)", "$3"))
-		#set( $isTableLayoutFixed = $isTableLayoutFixed.trim())
-	
-		#if( !$isTableLayoutFixed.toUpperCase().contains("FIXED"))
-			#set( $inputTable = $inputTable.replaceAll("(<table.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1$2;table-layout:fixed$3"))
-		#end 
-
-		##   Add the colgroup just after the opening table element  ##  
-		#set( $returnTableString = $inputTable.replaceAll("(<table.*?>)","$1 $colGroup"))
-##
-	## else this table does not have widths present and does not need to be processed ## 
-	#else 
-		#set( $returnTableString = $inputTable )
-	#end ##if( $colWidthPresent = true )
-#end 
-##
 #########################################################################################################################
 ##          Macro: formatTableCell
 ##          Input: $inString - input string
