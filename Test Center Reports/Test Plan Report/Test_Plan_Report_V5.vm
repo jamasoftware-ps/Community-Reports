@@ -265,15 +265,15 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 #set( $equationRefNum = 0) ## 'pdf' or 'doc' Counter -> Equations 
 
 ## Automatically include a TOF or TOT for Word if 'true' (PDF select option at time of report install)
-#set( $tableOfFigures = true )
-#set( $tableOfTables = true )
+#set( $tableOfFigures = false )
+#set( $tableOfTables = false )
 
 ## All Tables/Figures with captions/figcaptions will be included in the TOT and TOF 
 ## Automatically include all other Tables/Figures exported regardless of captions/figcaptions
 ## Equations will be provided static captions created by the custom report.
-#set( $TOT_includeAllTables = true )
-#set( $TOF_includeAllFigures = true )
-#set( $TOE_includeAllEquations = true )
+#set( $TOT_includeAllTables = false )
+#set( $TOF_includeAllFigures = false )
+#set( $TOE_includeAllEquations = false )
 
 ## Document Link Cross References
 ## If a customer would like any exported hyperlink that goes to a Jama item to redirect to the item heading
