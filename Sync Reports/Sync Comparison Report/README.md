@@ -2,30 +2,33 @@
 
 ## Report Summary
 
-This report is used to compare two items or projects on the Jama instance in order to determine Sync comparison results for a collection of generic fields. This report allows users to gather sync results from full projects, same or cross project containers, and or same or cross project single items. 
+This report is used to compare two items, containers, or projects on the Jama instance in order to outline items Jama sync status and sync comparison results for a collection of generic fields. This report allows users to gather sync results from full projects, same or cross project containers/items.
 
-The report will display each item based on the selected Source location to its corresponding Sync Target item showing a collection of generic data fields followed by the items Sync Results. Alongside the inclusion of missing items between the selected source and target locations from both side for additional coverage of data.  
+The report will display each item based on the selected Source location to its corresponding Sync Target item providing the included field values listed below. Do note that the target description field will include applied redlining to assist in outlining text content differences. Be aware that for standard Excel custom reports images and tables are omitted from the output due to Microsoft Excel limitations. 
+
+Each source and target item is then paired with collection of Sync Results columns that clarify both the Jama instance determined sync status and field value sync comparison results. In the event there are missing items between the selected source and target locations those will also be included in the resulting output for additional coverage of data.  
 
 ### Report Data Fields
 
 * Default Fields
-    * Product ID
+    * Item ID
     * Project Name
     * Global ID
     * Header Value
     * Name
-    * Description (in plain text)
+    * Description (Textual Content Only)
     * Status
     * Tags
 * Optional Fields
-    * Upstream and Downstream Related Items
+    * Upstream Related Items
+    * Downstream Related Items
     * Attachments
 
 ### Sync Results Details
 
 The Sync Results section begins with column 'Jama Instance Sync Status' which is Sync Status value stored on the Jama instance between the source and target item. This value is calculated and determined by specifically selected fields on our Jama instance. 
 
-This is then followed by the 'Report Field Comparison Sync Status' column that is determined by the overall sync results from each successive sync result per included field column. These following sync result columns are included for additional coverage of field data comparison results between the source and target items but may not contribute to your Jama instances defined Sync Status value.  
+This is then followed by the 'Report Field Comparison Sync Status' column that is determined by the overall sync results from each successive field sync column result. These following sync result columns are included for additional coverage of field data comparison results between the source and target items but may not contribute to your Jama instances defined Sync Status value.  
 
 
 ## Preview Image
@@ -33,6 +36,8 @@ This is then followed by the 'Report Field Comparison Sync Status' column that i
 ![PreviewImage1](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Sync%20Reports/Sync%20Comparison%20Report/preview1.png)
 
 ![PreviewImage2](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Sync%20Reports/Sync%20Comparison%20Report/preview2.png)
+
+![PreviewImage3](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Sync%20Reports/Sync%20Comparison%20Report/preview3.png)
 
 
 ## Project Level Sync Comparison Instructions
@@ -49,6 +54,7 @@ This is then followed by the 'Report Field Comparison Sync Status' column that i
 6. Supply your Sync Target Project ID in the *Cross Project* string parameter.
 7. Select any other report parameters you want applied.
 8. Select run report.
+9. Be aware that due to the size of some projects this may take longer to generate than your standard run.
 
 
 ## Same Project Container or Single Item Sync Comparison Instructions

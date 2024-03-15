@@ -6,7 +6,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D8DFBE.2078AF30"
 ## ======================================================================================================================
 ## Name: Sync Comparison Report.vm
 ##
-## Output Type: Excel XLXS, Excel Legacy, HTML
+## Output Type: Excel XLXS
 ## 
 ## Description/Notes: 
 ##    - This report exports a context sensitive container of "Source" items alongside a parameter input by either 
@@ -33,6 +33,18 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D8DFBE.2078AF30"
 ## -----------  ---------  ----------------  -------------------------------------------------------------------------
 ## 2022-11-22   1.0        Liam Rotchford    - Initial build based on Community Proposal specifications and xlsx single sheet
 ##                                             excel template version 1.1
+## 2024-03-14   2.0        Liam Rotchford    - Updated report macros to xlsx single sheet excel template version 1.2.2.
+##                                           - Updated Jama instance sync status call to utilize document node ref ids. 
+##                                           - Updated #contentSyncRows() macro with additional conditional logic in the event
+##                                             that the corresponding target item is not present in target selection list. 
+##                                           - Revised #buildRows() macro to resolve related items comparison inaccuracy by instead
+##                                             utilizing globalId values. 
+##                                           - Revised #getAttachmentsList() macro to omit comparison of attachment IDs which have
+##                                             been identified to change when items are reused to alternative projects to instead 
+##                                             compare based on attachment list size and file names. 
+##                                           - Removed description source sync column given that we can now include redlining diff.
+##                                           - Updated target description to include description field redlining.  
+##                                             
 ##
 ##
 ##
@@ -174,6 +186,12 @@ xmlns="http://www.w3.org/TR/REC-html40">
    <x:ExcelWorksheet>
     <x:Name>Report Name</x:Name>
     <x:WorksheetSource HRef="Single_Sheet_Mockup_files/sheet001.htm"/>
+    <x:WorksheetOptions>
+      <FreezePanes/>
+      <FrozenNoSplit/>
+      <SplitHorizontal>4</SplitHorizontal> 
+      <TopRowBottomPane>4</TopRowBottomPane>
+    </x:WorksheetOptions>
    </x:ExcelWorksheet>
   </x:ExcelWorksheets>
   <x:Stylesheet HRef="Single_Sheet_Mockup_files/stylesheet.css"/>
@@ -496,55 +514,47 @@ td
 #########################################################################################################################
 #macro( formatRichTextCell $inString )
   #if( $inString )
-    #set( $string = $inString.toString())
-    #set( $string = $string.replaceAll("\n{2}",""))
-
-    #set( $string = $string.replaceAll("<span.*?>",""))
-    #set( $string = $string.replaceAll("<\/span>",""))
-    #set( $string = $string.replaceAll("<h\d*?.*?>","<p><strong>"))
-    #set( $string = $string.replaceAll("<\/h\d*?>","</strong></p>"))
-    #set( $string = $string.replaceAll("<div.*?>",""))
-    #set( $string = $string.replaceAll("<\/div>",""))
-    #set( $string = $string.replaceAll("<p.*?>&nbsp;<\/p>",""))
+    #set( $string = $inString.toString() )
     
-    ## Remove content that doesn't work well in Excel
+    #set( $string = $string.replaceAll("<div.*?>|<\/div>",""))
+    #set( $string = $string.replaceAll("<html.*?>|<html>", ""))
+    #set( $string = $string.replaceAll("<span.*?>|<\/span>", ""))
+
+    ## remove images ## 
+    #set( $string = $string.replaceAll("<p.*?><img.*?><\/p>", ""))
+    #set( $string = $string.replaceAll("<img.*?>",""))
+    #set( $string = $string.replaceAll("<figure.*?>|</figure>", ""))
+    #set( $string = $string.replaceAll("<svg.*?>|<\/svg", ""))
+    ## figure captions should not cause issue, replace at user discretion
+    #set( $string = $string.replaceAll("<figcaption.*?>|<\/figcaption>",""))
+
+    ## remove tables ## 
     #set( $string = $string.replaceAll("<table.*?>|<\/table>",""))
-    #set( $string = $string.replaceAll("(<caption.*?>(?:.|\s)*?<\/caption>)",""))
+    #set( $string = $string.replaceAll("<col.*?>|<\/col>", ""))
+    #set( $string = $string.replaceAll("<tbody.*?>|<\/tbody>",""))
     #set( $string = $string.replaceAll("<thead.*?>|<\/thead>",""))
-    #set( $string = $string.replaceAll("(<th.*?>(?:.|\s)*?<\/th>)",""))
-    #set( $string = $string.replaceAll("<tbody.*>|<\/tbody>",""))
+    #set( $string = $string.replaceAll("<th.*?>(?:.|\s)*?<\/th>", ""))
+    #set( $string = $string.replaceAll("<th.*?>|</th>", ""))
     #set( $string = $string.replaceAll("<tr.*?>|<\/tr>",""))
-    #set( $string = $string.replaceAll("(<td.*?>(?:.|\s)*?<\/td>)",""))
-    #set( $string = $string.replaceAll("(?s)<a.*>(.*)</a>","$1"))
+    #set( $string = $string.replaceAll("<td.*?>(?:.|\s)*?<\/td>", ""))
+    #set( $string = $string.replaceAll("<td.*?>|<\/td>", ""))
+    #set( $string = $string.replaceAll("<tfoot.*?>|<\/tfoot>",""))
+    #set( $string = $string.replaceAll("<caption.*?>|<\/caption>",""))
+
+    ## remove link tags
+    #set( $string = $string.replaceAll("<\/?(a).*?>",""))
+
+    ## replace list tags with a restructured list via <br>s and the bullet html entity
+    #set( $string = $string.replaceAll("<ul.*?>","<br>"))
+    #set( $string = $string.replaceAll("<ol>","<br>"))
+    #set( $string = $string.replaceAll("<\/ol>|<\/ul>",""))
+    #set( $string = $string.replaceAll("<li.*?>","&#x2022; "))
+    #set( $string = $string.replaceAll("<\/li>","<br>"))
+
+    ## Misc edge cases
     #set( $string = $string.replaceAll("\xA0",""))
 
-    #set( $string = $string.replaceAll("<ul.*?>",""))
-    #set( $string = $string.replaceAll("<\/ul>","&#10;"))
-    #set( $string = $string.replaceAll("<ol.*?>",""))
-    #set( $string = $string.replaceAll("<\/ol>","&#10;"))
-    #set( $string = $string.replaceAll("\t<li.*?>|<li.*?>","• &#032;"))
-    #set( $string = $string.replaceAll("<\/li>","&#10;"))
-
-    #set( $string = $string.replaceAll("<em.*?>|<\/em>",""))
-    #set( $string = $string.replaceAll("<pre.*?>|<\/pre>",""))
-    #set( $string = $string.replaceAll("<strong>",""))
-    #set( $string = $string.replaceAll("<\/strong>",""))
-    #set( $string = $string.replaceAll("<u.*?>|<\/u>",""))
-    #set( $string = $string.replaceAll("<br.*?>","&#10;"))
-
-    #set( $string = $string.replaceAll("&nbsp;",""))
-    #set( $string = $string.replaceAll("<p.*?>",""))
-    #set( $string = $string.replaceAll("<\/p>","&#10;"))
-    #set( $string = $string.replaceAll(" \n|(&#10;)\n","$1"))
-   
-    #set( $string = $string.replaceAll("<img.*?>",""))
-
-    #set( $string = $string.replaceAll("<","&lt;"))
-    #set( $string = $string.replaceAll(">","&gt;"))
-
-    #set( $string = $string.replaceAll("([\n|&#10;|&#10;\n]*)$", ""))
-    $!string
-
+    $string
   #end
 #end
 
@@ -656,7 +666,80 @@ td
 ##
 
 #########################################################################################################################
-##
+##          Macro: getBaselineRelationships
+##          Input: $orginDocId - ID of a current item
+##                 $baselineId - ID of a baseline   
+##                 $inDoc - current item
+##                 $inDownstream - true provides downstream relationships, false provides upstream relationships    
+##          Creates: $returnBaselineRels list of upstream Or downstream baseline relationships 
+#########################################################################################################################
+#macro( getBaselineRelationships $orginDocId $baselineId $inDoc $inDownstream )
+  #set( $start = 0 )
+  #set( $count = 20 )
+  #set( $versionedRelationships = [] )
+  #set( $returnBaselineRels = [])
+  #set( $pageSize = 20)
+  #set( $relatedIds = [] )
+  ##
+  #set($baseRelsPage = $velocityServiceWrapper.getRelationships($orginDocId,$baselineId,$start,$count))
+  ##
+  #set( $totalRels = [])
+  #set( $totalRels = $baseRelsPage.getPageInfo().getTotalResults())
+  ## DEBUG Baseline Page Info: $baseRelsPage.getPageInfo() <br><br>
+  ## DEBUG Baseline Relationship Count: $baseRelsPage.getPageInfo().getTotalResults()<br><br>
+  ## DEBUG Baseline Results: $baseRelsPage.getResults() 
+
+  #if( $totalRels && $totalRels > 0)
+    #set( $page_count = $mathTool.floor($mathTool.div($totalRels,$pageSize)) )
+    #foreach( $page in [0..$page_count])
+      #set( $baseRelsPage = $velocityServiceWrapper.getRelationships($orginDocId,$baselineId,$start,$count))
+      #set( $baseRelsPageResults = $baseRelsPage.getResults())
+
+      #if( $baseRelsPageResults )
+       #set( $success = $versionedRelationships.addAll($baseRelsPageResults ))
+      #end 
+
+      #set( $start = $start + $count)
+
+    #end
+  #end
+  ##
+  #foreach( $versionedRelationship in $versionedRelationships )
+    #if( $inDownstream ) ## Get Downstream Relationships
+      #set( $upItemId = $versionedRelationship.getFromItem().getValue().get(0) )
+      #set( $upItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
+      #set( $upDoc = $documentSource.getItem($upItemId, $upItemVersion) ) ## necessary to get by version
+
+      #if( $inDoc.id == $upItemId ) 
+        #set( $dnItemId = $versionedRelationship.getToItem().getValue().get(0) )
+        #set( $dnItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
+        #set( $dnDoc = $velocityServiceWrapper.getItem($dnItemId, $dnItemVersion) )
+        #if( !$relatedIds.contains($dnDoc.id) )
+          #set( $success = $relatedIds.add($dnDoc.id) )
+          #set( $success = $returnBaselineRels.add( {"fromDocument":$inDoc,"toDocument":$dnDoc} ) )
+        #end
+      #end 
+
+    #else
+      #set( $dnItemId = $versionedRelationship.getToItem().getValue().get(0) )
+      #set( $dnItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
+      #set( $dnDoc = $documentSource.getItem($dnItemId, $dnItemVersion) ) ## necessary to get by version
+
+      #if( $inDoc.id == $dnDoc.id ) ## Get Upstream Relationships
+        #set( $upItemId = $versionedRelationship.getFromItem().getValue().get(0) )
+        #set( $upItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
+        #set( $upDoc = $documentSource.getItem($upItemId, $upItemVersion) )
+        #if( !$relatedIds.contains( $upDoc.id) )
+          #set( $success = $relatedIds.add( $upDoc.id) )
+          #set( $success = $returnBaselineRels.add( {"fromDocument":$upDoc,"toDocument":$inDoc} ) )
+        #end
+      #end
+
+    #end 
+  #end
+
+#end
+
 #########################################################################################################################
 ##          Macro: getRelationships
 ##          Inputs: $baselineMode - GLOBAL, tells the report if the export was from a baseline or not 
@@ -668,49 +751,68 @@ td
 #########################################################################################################################
 #macro( getRelationships $inDoc $inDownstream )
   #set( $returnRels = [] )
-  #if( $baselineMode )
-    #if( $baselineId )
+
+  #if( $baselineMode && $baselineId )
       #set( $currentVersion = $inDoc.currentVersion )
       #set( $orginDocId = $currentVersion.originDocument.id )
-      #set( $relatedIds = [] )
-      #getBaselineRelationships303( $orginDocId, $baselineId ) ## Creates $returnBaselineRels
+      #getBaselineRelationships( $orginDocId, $baselineId, $inDoc, $inDownstream ) ## Creates $returnBaselineRels
       ##DEBUG $returnBaselineRels
-      #foreach ( $rel in $returnBaselineRels )
-        #set($dnDoc = $rel.toItem)
-        #set($upDoc = $rel.fromItem)
-        #set($relationshipType = $rel.relationshipType )
-        #if( $inDownstream )  ## Get Downstream Relationships
-          #if( $upDoc.id == $inDoc.id )
-            #if( !$relatedIds.contains($dnDoc.id) )
-              #set( $success = $relatedIds.add($dnDoc.id) )
-              #set( $success = $returnRels.add( {"fromDocument":$upDoc,"toDocument":$dnDoc,"relationshipType":$relationshipType} ) )
-            #end
-          #end
-        #else                 ## Get Upstream Relationships
-          #if( $dnDoc.id == $inDoc.id )
-            #if( !$relatedIds.contains($upDoc.id) )
-              #set( $success = $relatedIds.add($upDoc.id) )
-              #set( $success = $returnRels.add( {"fromDocument":$upDoc,"toDocument":$dnDoc,"relationshipType":$relationshipType} ) )
-            #end
-          #end
-        #end
-      #end
-    #end
+      #set( $returnRels = $returnBaselineRels )
   #else
+
     #set( $rels = [] )
     #set ( $rels = $relDao.getRelationshipsForDocument($inDoc.id, $inDownstream) )
     #foreach( $rel in $rels )
       #if( $inDownstream )  ## Get Downstream Relationships
         #if ( $rel.toDocument.active )
-          #set( $success = $returnRels.add({"fromDocument":$rel.fromDocument,"toDocument":$rel.toDocument,"relationshipType":$rel.relationshipType.name}) )
+          #set( $success = $returnRels.add( $rel ) )
         #end
       #else                 ## Get Upstream Relationships
         #if ( $rel.fromDocument.active )
-          #set( $success = $returnRels.add({"fromDocument":$rel.fromDocument,"toDocument":$rel.toDocument,"relationshipType":$rel.relationshipType.name}) )
+          #set( $success = $returnRels.add( $rel ) )
         #end
       #end
     #end
   #end
+#end
+
+#########################################################################################################################
+##          Macro: getRedLineComp
+##          Inputs: $currItem $compItem $fieldName
+##          Creates: $diffContentStr 
+##          Desc: Macro extracts the supplied items specified field, applies the .getDiff method for redlining, then 
+##                adjusts the coloring for Excel text coloring formats using <font> tags.
+#########################################################################################################################
+#macro (getRedLineComp $currItem $compItem $fieldName)
+
+  #set($diffContent = '')
+  
+  #if( $velocityReportUtil.getValueForField($currItem, $fieldName, $dateFormat))
+    #set($currVal = $velocityReportUtil.getValueForField($currItem, $fieldName, $dateFormat))
+    #set($compVal = $velocityReportUtil.getValueForField($compItem, $fieldName, $dateFormat))
+    
+    #set($currVal = "#formatRichTextCell($!currVal)")
+    #set($compVal = "#formatRichTextCell($!compVal)")
+
+    #set( $diffContent = '')
+    #set( $diffContent = $diffService.getDiff($compVal, $currVal))
+    #set( $diffContentStr = $diffContent.toString())
+
+    #set( $diffContentStr = $!diffContentStr.replaceAll('<div.*?>(\s.*?)(<span class="diff-html-\w*".*?>)', '<font style="color:black;">$1</font>$2'))
+    #set( $diffContentStr = $!diffContentStr.replaceAll('(<\/span>)(\s.*?)<\/div>', '$1<font class="font0">$2</font>'))
+
+    ## Apply Same Content Coloring
+    #set( $diffContentStr = $!diffContentStr.replaceAll('(<\/span>)(.*?)(<span class="diff-html-\w*".*?>)', '$1<font style="color:black;">$2</font>$3'))
+
+    ## Apply red text coloring for removed content
+    #set( $diffContentStr = $!diffContentStr.replaceAll('<span class="diff-html-removed".*?>(.*?)<\/span>', '<font style="color:red;">$1</font>'))
+    
+    ## Apply green text coloring for added content
+    #set( $diffContentStr = $!diffContentStr.replaceAll('<span class="diff-html-added".*?>(.*?)<\/span>', '<font style="color:green;">$1</font>'))
+    #end
+
+    ## Return $diffContentStr
+
 #end
 
 #########################################################################################################################
@@ -753,12 +855,12 @@ td
   #foreach($docAttachNode in $attachments)
     #set($attachmentDoc = $docAttachNode.getAttachment()) ## Document getAttachment()
     #set($attachment = $docDao.getAttachment($mathTool.toInteger($attachmentDoc.getAttachment()))) ## Attachment getAttachment(java.lang.Integer attachmentId)
-    #set($success = $attachmentDataList.add({"ID": $attachment.id, "Name": $attachment.getFileName()}))
+    #set($success = $attachmentDataList.add($attachment.getFileName()))
   #end
 
   ## Return attachment list sorted by ID
   #if($attachmentDataList.size() != 0)
-    #set($finalAttachmentList = $sortTool.sort($attachmentDataList, "ID:asc"))
+    #set($finalAttachmentList = $sortTool.sort($attachmentDataList))
   #else
     #set($finalAttachmentList = [])
   #end
@@ -804,7 +906,7 @@ td
 
     ## Target Sync Item:
     ## ============================
-    #set($trgtSyncItem = '')
+    #set($trgtSyncItem = false)
     #set($syncDocs = $docDao.getDocumentsWithGlobalId( "$doc.globalId", $mathTool.toInteger($project.organizationId)))
     #foreach($srcSyncItem in $syncDocs)
       #if($trgtIDs.contains($srcSyncItem.id))
@@ -816,8 +918,14 @@ td
 
     ## Sync Status
     ## ============================
-    #set($inSync = $syncService.areItemsInSync( $mathTool.toInteger($!doc.id), $mathTool.toInteger($!trgtSyncItem.id)))
-      
+    #if($trgtSyncItem != false)
+      #set( $sourceDocNode = $documentNodeDao.getDocumentNode(5, $doc.id))
+      #set( $targetDocNode = $documentNodeDao.getDocumentNode(5, $trgtSyncItem.id))
+      #set( $inSync = $syncService.areItemsInSync( $mathTool.toInteger($sourceDocNode.refId), $mathTool.toInteger($targetDocNode.refId)))
+    #else
+       #set( $inSync = false)
+    #end
+
     ## Report Row Building
     ## ============================
     #if($report6OnlyDiffItems)
@@ -880,14 +988,15 @@ td
   #end
 
   ## Description Text Sync Status
-  #if("#formatRichTextCell($!srcItem.description)" != "#formatRichTextCell($!trgtItem.description)")
+  #getRedLineComp($!srcItem $!trgtItem "description") ## returns $diffContentStr
+  #if($diffContentStr.contains("<font style="))
     #set($columnSyncStatus = false)
   #end
 
-  ## Description Source Sync Status
+  #*## Description Source Sync Status
   #if($!srcItem.description != $!trgtItem.description)
     #set($columnSyncStatus = false)
-  #end
+  #end*#
 
   ## Status Sync Status
   #if($srcItem.status.name != $trgtItem.status.name)
@@ -1261,7 +1370,7 @@ td
       #set ( $upRels = $returnRels )
       #foreach ( $upRel in $upRels )
         #set($upDoc = $upRel.fromDocument)
-        #set($success = $sourceUpRels.add($upDoc.id))
+        #set($success = $sourceUpRels.add($upDoc.globalId))
         #set($upRelContent = $upRelContent.trim() + "${upDoc.documentKey}: ${upDoc.name}<br>")
       #end
       <td class=xl63>$!upRelContent.trim()</td>
@@ -1272,7 +1381,7 @@ td
       #set ( $dnRels = $returnRels )
       #foreach ( $dnRel in $dnRels )
         #set($dnDoc = $dnRel.toDocument)
-        #set($success = $sourceDownRels.add($dnDoc.id))
+        #set($success = $sourceDownRels.add($dnDoc.globalId))
         #set($downRelContent = $downRelContent.trim() + "${dnDoc.documentKey}: ${dnDoc.name}<br>")
       #end
       <td class=xl63>$!downRelContent.trim()</td>
@@ -1286,9 +1395,8 @@ td
       #set($attachementList = '')
       #getAttachmentsList($sourceSyncItem) ## Returns $finalAttachmentList
       #set($sourceAttachmentList = $finalAttachmentList)
-      #foreach($attachmentObj in $sourceAttachmentList)
-        #set($attachmentName = $attachmentObj.get("Name"))
-        #set($attachementList = $attachementList.trim() + "${attachmentName}<br>")
+      #foreach($attachmentFileName in $sourceAttachmentList)
+        #set($attachementList = $attachementList.trim() + "${attachmentFileName}<br>")
       #end
       #set($attachementList = "<span style='font-style:italic;'>$attachementList</span>")
       <td class=xl63 style='font-style: italic;'>$!attachementList.trim()</td>
@@ -1320,7 +1428,9 @@ td
     <td class=xl63>$!targetSyncItem.name</td>
     
     ## Description
-    #set($desc = "#formatRichTextCell($!targetSyncItem.description)")
+    ##set($desc = "#formatRichTextCell($!targetSyncItem.description)")
+    #getRedLineComp($!sourceSyncItem $!targetSyncItem "description") ## returns $diffContentStr
+    #set($desc = $diffContentStr)
     <td class=xl63>$!desc.trim()</td>
     
     ## Status
@@ -1340,7 +1450,7 @@ td
       #set ( $upRels = $returnRels )
       #foreach ( $upRel in $upRels )
         #set($upDoc = $upRel.fromDocument)
-        #set($success = $targetUpRels.add($upDoc.id))
+        #set($success = $targetUpRels.add($upDoc.globalId))
         #set($upRelContent = $upRelContent.trim() + "${upDoc.documentKey}: ${upDoc.name}<br>")
       #end
       <td class=xl63>$!upRelContent.trim()</td>
@@ -1351,7 +1461,7 @@ td
       #set ( $dnRels = $returnRels )
       #foreach ( $dnRel in $dnRels )
         #set($dnDoc = $dnRel.toDocument)
-        #set($success = $targetDownRels.add($dnDoc.id))
+        #set($success = $targetDownRels.add($dnDoc.globalId))
         #set($downRelContent = $downRelContent.trim() + "${dnDoc.documentKey}: ${dnDoc.name}<br>")
       #end
       <td class=xl63>$!downRelContent.trim()</td>
@@ -1365,9 +1475,8 @@ td
       #set($attachementList = '')
       #getAttachmentsList($targetSyncItem) ## Returns $finalAttachmentList
       #set($targetAttachmentList = $finalAttachmentList)
-      #foreach($attachmentObj in $targetAttachmentList)
-        #set($attachmentName = $attachmentObj.get("Name"))
-        #set($attachementList = $attachementList.trim() + "${attachmentName}<br>")
+      #foreach($attachmentFileName in $targetAttachmentList)
+        #set($attachementList = $attachementList.trim() + "${attachmentFileName}<br>")
       #end
       <td class=xl74 style='font-style: italic;'>$!attachementList.trim()</td>
 
@@ -1382,9 +1491,14 @@ td
     
     #getColumnSyncStatus($columnSyncStatus, $itemSyncDataContainer) ## returns updated $columnSyncStatus
 
-
-    #set( $inSync = $syncService.areItemsInSync( $mathTool.toInteger($sourceSyncItem.id), $mathTool.toInteger($targetSyncItem.id)))
-      
+    #if($targetSyncItem != false)
+      #set( $sourceDocNode = $documentNodeDao.getDocumentNode(5, $sourceSyncItem.id))
+      #set( $targetDocNode = $documentNodeDao.getDocumentNode(5, $targetSyncItem.id))
+      #set( $inSync = $syncService.areItemsInSync( $mathTool.toInteger($sourceDocNode.refId), $mathTool.toInteger($targetDocNode.refId)))
+    #else
+      #set( $inSync = false)
+    #end
+  
     ## Jama Sync Status
     #if($!inSync)
       <td class=xl78>In Sync</td>
@@ -1415,13 +1529,6 @@ td
 
     ## Description Text Sync Status
     #if("#formatRichTextCell($!sourceSyncItem.description)" == "#formatRichTextCell($!targetSyncItem.description)")
-      <td class=xl73>Yes</td>
-    #else
-      <td class=xl72>No</td>
-    #end
-
-    ## Description Source Sync Status
-    #if($!sourceSyncItem.description == $!targetSyncItem.description)
       <td class=xl73>Yes</td>
     #else
       <td class=xl72>No</td>
@@ -1531,7 +1638,7 @@ td
       #set($upRels = $returnRels) 
       #foreach($upRel in $upRels)
         #set($upDoc = $upRel.fromDocument)
-        #set($success = $sourceUpRels.add($upDoc.id))
+        #set($success = $sourceUpRels.add($upDoc.globalId))
         #set($upRelContent = $upRelContent.trim() + "${upDoc.documentKey}: ${upDoc.name}<br>")
       #end
       <td class=xl63>$!upRelContent.trim()</td>
@@ -1542,7 +1649,7 @@ td
       #set($dnRels = $returnRels)
       #foreach($dnRel in $dnRels)
         #set($dnDoc = $dnRel.toDocument)
-        #set($success = $sourceDownRels.add($dnDoc.id))
+        #set($success = $sourceDownRels.add($dnDoc.globalId))
         #set($downRelContent = $downRelContent.trim() + "${dnDoc.documentKey}: ${dnDoc.name}<br>")
       #end
       <td class=xl63>$!downRelContent.trim()</td>
@@ -1556,9 +1663,8 @@ td
       #set($attachementList = '')
       #getAttachmentsList($doc) ## Returns $finalAttachmentList
       #set($sourceAttachmentList = $finalAttachmentList)
-      #foreach($attachmentObj in $sourceAttachmentList)
-        #set($attachmentName = $attachmentObj.get("Name"))
-        #set($attachementList = $attachementList.trim() + "${attachmentName}<br>")
+      #foreach($attachmentFileName in $sourceAttachmentList)
+        #set($attachementList = $attachementList.trim() + "${attachmentFileName}<br>")
       #end
       <td class=xl74 style='font-style: italic;'>$!attachementList.trim()</td>
 
@@ -1569,7 +1675,7 @@ td
     #set($targetUpRels = [])
     #set($targetDownRels = [])
 
-    #if($!trgtSyncItem && $trgtSyncItem != '')
+    #if($!trgtSyncItem)
       ## Product ID
       <td class=xl63 style="font-size:12pt"><a href="$baseUrl/perspective.req#/items/$!trgtSyncItem.id?projectId=$project.id">$!trgtSyncItem.documentKey</a></td>
       
@@ -1588,7 +1694,9 @@ td
       <td class=xl63>$!trgtSyncItem.name</td>
       
       ## Description
-      #set($desc = "#formatRichTextCell($!trgtSyncItem.description)")
+      ##set($desc = "#formatRichTextCell($!trgtSyncItem.description)")
+      #getRedLineComp($!trgtSyncItem $!doc "description") ## returns $diffContentStr
+      #set($desc = $diffContentStr)
       <td class=xl63>$!desc.trim()</td>
       
       ## Status
@@ -1608,7 +1716,7 @@ td
         #set($upRels = $returnRels)
         #foreach($upRel in $upRels)
           #set($upDoc = $upRel.fromDocument)
-          #set($success = $targetUpRels.add($upDoc.id))
+          #set($success = $targetUpRels.add($upDoc.globalId))
           #set($upRelContent = $upRelContent.trim() + "${upDoc.documentKey}: ${upDoc.name}<br>")
         #end
         <td class=xl63>$!upRelContent.trim()</td>
@@ -1619,7 +1727,7 @@ td
         #set ( $dnRels = $returnRels )
         #foreach ( $dnRel in $dnRels )
           #set($dnDoc = $dnRel.toDocument)
-          #set($success = $targetDownRels.add($dnDoc.id))
+          #set($success = $targetDownRels.add($dnDoc.globalId))
           #set($downRelContent = $downRelContent.trim() + "${dnDoc.documentKey}: ${dnDoc.name}<br>")
         #end
         <td class=xl63>$!downRelContent.trim()</td>
@@ -1633,9 +1741,8 @@ td
         #set($attachementList = '')
         #getAttachmentsList($trgtSyncItem) ## Returns $finalAttachmentList
         #set($targetAttachmentList = $finalAttachmentList)
-        #foreach($attachmentObj in $targetAttachmentList)
-          #set($attachmentName = $attachmentObj.get("Name"))
-          #set($attachementList = $attachementList.trim() + "${attachmentName}<br>")
+        #foreach($attachmentFileName in $targetAttachmentList)
+          #set($attachementList = $attachementList.trim() + "${attachmentFileName}<br>")
         #end
         #set($attachementList = "$attachementList")
         <td class=xl74>$!attachementList.trim()</td>
@@ -1683,13 +1790,6 @@ td
 
       ## Description Text Sync Status
       #if("#formatRichTextCell($!doc.description)" == "#formatRichTextCell($!trgtSyncItem.description)")
-        <td class=xl73>Yes</td>
-      #else
-        <td class=xl72>No</td>
-      #end
-
-      ## Description Source Sync Status
-      #if($!doc.description == $!trgtSyncItem.description)
         <td class=xl73>Yes</td>
       #else
         <td class=xl72>No</td>
@@ -1746,7 +1846,7 @@ td
 
       <td class=xl72>X</td>
 
-      #set($syncColRange = 8)
+      #set($syncColRange = 7)
       #set($targetColRange = 7)
       #if($report4IncludeRels)
         #set($syncColRange = $syncColRange + 2)
@@ -1874,7 +1974,7 @@ td
 
       ## Sync Status's Results Content
        ## ==============================================================
-      #set($syncColRange = 8)
+      #set($syncColRange = 7)
       #if($report4IncludeRels)
         #set($syncColRange = $syncColRange + 2)
       #end
@@ -2001,7 +2101,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
   #if(!$errorCase)
 
     #set($columnCount = 10)
-    #set($syncNoteMerge = 8)
+    #set($syncNoteMerge = 7)
     #if($report4IncludeRels)
       #set($columnCount = $columnCount + 4)
       #set($syncNoteMerge = $syncNoteMerge + 2)
@@ -2048,18 +2148,25 @@ xmlns="http://www.w3.org/TR/REC-html40">
     ## ==================================================================================
     #set($sourceSpan = 8)
     #set($targetSpan = 8)
-    #set($syncSpan = 8)
+    #set($syncSpan = 7)
+    #set($headerFilterRange = "$A$4:$W$4")
 
     #if($report4IncludeRels)
       #set($sourceSpan = $sourceSpan + 2)
       #set($targetSpan = $targetSpan + 2)
       #set($syncSpan = $syncSpan + 2)
+      #set($headerFilterRange = "$A$4:$AC$4")
     #end
 
     #if($report5IncludeAttachments)
       #set($sourceSpan = $sourceSpan + 1)
       #set($targetSpan = $targetSpan + 1)
       #set($syncSpan = $syncSpan + 1)
+      #set($headerFilterRange = "$A$4:$Z$4")
+    #end
+
+    #if($report4IncludeRels && $report5IncludeAttachments)
+      #set($headerFilterRange = "$A$4:$AF$4")
     #end
 
     <tr height=19 style='height:25.0pt'>
@@ -2073,7 +2180,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
     ## ==================================================================================
     <tr height=80 style='height:60.0pt'>
       ## Source
-      <td height=80 class=xl84 style='height:60.0pt;'>Source Item ID</td>
+      <td height=80 class=xl84  x:autofiltervalue=all  x:autofilterrange=$headerFilterRange style='height:60.0pt;'>Source Item ID</td>
       <td class=xl84>Source Item Project</td>
       <td class=xl84>Source Global ID</td>
       <td class=xl84>Source Item Header Number</td>
@@ -2109,8 +2216,8 @@ xmlns="http://www.w3.org/TR/REC-html40">
       <td class=xl86>Report Field Comparison Sync Status</td>
       <td class=xl86>Header Number Sync</td>
       <td class=xl86>Name Sync</td>
-      <td class=xl86>Description Text Sync</td>
-      <td class=xl86>Description Source Sync</td>
+      <td class=xl86>Description Sync (Text)</td>
+      ##<td class=xl86>Description Source Sync</td>
       <td class=xl86>Status Sync</td>
       <td class=xl86>Tags Sync</td>
       #if($report4IncludeRels)
@@ -2164,7 +2271,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
 
       #end
 
-      ## Determine List of all Target List global IDs for quick source sync connections check
+      ## Determine List of all Target List IDs for quick source sync connections check
       #foreach($item in $trgtItems)
         #set($success = $trgtIDs.add($item.id))
       #end
