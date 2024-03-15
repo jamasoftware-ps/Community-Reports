@@ -35,6 +35,8 @@ Export approver signatures and review comments. Before running the report the us
 </ul>
 
 
+## Preview
+
 ![readMeExampleOutput](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/d6f829aa-a9f1-47b6-a403-779ba545a180)
 
 
@@ -43,11 +45,8 @@ Export approver signatures and review comments. Before running the report the us
 
 ## Installation Configuration
 
-![installationConfiguration](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/b25ec19b-823d-4a95-8635-f4a14f82186c)
-
-
-## Testing Instructions 
-
+![installationConfiguration](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/b25ec19b-823d-4a95-8635-f4a14f82186c) 
+###### Configuration Specifications
 <ul> 
   <li>Report Type: Select Velocity</li>
   <li>Report Formats: Select PDF and/or Word</li>
