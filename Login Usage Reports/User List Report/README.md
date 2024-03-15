@@ -7,7 +7,7 @@ The default report lists the active users of the organization and for each user 
 
 ### Preview 
 
-Example Default Word Output (Active Users)
+Example Default (Active Users)
 
 ![defaultActiveUsers](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/6a7055cb-b597-495c-bd88-5332b4102ecc)
 
