@@ -1,8 +1,10 @@
 # User List Report 
 
-The default report lists the active users of the organization and for each user their Username, Full Name, Email, Groups, and License Type. If 'Include Deactivated Users' the report will include any deactivated user if the user was deactivated within 6 months prior to the report being run and if the user is still in a deactivated state with the addition of an 'Active/Deactivated' column.
+The default report lists the active users of the organization and for each user their Username, Full Name, Email, Groups, and License Type. 
 
-*If the user has logged in within 6 months prior to the report being run it will show license data for the user. If the user has not logged in within the last 6 months then it will show 'No license usage last 6 months'
+If 'Include Deactivated Users' the report will include any deactivated user if the user was deactivated within 6 months prior to the report being run and if the user is still in a deactivated state. With this parameter option selected there is the inclusion of an 'Active/Deactivated' column in the output report.
+
+* If the user has logged in within 6 months prior to the report being run it will show license data for the user. If the user has not logged in within the last 6 months then it will show 'No license usage last 6 months'
 
 
 ### Preview 
