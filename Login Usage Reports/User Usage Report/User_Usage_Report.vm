@@ -19,7 +19,7 @@
 ## Date         Revision   Person             Comments 
 ## -----------  ---------  ----------------   ---------------------------------- 
 ## 2024-01-19   1.0        Anna FitzGerald    Initial Build
-##
+## 2024-03-15   1.1        Anna FitzGerald    Minor formatting update
 ##                                                                                 
 ##
 ## ======================================================================================================================
@@ -418,7 +418,8 @@ div.SectionLandscape {
 					<td class=cell width='80pt'>$!userInOrg.phone</td>
 					<td class=cell width='65pt'>$!userInOrg.location</td>
 					<td class=cell width='50pt'>#getDate($!userInOrg.createdDate, $timeZone)</td>
-					<td class=cell width='160pt'>#foreach( $group in $groups ) #if( !$foreach.last)$!group, #else $!group #end #end</td>
+					#set( $groups = $groups.toString().replaceAll("\[|\]", ""))
+					<td class=cell width='160pt'>$!groups</td>
 					#foreach( $u in $userUsage )
 						#set( $user = $u.get("user"))
 						#if( $userInOrg.id == $user.id )
@@ -427,7 +428,8 @@ div.SectionLandscape {
 							#break
 						#end 
 					#end
-					<td class=cell width='130pt'>#if($licenses.size() == 0) No license usage last 6 months #else #foreach( $license in $licenses ) #if( !$foreach.last) $!license, #else $!license #end #end #end</td>
+					#set( $licenses = $licenses.toString().replaceAll("\[|\]", ""))
+					<td class=cell width='130pt'>#if($licenses.length() == 0) No license usage last 6 months #else $licenses #end</td>
 					#calculateTimeLoggedIn( $loginsLogouts )
 				
 					<td class=cell width='50pt'>$!dateLastLogin</td>
