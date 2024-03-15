@@ -4,8 +4,8 @@ Export approver signatures and review comments. Before running the report the us
 ##### Report Sections:
 ###### Approvers & Reviewers
 <ul>
-<li>Outputs a table for approvers and a status of their progress on the revision (Not Finished, Finished or Needs Work).</li>
-<li>Outputs a table for reviewers and a status of their progress on the revision (Not Finished, Finished).</li>
+<li>Outputs a table for approvers and a status of their progress on the revision (<i>Not Finished, Finished or Needs Work</i>).</li>
+<li>Outputs a table for reviewers and a status of their progress on the revision (<i>Not Finished or Finished</i>).</li>
 </ul>
 
 ###### Approvers Signatures
@@ -24,14 +24,9 @@ Export approver signatures and review comments. Before running the report the us
 <li>Outputs all the comments at the review level.</li>
 </ul>
 
-###### Review Comments
-<ul>
-<li>Outputs all the comments at the review level.</li>
-</ul>
-
 ###### Revision Item Comments 
 <ul>
-<li>Foreach revision item in the review outputs the revision item description and comments. If no comments on the revision item will show "No comments present on revision item”</li>
+<li>Foreach revision item outputs the revision item description and comments. If no comments on the revision item will show "No comments present on revision item”</li>
 </ul>
 
 
