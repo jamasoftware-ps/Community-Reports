@@ -1,35 +1,35 @@
 # Review Comments & Signatures 
 Export approver signatures and review comments. Before running the report the user enters a review id, e.g. REV-38 to get the latest version signatures and all comments for the review. If the user would like to get signatures and comments up to and including a specific revision, the user enters the review id and a specific version number, e.g V2.
 
-## Report Sections:
-### Approvers & Reviewes
+##### Report Sections:
+###### Approvers & Reviewers
 <ul>
 <li>Outputs a table for approvers and a status of their progress on the revision (Not Finished, Finished or Needs Work).</li>
 <li>Outputs a table for reviewers and a status of their progress on the revision (Not Finished, Finished).</li>
 </ul>
 
-### Approvers Signatures
+###### Approvers Signatures
 <ul>
 <li>Outputs approver signatures for the latest revision on the review or the user input revision version.</li>
 </ul>
 
-### Review Comment Summary
+###### Review Comment Summary
 <ul>
 <li>Outputs 'Total Review Comments' count for comments at the review level.</li>
 <li>Outputs 'Total Revision Item Comments' count for comments at the revision item level.</li>
 </ul>
 
-### Review Comments
+###### Review Comments
 <ul>
 <li>Outputs all the comments at the review level.</li>
 </ul>
 
-### Review Comments
+###### Review Comments
 <ul>
 <li>Outputs all the comments at the review level.</li>
 </ul>
 
-### Revision Item Comments 
+###### Revision Item Comments 
 <ul>
 <li>Foreach revision item in the review outputs the revision item description and comments. If no comments on the revision item will show "No comments present on revision item”</li>
 </ul>
