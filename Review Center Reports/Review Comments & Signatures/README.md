@@ -46,9 +46,9 @@ Export approver signatures and review comments. Before running the report the us
   <li>Report Type: Select Velocity</li>
   <li>Report Formats: Select PDF and/or Word</li>
   <ul>
-  <li>*Note for export to .pdf or .doc: this template is NOT configured to have a ToC, ToF, or ToT</li>
+  <li>*Note for export to .pdf or .doc- this template is not configured to have a ToC, ToF, or ToT</li>
   </ul>
-  <li>Report File Name: Upload the 'User_List.vm' file</li>
+  <li>Report File Name: Upload the velocity file</li>
   <li>Desription: Enter a review id, e.g. REV-38 to get the latest version signatures and all comments for the review. To get signatures and comments up to and including a specific revision, enter the review id and enter the version number, e.g V2.</li>
   <li>Organization: select</li>
   <li>Criteria: see below criteria to configure</li>
