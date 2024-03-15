@@ -4,12 +4,15 @@
 ## Name: User_List.vm 
 ## 
 ## Description: Context Insensitive Report that can be exported to Excel, Word, PDF or HTML. 
-##              It lists all the active users for the organization and for each user their Username, Full Name, Email, Groups,
-##              and License Type. 
-##            
-##              *In order to get license data for the user, the user would need to have logged in within 6 months prior to 
-##              the report being run. If the user has not logged in within the last 6 months then it will show
-##              'No license usage last 6 months'
+##              The default report lists the active users of the organization and for each user their 
+##              Username, Full Name, Email, Groups, and License Type. 
+##
+##              If 'Include Deactivated Users' the report will include any deactivated user if the user 
+##              was deactivated within 6 months prior to the report being run and if the user is still in a 
+##              deactivated state with the addition of an 'Active/Deactivated' column.
+##
+##              *If the user has logged in within 6 months prior to the report being run it will show license data for the user. 
+##              If the user has not logged in within the last 6 months then it will show 'No license usage last 6 months'
 ##          
 ##              
 ## ======================================================================================================================
@@ -18,7 +21,7 @@
 ## Date         Revision   Person             Comments 
 ## -----------  ---------  ----------------   ---------------------------------- 
 ## 2024-01-19   1.0        Anna FitzGerald    Initial Build
-##
+##                                            Added Parameter option and logic for deactivated users
 ##                                                                                 
 ##
 ## ======================================================================================================================
@@ -27,9 +30,9 @@
 ## ---------------------------    
 ##  * Note: If being used this criteria will need to be added to the report configuration.  
 ##
-##      Type:       Display Name:           Report Global Variable:   Function:
+##      Type:       Display Name:                     Report Global Variable:           Function:
 ##      -----------------------------------------------------------------------------------------------------------------
-##      [None]
+##      Boolean       Include Deactivated Users          reportDeactivated       If true the report will include deactivated users
 ##
 ## ======================================================================================================================
 ## 
@@ -139,6 +142,17 @@ div.SectionLandscape {
 ##
 ## =================================================================================================================
 #########################################################################################################################
+##          Macro: getDate
+##          Input: Java Time Zone ID to determine which timezone to display the date in
+##          Output: Formatted date in the desired timezone
+#########################################################################################################################
+#macro( getDate $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  #set( $date = $dateTool.format( 'MM/dd/yyyy', $inputDate, $locale, $outTz ))
+  $!date
+#end
+#########################################################################################################################
 ##          Macro: getDateTime
 ##          Input: Java Time Zone ID to determine which timezone to display the date in
 ##          Output: Formatted date in the desired timezone
@@ -159,32 +173,66 @@ div.SectionLandscape {
 ######################################################################################################################
 #macro( getLicenseType $userLicenseType )
 
-  #if( $userLicenseType == "N")
+  #if( $userLicenseType == "N" || $userLicenseType == "CREATOR" )
     #set( $userLicenseDisplay = "Creator")
-  #elseif( $userLicenseType == "C")
+  #elseif( $userLicenseType == "C" || $userLicenseType == "FLOATING" )
     #set( $userLicenseDisplay = "Creator (Float)")
-  #elseif( $userLicenseType == "S")
+  #elseif( $userLicenseType == "S" || $userLicenseType == "STAKEHOLDER" )
     #set( $userLicenseDisplay = "Stakeholder")
-  #elseif( $userLicenseType == "FC")
+  #elseif( $userLicenseType == "FC"|| $userLicenseType == "FLOATING_COLLABORATOR" )
     #set( $userLicenseDisplay = "Collaborator (Float)")
-  #elseif( $userLicenseType == "R")
+  #elseif( $userLicenseType == "R" || $userLicenseType == "RESERVED_COLLABORATOR")
     #set( $userLicenseDisplay = "Collaborator (Reserved)")
-  #elseif( $userLicenseType == "V")
+  #elseif( $userLicenseType == "V" || $userLicenseType == "FLOATING_REVIEWER" )
     #set( $userLicenseDisplay = "Reviewer (Float)")
-  #elseif( $userLicenseType == "RV")
+  #elseif( $userLicenseType == "RV" || $userLicenseType == "RESERVED_REVIEWER")
     #set( $userLicenseDisplay = "Reviewer (Reserved)")
-  #elseif( $userLicenseType == "NV")
+  #elseif( $userLicenseType == "NV" || $userLicenseType == "NAMED_REVIEWER")
     #set( $userLicenseDisplay = "Reviewer")
-  #elseif( $userLicenseType == "ET")
+  #elseif( $userLicenseType == "ET" || $userLicenseType == "EXPIRING_TRIAL")
     #set( $userLicenseDisplay = "Expiring Trial")
-  #elseif( $userLicenseType == "I")
+  #elseif( $userLicenseType == "I" || $userLicenseType == "INACTIVE")
     #set( $userLicenseDisplay = "Inactive")
-  #elseif( $userLicenseType == "TR")
+  #elseif( $userLicenseType == "TR" || $userLicenseType == "TEST_RUNNER")
     #set( $userLicenseDisplay = "Test runner")
   #end 
 
   ##$userLicenseDisplay
-
+#end 
+##
+######################################################################################################################
+## 
+##     	getDeactivatedUsers 
+##      Input: none
+##      Output: list of deactivated users 
+## 
+######################################################################################################################
+#macro( getDeactivatedUsers )
+	#set( $deactivationLast6Mo = $eventSource.getEventsForLastHours([25],[6],4380))
+	#foreach( $activity in $deactivationLast6Mo )
+	 	#set( $targetUserObj = {} )
+	 	#set( $activityString = $activity.toString().replaceAll("\[|\{|\}|\]", ""))
+	 	#set( $extractedKeyValuePairs = $activityString.split(','))
+	 	#foreach( $keyValuePairStr in $extractedKeyValuePairs )
+			#set( $keyValuePairArray = $keyValuePairStr.split('='))
+	    #if( $keyValuePairArray.size() == 2 )
+	      #set( $key = $keyValuePairArray[0])
+	      #set( $key = $key.trim().replaceAll('^"|"$', '')) 
+	      #set( $value = $keyValuePairArray[1])
+	      #set( $value = $value.trim().replaceAll('^"|"$', ''))
+				#if( $key == "objectId")
+					##$key,$value <br>
+					#set($success = $targetUserObj.put($key, $value))
+				#end 
+			#end 
+		#end 
+		#set( $userObj = $userSource.getUser($mathTool.toInteger($targetUserObj.objectId)))
+		##UserObj: $userObj.fullName, $userObj.id<br>
+		#if( !$deactivatedUserIds.contains($userObj.id))
+			#set( $success = $deactivatedUserIds.add($userObj.id))
+			#set( $success = $deactivatedUsers.add($userObj))
+		#end 
+	#end ##foreach( $activity in $deactivationLast6Mo )
 #end 
 ##
 ######################################################################################################################
@@ -196,12 +244,10 @@ div.SectionLandscape {
 ######################################################################################################################
 ######################################################################################################################
 #macro( groupLicensesPerUser $userLicenseUsage )
-
   #foreach( $activity in $userLicenseUsage ) 
     #set( $user = $activity.get("user"))
     #set( $userID = $user.id)
     #set( $license = $activity.get("license"))
-
     #if( $foreach.hasNext )
       #set( $nextIndex = $foreach.index + 1 )
       #set( $nextItem = $userLicenseUsage.get($nextIndex))
@@ -209,16 +255,13 @@ div.SectionLandscape {
     #else
       #set( $nextItem = false )
     #end
-
   	#if( !$licenses.contains( $license ))
   		#set( $success = $licenses.add($license))
   	#end 
-
     #if( $userID != $nextItemID || !$nextItem ) 
-       #set( $success = $userLicensesWithUsageLast6Months.add({ "user": $user, "licenses": $licenses }))
+       #set( $success = $userLicensesWithUsageLast6Months.add({"user": $user, "licenses": $licenses }))
        #set( $licenses = [] )
     #end
-
   #end 
 #end 
 ##
@@ -231,10 +274,12 @@ div.SectionLandscape {
 ##
 ##
 ## ===================================================================================================================
-##-----------------## 
+## 
+
 ##  Get User Data  ## 
 ##-----------------## 
 #set( $licenses = [] )
+#set( $activeUserIds = [] )
 #set( $userLicenseUsage = [] )
 #set( $userLicensesWithUsageLast6Months = [] )
 #set( $usersInOrg = $userSource.getActiveUserListByOrgId($project.organizationId)) ## This returned an inactive user
@@ -251,6 +296,8 @@ div.SectionLandscape {
 
 #set( $userLicenseUsage = $sortTool.sort( $userLicenseUsage,"userId:asc" ))
 #groupLicensesPerUser( $userLicenseUsage ) ## Returns $userLicensesWithUsageLast6Months
+
+
 <body>
 	<div class=SectionLandscape>
 		<table style='width:100%;table-layout:fixed;'>
@@ -266,12 +313,15 @@ div.SectionLandscape {
 				<col style='width:100pt'/>
 				<col style='width:145pt'/>
 				<col style='width:158pt'/>
+				#if( $reportDeactivated )
+				<col style='width:100pt'/>
+				#end
 				<col style='width:145pt'/>
 			</colgroup>
 			<thead>
 				<tr>
 					<td class=title colspan=2 style='text-align:left;border:none;font-size:11pt'>$project.organization.name</td>
-					<td class=title colspan=2 rowspan=2 style='text-align:center;border:none;'>JAMA USER LIST</td>
+					<td class=title #if( $reportDeactivated) colspan=3 #else colspan=2 #end rowspan=2 style='text-align:center;border:none;'>JAMA USER LIST</td>
 					<td class=cell style='text-align:right;border:none;'>#getDateTime($dateTool.date, $timeZone)</td>
 				</tr>
 				<tr> 
@@ -283,6 +333,9 @@ div.SectionLandscape {
 					<td class=header width='100pt'>Full Name</td>
 					<td class=header width='145pt'>Email</td>
 					<td class=header width='158pt'>Groups</td>
+					#if( $reportDeactivated )
+					<td class=header width='100pt'>Active/Deactivated</td>
+					#end 
 					<td class=header width='145pt'>License Type*</td>
 				</tr>
 			</thead>
@@ -291,24 +344,29 @@ div.SectionLandscape {
 ## ===================================================================================================================
 ##
 ##
-## 		DYNAMIC ROWS, One row per active user
+## 		DYNAMIC ROWS
 ##
 ##
 ## ===================================================================================================================
+			##--------------------## 
+			##  Active Users      ## 
+			##--------------------## 
 			#foreach( $userInOrg in $usersInOrg )
+				#set( $success = $activeUserIds.add($userInOrg.id))
 				#set( $licenses = [])
 				#set( $groups = [] )
 				#foreach( $group in $userInOrg.roles )
 					#if( !$groups.contains($group.display))
-						#set( $success = $groups.add( $group.display))
+						#set( $success = $groups.add($group.display))
 					#end 
 				#end
+				#set( $groups = $groups.toString().replaceAll("\[|\]", ""))
 				#if( $userInOrg.email != "systemuser") ## skip core instance user ## 
 				<tr>
-					<td class=cell width='100pt'>$userInOrg.userName</td>
-					<td class=cell width='100pt'>$userInOrg.fullName</td>
-					<td class=cell width='145pt'>$userInOrg.email</td>
-					<td class=cell width='158pt'>#foreach( $group in $groups ) #if( !$foreach.last)$group, #else $group #end #end</td>
+					<td class=cell width='100pt'>$!userInOrg.userName</td>
+					<td class=cell width='100pt'>$!userInOrg.fullName</td>
+					<td class=cell width='145pt'>$!userInOrg.email</td>
+					<td class=cell width='158pt'>$!groups</td>
 					#foreach( $u in $userLicensesWithUsageLast6Months )
 						#set( $user = $u.get("user"))
 						#if( $userInOrg.id == $user.id )
@@ -316,15 +374,62 @@ div.SectionLandscape {
 							#break
 						#end 
 					#end
-					<td class=cell width='145pt'>#if($licenses.size() == 0) No license usage last 6 months #else #foreach( $license in $licenses ) #if( !$foreach.last)$!license, #else $!license #end #end #end</td>
+					#if( $reportDeactivated )
+						<td class=cell width='100pt'>Active</td>
+					#end 
+					#set( $licenses = $licenses.toString().replaceAll("\[|\]", ""))
+					<td class=cell width='145pt'>#if($licenses.length() == 0) No license usage last 6 months #else $licenses #end</td>
 				</tr>
 				#end 
 			#end
+			##--------------------## 
+			##  Deactivated Users ## 
+			##--------------------## 
+			#if( $reportDeactivated )
+
+				#set( $deactivatedUsers = [] )
+				#set( $deactivatedUserIds =[] )
+				#getDeactivatedUsers()
+
+				#foreach( $deactiveUser in $deactivatedUsers )
+					#set( $licenses = [])
+					#set( $groups = [] )
+					#set( $groups = [] )
+					#foreach( $group in $deactiveUser.roles )
+						#if( !$groups.contains($group.display))
+							#set( $success = $groups.add($group.display))
+						#end 
+					#end
+					#set( $groups = $groups.toString().replaceAll("\[|\]", ""))
+					#if( $deactiveUser.email != "systemuser" && !$activeUserIds.contains($deactiveUser.id)) ## skip core instance user and ensure this deactivation does not show if user is currently active, i.e. they could have been deactivated and reactivated ## 
+					<tr>
+						<td class=cell width='100pt'>$!deactiveUser.userName</td>
+						<td class=cell width='100pt'>$!deactiveUser.fullName</td>
+						<td class=cell width='145pt'>$!deactiveUser.email</td>
+						<td class=cell width='158pt'>$!groups</td>
+						#foreach( $u in $userLicensesWithUsageLast6Months )
+							#set( $user = $u.get("user"))
+							#if( $deactiveUser.id == $user.id )
+								#set( $licenses = $u.get("licenses"))
+								#break
+							#end 
+						#end
+						#set( $licenses = $licenses.toString().replaceAll("\[|\]", ""))
+						<td class=cell width='100pt'>Deactivated</td>
+						<td class=cell width='145pt'>#if($licenses.length() == 0) No license usage last 6 months #else $licenses #end</td>
+					</tr>
+					#end 	##if( $deactiveUser.email != "systemuser") ## skip core instance user ## 
+				#end ##foreach( $deactivated in $deactivatedUsers )
+			#end ##if( $reportDeactivated )
 			<tr>
 				<td colspan=5 class=cell style='text-align:left;border:none;'>*Shows licenses for users that have logged in within the last 6 months from the date the report was run. If the user has not logged in within the last 6 months it will show 'No license usage last 6 months'.</td>
 			</tr>
-			</tbody>
-		</table>
+		</tbody>
+	</table>
+
 	</div>
 </body>
 </html>
+
+
+
