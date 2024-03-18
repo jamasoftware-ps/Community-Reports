@@ -3,7 +3,7 @@
 The User Usage Report lists all active users for an organization, and for each active user their ID, Username, First Name, Last Name,
 Role, Email, Phone Number, Location, Entry Date, Groups, License Type, Total Hours Logged in last 6 months, Total Logins Last 6 months, Total Logins of All Time. 
 
-*In order to get license data for the user, the user would need to have logged in within 6 months prior to the report being run. If the user has not logged in within the last 6 months then it will show 'No license usage last 6 months'.
+* If the user has logged in within 6 months prior to the report being run it will show license data for the user. If the user has not logged in within the last 6 months then it will show 'No license usage last 6 months'
 
 ### Preview 
 
