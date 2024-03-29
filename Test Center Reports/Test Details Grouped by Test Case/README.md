@@ -1,5 +1,15 @@
 # Test Details Grouped by Test Case 
+This is a context insensitive test results report that outputs data from the user selected test plan. This report can be output to PDF or Word format, with the option to show a data visual Test Plan Summary and a Test Group Summary. The visuals for these summaries are different considering PDF or Word format. 
 
+#### Sections of this report 
+######  Test Plan Contents 
+The Test Plan description. 
+######  Test Plan Summary 
+If the user selects the parameter 'Include Test Plan Summary' it outputs a summary of the Test Run statuses for the Test Plan.  
+######  Test Group Summary 
+If the user selects the parameter 'Include Test Group Summary' it outputs a summary of the Test Run statuses for each Test Group and by test case. 
+######  Detailed Results
+Each test run result across all cycles grouped by matching test cases.
 
 ## Preview 
 
