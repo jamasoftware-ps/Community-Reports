@@ -33,7 +33,7 @@ Each test run result across all cycles grouped by matching test cases.
 
 ##### Test Group Summary
 
-![wordTestGroup](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/616265ae-45f5-4200-b7f4-d03146f1b37c)
+![testGroupPDF](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/2c8f5cba-15d6-4114-85d0-1c54ff9556e3)
 
 # Installation Configuration 
 
