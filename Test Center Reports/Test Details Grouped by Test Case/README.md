@@ -1,7 +1,7 @@
 # Test Details Grouped by Test Case 
 This is a context insensitive test results report that outputs data from the user selected test plan. This report can be output to PDF or Word format, with the option to show a data visual Test Plan Summary and a Test Group Summary. The visuals for these summaries are different considering PDF or Word format. 
 
-#### Sections of this report 
+#### Sections of this report: 
 ######  Test Plan Contents 
 The Test Plan description. 
 ######  Test Plan Summary 
@@ -75,9 +75,10 @@ Each test run result across all cycles grouped by matching test cases.
     <td>reportTestPlanId</td>
   </tr>
 </table>
+
 # Report Run Instructions 
 <ol>
-  <li>Log into any project</li>
+  <li>Log into a project with the Test Plan to export</li>
   <li>Go to 'Reports' in upper right navigation > Run Report</li>
   <li>Find 'Test_Details_Grouped_by_Test_Case' > Select paramters > Run </li>
 </ol>
