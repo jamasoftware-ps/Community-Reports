@@ -75,5 +75,5 @@
 <ol>
   <li>Log into the project with the test plan to export</li>
   <li>Go to 'Reports' in upper right navigation > Run Report</li>
-  <li>Find 'Test_Details_Grouped_by_Test_Cycle' > Select paramters > Run </li>
+  <li>Find 'Test_Details_Grouped_by_Test_Cycle' > Select parameters > Run </li>
 </ol>
