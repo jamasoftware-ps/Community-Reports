@@ -13,7 +13,7 @@ Each test run result across all cycles grouped by test cycle.
 
 ## Preview 
 
-![cycleTestRun](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/0cd9db89-fc27-4634-a7d2-029c228a4e68)
+![testCycleTestRun](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/10028c8f-509a-4d7a-81fd-cea4ee4e1651)
 
 ### Summary Charts Export to PDF 
 
