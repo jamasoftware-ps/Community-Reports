@@ -23,7 +23,8 @@ Each test run result across all cycles grouped by matching test cases.
 
 ##### Test Group Summary
 
-![testGroupSummaryPDF2](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/391f2921-7b71-4ed0-a22d-b86b6702c727)
+![testGroupPDF](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/2c8f5cba-15d6-4114-85d0-1c54ff9556e3)
+
 
 ### Summary Tables Export to WORD
 
@@ -33,7 +34,7 @@ Each test run result across all cycles grouped by matching test cases.
 
 ##### Test Group Summary
 
-![testGroupPDF](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/2c8f5cba-15d6-4114-85d0-1c54ff9556e3)
+![wordTestGroup](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/9ac7e7c6-f39f-4976-a2cc-9d3a6bd8573f)
 
 # Installation Configuration 
 
