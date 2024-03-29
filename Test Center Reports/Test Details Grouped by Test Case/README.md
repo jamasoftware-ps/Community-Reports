@@ -80,5 +80,5 @@ Each test run result across all cycles grouped by matching test cases.
 <ol>
   <li>Log into a project with the Test Plan to export</li>
   <li>Go to 'Reports' in upper right navigation > Run Report</li>
-  <li>Find 'Test_Details_Grouped_by_Test_Case' > Select paramters > Run </li>
+  <li>Find 'Test_Details_Grouped_by_Test_Case' > Select parameters > Run </li>
 </ol>
