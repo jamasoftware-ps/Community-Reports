@@ -19,7 +19,7 @@ Each test run result across all cycles grouped by matching test cases.
 
 ##### Test Plan Summary 
 
-![testPlanSummaryPDF](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/9f4dacef-e636-4045-83b7-66a3d5844527)
+![testPlanSummaryPDF](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/1eb78eb5-eabb-444e-bbe0-d72a72284c69)
 
 ##### Test Group Summary
 
