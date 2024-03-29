@@ -1,7 +1,7 @@
 # Test Details Grouped by Test Cycle 
 This is a context insensitive test results report that outputs data from the user selected test plan. This report can be output to PDF or Word format with the option to show a data visual Test Plan Summary and a Test Cycle Summary. The visuals for these summaries are different considering PDF or Word format. 
 
-#### Sections of this report: 
+## Sections of this report: 
 ######  Test Plan Contents 
 The Test Plan description. 
 ######  Test Plan Summary 
