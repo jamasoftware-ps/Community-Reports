@@ -19,24 +19,24 @@ Each test run result across all cycles grouped by test cycle.
 
 ##### Test Plan Summary 
 
-![testPlanSummaryPDF](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/5e89e7a9-249d-46ea-87a0-133cb83d4bef)
+![testPlanSummaryPDF](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/ce0a3595-2cd4-48cb-b39a-e0e82308195c)
+
 
 ##### Test Cycle Summary 
 
-![cycleExecutionDefects](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/6e0e66a5-5f27-41b4-aa7c-b96178928cd7)
+![pdfCycleSummary](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/f09b87c0-525e-45e9-95a3-58480349017b)
 
-![cycleTestRunStatuses](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/8a42fdaa-97a1-4ac6-9c92-827c09826328)
+![pdfCycleSummary2](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/75ae1a88-46e8-436e-a333-991377078e04)
 
 ### Summary Tables Export to WORD
 
 ##### Test Plan Summary 
 
-![testPlanSummaryWord](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/fbc042ca-c773-43f4-b422-4630e9398fbc)
+![testPlanSummaryWord](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/ad461a48-1689-42eb-93a0-14cf25a379ba)
 
 ##### Test Cycle Summary 
 
-![wordCycleSummary2](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/3ed04d15-9992-456a-811c-d9d16e1b8a60)
-
+![wordCycleSummary2](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/dc04874f-442d-403f-97a8-c9212548b6a2)
 
 
 # Installation Configuration 
