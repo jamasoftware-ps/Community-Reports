@@ -3,20 +3,31 @@
 
 ## Preview 
 
+![wordTestCase](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/7654ac5f-b4bd-480d-9624-19630a04aa97)
+
 ### Summary Charts Export to PDF 
 
 ##### Test Plan Summary 
 
+![testPlanSummaryPDF](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/9f4dacef-e636-4045-83b7-66a3d5844527)
+
 ##### Test Group Summary
+
+![testGroupSummaryPDF2](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/391f2921-7b71-4ed0-a22d-b86b6702c727)
 
 ### Summary Tables Export to WORD
 
 ##### Test Plan Summary 
 
+![testPlanSummaryWord](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/375018bd-7798-454a-88fe-e3dccfa8105b)
+
 ##### Test Group Summary
+
+![wordTestGroup](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/616265ae-45f5-4200-b7f4-d03146f1b37c)
 
 # Installation Configuration 
 
+![caseConfiguration](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/de90672f-67e5-4e79-a730-81802931c79a)
 
 <ul> 
   <li>Report Type: Select Velocity</li>
