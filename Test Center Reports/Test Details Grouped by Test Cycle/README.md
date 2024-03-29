@@ -7,7 +7,7 @@ The Test Plan description.
 ######  Test Plan Summary 
 If the user selects the parameter 'Include Test Plan Summary' it outputs a summary of the Test Run statuses for the Test Plan.  
 ######  Test Group Summary 
-If the user selects the parameter 'Include Test Cycle Summary' it outputs a summary of the Test Run statuses for each Test Cycle's test runs. 
+If the user selects the parameter 'Include Test Cycle Summary' it outputs a summary of the Test Run statuses for each Test Cycle. 
 ######  Detailed Results
 Each test run result across all cycles grouped by test cycle.
 
