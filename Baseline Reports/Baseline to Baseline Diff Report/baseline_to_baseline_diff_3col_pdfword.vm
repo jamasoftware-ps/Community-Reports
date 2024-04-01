@@ -42,6 +42,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 2024-02-12   3.5.2      Shawnna Williams  Changed it so baseDoc is retrieved from .getDocument (for regular item types). If use .originDocument, built in fields weren't being exported if the item was the current version.
 ## 2024-02-20   3.5.3      Shawnna Williams  Encode all name fields                                   
 ## 2024-03-01   3.6        Shawnna Williams  Merge getBaselineItems and extractBaselineItems, merge 3.5 and 3.4 versions                            
+## 2024-04-01   3.6.1      Shawnna Williams  Fix link to added items
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -4685,7 +4686,7 @@ $string
 
 <h2 style='text-align:left !important;'>
 	#set( $lk = "")
-	#createLink( $baseDoc.currentVersion.originDocument, $baseDoc.currentVersion.versionNumber.toString())
+	#createLink( $baseDoc.currentVersion.originDocument, $baseDoc.currentVersion.versionNumber)
     #set( $lk = $createLinkReturn)
 	#set( $baseName = $baseDoc.name)
 	#encodeText( $baseName)
@@ -5479,9 +5480,10 @@ $string
 
   #if( $showAdded.size() > 0 )
 
-    #foreach($cDoc in $showAdded)
+    #foreach($cDocDTO in $showAdded)
     <h2>
       #set( $lk = "")
+	  #set( $cDoc = $documentSource.getDocument( $cDocDTO.id))
       #createLink( $cDoc.currentVersion.originDocument, $cDoc.currentVersion.versionNumber.toString())
 	  #set( $lk = $createLinkReturn)
 	  
