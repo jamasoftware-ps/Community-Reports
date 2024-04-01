@@ -26,7 +26,8 @@ Each Test Run result across all Test Cycles grouped by Test Cycle.
 
 ![pdfCycleSummary](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/f09b87c0-525e-45e9-95a3-58480349017b)
 
-![pdfCycleSummary2](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/75ae1a88-46e8-436e-a333-991377078e04)
+![cycleStatuses](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/9024925a-1d12-481e-9bad-abc75d72d4c6)
+
 
 ### Summary Tables Export to WORD
 
