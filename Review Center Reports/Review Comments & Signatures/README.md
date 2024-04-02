@@ -63,12 +63,12 @@ Export approver signatures and review comments. Before running the report the us
     <th>Name</th>
   </tr>
   <tr>
-    <td>Boolean</td>
+    <td>String</td>
     <td>Review Id, e.g. REV-id</td>
     <td>reportReviewId</td>
   </tr>
   <tr>
-    <td>Boolean</td>
+    <td>String</td>
     <td>Revision version, e.g. Vx</td>
     <td>reportRevisionV</td>
   </tr>
