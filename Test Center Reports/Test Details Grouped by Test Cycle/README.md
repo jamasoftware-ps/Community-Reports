@@ -9,7 +9,7 @@ If the user selects the parameter 'Include Test Plan Summary' it outputs a summa
 ######  Test Group Summary 
 If the user selects the parameter 'Include Test Cycle Summary' it outputs a summary of the Test Run statuses for each Test Cycle. 
 ######  Detailed Results
-Each Test Run result across all Test Cycles grouped by Test Cycle. Select 'Include Test Run Steps' to output steps for each Test Run.
+Each Test Run result across all Test Cycles grouped by Test Cycle. Select 'Include Test Run Test Steps' to output steps for each Test Run.
 
 ## Preview 
 ##### 'Include Test Run Steps'
