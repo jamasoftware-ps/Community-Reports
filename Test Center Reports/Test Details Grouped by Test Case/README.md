@@ -9,11 +9,17 @@ If the user selects the parameter 'Include Test Plan Summary' it outputs a summa
 ######  Test Group Summary 
 If the user selects the parameter 'Include Test Group Summary' it outputs a summary of the Test Run statuses for each Test Group's test cases. 
 ######  Detailed Results
-Each Test Run result across all Test Cycles grouped by Test Case.
+Each Test Run result across all Test Cycles grouped by Test Case. Select 'Include Test Run Test Steps' to output steps for each Test Run.
 
 ## Preview 
 
+##### 'Include Test Run Test Steps'
+
 ![wordTestCase](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/7654ac5f-b4bd-480d-9624-19630a04aa97)
+
+##### Default without Test Run Test Steps 
+
+![defaultTestRunNoSteps3](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/11436dce-8238-41c6-b9fe-cebcacbf5bb6)
 
 ### Summary Charts Export to PDF 
 
