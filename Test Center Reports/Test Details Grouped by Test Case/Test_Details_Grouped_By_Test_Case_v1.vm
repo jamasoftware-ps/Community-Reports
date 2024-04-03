@@ -23,12 +23,13 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## -----------  ---------  ----------------  ---------------------------------- 
 ## 2024-03-11  2.8.3       Word PDF Master
 ## 2024-03-18  2.9         Anna FitzGerald   Initial Build
-## 2024-03-25  3.0         Anna FitzGeald    Increased contrast between N/A and Not Run colors 
+## 2024-03-25  3.0         Anna FitzGerald    Increased contrast between N/A and Not Run colors 
 ##                                           Updated formatting of Test Summary tables for .doc exports
 ##                                           Sorted Test Run Sets by testRunSet sort order, and sorted test runs by the same order
 ##                                           Increased spacing between level number and heading value for .pdf exports
 ##                                           Adding N/A and Blocked test runs to tests executed count
 ##                                           Added logic to calculate correct x-axis intervals and percentage per test run 
+## 2024-04-03  3.1         Anna FitzGerald   Added parameter 'Include Test Run Test Steps' 
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -39,13 +40,16 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##
 ##      Type:       	Display Name:                Report Global Variable:   Function:
 ##      ----------------------------------------------------------------------------------------------------------------------
-##     Boolean     		Include Test Plan Summary       testPlanSummary     If Word includes Test Plan Summay Tables 
+##     Boolean     		Include Test Plan Summary      testPlanSummary          If Word includes Test Plan Summay Tables 
 ##                                                                            If PDF includes Test Plan Summary Charts
 ## 
-##     Boolean        Include Test Group Summary      testGroupSummary    If Word includes Test Case Summay Tables 
+##     Boolean        Include Test Group Summary     testGroupSummary         If Word includes Test Case Summay Tables 
 ##                                                                            If PDF includes Test Case Summary Charts
 ##
-##     Test Plan      Test Plan                       reportTestPlanId        Stores the Test Plan object
+##     Boolean        Include Test Run Test Steps    includeTestRunSteps      Default report hides Test Run Steps, with this selected
+##                                                                            Test Run Steps will show in the test result tables
+##
+##     Test Plan      Test Plan                      reportTestPlanId         Stores the Test Plan object
 ##    
 ##
 ## ======================================================================================================================
@@ -5489,18 +5493,22 @@ $!failedTestPlan
         1.0pt;margin-left:0in'>$userSource.getUser($testRun.createdBy).fullName</p>
         </td>
        </tr>
-			 <tr>
-        <td colspan=7 style='width:100.0%;border:solid #747474 .25pt;padding:0in 2.0pt 0in 2.0pt'>
-        #if( $testRun.description.length() < 0 )
-          <p class=MsoNormal><o:p>&nbsp;</o:p></p>
-          <p class=MsoNormal><b><span style='font-size:8.0pt;color:black;'>DESCRIPTION</span></b></p>
-          <p class=MsoNormal><o:p>&nbsp;</o:p></p>
-        #else
-          <p class=MsoNormal><b><span style='font-size:8.0pt;color:black;'>DESCRIPTION</span></b></p>
-           <p class=MsoNormal>#formatTableCell($testRun.description, "left", 460)</p>
-        #end 
-        </td>
-       </tr>
+			   <tr>
+          <td colspan=7 style='width:100.0%;border:solid #747474 .25pt;padding:0in 2.0pt 0in 2.0pt'>
+          #if( $testRun.description.length() < 0 )
+            <p class=MsoNormal><o:p>&nbsp;</o:p></p>
+            <p class=MsoNormal><b><span style='font-size:8.0pt;color:#404040;'>DESCRIPTION</span></b></p>
+            <p class=MsoNormal><o:p>&nbsp;</o:p></p>
+          #else
+            <p class=MsoNormal><b><span style='font-size:8.0pt;color:#404040;'>DESCRIPTION</span></b></p>
+             <p class=MsoNormal>#formatTableCell($testRun.description, "left", 460)</p>
+          #end 
+          </td>
+         </tr>
+        #if( !$includeTestRunSteps )
+        </table>
+       #end 
+       #if( $includeTestRunSteps )
         <tr>
         <td colspan=7 style='border:solid #747474 .25pt;border-top:none;background:#f0f0f5;padding:0in 2.0pt 0in 2.0pt'>
         <p class=MsoNormal><b><span style='font-size:9.0pt;color:black;'>STEPS</span></b></p>
@@ -5573,6 +5581,7 @@ $!failedTestPlan
          </tr>
          #end ##foreach( $step in $testRun.testRunSteps )
       </table> #end ##if( $testRun.testRunSteps.size() > 0 )
+      #end ##if( $includeTestRunSteps )
       <table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0 width="100%"
        style='width:100.0%;border-collapse:collapse;table-layout:fixed;margin:0 !important;padding:0 !important;'>
        <colgroup>
