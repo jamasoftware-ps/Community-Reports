@@ -38,7 +38,8 @@ Each Test Run result across all Test Cycles grouped by Test Case.
 
 # Installation Configuration 
 
-![caseConfiguration](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/de90672f-67e5-4e79-a730-81802931c79a)
+![caseConfiguration](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/eda18b51-b265-430a-a067-dbfead304f3a)
+
 
 <ul> 
   <li>Report Type: Select Velocity</li>
@@ -69,6 +70,11 @@ Each Test Run result across all Test Cycles grouped by Test Case.
     <td>Boolean</td>
     <td>Include Test Plan Summary</td>
     <td>testPlanSummary</td>
+  </tr>
+  <tr>
+    <td>Boolean</td>
+    <td>Include Test Run Test Steps</td>
+    <td>includeTestRunSteps</td>
   </tr>
    <tr>
     <td>Test Plan</td>
