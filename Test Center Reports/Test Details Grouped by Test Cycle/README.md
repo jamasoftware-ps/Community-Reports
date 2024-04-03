@@ -9,11 +9,17 @@ If the user selects the parameter 'Include Test Plan Summary' it outputs a summa
 ######  Test Group Summary 
 If the user selects the parameter 'Include Test Cycle Summary' it outputs a summary of the Test Run statuses for each Test Cycle. 
 ######  Detailed Results
-Each Test Run result across all Test Cycles grouped by Test Cycle.
+Each Test Run result across all Test Cycles grouped by Test Cycle. Select 'Include Test Run Steps' to output steps foreach Test Run.
 
 ## Preview 
+##### 'Include Test Run Steps'
 
 ![testCycleTestRun](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/10028c8f-509a-4d7a-81fd-cea4ee4e1651)
+
+##### Default without Test Run Steps
+
+![defaultTestRunNoSteps2](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/bbf997d7-f097-4588-860c-299dcd1aba35)
+
 
 ### Summary Charts Export to PDF 
 
@@ -42,7 +48,8 @@ Each Test Run result across all Test Cycles grouped by Test Cycle.
 
 # Installation Configuration 
 
-![cycleConfiguration](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/3068ed94-be6f-43a4-9e2f-e8124bf8c7f6)
+![cycleConfiguration](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/ead565ab-5239-4e75-b740-2e1c30878057)
+
 
 <ul> 
   <li>Report Type: Select Velocity</li>
@@ -73,6 +80,11 @@ Each Test Run result across all Test Cycles grouped by Test Cycle.
     <td>Boolean</td>
     <td>Include Test Plan Summary</td>
     <td>testPlanSummary</td>
+  </tr>
+   <tr>
+    <td>Boolean</td>
+    <td>Include Test Run Test Steps</td>
+    <td>includeTestRunSteps</td>
   </tr>
    <tr>
     <td>Test Plan</td>
