@@ -44,7 +44,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D8DFBE.2078AF30"
 ##                                             compare based on attachment list size and file names. 
 ##                                           - Removed description source sync column given that we can now include redlining diff.
 ##                                           - Updated target description to include description field redlining.  
-##                                             
+## 2024-04-05   2.1        Anna FitzGerald   - Updated .areItemsInSync call w/doc node ref id arguments as Velocity API specifies                                                
 ##
 ##
 ##
@@ -2254,7 +2254,9 @@ xmlns="http://www.w3.org/TR/REC-html40">
       #else
 
         #if($report6OnlyDiffItems)
-          #set($inSync = $syncService.areItemsInSync( $mathTool.toInteger($!sourceSyncItem.id), $mathTool.toInteger($!targetSyncItem.id)))
+          #set( $sourceDocNode = $documentNodeDao.getDocumentNode(5, $sourceSyncItem.id))
+          #set( $targetDocNode = $documentNodeDao.getDocumentNode(5, $targetSyncItem.id))
+          #set( $inSync = $syncService.areItemsInSync( $mathTool.toInteger($sourceDocNode.refId), $mathTool.toInteger($targetDocNode.refId)))
         
           #if(!$!inSync)
             #parentExportSyncRow($sourceSyncItem $targetSyncItem)
