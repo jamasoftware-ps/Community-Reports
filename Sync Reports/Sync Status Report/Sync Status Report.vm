@@ -1,10 +1,10 @@
 <html>
-## ========================================================================== 
+## ======================================================================================================================
 ## Name: Sync Status Report.vm 
 ## 
 ## Description: Report displaying items in a documentList and their sync'd items/status
 ## 
-## =========================================================================== 
+## ======================================================================================================================
 ## MODIFICATION HISTORY 
 ## 
 ## Date         Revision   Person            Comments 
@@ -13,58 +13,214 @@
 ## 31-JUL-2015	 B          Preston Mitchell  Formatted so that parent item data repeats in each row to allow filtering in Excel
 ## 19-APR-2023   C          Anna FitzGerald   Added new Velocity API Data Sources
 ##                                            Collapsed border on table 
-## 											 
+## 04-APR-2024   3.1        Anna FitzGerald   Removed unsupported Velocity API sources 
+##                                            Updated .areItemsInSync call w/doc node ref id arguments as Velocity API specifies   
+## 					      Updated style/page formatting and added heading content 
 ##
-## ========================================================================== 
-
-## Data Sources loaded for this report
-##-------------------------------------------
-#if( $documentSource ) ##
-  ## Jama 8.44 or greater
-  ## Jama 8.42 if New Velocity Feature Flag Enabled
-  #set( $docDao = $documentSource )
-  #set( $itemDao = $documentSource)
-  #set( $syncService = $documentSource)
+#########################################################################################################################
+## Data Sources Utilized in this report
+##-----------------------------------##
+##           $documentSource         ##
+##-----------------------------------##
+## 
+## Sources Utilized: 
+## $documentSource
+## 
 ##
-#else
-  ## Jama 8.43 or older
-  #set($docDao = $applicationContext.getBean("documentDao"))
-  #set($itemDao = $applicationContext.getBean("contourItemDao"))
-  #set($syncService = $applicationContext.getBean("syncStatusService"))
+## Timezone 
+##-----------------------------------##
+#set( $timeZone = "America/Los_Angeles" )
 ##
+## Formatting
+##-----------------------------------##
+#if( $format == 'pdf' || $format == 'html')
+	#set( $primaryFont = "Arimo")  	
+#else 
+	#set( $primaryFont = "Calibri")
 #end
-<table width=100% border=0 cellpadding=0 cellspacing=0 width=871 style='border-collapse:collapse;table-layout:fixed;width:100%;'>
-	<tr>
-		<td style="border:solid .5pt"><b>ID</b></td>
-		<td style="border:solid .5pt"><b>Global ID</b></td>
-		<td style="border:solid .5pt"><b>Name</b></td>
-		<td style="border:solid .5pt"><b>Synced Item</b></td>
-		<td style="border:solid .5pt"><b>Synced Project</b></td>
-		<td style="border:solid .5pt"><b>In Sync?</b></td>
-	</tr>
-	
-#foreach ($doc in $documentList)				
-	#set( $syncDocs = [])
-	#set( $syncDocs = $itemDao.getDocumentsWithGlobalId( $doc.document.globalId, $mathTool.toInteger($project.organizationId)))
-	##$syncDocs will print all docs that are synced with this document
-		#foreach( $s in $syncDocs)
-			#set( $inSync = $syncService.areItemsInSync( $mathTool.toInteger( $doc.document.id), $mathTool.toInteger( $s.id)))
-			#if($doc.document.documentKey != $s.documentKey)
-			<tr>
-				<td style="border:solid .5pt">$doc.document.documentKey</td>
-				<td style="border:solid .5pt">$doc.document.globalId</td>
-				<td style="border:solid .5pt">$doc.document.name</td>
-				<td style="border:solid .5pt">$s.documentKey</td>
-				<td style="border:solid .5pt">$s.project.name</td>
-				<td style="border:solid .5pt">#if ($!inSync == false)
-												No
-											  #else
-												Yes
-											  #end
-				</td>
-			</tr>
-			#end
-		#end
+##
+##
+#########################################################################################################################
+<head>
+## .pdf & .html typeface link ##
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+
+<style>
+/* .doc & .xlsx @font-face rule */
+@font-face
+  {font-family:"Calibri";
+  panose-1:2 15 5 2 2 2 4 3 2 4;
+  mso-font-charset:0;
+  mso-generic-font-family:swiss;
+  mso-font-pitch:variable;
+  mso-font-signature:-1610611985 1073750139 0 0 159 0;}
+body {
+	margin:auto;
+	width:80%;
+}
+table {
+	border-collapse:collapse;
+}
+tr {
+	mso-height-source:auto;
+	height:auto;
+}
+col {
+	mso-width-source:auto;
+}
+br {
+	mso-data-placement:same-cell;
+}
+td.title {
+	font-size:13pt;
+	font-weight:700;
+	font-family:'$primaryFont',sans-serif;
+}
+td.header {
+	white-space:normal;
+	word-wrap:break-word;
+	overflow-wrap:break-word;
+	font-weight:700;
+	font-size:11pt;
+	font-family:'$primaryFont',sans-serif;
+	background-color:#e6e6e6;
+	border:.5pt solid #999999;
+	vertical-align:middle;
+	text-align:center;
+}
+td.cell {
+	white-space:normal;
+	word-wrap:break-word;
+	overflow-wrap:break-word;
+	font-weight:300;
+	font-size:9pt;
+	border:.5pt solid #999999;
+	vertical-align:middle;
+	text-align:left;
+	font-family:'$primaryFont',sans-serif;
+	padding:.5pt 1pt .5pt 1pt;
+	margin:0;
+}
+#if( $format == 'pdf') /*no named pages w/ .pdf*/
+@page {
+	size:11.0in 8.5in;
+}
 #end 
-</table>
+#if( $format != 'pdf') 
+@page SectionLandscape {
+	size:11.0in 8.5in;
+	margin:.5in .5in .5in .5in;
+}
+div.SectionLandscape {
+	page: SectionLandscape;
+	margin:.5in .5in .5in .5in;
+}
+#end
+</style>
+</head>
+
+## =================================================================================================================
+##
+##
+## MACROS 
+##
+##
+## =================================================================================================================
+#########################################################################################################################
+##          Macro: getDate
+##          Input: Java Time Zone ID to determine which timezone to display the date in
+##          Output: Formatted date in the desired timezone
+#########################################################################################################################
+#macro( getDate $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  #set( $date = $dateTool.format( 'MM/dd/yyyy', $inputDate, $locale, $outTz ))
+  $!date
+#end
+#########################################################################################################################
+##          Macro: getDateTime
+##          Input: Java Time Zone ID to determine which timezone to display the date in
+##          Output: Formatted date in the desired timezone
+#########################################################################################################################
+#macro( getDateTime $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  #set( $dateTime = $dateTool.format( 'MM/dd/yyyy hh:mm a', $inputDate, $locale, $outTz ))
+  $!dateTime
+#end
+#########################################################################################################################
+## =================================================================================================================
+##
+##
+## REPORT BODY 
+##
+##
+## =================================================================================================================
+<body>
+	<div class=SectionLandscape>
+		<table style='width:100%;table-layout:fixed;'>
+			<colgroup>
+				<col style='width:15%'/>
+				<col style='width:15%'/>
+				<col style='width:20%'/>
+				<col style='width:20%'/>
+				<col style='width:20%'/>
+				<col style='width:10%'/>
+			</colgroup>
+			<thead>
+				<tr>
+					<td class=title colspan=2 style='text-align:left;border:none;font-size:11pt'>$project.organization.name</td>
+					<td class=title colspan=2 style='text-align:center;border:none;'>SYNC STATUS REPORT</td>
+					<td class=cell colspan=2 style='text-align:right;border:none;'>#getDateTime($dateTool.date, $timeZone)</td>
+				</tr>
+				<tr> 
+					<td class=cell colspan=3 style='text-align:left;border:none;'>Report Runner: $userSource.currentUser.fullName</td>
+					<td class=cell colspan=3 style='text-align:left;border:none;'></td>
+				</tr>
+				<tr>
+					<td class=header><b>ID</b></td>
+					<td class=header><b>Global ID</b></td>
+					<td class=header><b>Name</b></td>
+					<td class=header><b>Synced Item</b></td>
+					<td class=header><b>Synced Project</b></td>
+					<td class=header><b>In Sync?</b></td>
+				</tr>
+			</thead>
+			#foreach($vDoc in $documentList)		
+				#set( $doc = $vDoc.document )		
+				#set( $syncDocs = [])
+				#set( $syncDocs = $documentSource.getDocumentsWithGlobalId( $doc.globalId, $mathTool.toInteger($project.organizationId)))
+				#set( $sourceDocNode = $documentSource.getDocumentNode(5, $doc.id))
+
+				##$syncDocs will print all docs that are synced with this document
+				#foreach( $s in $syncDocs )
+					#set( $syncDocNode = $documentSource.getDocumentNode(5, $s.id))
+					#set( $inSync = $documentSource.areItemsInSync( $mathTool.toInteger($sourceDocNode.refId), $mathTool.toInteger($syncDocNode.refId)))
+
+					#if( $doc.documentKey != $s.documentKey )
+					<tr>
+						<td class=cell>$doc.documentKey</td>
+						<td class=cell>$doc.globalId</td>
+						<td class=cell>$doc.name</td>
+						<td class=cell>$s.documentKey</td>
+						<td class=cell>$s.project.name</td>
+						<td class=cell>
+							#if($!inSync == false)
+								No
+							#else
+								Yes
+							#end
+						</td>
+					</tr>
+					#end
+				#end
+			#end 
+			</table>
+		</div>
+	</body>
 </html>
+
+
+
