@@ -13,7 +13,7 @@ The Sync Status Report outputs user selected source sync item/s. For each source
 
 <ul>
 <li>Report Type: Select Velocity</li>
-<li>Report Formats: Select PDF and/or Word</li>
+<li>Report Formats: Select your preference</li>
 <li>Report File Name: Upload the velocity file</li>
 <li>Organization: select</li>
 <li>Context Sensitive: check the box</li>
