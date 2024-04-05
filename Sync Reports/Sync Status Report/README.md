@@ -9,7 +9,8 @@ The Sync Status Report outputs user selected source sync item/s. For each source
 
 ## Installation Configuration
 
-![SyncStatusInstallationConfiguration](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/a7d690e2-d310-4fca-8f2e-3aa89170e0d5)
+![SyncStatusInstallationConfiguration](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/73c07652-3d3d-4c59-8fae-f710051e964a)
+
 <ul>
 <li>Report Type: Select Velocity</li>
 <li>Report Formats: Select PDF and/or Word</li>
