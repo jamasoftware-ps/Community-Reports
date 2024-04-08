@@ -3,6 +3,8 @@
 ## Description 
 The Sync Status Report outputs user selected source sync item/s. For each source sync item the report gets all the items that share a global id across projects. For each source item the report checks if any gathered item sharing the same global id is in sync.
 
+* To speed up run time export less than 500 items. Max items for sync report: 1000. 
+
 ## Preview
 
 ![SyncStatusPreview](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/c3daac38-8315-41ea-9ed4-885a41f358ba)
