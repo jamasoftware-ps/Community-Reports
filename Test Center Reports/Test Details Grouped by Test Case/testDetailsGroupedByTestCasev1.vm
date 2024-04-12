@@ -4,7 +4,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 #end
 
 ## ======================================================================================================================
-## Name: Test_Details_Grouped_By_Test_Case.vm
+## Name: testDetailsGroupedByTestCasev1.vm
 ## 
 ## Description: Context In-sensitive Test Report. 
 ##              - Outputs Test Plan contents and groups test run results by their respective test case.
