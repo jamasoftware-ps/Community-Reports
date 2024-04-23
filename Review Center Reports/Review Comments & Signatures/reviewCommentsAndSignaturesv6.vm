@@ -30,6 +30,9 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                            Removed condition around comment row that had set a limitation on what comments show. 
 ##                                            Updated revision items to be grouped by global id so that there is one table per revision item. 
 ## 2024-03-15     1.4      Anna FitzGerald    Updated so that all revision items show regardless of it they have comments 
+## 2024-04-23     3.2      Anna FitzGerald    Added condition around retrieving base64 for an attachment to ensure base64 conversion is possible
+##                                            Updated regex pattern that gets input review id
+##                                            
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -99,7 +102,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## Get the REV-id 
 ##-------------------------------------------
 #if( $reportReviewId.toUpperCase().contains("REV"))
-	#set( $reviewId = $reportReviewId.replaceAll("\w{3}.", ""))
+	#set( $reviewId = $reportReviewId.replaceAll("(?:rev|REV).(\d*)", "$1"))
 	#set( $reviewId = $reviewId.trim())
 	#set( $reviewForComments = $reviewSource.getReview($mathTool.toInteger($reviewId)))
 #else 
@@ -2155,8 +2158,10 @@ $string
       #set( $contentType = $contentType.concat($fileExt))
       #if( $figure.add( $contentType)) #end
       #if( $figure.add( "")) #end
-      #set( $base64Fig = $attachmentService.getBase64Image( $mathTool.toInteger( $attachmentId)))
-      #set($base64Fig = $base64Fig.trim())
+      #if($attachmentService.getBase64Image( $mathTool.toInteger( $attachmentId)))
+        #set( $base64Fig = $attachmentService.getBase64Image( $mathTool.toInteger( $attachmentId)))
+        #set($base64Fig = $base64Fig.trim())
+      #end 
 
       ## if this a PNG, get the size
       #if( $base64Fig.substring(0, 16) == "iVBORw0KGgoAAAAN")
@@ -5032,7 +5037,7 @@ Review Comments
         <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes'>
           <td width=50% valign=top style='padding:0in 5.4pt 0in 5.4pt;border:none;'>
             <p class=MsoHeader><span style='font-size:10.0pt;'>
-            REV-$!revisionForComments.review.id $revisionForComments.review.name v$!revisionForComments.sequenceNumber
+            REV-$!revisionForComments.review.id $!revisionForComments.review.name v$!revisionForComments.sequenceNumber
             </span></p>
           </td>
           <td width=50% valign=top style='padding:0in 5.4pt 0in 5.4pt;border:none;'>
@@ -5103,7 +5108,7 @@ Review Comments & Signatures
 		</td>
 		<td width=77%>
 			<p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>
-			REV-$!revisionForComments.review.id $revisionForComments.review.name v$!revisionForComments.sequenceNumber
+			REV-$!revisionForComments.review.id $!revisionForComments.review.name v$!revisionForComments.sequenceNumber
 			</p>
 		</td>
 		</tr>
