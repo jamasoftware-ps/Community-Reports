@@ -4,7 +4,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 #end
 
 ## ======================================================================================================================
-## Name: testDetailsGroupedByTestCasev1.vm
+## Name: Test_Details_Grouped_By_Test_Case.vm
 ## 
 ## Description: Context In-sensitive Test Report. 
 ##              - Outputs Test Plan contents and groups test run results by their respective test case.
@@ -30,6 +30,11 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                           Adding N/A and Blocked test runs to tests executed count
 ##                                           Added logic to calculate correct x-axis intervals and percentage per test run 
 ## 2024-04-03  3.1         Anna FitzGerald   Added parameter 'Include Test Run Test Steps' 
+## 2024-04-22  3.2         Anna FitzGerald   Corrected variable name from testCycleStats to testCaseStats
+## 2024-04-23  3.2         Anna FitzGerald   Updated getTestRunStatusColor macro and status colors
+##                                           Updated pdf CSS to the rgb values that match the updated colors in getTestRunStatusColor macro
+##                                           Added condition around retrieving base64 for an attachment to ensure base64 conversion is possible
+## 2023-04-24              Anna FitzGerald   Updated timeZones to be consistently UTC and formatted w/ ISO International date format
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -189,7 +194,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 #set( $fldKey = "FLD") ##
 #set( $txtKey = "TXT") ##
 #set( $objectTypeField = "object_type" ) ##
-#set( $timeZone = "America/Los_Angeles" ) ##
+#set( $timeZone = "Etc/UTC" ) ##
 ##
 ## Object Types
 #set( $informationObjectType = "Information" )
@@ -2090,24 +2095,24 @@ td.TableCell
       border-right:.25pt solid #999;
     }
 
-    /* Test Run bar colors  */
-    .passed {
-    background-color:rgba(2, 202, 121,.9);
+    /* Test Run bar colors,colors from Jama UI  */
+     .passed {
+    background-color:rgb(41, 201, 32);
     }
     .inProgress {
-    background-color:rgba(120, 213, 215,.9);
+    background-color:rgb(14, 194, 191);
     }
     .notRun {
-    background-color:rgba(220, 220, 220,.6);
+    background-color:rgba(234, 234, 234);
     }
     .blocked {
-    background-color:rgba(246, 159, 85,.9);
+    background-color:rgb(235, 106, 0);
     }
     .failed {
-    background-color:rgba(245, 107, 117,.9);
+    background-color:rgb(242, 97, 109);
     }
    .notApplicable {
-     background-color:rgba(195, 195, 195);
+     background-color:rgb(171, 171, 171);
     }
 
    /* Dashboard Stats */
@@ -2422,7 +2427,8 @@ $string
 #macro( getDateTime $inputDate $inputTimeZone )
   #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
   #set( $locale = $dateTool.getLocale() )
-  #set( $dateTime = $dateTool.format( 'MM/dd/yyyy hh:mm a', $inputDate, $locale, $outTz ))
+  ## noted customized formatting to yyyy/mm/dd considering ISO international format
+  #set( $dateTime = $dateTool.format( 'yyyy/mm/dd hh:mm a z', $inputDate, $locale, $outTz ))
   $!dateTime
 #end
 #########################################################################################################################
@@ -2585,8 +2591,10 @@ $string
       #set( $contentType = $contentType.concat($fileExt))
       #if( $figure.add( $contentType)) #end
       #if( $figure.add( "")) #end
-      #set( $base64Fig = $attachmentService.getBase64Image( $mathTool.toInteger( $attachmentId)))
-      #set($base64Fig = $base64Fig.trim())
+      #if($attachmentService.getBase64Image( $mathTool.toInteger( $attachmentId)))
+        #set( $base64Fig = $attachmentService.getBase64Image( $mathTool.toInteger( $attachmentId)))
+        #set($base64Fig = $base64Fig.trim())
+      #end 
 
       ## if this a PNG, get the size
       #if( $base64Fig.substring(0, 16) == "iVBORw0KGgoAAAAN")
@@ -4569,20 +4577,19 @@ $string
 ## **********************************************************************************************************************
 #########################################################################################################################
 #macro( getTestRunStatusColor $status )
-	#set( $color = "FFFFFF")
-	#if( $status == "Not Run")
-		#set( $color = "DCDCDC")
-	#elseif( $status == "In progress")
-		#set( $color = "78D5D7")
-	#elseif( $status == "Not applicable")
-		#set( $color = "C3C3C3")
-	#elseif( $status == "Blocked")
-		#set( $color = "F69F55")
-	#elseif( $status == "Failed")
-		#set( $color = "F56B75")
-	#elseif( $status == "Passed")
-		#set( $color = "02CA79")
-	#end
+  #if( $status == "Not Run")
+     #set( $color = "EAEAEA") ## rgb(234, 234, 234)
+  #elseif( $status == "In Progress")
+      #set( $color = "0EC2BF") ## rgb(14, 194, 191)
+  #elseif( $status == "Not applicable")
+    #set( $color = "ababab") ## rgb(171, 171, 171) 
+  #elseif( $status == "Blocked")
+    #set( $color = "EB6A00") ## rgb(235, 106, 0)
+  #elseif( $status == "Failed")
+    #set( $color = "F2616D") ## rgb(242, 97, 109) 
+  #elseif( $status == "Passed")
+    #set( $color = "29C920")## rgb(41, 201, 32)
+  #end
 #end
 #########################################################################################################################
 ## **********************************************************************************************************************
@@ -4927,49 +4934,44 @@ $string
   style='font-size:9.0pt'>TOTAL</span></b></p>
   </td>
  </tr>
-
  <tr style='mso-yfti-irow:1'>
-  <td valign=top style='width:75%;border:solid #7F7F7F 1.0pt;margin:1pt 0pt 1pt 0pt;background:#DCDCDC;padding:0in 5.4pt 0in 5.4pt'>
+  <td valign=top style='width:75%;border:solid #7F7F7F 1.0pt;margin:1pt 0pt 1pt 0pt;background:#EAEAEA;padding:0in 5.4pt 0in 5.4pt'>
  Not run
   </td>
   <td valign=top style='width:25%;border:solid #7F7F7F 1.0pt;margin:1pt 0pt 1pt 0pt;text-align:center;padding:0in 5.4pt 0in 5.4pt'>
  $!notRunTestPlan
   </td>
  </tr>
-
- <tr style='mso-yfti-irow:2'>
-  <td valign=top style='width:75%;border:solid #7F7F7F 1.0pt;margin:1pt 0pt 1pt 0pt;
-  background:#78D5D7;padding:0in 5.4pt 0in 5.4pt'>
-In progress
-  </td>
-  <td valign=top style='width:25%;border:solid #7F7F7F 1.0pt;margin:1pt 0pt 1pt 0pt;text-align:center;padding:0in 5.4pt 0in 5.4pt'>
- $!inProgressTestPlan
-  </td>
- </tr>
-
  <tr style='mso-yfti-irow:3'>
   <td valign=top style='width:75%;border:solid #7F7F7F 1.0pt;margin:1pt 0pt 1pt 0pt;
-  background:#999999;padding:0in 5.4pt 0in 5.4pt'>
+  background:#ababab;padding:0in 5.4pt 0in 5.4pt;'>
   Not applicable
   </td>
   <td valign=top style='width:25%;border:solid #7F7F7F 1.0pt;margin:1pt 0pt 1pt 0pt;text-align:center;padding:0in 5.4pt 0in 5.4pt'>
  $!notApplicableTestPlan
   </td>
  </tr>
-
  <tr style='mso-yfti-irow:4'>
   <td valign=top style='width:75%;border:solid #7F7F7F 1.0pt;margin:1pt 0pt 1pt 0pt;
-  background:#F69F55;padding:0in 5.4pt 0in 5.4pt'>
+  background:#EB6A00;padding:0in 5.4pt 0in 5.4pt'>
  Blocked
   </td>
   <td valign=top style='width:25%;border:solid #7F7F7F 1.0pt;margin:1pt 0pt 1pt 0pt;text-align:center;padding:0in 5.4pt 0in 5.4pt'>
  $!blockedTestPlan
   </td>
  </tr>
-
+ <tr style='mso-yfti-irow:2'>
+  <td valign=top style='width:75%;border:solid #7F7F7F 1.0pt;margin:1pt 0pt 1pt 0pt;
+  background:#0EC2BF;padding:0in 5.4pt 0in 5.4pt'>
+In progress
+  </td>
+  <td valign=top style='width:25%;border:solid #7F7F7F 1.0pt;margin:1pt 0pt 1pt 0pt;text-align:center;padding:0in 5.4pt 0in 5.4pt'>
+ $!inProgressTestPlan
+  </td>
+ </tr>
  <tr style='mso-yfti-irow:5;height:8.5pt'>
   <td valign=top style='width:75%;border:solid #7F7F7F 1.0pt;margin:1pt 0pt 1pt 0pt;
-  background:#F56B75;padding:0in 5.4pt 0in 5.4pt;height:8.5pt'>
+  background:#F2616D;padding:0in 5.4pt 0in 5.4pt;height:8.5pt'>
 Failed
   </td>
   <td valign=top style='width:25%;border:solid #7F7F7F 1.0pt;margin:1pt 0pt 1pt 0pt;text-align:center;padding:0in 5.4pt 0in 5.4pt;
@@ -4977,10 +4979,9 @@ Failed
 $!failedTestPlan
   </td>
  </tr>
-
  <tr style='mso-yfti-irow:6;mso-yfti-lastrow:yes'>
   <td valign=top style='width:75%;border:solid #7F7F7F 1.0pt;margin:1pt 0pt 1pt 0pt;
-  background:#02CA79;padding:0in 5.4pt 0in 5.4pt'>
+  background:#29C920;padding:0in 5.4pt 0in 5.4pt'>
  Passed
   </td>
   <td valign=top style='width:25%;border:solid #7F7F7F 1.0pt;margin:1pt 0pt 1pt 0pt;text-align:center;padding:0in 5.4pt 0in 5.4pt'>
@@ -5067,46 +5068,42 @@ $!failedTestPlan
 		  </td>
 		 </tr>
 		 <tr style='mso-yfti-irow:1'>
-		  <td valign=top style='width:75%;border:solid #7F7F7F 1.0pt;background:#DCDCDC;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;'>
+		  <td valign=top style='width:75%;border:solid #7F7F7F 1.0pt;background:#EAEAEA;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;'>
 		  Not run
 		  </td>
 		  <td align=center valign=top style='text-align:center;width:25%;border:solid #7F7F7F 1.0pt;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;'>
 		 $!notRunTestCase
 		  </td>
 		 </tr>
-
+      <tr style='mso-yfti-irow:3'>
+      <td valign=top style='width:75%;border:solid #7F7F7F 1.0pt;
+      background:#ababab;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;'>
+     Not applicable
+      </td>
+      <td align=center valign=top style='text-align:center;width:25%;border:solid #7F7F7F 1.0pt;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;'>
+      $!notApplicableTestCase
+      </td>
+     </tr>
+     <tr style='mso-yfti-irow:4'>
+      <td valign=top style='width:75%;border:solid #7F7F7F 1.0pt;
+      background:#EB6A00;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;'>
+      Blocked
+      </td>
+      <td align=center valign=top style='text-align:center;width:25%;border:solid #7F7F7F 1.0pt;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;'>
+      $!blockedTestCase
+      </td>
+     </tr>
 		 <tr style='mso-yfti-irow:2'>
 		  <td valign=top style='width:75%;border:solid #7F7F7F 1.0pt;
-		  background:#78D5D7;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;'>
+		  background:#0EC2BF;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;'>
 		  In progress
 		  </td>
 		  <td align=center valign=top style='text-align:center;width:25%;border:solid #7F7F7F 1.0pt;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;'>
 		  $!inProgressTestCase  </td>
 		 </tr>
-
-		 <tr style='mso-yfti-irow:3'>
-		  <td valign=top style='width:75%;border:solid #7F7F7F 1.0pt;
-		  background:#999999;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;'>
-		 Not applicable
-		  </td>
-		  <td align=center valign=top style='text-align:center;width:25%;border:solid #7F7F7F 1.0pt;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;'>
-		  $!notApplicableTestCase
-		  </td>
-		 </tr>
-
-		 <tr style='mso-yfti-irow:4'>
-		  <td valign=top style='width:75%;border:solid #7F7F7F 1.0pt;
-		  background:#F69F55;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;'>
-		  Blocked
-		  </td>
-		  <td align=center valign=top style='text-align:center;width:25%;border:solid #7F7F7F 1.0pt;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;'>
-		  $!blockedTestCase
-		  </td>
-		 </tr>
-
 		 <tr style='mso-yfti-irow:5;height:8.5pt'>
 		  <td valign=top style='width:75%;border:solid #7F7F7F 1.0pt;
-		  background:#F56B75;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;;height:8.5pt'>
+		  background:#F2616D;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;;height:8.5pt'>
 		 Failed
 		  </td>
 		  <td align=center valign=top style='text-align:center;width:25%;border:solid #7F7F7F 1.0pt;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;;
@@ -5114,10 +5111,9 @@ $!failedTestPlan
 		  $!failedTestCase
 		  </td>
 		 </tr>
-
 		 <tr style='mso-yfti-irow:6;mso-yfti-lastrow:yes'>
 		  <td valign=top style='width:75%;border:solid #7F7F7F 1.0pt;
-		  background:#02CA79;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;'>
+		  background:#29C920;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;'>
 		 Passed  </td>
 		  <td align=center valign=top style='text-align:center;width:25%;border:solid #7F7F7F 1.0pt;padding:0pt 5.4pt 0pt 5.4pt;margin:1pt 0pt 1pt 0pt;'>
 		  $passedTestCase
@@ -5196,17 +5192,17 @@ $!failedTestPlan
           #set( $percentWidth = $notRunTestPlan * $percentPerRun)
           <div class="categoryDataViz notRun" style='width:${percentWidth}%'>$notRunTestPlan</div>
         #end 
-        #if( $inProgressTestPlan > 0 )
-          #set( $percentWidth = $inProgressTestPlan * $percentPerRun)
-          <div class="categoryDataViz inProgress" style='width:${percentWidth}%'>$inProgressTestPlan</div>
-        #end 
         #if( $notApplicableTestPlan > 0 )
           #set( $percentWidth = $notApplicableTestPlan * $percentPerRun)
-          <div class="categoryDataViz notApplicable" style='width:${percentWidth}%'>$notApplicableTestPlan</div>
+          <div class="categoryDataViz notApplicable" style='width:${percentWidth}%;'>$notApplicableTestPlan</div>
         #end 
         #if( $blockedTestPlan > 0 )
           #set( $percentWidth = $blockedTestPlan * $percentPerRun)
           <div class="categoryDataViz blocked" style='width:${percentWidth}%'>$blockedTestPlan</div>
+        #end 
+        #if( $inProgressTestPlan > 0 )
+          #set( $percentWidth = $inProgressTestPlan * $percentPerRun)
+          <div class="categoryDataViz inProgress" style='width:${percentWidth}%'>$inProgressTestPlan</div>
         #end 
         #if( $failedTestPlan > 0 )
           #set( $percentWidth = $failedTestPlan * $percentPerRun)
@@ -5242,9 +5238,9 @@ $!failedTestPlan
     ## X Axis Label and Legend ##  
       <div class="legend-dataViz" align=center valign=middle>
       	<div class='chartListLegend notRun' style='width:1em;height:1em;margin-left:2em;'></div><div class=chartListLegend>Not Run&nbsp;</div>
-      	<div class='chartListLegend inProgress' style='width:1em;height:1em;margin-left:.8em;'></div><div class=chartListLegend>In Progress&nbsp;</div>
-      	<div class='chartListLegend notApplicable' style='width:1em;height:1em;margin-left:.8em;'></div><div class=chartListLegend>N/A&nbsp;</div>
+        <div class='chartListLegend notApplicable' style='width:1em;height:1em;margin-left:.8em;'></div><div class=chartListLegend>N/A&nbsp;</div>
         <div class='chartListLegend blocked' style='width:1em;height:1em;margin-left:.8em;'></div><div class=chartListLegend>Blocked&nbsp;</div>
+      	<div class='chartListLegend inProgress' style='width:1em;height:1em;margin-left:.8em;'></div><div class=chartListLegend>In Progress&nbsp;</div>
         <div class='chartListLegend failed' style='width:1em;height:1em;margin-left:.8em;'></div><div class=chartListLegend>Failed&nbsp;</div>
         <div class='chartListLegend passed' style='width:1em;height:1em;margin-left:.8em;'></div><div class=chartListLegend>Passed&nbsp;</div>
       </div>
@@ -5343,17 +5339,17 @@ $!failedTestPlan
 		          #set( $percentWidth = $notRunTestCase * $percentPerRun)
 		          <div class="categoryDataViz notRun" style='width:${percentWidth}%'>$notRunTestCase</div>
 		        #end 
+            #if( $notApplicableTestCase > 0 )
+              #set( $percentWidth = $notApplicableTestCase * $percentPerRun)
+              <div class="categoryDataViz notApplicable" style='width:${percentWidth}%;'>$notApplicableTestCase</div>
+            #end 
+            #if( $blockedTestCase > 0 )
+              #set( $percentWidth = $blockedTestCase * $percentPerRun)
+              <div class="categoryDataViz blocked" style='width:${percentWidth}%'>$blockedTestCase</div>
+            #end 
 		        #if( $inProgressTestCase > 0 )
 		          #set( $percentWidth = $inProgressTestCase * $percentPerRun)
 		          <div class="categoryDataViz inProgress" style='width:${percentWidth}%'>$inProgressTestCase</div>
-		        #end 
-		        #if( $notApplicableTestCase > 0 )
-		          #set( $percentWidth = $notApplicableTestCase * $percentPerRun)
-		          <div class="categoryDataViz notApplicable" style='width:${percentWidth}%'>$notApplicableTestCase</div>
-		        #end 
-		        #if( $blockedTestCase > 0 )
-		          #set( $percentWidth = $blockedTestCase * $percentPerRun)
-		          <div class="categoryDataViz blocked" style='width:${percentWidth}%'>$blockedTestCase</div>
 		        #end 
 		        #if( $failedTestCase > 0 )
 		          #set( $percentWidth = $failedTestCase * $percentPerRun)
@@ -5369,7 +5365,7 @@ $!failedTestPlan
 		</tr>
       #set( $count = $foreach.index )
       #if( $count > 6 && $count % 7 == 0 && !$foreach.last)  ## we have reached the max test case bars per page
-        #set( $rowsRemaining = $testCycleStats.size() - $count )
+        #set( $rowsRemaining = $testCaseStats.size() - $count )
         #if( $rowsRemaining > 1 )
           #set( $tableHeight = 60 * $rowsRemaining)
         #else 
@@ -5406,9 +5402,9 @@ $!failedTestPlan
         ## X Axis Label and Legend ##  
           <div class="legend-dataViz" align=center valign=middle>
             <div class='chartListLegend notRun' style='width:1em;height:1em;margin-left:2em;'></div><div class=chartListLegend>Not Run&nbsp;</div>
-            <div class='chartListLegend inProgress' style='width:1em;height:1em;margin-left:.8em;'></div><div class=chartListLegend>In Progress&nbsp;</div>
             <div class='chartListLegend notApplicable' style='width:1em;height:1em;margin-left:.8em;'></div><div class=chartListLegend>N/A&nbsp;</div>
             <div class='chartListLegend blocked' style='width:1em;height:1em;margin-left:.8em;'></div><div class=chartListLegend>Blocked&nbsp;</div>
+            <div class='chartListLegend inProgress' style='width:1em;height:1em;margin-left:.8em;'></div><div class=chartListLegend>In Progress&nbsp;</div>
             <div class='chartListLegend failed' style='width:1em;height:1em;margin-left:.8em;'></div><div class=chartListLegend>Failed&nbsp;</div>
             <div class='chartListLegend passed' style='width:1em;height:1em;margin-left:.8em;'></div><div class=chartListLegend>Passed&nbsp;</div>
           </div>
@@ -5480,7 +5476,7 @@ $!failedTestPlan
         1.0pt;margin-left:0in'><b><span style='font-size:8.0pt;color:#404040;'>RUN CREATED ON</span></b></p>
         </td>
         <td colspan=5 style='width:78%;border:none;border-right:solid #747474 .25pt;padding:0in 2.0pt 0in 2.0pt'>
-        <p class=MsoNormal style='margin-top:1.0pt;margin-right:0in;margin-bottom:1.0pt;margin-left:0in'>$dateTool.format('MMM d, yyyy, h:mm a z', $testRun.createdDate)</p>
+        <p class=MsoNormal style='margin-top:1.0pt;margin-right:0in;margin-bottom:1.0pt;margin-left:0in'>#getDateTime($testRun.createdDate $timeZone)</p>
         </td>
        </tr>
        <tr>
@@ -5602,7 +5598,7 @@ $!failedTestPlan
         1.0pt;margin-left:0in'><b><span style='font-size:8.0pt;color:#404040;'>EXECUTED ON</span></b></p>
         </td>
         <td colspan=5 style='width:78%;border:solid #747474 .25pt;border-bottom:none;border-left:none;border-top:none;padding:0in 2.0pt 0in 2.0pt'>
-          #if($testRun.executionDate) #getDateTime($testRun.executionDate $timeZone) #end
+          #if($testRun.executionDate) #getDateTime($testRun.executionDate $timeZone) #end 
         </td>
        </tr>
        <tr>
