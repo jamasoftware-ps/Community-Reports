@@ -1,5 +1,5 @@
 # Test Details Grouped by Test Case 
-This is a context insensitive test results report that outputs data from the user selected test plan. This report can be output to PDF or Word format with the option to show a data visual Test Plan Summary and Test Group Summary. The visuals for these summaries are different considering PDF or Word format. 
+This is a context insensitive test results report that outputs data from the user selected test plan. This report can be output to PDF or Word format with the option to show a data visual Test Plan Summary and Test Group Summary. The visuals for these summaries are different considering PDF or Word format. The time zone for the dates output is UTC. To modify time zone change the TZ identifier string on line 197 of the template.
 
 ## Sections of this report: 
 ######  Test Plan Contents 
@@ -15,32 +15,34 @@ Each Test Run result across all Test Cycles grouped by Test Case. Select 'Includ
 
 ##### 'Include Test Run Test Steps'
 
-![wordTestCase](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/7654ac5f-b4bd-480d-9624-19630a04aa97)
+![detailedResultsCase_steps](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/320f31a0-d6ad-41d2-9fa2-344e2ec30f32)
+
 
 ##### Default without Test Run Test Steps 
 
-![defaultTestRunNoSteps3](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/11436dce-8238-41c6-b9fe-cebcacbf5bb6)
+![resultsNoSteps](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/f81f00b9-c3c1-48c6-ab7f-ad913aee6f68)
 
 ### Summary Charts Export to PDF 
 
 ##### Test Plan Summary 
 
-![testPlanSummaryPDF](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/1eb78eb5-eabb-444e-bbe0-d72a72284c69)
+![testPlanSummary_1](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/f4362e29-12ba-4843-a9d5-dbc2ed42ac5e)
+
 
 ##### Test Group Summary
 
-![testGroupPDF](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/2c8f5cba-15d6-4114-85d0-1c54ff9556e3)
-
+![testGroupSummary_1](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/d9334f97-e876-4cec-863c-934c4515b5ee)
 
 ### Summary Tables Export to WORD
 
 ##### Test Plan Summary 
 
-![testPlanSummaryWord](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/57d58cac-ef55-43cc-b8f9-b0d43471175e)
+![testPlanSummary_2](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/a8461561-52f6-4b1f-bc8c-7933c3048618)
 
 ##### Test Group Summary
 
-![wordTestGroup](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/9ac7e7c6-f39f-4976-a2cc-9d3a6bd8573f)
+![testGroupSummary_2](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/7aaa34a2-cbd3-427a-9251-1ed4a30ba3d5)
+
 
 # Installation Configuration 
 
