@@ -1,5 +1,5 @@
 # Test Details Grouped by Test Cycle 
-This is a context insensitive test results report that outputs data from the user selected test plan. This report can output to PDF or Word format with the option to show a data visual Test Plan Summary and Test Cycle Summary. The visuals for these summaries are different considering PDF or Word format. 
+This is a context insensitive test results report that outputs data from the user selected test plan. This report can output to PDF or Word format with the option to show a data visual Test Plan Summary and Test Cycle Summary. The visuals for these summaries are different considering PDF or Word format. The time zone for the dates output is UTC. To modify time zone change the TZ identifier string on line 192 of the template.
 
 ## Sections of this report: 
 ######  Test Plan Contents 
@@ -14,37 +14,38 @@ Each Test Run result across all Test Cycles grouped by Test Cycle. Select 'Inclu
 ## Preview 
 ##### 'Include Test Run Steps'
 
-![testCycleTestRun](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/10028c8f-509a-4d7a-81fd-cea4ee4e1651)
+![resultsStepsCycle](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/c5420020-bfec-47c6-8df9-e632b93f9dc5)
+
 
 ##### Default without Test Run Steps
 
-![defaultTestRunNoSteps2](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/bbf997d7-f097-4588-860c-299dcd1aba35)
+![resultsNoSteps](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/51569ed0-90cd-4d43-9b12-bcfe58d217f9)
 
 
 ### Summary Charts Export to PDF 
 
 ##### Test Plan Summary 
 
-![testPlanSummaryPDF](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/ce0a3595-2cd4-48cb-b39a-e0e82308195c)
+![testPlanSummary_1](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/7339b80e-12be-46a7-b0fd-d4bbf2e0fb92)
 
 
 ##### Test Cycle Summary 
 
-![pdfCycleSummary](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/f09b87c0-525e-45e9-95a3-58480349017b)
+![executionDefectsCyclePDF](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/8638a6f1-46a1-4592-8e8a-02811ab70853)
 
-![cycleStatuses](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/9024925a-1d12-481e-9bad-abc75d72d4c6)
+![statusesCyclesPDF](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/f9579c0d-0291-4925-b5d0-866672acf83c)
 
 
 ### Summary Tables Export to WORD
 
 ##### Test Plan Summary 
 
-![testPlanSummaryWord](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/ad461a48-1689-42eb-93a0-14cf25a379ba)
+![testPlanSummary_2](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/3a2e8f0e-22c6-4e6b-962c-8ff0fad0a588)
+
 
 ##### Test Cycle Summary 
 
-![wordCycleSummary2](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/dc04874f-442d-403f-97a8-c9212548b6a2)
-
+![cycleSummaryWord](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/0eb5514b-00c6-4173-8ad0-a7ce4be69470)
 
 # Installation Configuration 
 
