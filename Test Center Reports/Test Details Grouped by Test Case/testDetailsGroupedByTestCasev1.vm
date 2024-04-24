@@ -31,10 +31,10 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                           Added logic to calculate correct x-axis intervals and percentage per test run 
 ## 2024-04-03  3.1         Anna FitzGerald   Added parameter 'Include Test Run Test Steps' 
 ## 2024-04-22  3.2         Anna FitzGerald   Corrected variable name from testCycleStats to testCaseStats
-## 2024-04-23  3.2         Anna FitzGerald   Updated getTestRunStatusColor macro and status colors
+## 2024-04-23  3.3         Anna FitzGerald   Updated getTestRunStatusColor macro and status colors
 ##                                           Updated pdf CSS to the rgb values that match the updated colors in getTestRunStatusColor macro
 ##                                           Added condition around retrieving base64 for an attachment to ensure base64 conversion is possible
-## 2023-04-24              Anna FitzGerald   Updated timeZones to be consistently UTC and formatted w/ ISO International date format
+## 2023-04-24  3.4         Anna FitzGerald   Updated timeZones to be consistently UTC and formatted w/ ISO International date format
 ## ======================================================================================================================
 ##
 ## Report Criteria:
