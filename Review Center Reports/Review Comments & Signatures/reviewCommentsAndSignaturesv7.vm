@@ -32,7 +32,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 2024-03-15     1.4      Anna FitzGerald    Updated so that all revision items show regardless of it they have comments 
 ## 2024-04-23     3.2      Anna FitzGerald    Added condition around retrieving base64 for an attachment to ensure base64 conversion is possible
 ##                                            Updated regex pattern that gets input review id
-##                                            
+## 2023-04-24     3.3      Anna FitzGerald    Updated timeZones to be consistently UTC and formatted w/ ISO International date format                                    
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -155,7 +155,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 #set( $fldKey = "FLD") ##
 #set( $txtKey = "TXT") ##
 ##
-#set( $timeZone = "America/Los_Angeles" ) ##
+#set( $timeZone = "Etc/UTC" ) ##
 ##
 ## 
 ## Status values to exlude from export
@@ -1998,7 +1998,7 @@ $string
 #macro( getDate $inputDate $inputTimeZone )
   #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
   #set( $locale = $dateTool.getLocale() )
-  #set( $date = $dateTool.format( 'MM/dd/yyyy', $inputDate, $locale, $outTz ))
+  #set( $date = $dateTool.format( 'yyyy/mm/dd', $inputDate, $locale, $outTz ))
   $!date
 #end
 #########################################################################################################################
@@ -2009,7 +2009,8 @@ $string
 #macro( getDateTime $inputDate $inputTimeZone )
   #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
   #set( $locale = $dateTool.getLocale() )
-  #set( $dateTime = $dateTool.format( 'MM/dd/yyyy hh:mm a', $inputDate, $locale, $outTz ))
+  ## noted customized formatting to yyyy/mm/dd considering ISO international format
+  #set( $dateTime = $dateTool.format( 'yyyy/mm/dd hh:mm a z', $inputDate, $locale, $outTz ))
   $!dateTime
 #end
 #########################################################################################################################
@@ -4370,9 +4371,9 @@ Approver Signatures #*v$!revisionForComments.sequenceNumber*#
   			</td>
   			<td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
     			#if( $signature.createdDate )
-    				#set( $signatureDate = "$dateTool.format('yyyy-MM-dd H:mm:ss z',$signature.createdDate)")
-    			#elseif( $signature.modifiedDate ) 
-    				#set( $signatureDate = "$dateTool.format('yyyy-MM-dd H:mm:ss z',$signature.modifiedDate)")
+            #set( $signatureDate = "#getDateTime( $signature.createdDate, $timeZone)")
+          #elseif( $signature.modifiedDate ) 
+            #set( $signatureDate = "#getDateTime( $signature.createdDate, $timeZone)")
           #else 
             #set( $signatureDate = "")
           #end 
@@ -5069,7 +5070,7 @@ Review Comments
       <tr>
     <td width=50% valign=top style='padding:0in 5.4pt 0in 5.4pt;border:none;'>
       <p class=MsoHeader><span style='font-size:10.0pt;'>
-      REV-$!revisionForComments.review.id $revisionForComments.review.name v$!revisionForComments.sequenceNumber 
+      REV-$!revisionForComments.review.id $!revisionForComments.review.name v$!revisionForComments.sequenceNumber 
       </span></p>
     </td>
     <td width=50% valign=top style='padding:0in 5.4pt 0in 5.4pt;border:none;'>
