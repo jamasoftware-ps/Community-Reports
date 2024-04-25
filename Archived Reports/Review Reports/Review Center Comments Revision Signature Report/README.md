@@ -4,7 +4,7 @@
 The Review Center Comments report provides a summary of review information, review signatures, & associated comments.
 
 ## Preview Image
-![alt tag](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Review%20Center%20Reports/Review%20Center%20Comments%20Revision%20Signature%20Report/RC_Comments_by_Revision_with_Signature_Preview.png)
+![alt tag](RC_Comments_by_Revision_with_Signature_Preview.png)
 
 ## Installation Instructions
 1. Go to the Admin section of Jama
@@ -13,7 +13,7 @@ The Review Center Comments report provides a summary of review information, revi
 4. Fill in the Add/Edit Report form as shown below.
 5. Click Save
 
-![alt tag](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Review%20Center%20Reports/Review%20Center%20Comments%20Revision%20Signature%20Report/report_config.png)
+![alt tag](report_config.png)
 
 ## NOTES: 
 - Your Organization field will have a different value.  
