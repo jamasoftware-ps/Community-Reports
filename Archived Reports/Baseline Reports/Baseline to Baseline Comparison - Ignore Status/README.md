@@ -4,7 +4,7 @@
 This report constructs a Word report showing the comparisons between two baseline ignoring status. This report will present the items that have been added, deleted, or modified between the two baselines. If the baselines share the same item it will show which fields are different between the two baseline versions. 
 
 ## Preview Image
-![Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Baseline%20Reports/Baseline%20to%20Baseline%20Comparison%20-%20Ignore%20Status/preview.png)
+![Report Preview](https://github.com/jamasoftware-ps/Community-Reports/Archived%20Reports/Baseline%20Reports/Baseline%20to%20Baseline%20Comparison%20-%20Ignore%20Status/preview.png)
 
 ## Installation Instructions
 1. Go to the Admin section of Jama
@@ -24,7 +24,7 @@ Ensure that no typos, leading, or trailing spaces are present in the *Name* fiel
 | Boolean       | Include Versions Comments             | report_showComment         |
 
 
-![Report Config](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Baseline%20Reports/Baseline%20to%20Baseline%20Comparison%20-%20Ignore%20Status/baselineToBaselineIgnoreStatus_setup.png)
+![Report Config](https://github.com/jamasoftware-ps/Community-Reports/Archived%20Reports/Baseline%20Reports/Baseline%20to%20Baseline%20Comparison%20-%20Ignore%20Status/baselineToBaselineIgnoreStatus_setup.png)
 
 ## NOTES: 
 - Your Organization field will have a different value.  
