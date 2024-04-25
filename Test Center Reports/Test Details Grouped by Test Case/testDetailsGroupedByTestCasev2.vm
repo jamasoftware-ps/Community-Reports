@@ -31,10 +31,11 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                           Added logic to calculate correct x-axis intervals and percentage per test run 
 ## 2024-04-03  3.1         Anna FitzGerald   Added parameter 'Include Test Run Test Steps' 
 ## 2024-04-22  3.2         Anna FitzGerald   Corrected variable name from testCycleStats to testCaseStats
-## 2024-04-23  3.3         Anna FitzGerald   Updated getTestRunStatusColor macro and status colors
+## 2024-04-23  3.2         Anna FitzGerald   Updated getTestRunStatusColor macro and status colors
 ##                                           Updated pdf CSS to the rgb values that match the updated colors in getTestRunStatusColor macro
 ##                                           Added condition around retrieving base64 for an attachment to ensure base64 conversion is possible
-## 2023-04-24  3.4         Anna FitzGerald   Updated timeZones to be consistently UTC and formatted w/ ISO International date format
+## 2024-04-24  3.3         Anna FitzGerald   Updated timeZones to be consistently UTC and formatted w/ ISO International date format
+## 2024-04-25  3.4         Anna FitzGerald   Added validation error message if user did not select test plan parameter
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -172,11 +173,18 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 
 ## Test Plan 
 ##-------------------------------------------## 
-#set( $testPlanID = $mathTool.toInteger($reportTestPlanId))
-#set( $testPlan = $testSource.getTestPlan($testPlanID))
+#set( $printParameterWarningMessage = false )
+#set( $testPlan = false )
+
+#if( $reportTestPlanId)
+  #set( $testPlanID = $mathTool.toInteger($reportTestPlanId))
+  #set( $testPlan = $testSource.getTestPlan($testPlanID))
+#end 
+
+#if( !$testPlan || !$reportTestPlanId )
+  #set( $printParameterWarningMessage = true )
+#end 
 ##
-##
-## 
 ##
 #########################################################################################################################
 ## **********************************************************************************************************************
@@ -5818,10 +5826,10 @@ $!failedTestPlan
            none'>
            <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes;'>
             <td style='padding:0in 5.75pt 0in 5.75pt;'>
-            <p class=MsoNormal>$project.name</p>
+            <p class=MsoNormal>$!project.name</p>
             </td>
             <td style='padding:0in 5.75pt 0in 5.75pt;'>
-            <p class=MsoNormal align=right style='text-align:right'>Test Plan: $testPlan.name</p>
+            <p class=MsoNormal align=right style='text-align:right'>Test Plan: $!testPlan.name</p>
             </td>
            </tr>
           </table>
@@ -5839,7 +5847,7 @@ $!failedTestPlan
            1184;mso-padding-alt:0in 5.4pt 0in 5.4pt;border-top: solid #000 1.0pt;'>
            <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes'>
             <td valign=top style='padding:0in 5.4pt 0in 5.4pt'>
-            <p class=MsoFooter>Test Plan: $testPlan.name</p>
+            <p class=MsoFooter>Test Plan: $!testPlan.name</p>
             </td>
             <td valign=top style='padding:0in 5.4pt 0in 5.4pt'>
             <p class=MsoNormal align=right style='text-align:right'><span
@@ -5876,9 +5884,9 @@ $!failedTestPlan
         <div style='mso-element:footer' id=titlepageFooter>
 
           <p class=MsoFooter align=center style='margin-right:-.25in;text-align:center'><span
-          style='mso-bidi-font-size:10.0pt;background:white'>© $dateTool.get('yyyy') $project.organization.name, All Right Reserved. This document may not in any form be
+          style='mso-bidi-font-size:10.0pt;background:white'>© $dateTool.get('yyyy') $!project.organization.name, All Right Reserved. This document may not in any form be
           reproduced, distributed or utilized, in whole or in part without prior, express
-          written consent of $project.organization.name.</p>
+          written consent of $!project.organization.name.</p>
 
         </div>
    
@@ -5896,8 +5904,8 @@ $!failedTestPlan
 <div class="pageHeader" align="center">  
   <table class="pageHeader-table" style='border:none;'>
       <tr>
-        <td style='border:none;text-align:left;width:50%;'><p class=MsoHeader>$project.name</p></td>
-        <td rowspan="1" style='border:none;text-align:right;width:50%;'><p class=MsoHeader>Test Plan: $testPlan.name</p></td>
+        <td style='border:none;text-align:left;width:50%;'><p class=MsoHeader>$!project.name</p></td>
+        <td rowspan="1" style='border:none;text-align:right;width:50%;'><p class=MsoHeader>Test Plan: $!testPlan.name</p></td>
       </tr>
   </table>
 </div>
@@ -5907,7 +5915,7 @@ $!failedTestPlan
     <tbody>
       <tr>
         <td style='border:none;text-align:left;width:50%;'>
-          <p class=MsoFooter>Test Plan: $testPlan.name</p>
+          <p class=MsoFooter>Test Plan: $!testPlan.name</p>
         </td>
         <td style='border:none;text-align:right;width:50%;'>
           <p class=MsoFooter>Page <span id="pageNumber"></span> of <span id="totalPages"></span></p>
@@ -5954,6 +5962,16 @@ $!failedTestPlan
 ## **********************************************************************************************************************
 #########################################################################################################################
 ##
+## print validation error message if no test plan selected
+#if( $printParameterWarningMessage )
+  <p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:red;'>
+    Test Plan not selected. Before running the report select a Test Plan parameter. 
+  </p>
+
+## else print the report
+#else 
+
+
 <div class='titlePage'>
 #if( $format == 'doc')
 	<p class=MsoNormal align=right style='text-align:right'>&nbsp;</p>
@@ -6149,6 +6167,8 @@ $!failedTestPlan
 		<h1 style='text-align:left !important'>Detailed Results</h1>
 			#buildDetailedResults( $finalTestCollection )
 
+
+    #end ##if( $printParameterWarningMessage )
 	</div> ##<div class="reportBodyCounterContainer">
 </div>
 </body>
