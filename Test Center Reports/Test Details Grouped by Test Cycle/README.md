@@ -49,7 +49,7 @@ Each Test Run result across all Test Cycles grouped by Test Cycle. Select 'Inclu
 
 # Installation Configuration 
 
-![cycleConfiguration](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/ead565ab-5239-4e75-b740-2e1c30878057)
+![testDetailsTestCycleConfiguration](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/d2a19f35-c99a-4817-a4b8-cd9cfb023e5b)
 
 
 <ul> 
