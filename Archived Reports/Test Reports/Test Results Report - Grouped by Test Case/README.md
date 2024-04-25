@@ -4,7 +4,7 @@
 This report constructs a non-context sensitive test results report generating the information in your selected test plan. This includes the test plan overview then each test run result across all cycles grouped by matching test cases. 
 
 ## Preview Image
-![Report Preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Test%20Center%20Reports/Test%20Results%20Report%20-%20Grouped%20by%20Test%20Case/preview.png)
+![Report Preview](preview.png)
 
 ## Installation Instructions
 1. Go to the Admin section of Jama
@@ -13,7 +13,7 @@ This report constructs a non-context sensitive test results report generating th
 1. Fill in the Add/Edit Report form as shown below.
 1. Click Save
 
-![Report Config](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Test%20Center%20Reports/Test%20Results%20Report%20-%20Grouped%20by%20Test%20Case/config.png)
+![Report Config](config.png)
 
 ## NOTES: 
 - Your Organization field will have a different value.  
