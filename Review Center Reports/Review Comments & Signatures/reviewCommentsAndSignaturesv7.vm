@@ -32,7 +32,10 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 2024-03-15     1.4      Anna FitzGerald    Updated so that all revision items show regardless of it they have comments 
 ## 2024-04-23     3.2      Anna FitzGerald    Added condition around retrieving base64 for an attachment to ensure base64 conversion is possible
 ##                                            Updated regex pattern that gets input review id
-## 2023-04-24     3.3      Anna FitzGerald    Updated timeZones to be consistently UTC and formatted w/ ISO International date format                                    
+## 2023-04-24     3.3      Anna FitzGerald    Updated timeZones to be consistently UTC and formatted w/ ISO International date format
+## 2024-04-26     3.3.1    Liam Rotchford     Minor $dateTool.format() string adjustment for month from 'mm' to proper 'MM' to resolve date 
+##                                              conversion error for #getDate() and #getDateTime() macros. 
+##
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -1998,7 +2001,7 @@ $string
 #macro( getDate $inputDate $inputTimeZone )
   #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
   #set( $locale = $dateTool.getLocale() )
-  #set( $date = $dateTool.format( 'yyyy/mm/dd', $inputDate, $locale, $outTz ))
+  #set( $date = $dateTool.format( 'yyyy/MM/dd', $inputDate, $locale, $outTz ))
   $!date
 #end
 #########################################################################################################################
@@ -2010,7 +2013,7 @@ $string
   #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
   #set( $locale = $dateTool.getLocale() )
   ## noted customized formatting to yyyy/mm/dd considering ISO international format
-  #set( $dateTime = $dateTool.format( 'yyyy/mm/dd hh:mm a z', $inputDate, $locale, $outTz ))
+  #set( $dateTime = $dateTool.format( 'yyyy/MM/dd hh:mm a z', $inputDate, $locale, $outTz ))
   $!dateTime
 #end
 #########################################################################################################################
