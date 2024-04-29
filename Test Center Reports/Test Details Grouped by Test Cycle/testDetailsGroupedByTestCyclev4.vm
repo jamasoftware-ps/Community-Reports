@@ -31,6 +31,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 2024-04-25  3.4         Anna FitzGerald   Added validation error message if user did not select test plan parameter
 ## 2024-04-26  3.4.1       Liam Rotchford    Minor $dateTool.format() string adjustment for month from 'mm' to proper 'MM' to resolve date 
 ##                                            conversion error for #getDate() and #getDateTime() macros. 
+## 2024-04-29  3.4.2       Anna FitzGerald   Updated condition in the #formatTables macro so that a mapped row value is only checked if its not false
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -3945,45 +3946,49 @@ $string
       		#set( $maxWidthCount = 0 )
       		#set( $maxRowWidth = 0 )
       		#set( $maxTotalCols = 0)
+
       		#foreach( $element in $tableMap.entrySet())
+            #set( $row = false )
       			#set( $tableMapKey = $element.key )
-      			#set( $row = $element.value )
       			#set( $tempRowWidth = 0 )
       			#set( $tempWidthCount = 0 )
       			#set( $tempTotalCols = 0 )
       			#set( $totalRowWidthFound = 0 )
       			#set( $totalPercWidthFound = 0 )
 
+          
+            #if( $tableMapKey != "table" && !$tableMapKey.contains("image") )
+              #set( $row = $element.value )
+              #if( $row )
+                #foreach( $cell in $row )
+                  #set( $tempTotalCols = $tempTotalCols + 1)
+                  #if( !$cell[0].contains("col") && !$cell[0].contains("%"))
+                    #set( $cellWidth = $mathTool.toDouble($cell[0]) )
+                    #set( $tempWidthCount = $tempWidthCount + 1 )
+                    #set( $tempRowWidth = $tempRowWidth + $cellWidth )
+                    ##<p>Debug Temp: $cellWidth, $tempWidthCount, $tempRowWidth</p>
+                  #end  
+                #end 
 
-      		
-      			#if( $tableMapKey != "table" && !$tableMapKey.contains("image") )
-      				#foreach( $cell in $row )
-      					#set( $tempTotalCols = $tempTotalCols + 1)
-      					#if( !$cell[0].contains("col") && !$cell[0].contains("%"))
-      						#set( $cellWidth = $mathTool.toDouble($cell[0]) )
-      						#set( $tempWidthCount = $tempWidthCount + 1 )
-      						#set( $tempRowWidth = $tempRowWidth + $cellWidth )
-      						##<p>Debug Temp: $cellWidth, $tempWidthCount, $tempRowWidth</p>
-      					#end 	
-      				#end 
+                #if( $tempWidthCount >= $maxWidthCount ) ## store the row with the most unique widths
+                  #set( $maxWidthCount = $tempWidthCount )
+                  #set( $colGroupKey = $tableMapKey )
+                #end 
+                #if( $tempRowWidth > $maxRowWidth ) ## store the greatest width 
+                  #set( $maxRowWidth = $mathTool.toDouble( $tempRowWidth ) )
+                #end 
+                #if( $tempTotalCols > $maxTotalCols )
+                  #set( $maxTotalCols = $tempTotalCols )
+                #end 
 
-      				#if( $tempWidthCount >= $maxWidthCount ) ## store the row with the most unique widths
-      					#set( $maxWidthCount = $tempWidthCount )
-      					#set( $colGroupKey = $tableMapKey )
-      				#end 
-      				#if( $tempRowWidth > $maxRowWidth ) ## store the greatest width 
-      					#set( $maxRowWidth = $mathTool.toDouble( $tempRowWidth ) )
-      				#end 
-      				#if( $tempTotalCols > $maxTotalCols )
-      					#set( $maxTotalCols = $tempTotalCols )
-      				#end 
-      			#end 
-      			## if we have an abnormally small maxRowWidth for a table expecting 4 or more cols 
-      			## set maxRowWidth to the page maxWidth 
-      			#if( $row.size() >= 4 && $maxRowWidth < 200 )
-      				#set( $maxRowWidth = $maxWidth )
-      			#end 
-      		#end 
+                ## if we have an abnormally small maxRowWidth for a table expecting 4 or more cols 
+                ## set maxRowWidth to the page maxWidth 
+                #if( $row.size() >= 4 && $maxRowWidth < 200 )
+                  #set( $maxRowWidth = $maxWidth )
+                #end 
+              #end ##if( $row )
+            #end ##if( $tableMapKey != "table" && !$tableMapKey.contains("image")  )
+          #end ##foreach( $element in $tableMap.entrySet())
       		
       		#if( $maxRowWidth < 1 )
       			#set( $maxRowWidth = $maxWidth )
