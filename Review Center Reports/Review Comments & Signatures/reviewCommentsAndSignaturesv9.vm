@@ -38,6 +38,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 2024-04-29     3.3.2    Anna FitzGerald    Updated condition in the #formatTables macro so that a mapped row value is only checked if its not false
 ## 2024-04-30     3.4      Anna FitzGerald    Added method so that if the review is not located by id it is located by sequence
 ##                                            Added logic so that only active comments show
+## 2024-04-30     3.4.1    Anna FitzGerald    Minor update added count initiation for deleted comments on revision items
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -4814,7 +4815,9 @@ Review Comments
     	  </td>
     	 </tr>
       </thead>
+
     #if( $comments.size() > 0 )
+      #set( $deletedCommentCount = 0 )
       	#foreach( $commentByParent in $comments )
           #set( $parent = "")
           #set( $parentId = "")
