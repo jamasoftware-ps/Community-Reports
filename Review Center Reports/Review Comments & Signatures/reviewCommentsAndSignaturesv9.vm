@@ -39,6 +39,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 2024-04-30     3.4      Anna FitzGerald    Added method so that if the review is not located by id it is located by sequence
 ##                                            Added logic so that only active comments show
 ## 2024-04-30     3.4.1    Anna FitzGerald    Minor update added count initiation for deleted comments on revision items
+## 2024-04-30     3.4.2    Anna FitzGerald    Minor update adjustment of colspan
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -4916,7 +4917,7 @@ Review Comments
         
         #if( $deletedCommentCount == $comments.size() )
         <tr>
-          <td colspan=6 width=100% style='border:solid black .5pt;'>
+          <td colspan=7 width=100% style='border:solid black .5pt;'>
           <p class=MsoNormal style='margin-bottom:0in;'>
             No comments present on revision item.
           </p>
