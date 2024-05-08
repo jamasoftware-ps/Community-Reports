@@ -40,6 +40,11 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                            Added logic so that only active comments show
 ## 2024-04-30     3.4.1    Anna FitzGerald    Minor update added count initiation for deleted comments on revision items
 ## 2024-04-30     3.4.2    Anna FitzGerald    Minor update adjustment of colspan
+## 2024-05-07     3.4.3    Anna FitzGerald    Updated review event conditions w/ the inclusion of a new macro #compareEventDates.
+##                                            Set additional types of review events to utilize in event date comparison
+##                                            Added a nextRev and nextRevCreatedDate variable to utilize for comparing dates to ensure 
+##                                             that the event of concern is the latest state of the 'Review activity' given the respective review or revision. 
+##                                            Reconfigured active comments logic 
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -133,6 +138,14 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 				#set( $revisionForComments = $revision )
 				#set( $revisionInput = true )
         #set( $success = $revisionListUpToVersion.add( $revision ))
+        #if( $foreach.hasNext )
+          #set( $nextIdx = $foreach.index + 1 )
+          #set( $nextRev = $revisions[$nextIndex])
+          #set( $nextRevCreatedDate = $nextRev.createdDate)
+        #else 
+          #set( $nextRev = false )
+          #set( $nextRevCreatedDate = false)
+        #end 
 			#elseif( $revision.sequenceNumber < $revisionNum)
         #set( $success = $revisionListUpToVersion.add( $revision ))
       #end 
@@ -4449,7 +4462,9 @@ Approver Signatures #*v$!revisionForComments.sequenceNumber*#
       #end
       ## get the revision comments up to and including the user input revision
       #foreach( $reviewComment in $revision.revisionComments)
-        #set( $success = $commentsReviewLevel.add($reviewComment))
+        #if( $reviewComment.comment.getActive()) ## only add Active Comments, i.e. do not show deleted comments 
+          #set( $success = $commentsReviewLevel.add($reviewComment))
+        #end 
       #end 
     #end 
   #else 
@@ -4462,7 +4477,11 @@ Approver Signatures #*v$!revisionForComments.sequenceNumber*#
       #end
     #end 
     ## get all the review comments 
-    #set( $commentsReviewLevel = $revisionForComments.review.reviewComments ) 
+    #foreach( $reviewComment in $revisionForComments.review.reviewComments)
+      #if( $reviewComment.comment.getActive()) ## only add Active Comments, i.e. do not show deleted comments 
+        #set( $success = $commentsReviewLevel.add( $reviewComment ))
+      #end 
+    #end 
   #end
 
   #set( $revisionItemsForComments = $sortTool.sort($revisionItemsForComments, "globalId"))
@@ -4587,100 +4606,84 @@ Review Comments
     </td>
    </tr>
   </thead>
-#if( $commentsReviewLevel.size() > 0 )
-  #set( $commentsReviewLevel = $sortTool.sort( $commentsReviewLevel, "createdDate"))
-  #set( $deletedCommentCount = 0 )
-  #foreach( $reviewComment in $commentsReviewLevel )
-    #set( $comment = "")
-    #set( $commentDate = "")
-    #set( $userId = "")
-    #set( $commentAuthor = "")
-    #set( $isImportant  = "")
-    #set( $important = "")
-    #set( $isActive = "")
-    #set( $active = "")
-    #set( $isResolved = "")
-    #set( $resolved = "")
-    #set( $commentType = "")
-    #set( $commentText = "")
 
-    #set( $comment = $reviewComment.comment ) 
+  #if( $commentsReviewLevel.size() > 0 )
+    #set( $commentsReviewLevel = $sortTool.sort( $commentsReviewLevel, "createdDate"))
 
-      #if( $comment.getActive() )
-        #set( $commentDate = $reviewComment.createdDate )
-        #set( $userId = $reviewComment.userId )
-        #set( $commentAuthor = $userSource.getUser($mathTool.toInteger($userId)))
-        #set( $commentAuthor = $commentAuthor.fullName )
-        #set( $isImportant = $comment.important )
-        #if( $isImportant )
-          #set( $important = "Yes")
-        #else 
-          #set( $important = "No")
-        #end
-        #set( $isActive = $reviewComment.isActive )
-        #if( $isActive )
-          #set( $active = "Yes")
-        #else 
-          #set( $active = "No")
-        #end 
-        #set( $isResolved = $reviewComment.isResolved )
-        #if( $isResolved )
-          #set( $resolved = "Yes")
-        #else 
-          #set( $resolved = "No")
-        #end 
-        #set( $commentType = $reviewComment.commentType ) 
-        #set( $commentText = $reviewComment.commentText ) 
+    #foreach( $reviewComment in $commentsReviewLevel )
+      #set( $comment = "")
+      #set( $commentDate = "")
+      #set( $userId = "")
+      #set( $commentAuthor = "")
+      #set( $isImportant  = "")
+      #set( $important = "")
+      #set( $isActive = "")
+      #set( $active = "")
+      #set( $isResolved = "")
+      #set( $resolved = "")
+      #set( $commentType = "")
+      #set( $commentText = "")
 
-         <tr>
-          <td width=11% style='border:solid black .5pt;border-top:none;padding:0in 5.4pt 0in 5.4pt'>
-          <p class=MsoNormal style='margin-bottom:0in;'>
-          #getDateTime( $commentDate, $timeZone)</p>
-          </td>
-          <td width=10% style='border-top:none;border-left:none;border-bottom:solid black .5pt;border-right:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
-          <p class=MsoNormal style='margin-bottom:0in;'>
-          $!commentAuthor</p>
-          </td>
-           <td width=7% style='border-top:none;border-left:none;border-bottom:
-          solid black 1.0pt;border-right:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
-          <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
-         v$!reviewComment.revision.sequenceNumber</span></p>
-          </td>
-          <td width=8% style='border-top:none;border-left:none;border-bottom:
-          solid black 1.0pt;border-right:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
-          <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
-          $!resolved</span></p>
-          </td>
-          <td width=8% style='border-top:none;border-left:none;
-          border-bottom:solid black .5pt;border-right:solid black .5pt;'>
-          <p class=MsoNormal style='margin-bottom:0in;'>
-          $!commentType
-          </p>
-          </td>
-          <td width=50% style='border-top:none;border-left:none;
-          border-bottom:solid black .5pt;border-right:solid black .5pt;'>
-          <p class=MsoNormal style='margin-bottom:0in;'>
-            #formatTableCell($commentText, "left", 276)     
-          </p>
-          </td>
-         </tr> 
-
+      #set( $comment = $reviewComment.comment ) 
+      #set( $commentDate = $reviewComment.createdDate )
+      #set( $userId = $reviewComment.userId )
+      #set( $commentAuthor = $userSource.getUser($mathTool.toInteger($userId)))
+      #set( $commentAuthor = $commentAuthor.fullName )
+      #set( $isImportant = $comment.important )
+      #if( $isImportant )
+        #set( $important = "Yes")
       #else 
-        #set( $deletedCommentCount = $deletedCommentCount + 1 )
-      #end ## if comment active
+        #set( $important = "No")
+      #end
+      #set( $isActive = $reviewComment.isActive )
+      #if( $isActive )
+        #set( $active = "Yes")
+      #else 
+        #set( $active = "No")
+      #end 
+      #set( $isResolved = $reviewComment.isResolved )
+      #if( $isResolved )
+        #set( $resolved = "Yes")
+      #else 
+        #set( $resolved = "No")
+      #end 
+      #set( $commentType = $reviewComment.commentType ) 
+      #set( $commentText = $reviewComment.commentText ) 
 
+     <tr>
+      <td width=11% style='border:solid black .5pt;border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+      <p class=MsoNormal style='margin-bottom:0in;'>
+      #getDateTime( $commentDate, $timeZone)</p>
+      </td>
+      <td width=10% style='border-top:none;border-left:none;border-bottom:solid black .5pt;border-right:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+      <p class=MsoNormal style='margin-bottom:0in;'>
+      $!commentAuthor</p>
+      </td>
+       <td width=7% style='border-top:none;border-left:none;border-bottom:
+      solid black 1.0pt;border-right:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+      <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
+     v$!reviewComment.revision.sequenceNumber</span></p>
+      </td>
+      <td width=8% style='border-top:none;border-left:none;border-bottom:
+      solid black 1.0pt;border-right:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+      <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
+      $!resolved</span></p>
+      </td>
+      <td width=8% style='border-top:none;border-left:none;
+      border-bottom:solid black .5pt;border-right:solid black .5pt;'>
+      <p class=MsoNormal style='margin-bottom:0in;'>
+      $!commentType
+      </p>
+      </td>
+      <td width=50% style='border-top:none;border-left:none;
+      border-bottom:solid black .5pt;border-right:solid black .5pt;'>
+      <p class=MsoNormal style='margin-bottom:0in;'>
+        #formatTableCell($commentText, "left", 276)     
+      </p>
+      </td>
+     </tr> 
     #end ##foreach( $reviewComment in $commentsReviewLevel )
-   
-    #if( $deletedCommentCount == $commentsReviewLevel.size() )
-      <tr>
-        <td colspan=6 width=100% style='border:solid black .5pt;'>
-        <p class=MsoNormal style='margin-bottom:0in;'>
-          No comments on the review.
-        </p>
-        </td>
-      </tr>
-    #end
-
+ 
   #else 
     <tr>
       <td colspan=6 width=100% style='border:solid black .5pt;'>
@@ -4693,7 +4696,6 @@ Review Comments
 </table>
 
 #end 
-
 #########################################################################################################################
 ##
 ##    Review Comments & Signature Macros 
@@ -4709,7 +4711,6 @@ Review Comments
   </span></p>
 
 <div align=center>
-#set( $commentIds = [] )
 #set( $finalRevisionItemComments = [] )
 
 #foreach( $itemGroup in $revItemCommentsByGlobalId )
@@ -4728,7 +4729,10 @@ Review Comments
   			#else 
   				#set( $targetParent = $revItemComment.parentId )
   			#end 
-  			#if( !$commentIds.contains($revItemComment.id))
+
+        #set( $comment = $revItemComment.comment ) ## Comment Interface object
+
+  			#if( $comment.getActive()) ## only add Active Comments, i.e. do not show deleted comments 
   				#if( $thisParent )
   					#set( $success = $itemCommentsByParent.add({"parent":"yes", "parentId":$thisParent, "revItemComment":$revItemComment}))
   				#elseif( $targetParent )
@@ -4818,128 +4822,143 @@ Review Comments
       </thead>
 
     #if( $comments.size() > 0 )
-      #set( $deletedCommentCount = 0 )
-      	#foreach( $commentByParent in $comments )
-          #set( $parent = "")
-          #set( $parentId = "")
-          #set( $revItemComment = "")
-          #set( $commentDate = "")
-          #set( $userId = "")
-          #set( $commentAuthor = "")
-          #set( $isImportant  = "")
-          #set( $important = "")
-          #set( $isActive = "")
-          #set( $active = "")
-          #set( $isResolved = "")
-          #set( $resolved = "")
-          #set( $highlightQuote = "")
-          #set( $commentType = "")
-          #set( $commentText = "")
-          #set( $color = "ffffff")
-          
-      	 	#set( $parent = $commentByParent.get("parent"))
-          #if( $parent == "yes" )
-            #set( $color = "f2f2f2")
-            #set($threadIdentity = "Thread Parent")
-          #else 
-            #set($threadIdentity = "Thread Child") 
-          #end 
-
-      	 	#set( $parentId = $commentByParent.get("parentId"))
-      	 	#set( $revItemComment = $commentByParent.get("revItemComment"))
-          #set( $comment = $revItemComment.comment ) ## Comment Interface object
-
-        	#if( $comment.getActive() )
-
-        	 	#set( $commentDate = $revItemComment.createdDate )
-        		#set( $userId = $revItemComment.userId )
-        		#set( $commentAuthor = $userSource.getUser($mathTool.toInteger($userId)))
-        		#set( $commentAuthor = $commentAuthor.fullName )
-        		#set( $isImportant = $comment.important )
-        		#if( $isImportant )
-        			#set( $important = "Yes")
-        		#else 
-        			#set( $important = "No")
-        		#end
-        		#set( $isActive = $revItemComment.isActive )
-        		#if( $isActive )
-        			#set( $active = "Yes")
-        		#else 
-        			#set( $active = "No")
-        		#end 
-        		#set( $isResolved = $revItemComment.isResolved )
-        		#if( $isResolved )
-        			#set( $resolved = "Yes")
-        		#else 
-        			#set( $resolved = "No")
-        		#end 
-            #set( $highlightQuote = $comment.highlightQuote)
-        		#set( $commentType = $revItemComment.commentType ) 
-        		#set( $commentText = $revItemComment.commentText ) 
-          
-        		 <tr style='mso-yfti-irow:4;mso-yfti-lastrow:yes'>
-        		  <td width=11% style='border:solid windowtext .5pt;border-top:none;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
-        		  <p class=MsoNormal style='margin-bottom:0in;'>
-        		  #getDateTime( $commentDate, $timeZone)</p>
-        		  </td>
-        		  <td width=9% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
-        		  <p class=MsoNormal style='margin-bottom:0in;'>
-        		  $!commentAuthor</p>
-        		  </td>
-        		   <td width=7% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
-        		  <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
-        		  v$!revItemComment.revision.sequenceNumber</span></p>
-        		  </td>
-        		  <td width=8% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
-        		  <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
-        		  $!threadIdentity</span></p>
-        		  </td>
-        		  <td width=8% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
-        		  <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
-        		  $!resolved</span></p>
-        		  </td>
-        		  <td width=8% style='border:solid windowtext .5pt;background:#$color;'>
-        		  <p class=MsoNormal style='margin-bottom:0in;'>
-        		  $!commentType
-        		  </p>
-        		  </td>
-        		  <td width=50% style='border:solid windowtext .5pt;background:#$color;'>
-        		  <p class=MsoNormal style='margin-bottom:0in;'>
-                #if( $highlightQuote )<span style='background-color:#ffdd99'>$highlightQuote*</span>#end
-        		  	#formatTableCell($commentText, "left", 276)  
-        		  </p>
-        		  </td>
-        		 </tr>
-          #else 
-            #set( $deletedCommentCount = $deletedCommentCount + 1 )
-          #end ## if comment active 
-      	#end ##foreach( $revItemComment in $itemComments )
+    	#foreach( $commentByParent in $comments )
+        #set( $parent = "")
+        #set( $parentId = "")
+        #set( $revItemComment = "")
+        #set( $commentDate = "")
+        #set( $userId = "")
+        #set( $commentAuthor = "")
+        #set( $isImportant  = "")
+        #set( $important = "")
+        #set( $isActive = "")
+        #set( $active = "")
+        #set( $isResolved = "")
+        #set( $resolved = "")
+        #set( $highlightQuote = "")
+        #set( $commentType = "")
+        #set( $commentText = "")
+        #set( $color = "ffffff")
         
-        #if( $deletedCommentCount == $comments.size() )
-        <tr>
-          <td colspan=7 width=100% style='border:solid black .5pt;'>
-          <p class=MsoNormal style='margin-bottom:0in;'>
-            No comments present on revision item.
-          </p>
-          </td>
-        </tr>
-        #end
-    	#else 
-    		<tr>
-    		  <td colspan=7 width=100% style='border:solid black .5pt;'>
+    	 	#set( $parent = $commentByParent.get("parent"))
+        #if( $parent == "yes" )
+          #set( $color = "f2f2f2")
+          #set($threadIdentity = "Thread Parent")
+        #else 
+          #set($threadIdentity = "Thread Child") 
+        #end 
+
+    	 	#set( $parentId = $commentByParent.get("parentId"))
+    	 	#set( $revItemComment = $commentByParent.get("revItemComment"))
+        #set( $comment = $revItemComment.comment ) ## Comment Interface object
+
+   
+    	 	#set( $commentDate = $revItemComment.createdDate )
+    		#set( $userId = $revItemComment.userId )
+    		#set( $commentAuthor = $userSource.getUser($mathTool.toInteger($userId)))
+    		#set( $commentAuthor = $commentAuthor.fullName )
+    		#set( $isImportant = $comment.important )
+    		#if( $isImportant )
+    			#set( $important = "Yes")
+    		#else 
+    			#set( $important = "No")
+    		#end
+    		#set( $isActive = $revItemComment.isActive )
+    		#if( $isActive )
+    			#set( $active = "Yes")
+    		#else 
+    			#set( $active = "No")
+    		#end 
+    		#set( $isResolved = $revItemComment.isResolved )
+    		#if( $isResolved )
+    			#set( $resolved = "Yes")
+    		#else 
+    			#set( $resolved = "No")
+    		#end 
+        #set( $highlightQuote = $comment.highlightQuote)
+    		#set( $commentType = $revItemComment.commentType ) 
+    		#set( $commentText = $revItemComment.commentText ) 
+      
+    		 <tr style='mso-yfti-irow:4;mso-yfti-lastrow:yes'>
+    		  <td width=11% style='border:solid windowtext .5pt;border-top:none;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
     		  <p class=MsoNormal style='margin-bottom:0in;'>
-    		  	No comments present on revision item.
+    		  #getDateTime( $commentDate, $timeZone)</p>
+    		  </td>
+    		  <td width=9% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
+    		  <p class=MsoNormal style='margin-bottom:0in;'>
+    		  $!commentAuthor</p>
+    		  </td>
+    		   <td width=7% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
+    		  <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
+    		  v$!revItemComment.revision.sequenceNumber</span></p>
+    		  </td>
+    		  <td width=8% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
+    		  <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
+    		  $!threadIdentity</span></p>
+    		  </td>
+    		  <td width=8% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
+    		  <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
+    		  $!resolved</span></p>
+    		  </td>
+    		  <td width=8% style='border:solid windowtext .5pt;background:#$color;'>
+    		  <p class=MsoNormal style='margin-bottom:0in;'>
+    		  $!commentType
     		  </p>
     		  </td>
-    		</tr>
-    	#end ###if( $itemCommentsByParent.size() > 0 )
-      </table>
-      <p class=MsoNormal>&nbsp;</p>
-    #end ##if( !$comments ) 
+    		  <td width=50% style='border:solid windowtext .5pt;background:#$color;'>
+    		  <p class=MsoNormal style='margin-bottom:0in;'>
+            #if( $highlightQuote )<span style='background-color:#ffdd99'>$!highlightQuote*</span>#end
+    		  	#if( $commentText.length() > 0 )#formatTableCell($commentText, "left", 276) #end 
+    		  </p>
+    		  </td>
+    		 </tr>
+    	#end ##foreach( $revItemComment in $itemComments )
+        
+  	#else 
+  		<tr>
+  		  <td colspan=7 width=100% style='border:solid black .5pt;'>
+  		  <p class=MsoNormal style='margin-bottom:0in;'>
+  		  	No comments present on revision item.
+  		  </p>
+  		  </td>
+  		</tr>
+  	#end ###if( $itemCommentsByParent.size() > 0 )
+    </table>
+    <p class=MsoNormal>&nbsp;</p>
+  #end ##if( !$comments ) 
   #end ##foreach( $revisionItem in $revisionItems )
 </div>
 #end 
+#########################################################################################################################
+##
+##    Review Comments & Signature Macros 
+##    Macro: compareEventDates
+##    Input: $eventDate
+##    Output: $printEvent, boolean which flags if the event should be printed
+## 
+#########################################################################################################################
+#macro( compareEventDates $eventDate )
 
+## Ensure that this event is the latest state of the 'Review activity' given the respective review or revision. 
+## To validate The 'Review activity' is visible in the Review Center via 'Review Stats' > 'Review activity'
+
+#set( $printEvent = false )
+  
+  ## Check if this event occurred before the next revision created date if user input revision ## 
+  #if( $revisionInput && $nextRev && $eventDate.compareTo($nextRevCreatedDate) < 0 || !$revisionInput || !$nextRev )
+
+    ## Check if this event occurred after a potential 'Review reopened' event
+    #if( $reviewReopened && $eventDate.compareTo($reviewReopenDate) > 0 || !$reviewReopened ) 
+
+      ## Check if this event occurred after any 'Review marked as not finalized events'
+      #if( $reviewMarkedAsNotFinalized  && $eventDate.compareTo( $reviewMarkedNotFinalDate ) > 0 || !$reviewMarkedAsNotFinalized)        
+        #set( $printEvent = true )
+      #end 
+
+    #end 
+  #end 
+  
+#end 
 #########################################################################################################################
 ## **********************************************************************************************************************
 ##
@@ -5148,11 +5167,70 @@ Review Comments & Signatures
 </span></p></p>
 
 ## REVIEW INITIATION & CLOSURE INFO ## 
+
+#### Moderator Initiated Review (create event available on review object) ## 
+####--------------------------------
+#set( $reviewInitiated = $eventSource.getAllEventsForObjectsByAction([2],[$revisionForComments.review.id],18,"Review initiated"))
+
+
+#### Gather 'Review reopened' events (update event available on revision object) ## 
+####--------------------------------
+#set( $reviewReopened = $eventSource.getAllEventsForObjectsByAction([4],[$revisionForComments.id],19,"Review reopened"))
+## <tr><td width=100% colspan=2><p>Debug-Review Reopened: $reviewReopened </p></td><tr>
+#if( $reviewReopened.size() > 0 )
+  #set( $idx = $reviewReopened.size() - 1 )
+  #set( $reviewReopenDate = $reviewReopened[$idx].getEventDate())
+#else 
+  #set( $reviewReopened = false )
+#end 
+
+
+#### Moderator Closed Revision? (update event available on revision object)
+####--------------------------------
+#set( $reviewAutoClose = false )
+#set( $reviewClosed = $eventSource.getAllEventsForObjectsByAction([4],[$revisionForComments.id],19,"Review closed"))
+#if( $reviewClosed.size() > 0 )
+  #set( $idx = $reviewClosed.size() - 1) ## get the last review closure activity for this revision 
+  #set( $revClosedUser= $reviewClosed[$idx].eventUser )
+  #set( $revClosedEventDate = $reviewClosed[$idx].getEventDate())
+  #if( !$reviewClosed[$idx].createdBy )
+    #set( $reviewAutoClose = true)
+    #set( $reviewAutoCloseDate = $revClosedEventDate )
+  #end 
+#else 
+  #set( $reviewClosed = false )
+#end 
+
+#### Gather 'Review marked as not finalized' events (update event available on review object) ##
+####--------------------------------
+#set( $reviewMarkedAsNotFinalized = $eventSource.getAllEventsForObjectsByAction([4],[$revisionForComments.review.id],18,"Review marked as not finalized"))
+##<tr><td width=100% colspan=2><p>Debug-Review Marked Not Finalized:  $reviewMarkedAsNotFinalized </p></td><tr>
+#if( $reviewMarkedAsNotFinalized.size() > 0 )
+  #set( $idx = $reviewMarkedAsNotFinalized.size() - 1 )
+  #set( $reviewMarkedNotFinalDate = $reviewMarkedAsNotFinalized[$idx].getEventDate())
+#else 
+  #set( $reviewMarkedAsNotFinalized = false )
+#end 
+
+
+#### Review marked as finalized? (update event available on review object)
+####--------------------------------
+#set( $reviewMarkedAsFinalized = $eventSource.getAllEventsForObjectsByAction([4],[$revisionForComments.review.id],18,"Review marked as finalized")) 
+ ##<tr><td width=100% colspan=2><p>Debug-Review Marked As Finalized: $reviewMarkedAsFinalized</p></td><tr>
+#set( $idx = $reviewMarkedAsFinalized.size() - 1) ## get the last marked finalized activity for this revision 
+#if( $reviewMarkedAsFinalized.size() > 0 )
+  #set( $idx = $reviewMarkedAsFinalized.size() - 1 )
+   #set( $revMarkedFinalUser = $reviewMarkedAsFinalized[$idx].eventUser)
+   #set( $revMarkedFinalDate = $reviewMarkedAsFinalized[$idx].getEventDate())
+#else 
+  #set( $reviewMarkedAsFinalized = false )
+#end 
+
 <table class=MsoTableGrid border=0 cellspacing=0 cellpadding=0 style='border-collapse:collapse;border:none;mso-border-insideh:none;mso-border-insidev:none;width:100%'>
 	<tr>
 		<td width=23%>
-    <p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end><span style='font-size:9.0pt;color:#404040;'>
-			REVIEW NAME & VERSION:</span></p>
+    <p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end>
+      <span style='font-size:9.0pt;color:#404040;'>REVIEW NAME & VERSION:</span></p>
 		</td>
 		<td width=77%>
 			<p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>
@@ -5160,95 +5238,91 @@ Review Comments & Signatures
 			</p>
 		</td>
 		</tr>
+    #### Moderator Initiated Review 
+    ####--------------------------------
 		<tr>
-		<td width=23%>
-		    <p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end><span style='font-size:9.0pt;color:#404040;'>
-			MODERATOR INITIATED REVIEW:
-			</span></p>
-		</td>
-		<td width=77%>
-			#set( $reviewInitiated = $eventSource.getAllEventsForObjectsByAction([2],[$revisionForComments.review.id],18,"Review initiated"))
-			<p class=MsoNormal style='margin-bottom:0in;color:#404040;'>
-			#if( $reviewInitiated.size() > 0 )
-			 #set( $eventUser = $reviewInitiated[0].eventUser) ## moderator from the initial creation of this review
-			#end 
-			#getDateTime( $revisionForComments.review.createdDate, $timeZone) #if( $reviewInitiated.size() > 0 ) by $!eventUser.fullName #end
-			</p>
-		</td>
+  		<td width=23%><p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end>
+          <span style='font-size:9.0pt;color:#404040;'>MODERATOR INITIATED REVIEW:</span></p>
+  		</td>
+  		<td width=77%><p class=MsoNormal style='margin-bottom:0in;color:#404040;'>
+  			#if( $reviewInitiated.size() > 0 )
+  			  #set( $eventUser = $reviewInitiated[0].eventUser) ## moderator from the initial creation of this review
+  			#end 
+  			#getDateTime( $revisionForComments.review.createdDate, $timeZone) #if( $reviewInitiated.size() > 0 ) by $!eventUser.fullName #end
+  			</p>
+  		</td>
 		</tr>
+    #### Moderator closed revision? 
+    ####-------------------------------
 		<tr>
-		<td width=23%>
-			 <p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end><span style='font-size:9.0pt;color:#404040;'>
-			MODERATOR CLOSED REVISION:
-			</span></p>
-		</td>
-		<td width=77%>
-			#set( $reviewClosed = $eventSource.getAllEventsForObjectsByAction([4],[$revisionForComments.id],19,"Review closed"))
-      #set( $idx = $reviewClosed.size() - 1) ## get the last review closure activity for this revision 
-			#set( $reviewAutoClose = false )
-			#if( $reviewClosed.size() > 0 )
-				<p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>
-				#set( $eventUser= $reviewClosed[$idx].eventUser )
-				#set( $eventDate = $reviewClosed[$idx].getEventDate())
-				#if( !$reviewClosed[$idx].createdBy )
-					#set( $reviewAutoClose = true)
-					#set( $reviewAutoCloseDate = $eventDate )
-					No ## moderator did not close review it closed automatically
-				#else 
-					#getDateTime($!eventDate, $timeZone) $!eventUser.fullName closed the review before deadline date and time.
-				#end 
-				</p>
-      #else 
-        ## moderator could have published new version, the review could have been archived, closed, or reopened or marked as finalized. ## 
-        <p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>No</p>
-			#end 
-		</td>
+  		<td width=23%><p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end>
+          <span style='font-size:9.0pt;color:#404040;'>MODERATOR CLOSED REVISION:</span></p>
+  		</td>
+  		<td width=77%><p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>
+        #if( $reviewClosed && !$reviewAutoClose )
+          #compareEventDates( $revClosedEventDate )
+          #if( $printEvent )
+            #getDateTime($!revClosedEventDate, $timeZone) $!revClosedUser.fullName closed the review before deadline date and time.
+          #else 
+            No
+          #end 
+        #else 
+          No 
+  			#end 
+        </p>
+  		</td>
 		</tr>
+    #### Review auto closed? 
+    ####--------------------------------
 		<tr>
-		<td width=23%>
-			  <p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end><span style='font-size:9.0pt;color:#404040;'>
-			REVIEW AUTO CLOSE:
-			</span></p>
-		</td>
-		<td width=77%>
-			<p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>
-			#if( $reviewAutoClose )
-				#getDateTime($reviewAutoCloseDate, $timeZone) Review closed, reaching the review deadline date and time.
-			#else 
-				No
-			#end 
-			</p>
-		</td>
+    	<td width=23%><p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end>
+        <span style='font-size:9.0pt;color:#404040;'>REVIEW AUTO CLOSE:</span></p>
+    	</td>
+    	<td width=77%><p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>
+        #if( $reviewAutoClose )
+          #compareEventDates( $reviewAutoCloseDate )
+          #if( $printEvent )
+            #getDateTime($reviewAutoCloseDate, $timeZone) Review closed, reaching the review deadline date and time.
+          #else 
+            No 
+          #end 
+        #else 
+          No 
+        #end 
+    		</p>
+    	</td>
 		</tr>
+    #### Review marked as finalized? 
+    ####--------------------------------
 		<tr>
-		<td width=23%>
-			    <p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end><span style='font-size:9.0pt;color:#404040;'>
-			REVIEW MARKED AS FINALIZED:
-			</span></p>
+		<td width=23%><p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end>
+        <span style='font-size:9.0pt;color:#404040;'>REVIEW MARKED AS FINALIZED:</span></p>
 		</td>
-			<td width=77%>
-      #set( $reviewMarkedAsFinalized = $eventSource.getAllEventsForObjectsByAction([4],[$revisionForComments.review.id],18,"Review marked as finalized"))
-      #set( $idx = $reviewMarkedAsFinalized.size() - 1) ## get the last marked finalized activity for this revision 
-			#if( $reviewMarkedAsFinalized.size() > 0 )
-					<p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>
-					#set( $eventUser = $reviewMarkedAsFinalized[$idx].eventUser)
-					#set( $eventDate = $reviewMarkedAsFinalized[$idx].getEventDate())
-					#getDateTime($eventDate, $timeZone) by $!eventUser.fullName</p>
-			#else 
-				<p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>
-				No</p>
-			#end
+		<td width=77%><p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>
+        #if( $reviewMarkedAsFinalized )
+          #compareEventDates( $revMarkedFinalDate )
+          #if( $printEvent )
+            #getDateTime($revMarkedFinalDate, $timeZone) by $!revMarkedFinalUser.fullName
+           #else 
+            No 
+          #end 
+        #else 
+          No 
+        #end 
+      </p>
 		</td>
 	</tr>
 </table>
 <p class=MsoNormal>&nbsp;</p>
 
 ## Approvers & Reviewers table ## 
+##--------------------------------
 #buildApproversReviewers()
 
 <p class=MsoNormal>&nbsp;</p>
 
 ## Approvers Signature table ## 
+##--------------------------------
 #buildReviewSignatures()
 
 #if( $format=='pdf')
@@ -5259,17 +5333,21 @@ Review Comments & Signatures
 
 ## gather all the revision items, and ensure comment counts tally for each revision up to 
 ## the exported review revision
+##--------------------------------
 #getRevisionItemsAndReviewComments()
 
 ## Comment count summary table ## 
+##--------------------------------
 #buildReviewCommentSummary()
 <p class=MsoNormal>&nbsp;</p>
 
 ## Review comments tables ## 
+##--------------------------------
 #buildReviewCommentsDetail()
 <p class=MsoNormal>&nbsp;</p>
 
 ## Revision items with comment table per revision item ## 
+##--------------------------------
 #buildRevisionItemsDetails()
 
 #end ##if( $printParameterWarningMessage )
