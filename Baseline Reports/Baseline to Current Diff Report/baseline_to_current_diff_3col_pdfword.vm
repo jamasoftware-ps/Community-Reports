@@ -33,12 +33,15 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                             performance as soon as all baseline items have been collected.
 ## 2023-11-29   3.4.1      Liam Rotchford    - Minor adjustments for baseline extraction items call & #formatAddedItems() macro to gather item global Ids 
 ##                                             for comparison to ensure item counts for Added items is accurate. 
-## 2024-01-18   3.5        Shawnna Williams  Add test runs/cycles to report
-## 											 SOS-DEF-7379 - Click DocumentId link in relationships and Added items broken
-##											 SOS-DEF-7380 - Relationship of first added item shows rels for second added item if second added item is blank
-##											 SOS-DEF-7382 - HTML encoding for item name in relationship row 
-## 2024-02-12   3.5.1      Shawnna Williams  Changed it so baseDoc is retrieved from .getDocument. If use .originDocument, built in fields weren't being exported if the item was the current version.
-## 2024-02-20   3.5.2      Shawnna Williams  Encode all name fields                                  
+## 2024-01-18   3.5        Shawnna Williams  - Add test runs/cycles to report
+## 											                     - SOS-DEF-7379 - Click DocumentId link in relationships and Added items broken
+##											                     - SOS-DEF-7380 - Relationship of first added item shows rels for second added item if second added item is blank
+##											                     - SOS-DEF-7382 - HTML encoding for item name in relationship row 
+## 2024-02-12   3.5.1      Shawnna Williams  - Changed it so baseDoc is retrieved from .getDocument. If use .originDocument, built in fields weren't being exported 
+##                                             if the item was the current version.
+## 2024-02-20   3.5.2      Shawnna Williams  - Encode all name fields
+## 2024-06-05   3.6        Liam Rotchford    - CON-45895 Updated #getBaselineItems() macro to account for inclusion of attachement items present in Baselines  
+##                                             and prevent baseline item list loss through sort due attachment items not having globalSortOrder value.                                
 ##                                        
 ## ======================================================================================================================
 ##
@@ -4482,62 +4485,31 @@ $string
 #########################################################################################################################
 ##          Macro: getBaselineItems
 ##          Input: $baselineId
-##          Desc: - Velocity has a recursion depth limit of 20 requiring a unique indirect baseline extraction 
-##                  macro calling system based on the total number of baseline items. 
-##                - This caller macro determines the number of #extractBaselineItems() calls to make based on 
-##                  the total number of baseline items we plan to extracted via the supplied baseline id. 
-##                - Baselines hold 50 items per baseline page which is what is extracted per each call of the 
-##                  #extractBaselineItems() macro. 
-##                - Reaching the #getBaselineItems() macro equates to 2 depth traversals #createBody() -> #getBaselineItems()
-##                  meaning we only can pull at most (18 valid recursive cycles * 50 items per baseline page == 800 baseline 
-##                  items per call of the #extractBaselineItems() macro.
-##                - This macro determines the number of primary calls we will make to the #extractBaselineItems() macro in order
-##                  to track and ensure that we never breach the Velocity recursion depth of 20 ensuring we can extract all
-##                  baseline items as expected.
-##                - This is managed by the $recursionDepth variable which at it's base accounts for our already 2 level depth + 1
-##                  to ensure we are always 1 under the Velocity limit (i.e prevent an error). 
-##                - This variable is additionally incremented with the number of extraction call cycles that must take place
-##                  to ensure that we can extract at least 800 items per call without hitting the depth error.
+##          Desc: - This macro is utilized to extract baseline items indirectly (i.e through provided baselineID)
+##                - Following the Jama 9.6 release all indirect baseline items are returned as ContourItemDTO interface 
+##                  objects. 
+##                - Utilizing the new methods provided by Product we extract the baseline items in array collections of 
+##                  50. 
+##                - Using the .addAll() method we concat each collection of 50 baseline items to our final array. 
+##                  
 #########################################################################################################################
 #macro( getBaselineItems $baselineId) 
 
   #set($baselineItems = [])
-
- 
-
-  #set($extractedBaselineItems = [])
   #set($baselineTotalItems = $mathTool.toDouble($documentSource.getContourItemDTOsForBaseline($baselineId, 0, 1, 'sequence ASC').getPageInfo().getTotal()))
   #set($extractionCalls = $mathTool.ceil($mathTool.toDouble($baselineTotalItems / 50.0)))
 
   #foreach($cycle in [1..$extractionCalls])
-    #set($pageIndex = $extractedBaselineItems.size())  
+    #set($pageIndex = $baselineItems.size())  
     #set($baselinePagedResults = $documentSource.getContourItemDTOsForBaseline($baselineId, $pageIndex, 50, 'sequence ASC') )
-    #set($success = $extractedBaselineItems.addAll($baselinePagedResults.results))
+    #set($success = $baselineItems.addAll($baselinePagedResults.results))
 
-    #if($extractedBaselineItems.size() == $baselineTotalItems)
+    #if($baselineItems.size() == $baselineTotalItems)
       #break
     #end
   #end
-
  
-
-  ## Extract Baseline Items Sequence Value and create object key value pair mapping structure
-  #set($baselineItemSortPairs = [])
-  #foreach($baselineItem in $extractedBaselineItems)
-    #set($docNode = $documentSource.getDocumentNodeForBaseLine(5, $mathTool.toInteger($baselineItem.id), $mathTool.toInteger($baselineId)))
-
-    #set($success = $baselineItemSortPairs.add({"BaselineItem": $baselineItem, "SortOrder": $docNode.globalSortOrder}))
-  #end
-
- 
-
-  ## Sort constructed mapping structure by item sequence values and store into new baseline item list to ensure baseline list is in proper order
-  #foreach($seqSortedItemObj in $sortTool.sort($baselineItemSortPairs, "SortOrder"))
-    #set($baselineItemSorted = $seqSortedItemObj.get("BaselineItem"))
-    #set($success = $baselineItems.add($baselineItemSorted))
-  #end
-
- 
+  ## return populated $baselineItems
 #end
 
 

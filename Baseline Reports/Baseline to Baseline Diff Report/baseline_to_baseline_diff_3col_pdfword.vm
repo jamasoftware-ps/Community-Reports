@@ -35,14 +35,18 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                             performance as soon as all baseline items have been collected.
 ## 2023-11-29   3.4.1      Liam Rotchford    - Minor adjustments for baseline extraction items call & #formatAddedItems() macro to gather item global Ids 
 ##                                             for comparison to ensure item counts for Added items is accurate. 
-## 2024-01-18   3.5        Shawnna Williams  Add test runs/cycles to report
-##											 SOS-DEF-7380 - Relationship of first added item shows rels for second added item if second added item is blank
-##											 SOS-DEF-7382 - HTML encoding for item name in relationship row 
-## 2024-01-23   3.5.1      Shawnna Williams  Remove stray parenthesis
-## 2024-02-12   3.5.2      Shawnna Williams  Changed it so baseDoc is retrieved from .getDocument (for regular item types). If use .originDocument, built in fields weren't being exported if the item was the current version.
-## 2024-02-20   3.5.3      Shawnna Williams  Encode all name fields                                   
-## 2024-03-01   3.6        Shawnna Williams  Merge getBaselineItems and extractBaselineItems, merge 3.5 and 3.4 versions                            
-## 2024-04-01   3.6.1      Shawnna Williams  Fix link to added items
+## 2024-01-18   3.5        Shawnna Williams  - Add test runs/cycles to report
+##											                     - SOS-DEF-7380 - Relationship of first added item shows rels for second added item if second added item is blank
+##											                     - SOS-DEF-7382 - HTML encoding for item name in relationship row 
+## 2024-01-23   3.5.1      Shawnna Williams  - Remove stray parenthesis
+## 2024-02-12   3.5.2      Shawnna Williams  - Changed it so baseDoc is retrieved from .getDocument (for regular item types). If use .originDocument, built in 
+##                                             fields weren't being exported if the item was the current version.
+## 2024-02-20   3.5.3      Shawnna Williams  - Encode all name fields                                   
+## 2024-03-01   3.6        Shawnna Williams  - Merge getBaselineItems and extractBaselineItems, merge 3.5 and 3.4 versions                            
+## 2024-04-01   3.6.1      Shawnna Williams  - Fix link to added items
+## 2024-06-05   3.6        Liam Rotchford    - CON-45895 Updated #getBaselineItems() macro to account for inclusion of attachement items present in Baselines  
+##                                             and prevent baseline item list loss through sort due attachment items not having globalSortOrder value.  
+##
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -4507,42 +4511,20 @@ $string
 #macro( getBaselineItems $baselineId) 
 
   #set($baselineItems = [])
-
- 
-
-  #set($extractedBaselineItems = [])
   #set($baselineTotalItems = $mathTool.toDouble($documentSource.getContourItemDTOsForBaseline($baselineId, 0, 1, 'sequence ASC').getPageInfo().getTotal()))
   #set($extractionCalls = $mathTool.ceil($mathTool.toDouble($baselineTotalItems / 50.0)))
 
   #foreach($cycle in [1..$extractionCalls])
-    #set($pageIndex = $extractedBaselineItems.size())  
+    #set($pageIndex = $baselineItems.size())  
     #set($baselinePagedResults = $documentSource.getContourItemDTOsForBaseline($baselineId, $pageIndex, 50, 'sequence ASC') )
-    #set($success = $extractedBaselineItems.addAll($baselinePagedResults.results))
+    #set($success = $baselineItems.addAll($baselinePagedResults.results))
 
-    #if($extractedBaselineItems.size() == $baselineTotalItems)
+    #if($baselineItems.size() == $baselineTotalItems)
       #break
     #end
   #end
-
  
-
-  ## Extract Baseline Items Sequence Value and create object key value pair mapping structure
-  #set($baselineItemSortPairs = [])
-  #foreach($baselineItem in $extractedBaselineItems)
-    #set($docNode = $documentSource.getDocumentNodeForBaseLine(5, $mathTool.toInteger($baselineItem.id), $mathTool.toInteger($baselineId)))
-
-    #set($success = $baselineItemSortPairs.add({"BaselineItem": $baselineItem, "SortOrder": $docNode.globalSortOrder}))
-  #end
-
- 
-
-  ## Sort constructed mapping structure by item sequence values and store into new baseline item list to ensure baseline list is in proper order
-  #foreach($seqSortedItemObj in $sortTool.sort($baselineItemSortPairs, "SortOrder"))
-    #set($baselineItemSorted = $seqSortedItemObj.get("BaselineItem"))
-    #set($success = $baselineItems.add($baselineItemSorted))
-  #end
-
- 
+  ## return populated $baselineItems
 #end
 
 
