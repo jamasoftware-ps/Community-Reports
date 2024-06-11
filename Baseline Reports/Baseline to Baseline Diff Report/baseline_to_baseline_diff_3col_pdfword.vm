@@ -44,7 +44,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 2024-02-20   3.5.3      Shawnna Williams  - Encode all name fields                                   
 ## 2024-03-01   3.6        Shawnna Williams  - Merge getBaselineItems and extractBaselineItems, merge 3.5 and 3.4 versions                            
 ## 2024-04-01   3.6.1      Shawnna Williams  - Fix link to added items
-## 2024-06-05   3.6        Liam Rotchford    - CON-45895 Updated #getBaselineItems() macro to account for inclusion of attachement items present in Baselines  
+## 2024-06-05   3.7        Liam Rotchford    - CON-45895 Updated #getBaselineItems() macro to account for inclusion of attachement items present in Baselines  
 ##                                             and prevent baseline item list loss through sort due attachment items not having globalSortOrder value.  
 ##
 ## ======================================================================================================================
