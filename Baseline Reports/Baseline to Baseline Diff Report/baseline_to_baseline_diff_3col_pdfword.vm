@@ -46,7 +46,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 2024-04-01   3.6.1      Shawnna Williams  - Fix link to added items
 ## 2024-06-05   3.7        Liam Rotchford    - CON-45895 Updated #getBaselineItems() macro to account for inclusion of attachement items present in Baselines  
 ##                                             and prevent baseline item list loss through sort due attachment items not having globalSortOrder value.  
-##
+## 2024-06-17   3.8        Shawnna Williams  - Was missing the test step logic for test cases in the body of the report. Added logic to trigger it if the field is a testcasesteps.                                        
+##											 - Also had to explicitly call .getDocument for the compareDoc to get test steps
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -5617,6 +5618,7 @@ $string
 #set($baseline1Ids = [])
 
 #foreach($baseline1Item in $baseline1Items)
+
     #getFields($baseline1Item)
     ##Load list of original IDs of first baseline ids for update & deletion check
     #set($success = $baseline1Ids.add($baseline1Item.globalId))
@@ -6062,13 +6064,18 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
   #foreach( $baseline1Item in $baseline1Items)
 
 	#set( $baseDoc = $documentSource.getVersionByDocumentId($baseline1Item.id).document)
+	
     #set( $baseOrigin = $documentSource.getVersionByDocumentId($baseDoc.id).originDocument.id)
 
     #if( $baseline2Ids.contains( $baseline1Item.globalId ) )
       #set( $compareItemIndex = $baseline2Ids.indexOf( $baseline1Item.globalId ))
-   
+
       #if($compareDocs.size() > $compareItemIndex)
         #set( $compareDoc = $compareDocs[$compareItemIndex])
+		
+		##Not sure why, but using the above document object doesn't give us testCaseSteps. So 
+		## have to actually get the document
+		#set( $compareDoc = $documentSource.getDocument( $compareDoc.id) )
 
       #end
  
@@ -6106,11 +6113,12 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
           ##------ once you have the item type, check field values and build comparison btwn baseDoc and compareDoc------##
 
             #foreach($f in $fields)
-			       #set( $b = $f.fieldName)
+			      #set( $b = $f.fieldName)
               ##if( $spot != 0 )
                 #if( ($report_excludeStatus == false) || ( $report_excludeStatus == true && $b != "status" && $b != "modifiedDate" ))
 				  #if( $baseDoc.documentType.display == "Test Run" || $baseDoc.documentType.display == "Test Cycle" || 
 						$baseDoc.documentType.display == "Test Plan")
+					
 					#if( $baseDoc.documentType.display == "Test Run")
 						#set( $baseDoc = $testSource.getTestRun( $baseDoc.id))
 						#set( $compareDoc = $testSource.getTestRun( $compareDoc.id))
@@ -6159,8 +6167,17 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 					#end
 					##B: $b, BASEDOCVALUE: $baseDocValue, $baseDoc.description<br>COMP VALUE: $compareDocValue<br>
 				  #else
-					#set( $baseDocValue = $velocityReportUtil.getValueForField( $baseDoc, $b, $dateFormat))
-					#set( $compareDocValue = $velocityReportUtil.getValueForField( $compareDoc, $b, $dateFormat ))
+					#if( $b == "testCaseSteps")
+						#set( $compareDocValue = $velocityReportUtil.getValueForField( $compareDoc, $b, $dateFormat ))
+				
+						#formatTestSteps( $b $baseDoc $compareDoc)
+						#set( $baseDocValue = $beforeStepText)
+						#set( $compareDocValue = $afterStepText)
+
+					#else
+						#set( $baseDocValue = $velocityReportUtil.getValueForField( $baseDoc, $b, $dateFormat))
+						#set( $compareDocValue = $velocityReportUtil.getValueForField( $compareDoc, $b, $dateFormat ))
+					#end
 					#if( $b == "name")
 						#set( $baseName = $baseDocValue )
 						#encodeText( $baseName)

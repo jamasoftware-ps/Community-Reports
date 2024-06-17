@@ -42,7 +42,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 2024-02-20   3.5.2      Shawnna Williams  - Encode all name fields
 ## 2024-06-05   3.6        Liam Rotchford    - CON-45895 Updated #getBaselineItems() macro to account for inclusion of attachement items present in Baselines  
 ##                                             and prevent baseline item list loss through sort due attachment items not having globalSortOrder value.                                
-##                                        
+## 2024-06-17   3.7        Shawnna Williams  - Was missing the test step logic for test cases in the body of the report. Added logic to trigger it if the field is a testcasesteps.                                        
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -4833,6 +4833,7 @@ $string
   #end ###if( $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat))
 
 #else
+
   #if( $beforeStepText.length() > $maxDiff || $afterStepText.length() > $maxDiff)
     <p class="toobig">$maxedOut $maxDiff.</p>
   #else
@@ -4857,6 +4858,7 @@ $string
 #end 
 ######################################################################################################################
 #macro( formatTestSteps $b $baseDoc $compareDoc)
+
 
 	#set( $beforeStepText = "")
 	#set( $afterStepText = "")
@@ -6058,7 +6060,7 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
   							#if( ($report_excludeStatus == false) || ( $report_excludeStatus == true && $b != "status" && $b != "modifiedDate" ))
 
   								#if( $baseDoc.documentType.display == "Test Run" || $baseDoc.documentType.display == "Test Cycle" || 
-										$baseDoc.documentType.display == "Test Plan")
+										$baseDoc.documentType.display == "Test Plan" )
 									
 									#if( $baseDoc.documentType.display == "Test Run")
 										#set( $baseDoc = $testSource.getTestRun( $baseDoc.id))
@@ -6080,7 +6082,7 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 									#elseif( $b == "testRunSteps" || $b == "testCaseSteps")
 										##set( $val1 = $baseDoc.testRunSteps)
 										##set( $val2 = $activeDoc.testRunSteps)
-										
+								
 										#formatTestSteps( $b $baseDoc $activeDoc)
 										#set( $val1 = $beforeStepText)
 										#set( $val2 = $afterStepText)
@@ -6116,8 +6118,19 @@ color:#595959'><o:p>&nbsp;</o:p></span></p>
 								#else
 									##------ check to see if field for b1 is different than same field for b2 ------##
 									##B: $b<br>
-									#set($val1 = $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat))
-									#set($val2 = $velocityReportUtil.getValueForField($activeDoc, $b, $dateFormat))
+									#if( $b == "testCaseSteps")
+										##set( $val1 = $baseDoc.testRunSteps)
+										##set( $val2 = $activeDoc.testRunSteps)
+								
+										#formatTestSteps( $b $baseDoc $activeDoc)
+										#set( $val1 = $beforeStepText)
+										#set( $val2 = $afterStepText)
+										##BASEDOC: $val1<br>
+										##COMPARE: $val2<br>
+									#else
+										#set($val1 = $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat))
+										#set($val2 = $velocityReportUtil.getValueForField($activeDoc, $b, $dateFormat))
+									#end
 									#if( $b == "name")
 									
 										#set( $baseName = $val1 )
