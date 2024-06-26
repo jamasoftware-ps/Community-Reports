@@ -1,7 +1,7 @@
 # Review Comments & Signatures 
 Export approver signatures and review comments. Before running the report the user enters a review id, e.g. REV-38 to get the latest version signatures and all comments for the review. If the user would like to get signatures and comments up to and including a specific revision version, the user enters the review id and a specific version number, e.g V2.
 
-Note: Currently a comment thread child is inheriting the revision version of the thread parent, which is output in the 'Review Version' column of the Revision Item Comment table of this report. When the Velocity API method RevisionItemComment.revision.sequenceNumber is updated so that it returns the review version to which the comment was applied, and not the inherited value of the parent, we will remove this note, and the report will automatically reflect that update.
+Note: Currently a comment thread child inherits the revision version of the thread parent - this is a reflection of the current UI in which a User can see the comment thread parent revision version while the thread children do not display a revision version. A comment's revision version is output in the 'Review Version' column of the Revision Item Comment table of this report. There is currently a feature request for each comment to display the review version to which the comment was applied, and not the inherited value of the parent, which would be reflected in Velocity reporting. 
 
 ## Report Sections:
 ###### Approvers & Reviewers
