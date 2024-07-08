@@ -43,6 +43,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 2024-06-05   3.6        Liam Rotchford    - CON-45895 Updated #getBaselineItems() macro to account for inclusion of attachement items present in Baselines  
 ##                                             and prevent baseline item list loss through sort due attachment items not having globalSortOrder value.                                
 ## 2024-06-17   3.7        Shawnna Williams  - Was missing the test step logic for test cases in the body of the report. Added logic to trigger it if the field is a testcasesteps.                                        
+## 2024-07-08   3.8        Shawnna Williams  - Fix defect in formatTestSteps - if there was a new row or deleted row, the steps would reset.
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -4904,7 +4905,7 @@ $string
 			  #end
 
 			#else
-			  #set($beforeStepText =
+			  #set($beforeStepText = $beforeStepText +
 			  "<p class='MsoNormal' style='margin-left:0in'><b>"+ $i +
 			  ".</b> ")
 			#end
@@ -4939,7 +4940,7 @@ $string
 					#set( $afterStepText = $afterStepText.concat($!afterStep.testRunSet.name))
 				#end
 			#else
-				#set($afterStepText =
+				#set($afterStepText = $afterStepText + 
 				"<p class='MsoNormal' style='margin-left:0in'><b>"+ $i +
 				".</b> ")
 			#end ##if( $i <= $activeSteps.size() ) ##>
