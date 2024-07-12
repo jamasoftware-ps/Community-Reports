@@ -46,8 +46,12 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 2024-04-01   3.6.1      Shawnna Williams  - Fix link to added items
 ## 2024-06-05   3.7        Liam Rotchford    - CON-45895 Updated #getBaselineItems() macro to account for inclusion of attachement items present in Baselines  
 ##                                             and prevent baseline item list loss through sort due attachment items not having globalSortOrder value.  
-## 2024-06-17   3.8        Shawnna Williams  - Was missing the test step logic for test cases in the body of the report. Added logic to trigger it if the field is a testcasesteps.                                        
-##											 - Also had to explicitly call .getDocument for the compareDoc to get test steps
+## 2024-06-17   3.8        Shawnna Williams  - Was missing the test step logic for test cases in the body of the report. Added logic to trigger it if the field is a 
+##                                             testcasesteps.                                        
+##                    											 - Also had to explicitly call .getDocument for the compareDoc to get test steps
+## 2024-07-12   3.8.1      Liam Rotchford    - Static label adjustment for test steps "Expected Result" to adjust to singular vs. plural to match Jama Connect UI. 
+##
+##
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -4755,7 +4759,7 @@ $string
       $!print
     #end ##if( $baseTS.action.length() > 0)  
     </p>
-    <p class="MsoNormal" style='margin-left:8pt'><b>Expected Results:</b> 
+    <p class="MsoNormal" style='margin-left:8pt'><b>Expected Result:</b> 
     #if( $baseTS.expectedResult.length() > 0) 
       ##$baseTS.expectedResult 
       #set( $print = "")
@@ -4828,7 +4832,7 @@ $string
 			  #if( $beforeStep.action)
 				#set($beforeStepText = $beforeStepText + $beforeStep.action)
 			  #end
-			  #set( $beforeStepText = $beforeStepText + "<p class='MsoNormal' style='margin-left:8pt'><b>Expected Results:</b> ")
+			  #set( $beforeStepText = $beforeStepText + "<p class='MsoNormal' style='margin-left:8pt'><b>Expected Result:</b> ")
 			  #if( $beforeStep.expectedResult.length() > 0)
 				#set( $beforeStepText = $beforeStepText + $!beforeStep.expectedResult)
 			  #end
@@ -4861,7 +4865,7 @@ $string
 				#if( $afterStep.action)
 				  #set( $afterStepText = $afterStepText + $!afterStep.action)
 				#end
-				#set( $afterStepText = $afterStepText + "<p class='MsoNormal' style='margin-left:8pt'><b>Expected Results:</b> ")
+				#set( $afterStepText = $afterStepText + "<p class='MsoNormal' style='margin-left:8pt'><b>Expected Result:</b> ")
 				#if( $afterStep.expectedResult)
 				  #set( $afterStepText = $afterStepText + $!afterStep.expectedResult)
 				#end
