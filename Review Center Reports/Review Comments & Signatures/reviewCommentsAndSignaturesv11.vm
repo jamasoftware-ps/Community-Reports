@@ -4,12 +4,12 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 #end
 
 ## ======================================================================================================================
-## Name: reviewCommentsAndSignaturesv9.vm
+## Name: reviewCommentsAndSignaturesv11.vm
 ## 
 ## Description: Context Insensitive report that shows Review Approver Signatures and Comments. 
 ##
-##              User enters a string 'REV-id' and report will show Approver Signatures from the latest revision of the 
-##              review, a comment summary of the review, and for each revision in the review the revision item comments. 
+##              User enters a string 'REV-id' and report will show a comment summary of the review, and for each 
+##              revision in the review the revision item comments. 
 ##         
 ##              The user can also enter a string revision 'V-x' version number to get comments for the select revision 
 ##              only. 
@@ -45,6 +45,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                            Added a nextRev and nextRevCreatedDate variable to utilize for comparing dates to ensure 
 ##                                             that the event of concern is the latest state of the 'Review activity' given the respective review or revision. 
 ##                                            Reconfigured active comments logic 
+## 2024-07-12     3.4.4    Anna FitzGerald    Added boolean parameter to 'Include Description' for RevisionItems
+##                                            Removed columns 'Comment Type' & 'Resolved'
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -53,9 +55,9 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##
 ##     Type:       Display Name:       Report Global Variable:   Function:
 ##      ----------------------------------------------------------------------------------------------------------------------
-##     String       Review Id           reportReviewId        supplies the report with the review id, i.e. "Rev-25", not case sensitive
-##     String       Revision Version    reportRevisionV       supplies the report with the revision version, i.e. "V2", not case sensitive
-##
+##     String       Review Id              reportReviewId           supplies the report with the review id, i.e. "Rev-25", not case sensitive
+##     String       Revision Version       reportRevisionV          supplies the report with the revision version, i.e. "V2", not case sensitive
+##     Boolean      Include Description    reportDescription        if true includes the description for revision items  
 ##    
 ##
 ## ======================================================================================================================
@@ -4569,22 +4571,19 @@ Review Comments
 
 <table class=MsoTableGrid border='.5pt' cellspacing=0 cellpadding=0 width="100%" style='border-collapse:collapse;mso-table-layout-alt:fixed;border:none;mso-yfti-tbllook:1184;mso-padding-alt:0in 5.4pt 0in 5.4pt;width:100% !important;margin:0pt;'>
  <colgroup>
-  <col width='11%'/>
   <col width='10%'/>
+  <col width='16%'/>
   <col width='7%'/>
-  <col width='8%'/>
-  ##<col width='6%'/>
-  <col width='8%'/>
-  <col width='50%'/>
+  <col width='51%'/>
 </colgroup>
 <thead>
    ## Comment Column Headings ## 
    <tr>
-    <td width=11% style='background:#cccccc;padding:0in 5.4pt 0in 5.4pt;border:solid black .5pt;'>
+    <td width=19% style='background:#cccccc;padding:0in 5.4pt 0in 5.4pt;border:solid black .5pt;'>
    <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
   Date</span></p>
     </td>
-    <td width=10% style='border:solid black .5pt;background:#cccccc;padding:0in 5.4pt 0in 5.4pt'>
+    <td width=16% style='border:solid black .5pt;background:#cccccc;padding:0in 5.4pt 0in 5.4pt'>
    <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
   User</span></p>
     </td>
@@ -4592,15 +4591,7 @@ Review Comments
    <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
   Review<br>Version</span></p>
     </td>
-    <td width=8% style='border:solid black .5pt;background:#cccccc;padding:0in 5.4pt 0in 5.4pt'>
-   <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
-  Resolved</span></p>
-    </td>
-    <td width=8% style='border:solid black .5pt;background:#cccccc;padding:0in 5.4pt 0in 5.4pt'>
-   <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
-  Comment Type</span></p>
-    </td>
-    <td width=50% style='border:solid black .5pt;background:#cccccc;padding:0in 5.4pt 0in 5.4pt'>
+    <td width=51% style='border:solid black .5pt;background:#cccccc;padding:0in 5.4pt 0in 5.4pt'>
    <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
   Comment Text</span></p>
     </td>
@@ -4619,11 +4610,7 @@ Review Comments
       #set( $important = "")
       #set( $isActive = "")
       #set( $active = "")
-      #set( $isResolved = "")
-      #set( $resolved = "")
-      #set( $commentType = "")
       #set( $commentText = "")
-
       #set( $comment = $reviewComment.comment ) 
       #set( $commentDate = $reviewComment.createdDate )
       #set( $userId = $reviewComment.userId )
@@ -4641,21 +4628,14 @@ Review Comments
       #else 
         #set( $active = "No")
       #end 
-      #set( $isResolved = $reviewComment.isResolved )
-      #if( $isResolved )
-        #set( $resolved = "Yes")
-      #else 
-        #set( $resolved = "No")
-      #end 
-      #set( $commentType = $reviewComment.commentType ) 
       #set( $commentText = $reviewComment.commentText ) 
 
      <tr>
-      <td width=11% style='border:solid black .5pt;border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+      <td width=19% style='border:solid black .5pt;border-top:none;padding:0in 5.4pt 0in 5.4pt'>
       <p class=MsoNormal style='margin-bottom:0in;'>
       #getDateTime( $commentDate, $timeZone)</p>
       </td>
-      <td width=10% style='border-top:none;border-left:none;border-bottom:solid black .5pt;border-right:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+      <td width=16% style='border-top:none;border-left:none;border-bottom:solid black .5pt;border-right:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
       <p class=MsoNormal style='margin-bottom:0in;'>
       $!commentAuthor</p>
       </td>
@@ -4664,18 +4644,7 @@ Review Comments
       <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
      v$!reviewComment.revision.sequenceNumber</span></p>
       </td>
-      <td width=8% style='border-top:none;border-left:none;border-bottom:
-      solid black 1.0pt;border-right:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
-      <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
-      $!resolved</span></p>
-      </td>
-      <td width=8% style='border-top:none;border-left:none;
-      border-bottom:solid black .5pt;border-right:solid black .5pt;'>
-      <p class=MsoNormal style='margin-bottom:0in;'>
-      $!commentType
-      </p>
-      </td>
-      <td width=50% style='border-top:none;border-left:none;
+      <td width=51% style='border-top:none;border-left:none;
       border-bottom:solid black .5pt;border-right:solid black .5pt;'>
       <p class=MsoNormal style='margin-bottom:0in;'>
         #formatTableCell($commentText, "left", 276)     
@@ -4757,20 +4726,28 @@ Review Comments
   #foreach( $item in $finalRevisionItemComments )
     #set( $comments = $item.get("comments"))
     #set( $revisionItem = $item.get("revisionItem"))
-
+    #set( $revisionDoc = $revisionItem.version.document)
     ## Revision Item Heading
     <p class=MsoNormal style='text-align:left'><span style='font-size:12.0pt;color:#595959;font-weight:600;'>
-      $!revisionItem.version.document.documentKey $!revisionItem.version.document.name</span></p></p>
-      #set( $desc = $revisionItem.version.document.description )
-      #if( $desc.length() < 1 )
-        #set( $desc = "N/A")
-      #else 
-        #set( $desc= "#formatRichText( $desc)")
-        #set( $desc = $desc.trim())
+      $!revisionDoc.documentKey  $!revisionDoc.name</span></p></p>
+
+      ## Revision Item Descritpion ## 
+      #if( $reportDescription )
+        #set( $desc =  $!revisionDoc.description )
+        #if( $desc.length() < 1 )
+          #set( $desc = "N/A")
+        #else 
+          #set( $desc= "#formatRichText( $desc)")
+          #set( $desc = $desc.trim())
+        #end 
+        <p class=MsoNormal style='text-align:left !important;'>
+        <span style='font-size:9.0pt;text-transform:uppercase;color:#595959;font-weight:bold;'>Description</span></p>
+        <div align=left width=100%>$!desc</div>
       #end 
-    <p class=MsoNormal style='text-align:left !important;'><span style='font-size:9.0pt;text-transform:uppercase;color:#595959;font-weight:bold;'>Description</span></p>
-    <div align=left width=100%>$!desc</div>
-    <p class=MsoNormal style='text-align:left;'><span style='font-size:9.0pt;text-transform:uppercase;color:#595959;font-weight:bold;'>Comments</span></p>
+
+    <p class=MsoNormal style='text-align:left;'>
+      <span style='font-size:9.0pt;text-transform:uppercase;color:#595959;font-weight:bold;'>Comments</span>
+    </p>
 
     #if( !$comments )
       <p class=MsoNormal style='margin-bottom:0in;text-align:left'>No comments present on revision item.</p>
@@ -4780,21 +4757,19 @@ Review Comments
       <table class=MsoTableGrid border='.5pt' cellspacing=0 cellpadding=0 width="100%"
        style='border-collapse:collapse;mso-table-layout-alt:fixed;border:none;mso-padding-alt:0in 5.4pt 0in 5.4pt;width:100% !important;margin:0pt;margin-top:2pt'>
        <colgroup>
-        <col width='11%'/>
-        <col width='9%'/>
+        <col width='19%'/>
+        <col width='16%'/>
         <col width='7%'/>
         <col width='8%'/>
-        <col width='8%'/>
-        <col width='8%'/>
-        <col width='50%'/>
+        <col width='51%'/>
       </colgroup>
       <thead>
     	 <tr style='mso-yfti-irow:2'>
-    	  <td width=11% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
+    	  <td width=19% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
     	  <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
       Date</span></p>
     	  </td>
-    	  <td width=9% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
+    	  <td width=16% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
     	  <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
     	User</span></p>
     	  </td>
@@ -4806,15 +4781,7 @@ Review Comments
     	  <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
     	Thread<br>Identity</span></p>
     	  </td>
-    	  <td width=8% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
-    	  <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
-    	Resolved</span></p>
-    	  </td>
-    	  <td width=8% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
-    	  <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
-    	Comment Type</span></p>
-    	  </td>
-    	  <td width=50% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
+    	  <td width=51% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
     	  <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
     	Comment Text<br>Highlight Quote*</span></p>
     	  </td>
@@ -4833,10 +4800,7 @@ Review Comments
         #set( $important = "")
         #set( $isActive = "")
         #set( $active = "")
-        #set( $isResolved = "")
-        #set( $resolved = "")
         #set( $highlightQuote = "")
-        #set( $commentType = "")
         #set( $commentText = "")
         #set( $color = "ffffff")
         
@@ -4851,8 +4815,6 @@ Review Comments
     	 	#set( $parentId = $commentByParent.get("parentId"))
     	 	#set( $revItemComment = $commentByParent.get("revItemComment"))
         #set( $comment = $revItemComment.comment ) ## Comment Interface object
-
-   
     	 	#set( $commentDate = $revItemComment.createdDate )
     		#set( $userId = $revItemComment.userId )
     		#set( $commentAuthor = $userSource.getUser($mathTool.toInteger($userId)))
@@ -4869,22 +4831,15 @@ Review Comments
     		#else 
     			#set( $active = "No")
     		#end 
-    		#set( $isResolved = $revItemComment.isResolved )
-    		#if( $isResolved )
-    			#set( $resolved = "Yes")
-    		#else 
-    			#set( $resolved = "No")
-    		#end 
         #set( $highlightQuote = $comment.highlightQuote)
-    		#set( $commentType = $revItemComment.commentType ) 
     		#set( $commentText = $revItemComment.commentText ) 
       
     		 <tr style='mso-yfti-irow:4;mso-yfti-lastrow:yes'>
-    		  <td width=11% style='border:solid windowtext .5pt;border-top:none;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
+    		  <td width=15% style='border:solid windowtext .5pt;border-top:none;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
     		  <p class=MsoNormal style='margin-bottom:0in;'>
     		  #getDateTime( $commentDate, $timeZone)</p>
     		  </td>
-    		  <td width=9% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
+    		  <td width=12% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
     		  <p class=MsoNormal style='margin-bottom:0in;'>
     		  $!commentAuthor</p>
     		  </td>
@@ -4896,16 +4851,7 @@ Review Comments
     		  <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
     		  $!threadIdentity</span></p>
     		  </td>
-    		  <td width=8% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
-    		  <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
-    		  $!resolved</span></p>
-    		  </td>
-    		  <td width=8% style='border:solid windowtext .5pt;background:#$color;'>
-    		  <p class=MsoNormal style='margin-bottom:0in;'>
-    		  $!commentType
-    		  </p>
-    		  </td>
-    		  <td width=50% style='border:solid windowtext .5pt;background:#$color;'>
+    		  <td width=59% style='border:solid windowtext .5pt;background:#$color;'>
     		  <p class=MsoNormal style='margin-bottom:0in;'>
             #if( $highlightQuote )<span style='background-color:#ffdd99'>$!highlightQuote*</span>#end
     		  	#if( $commentText.length() > 0 )#formatTableCell($commentText, "left", 276) #end 
