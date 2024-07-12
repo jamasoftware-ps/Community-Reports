@@ -16,6 +16,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## ======================================================================================================================
 ## MODIFICATION HISTORY 
 ## 
+##
 ## Date         Revision   Person            Comments 
 ## -----------  ---------  ----------------  ---------------------------------- 
 ## 2024-02-16     1.0      Anna FitzGerald    Review Center Comments 
@@ -47,6 +48,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                            Reconfigured active comments logic 
 ## 2024-07-12     3.4.4    Anna FitzGerald    Added boolean parameter to 'Include Description' for RevisionItems
 ##                                            Removed columns 'Comment Type' & 'Resolved'
+## 2024-07-12     3.4.4.1  Anna FitzGerald    Adjusted colspans and column widths per comment table update
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -4571,15 +4573,15 @@ Review Comments
 
 <table class=MsoTableGrid border='.5pt' cellspacing=0 cellpadding=0 width="100%" style='border-collapse:collapse;mso-table-layout-alt:fixed;border:none;mso-yfti-tbllook:1184;mso-padding-alt:0in 5.4pt 0in 5.4pt;width:100% !important;margin:0pt;'>
  <colgroup>
-  <col width='10%'/>
+  <col width='12%'/>
   <col width='16%'/>
   <col width='7%'/>
-  <col width='51%'/>
+  <col width='65%'/>
 </colgroup>
 <thead>
    ## Comment Column Headings ## 
    <tr>
-    <td width=19% style='background:#cccccc;padding:0in 5.4pt 0in 5.4pt;border:solid black .5pt;'>
+    <td width=12% style='background:#cccccc;padding:0in 5.4pt 0in 5.4pt;border:solid black .5pt;'>
    <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
   Date</span></p>
     </td>
@@ -4591,7 +4593,7 @@ Review Comments
    <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
   Review<br>Version</span></p>
     </td>
-    <td width=51% style='border:solid black .5pt;background:#cccccc;padding:0in 5.4pt 0in 5.4pt'>
+    <td width=65% style='border:solid black .5pt;background:#cccccc;padding:0in 5.4pt 0in 5.4pt'>
    <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
   Comment Text</span></p>
     </td>
@@ -4631,7 +4633,7 @@ Review Comments
       #set( $commentText = $reviewComment.commentText ) 
 
      <tr>
-      <td width=19% style='border:solid black .5pt;border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+      <td width=12% style='border:solid black .5pt;border-top:none;padding:0in 5.4pt 0in 5.4pt'>
       <p class=MsoNormal style='margin-bottom:0in;'>
       #getDateTime( $commentDate, $timeZone)</p>
       </td>
@@ -4644,7 +4646,7 @@ Review Comments
       <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
      v$!reviewComment.revision.sequenceNumber</span></p>
       </td>
-      <td width=51% style='border-top:none;border-left:none;
+      <td width=65% style='border-top:none;border-left:none;
       border-bottom:solid black .5pt;border-right:solid black .5pt;'>
       <p class=MsoNormal style='margin-bottom:0in;'>
         #formatTableCell($commentText, "left", 276)     
@@ -4655,7 +4657,7 @@ Review Comments
  
   #else 
     <tr>
-      <td colspan=6 width=100% style='border:solid black .5pt;'>
+      <td colspan=4 width=100% style='border:solid black .5pt;'>
       <p class=MsoNormal style='margin-bottom:0in;'>
         No comments on the review.
       </p>
@@ -4757,15 +4759,15 @@ Review Comments
       <table class=MsoTableGrid border='.5pt' cellspacing=0 cellpadding=0 width="100%"
        style='border-collapse:collapse;mso-table-layout-alt:fixed;border:none;mso-padding-alt:0in 5.4pt 0in 5.4pt;width:100% !important;margin:0pt;margin-top:2pt'>
        <colgroup>
-        <col width='19%'/>
+        <col width='12%'/>
         <col width='16%'/>
         <col width='7%'/>
         <col width='8%'/>
-        <col width='51%'/>
+        <col width='57%'/>
       </colgroup>
       <thead>
     	 <tr style='mso-yfti-irow:2'>
-    	  <td width=19% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
+    	  <td width=12% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
     	  <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
       Date</span></p>
     	  </td>
@@ -4781,7 +4783,7 @@ Review Comments
     	  <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
     	Thread<br>Identity</span></p>
     	  </td>
-    	  <td width=51% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
+    	  <td width=57% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
     	  <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
     	Comment Text<br>Highlight Quote*</span></p>
     	  </td>
@@ -4835,11 +4837,11 @@ Review Comments
     		#set( $commentText = $revItemComment.commentText ) 
       
     		 <tr style='mso-yfti-irow:4;mso-yfti-lastrow:yes'>
-    		  <td width=15% style='border:solid windowtext .5pt;border-top:none;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
+    		  <td width=12% style='border:solid windowtext .5pt;border-top:none;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
     		  <p class=MsoNormal style='margin-bottom:0in;'>
     		  #getDateTime( $commentDate, $timeZone)</p>
     		  </td>
-    		  <td width=12% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
+    		  <td width=16% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
     		  <p class=MsoNormal style='margin-bottom:0in;'>
     		  $!commentAuthor</p>
     		  </td>
@@ -4851,7 +4853,7 @@ Review Comments
     		  <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
     		  $!threadIdentity</span></p>
     		  </td>
-    		  <td width=59% style='border:solid windowtext .5pt;background:#$color;'>
+    		  <td width=57% style='border:solid windowtext .5pt;background:#$color;'>
     		  <p class=MsoNormal style='margin-bottom:0in;'>
             #if( $highlightQuote )<span style='background-color:#ffdd99'>$!highlightQuote*</span>#end
     		  	#if( $commentText.length() > 0 )#formatTableCell($commentText, "left", 276) #end 
@@ -4862,7 +4864,7 @@ Review Comments
         
   	#else 
   		<tr>
-  		  <td colspan=7 width=100% style='border:solid black .5pt;'>
+  		  <td colspan=5 width=100% style='border:solid black .5pt;'>
   		  <p class=MsoNormal style='margin-bottom:0in;'>
   		  	No comments present on revision item.
   		  </p>
