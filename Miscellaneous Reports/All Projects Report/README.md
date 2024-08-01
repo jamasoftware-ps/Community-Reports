@@ -8,10 +8,12 @@ The report additionally provides a boolean parameter that allows you to include 
 
 ## Preview
 
+![Screenshot 2024-07-18 at 3 32 57 PM](https://github.com/user-attachments/assets/997b59f7-2824-4abf-ac28-a25cf3c2b85f)
 
 
 ## Installation Configuration
 
+![Screenshot 2024-08-01 at 10 02 38 AM](https://github.com/user-attachments/assets/6d721fbe-fbc0-4f4e-b3a5-4d52a9fa6128)
 
 
 
