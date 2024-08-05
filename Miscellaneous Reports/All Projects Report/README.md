@@ -16,6 +16,11 @@ The report additionally provides a boolean parameter that allows you to include 
 ![Screenshot 2024-08-01 at 10 02 38 AM](https://github.com/user-attachments/assets/6d721fbe-fbc0-4f4e-b3a5-4d52a9fa6128)
 
 
+### Project Permissions
+In the event that you want the reports returned data limited by user permissions then please ensure you have the following option set in the configuration installation menu. This will allow the report to only retrieve project data from projects the current user running the report has access too, otherwise you can use the other option to allow all project data be retrieved reguardless of the user running the report.
+
+![Screenshot 2024-08-05 at 2 50 39 PM](https://github.com/user-attachments/assets/c5f271c8-0d7f-4883-9c24-5c85406688b2)
+
 
 ###### Configuration Specifications
 <ul>
