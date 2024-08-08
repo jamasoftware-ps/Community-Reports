@@ -48,13 +48,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                             and prevent baseline item list loss through sort due attachment items not having globalSortOrder value.  
 ## 2024-06-17   3.8        Shawnna Williams  - Was missing the test step logic for test cases in the body of the report. Added logic to trigger it if the field is a testcasesteps.                                        
 ##											 - Also had to explicitly call .getDocument for the compareDoc to get test steps
-## 2024-06-17   3.8        Shawnna Williams  - Was missing the test step logic for test cases in the body of the report. Added logic to trigger it if the field is a 
-##                                             testcasesteps.                                        
-##                    											 - Also had to explicitly call .getDocument for the compareDoc to get test steps
-## 2024-07-12   3.8.1      Liam Rotchford    - Static label adjustment for test steps "Expected Result" to adjust to singular vs. plural to match Jama Connect UI. 
 ## 2024-07-08   3.9        Shawnna Williams  - Fix defect in formatTestSteps - if there was a new row or deleted row, the steps would reset.
-## 2024-08-08   3.10       Shawnna Williams  - Fix defect in getBaselineItems where the baselineItems array would get set to null and break the report
-##
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -4523,17 +4517,13 @@ $string
   #set($extractionCalls = $mathTool.ceil($mathTool.toDouble($baselineTotalItems / 50.0)))
 
   #foreach($cycle in [1..$extractionCalls])
-    #set($pageIndex = $baselineItems.size()) 
-	#if( $pageIndex && $pageIndex >= 0) 
-		#set($baselinePagedResults = $documentSource.getContourItemDTOsForBaseline($baselineId, $pageIndex, 50, 'sequence ASC') )
-		#set($success = $baselineItems.addAll($baselinePagedResults.results))
+    #set($pageIndex = $baselineItems.size())  
+    #set($baselinePagedResults = $documentSource.getContourItemDTOsForBaseline($baselineId, $pageIndex, 50, 'sequence ASC') )
+    #set($success = $baselineItems.addAll($baselinePagedResults.results))
 
-		#if($baselineItems.size() == $baselineTotalItems)
-		  #break
-		#end
-	#else	
-		#break
-	#end
+    #if($baselineItems.size() == $baselineTotalItems)
+      #break
+    #end
   #end
  
   ## return populated $baselineItems
@@ -4766,7 +4756,7 @@ $string
       $!print
     #end ##if( $baseTS.action.length() > 0)  
     </p>
-    <p class="MsoNormal" style='margin-left:8pt'><b>Expected Result:</b> 
+    <p class="MsoNormal" style='margin-left:8pt'><b>Expected Results:</b> 
     #if( $baseTS.expectedResult.length() > 0) 
       ##$baseTS.expectedResult 
       #set( $print = "")
@@ -4839,7 +4829,7 @@ $string
 			  #if( $beforeStep.action)
 				#set($beforeStepText = $beforeStepText + $beforeStep.action)
 			  #end
-			  #set( $beforeStepText = $beforeStepText + "<p class='MsoNormal' style='margin-left:8pt'><b>Expected Result:</b> ")
+			  #set( $beforeStepText = $beforeStepText + "<p class='MsoNormal' style='margin-left:8pt'><b>Expected Results:</b> ")
 			  #if( $beforeStep.expectedResult.length() > 0)
 				#set( $beforeStepText = $beforeStepText + $!beforeStep.expectedResult)
 			  #end
@@ -4872,7 +4862,7 @@ $string
 				#if( $afterStep.action)
 				  #set( $afterStepText = $afterStepText + $!afterStep.action)
 				#end
-				#set( $afterStepText = $afterStepText + "<p class='MsoNormal' style='margin-left:8pt'><b>Expected Result:</b> ")
+				#set( $afterStepText = $afterStepText + "<p class='MsoNormal' style='margin-left:8pt'><b>Expected Results:</b> ")
 				#if( $afterStep.expectedResult)
 				  #set( $afterStepText = $afterStepText + $!afterStep.expectedResult)
 				#end
