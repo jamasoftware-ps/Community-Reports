@@ -9,46 +9,15 @@
 ## 
 ## Date         Revision   Person            Comments 
 ## -----------  ---------  ----------------  ---------------------------------- 
-## 2015-07-31    1.0       Shawnna Williams  - Created with Preston. 
-## 2015-07-31 	 2.0       Preston Mitchell  - Formatted so that parent item data repeats in each row to allow filtering in Excel
-## 2023-04-19    3.0       Anna FitzGerald   - Added new Velocity API Data Sources
-##                                           - Collapsed border on table 
-## 2024-04-04    3.1       Anna FitzGerald   - Removed unsupported Velocity API sources 
-##                                           - Updated .areItemsInSync call w/doc node ref id arguments as Velocity API specifies   
-## 					      													 - Updated style/page formatting and added heading content 
-## 2024-07-16    4.0       Liam Rotchford    - Redefined base implementation structure for Sync Status report to address performance
-##																						 concerns when utilized with larger datasets. 
-##																					 - Updated logic used for determined item pair sync status value to utilize standard .id
-##																						 instead of fetching each items DocumentNode for the refId after identifying these
-##																					   values are the same and the revised implementation provides a considerable performance 
-##																						 improvement. 
-##																					 - Added new parameter logic for sync status output filtering through two new boolean 
-##																						 parameters $reportOnlyOutOfSync & $reportOnlyInSync.
-##																					 - Added new report string parameter to provide users with sync item project filtering
-##																					   through project ID input.
-##																					 - Implemented new parameter error validation & output error messaging. 
-##																				   - Removed #getDate() macro due to improve code cleanliness given that this macro was not 
-##																						 being utilized. 
-##																				   - Updated report table definition logic to ensure that Excel format output was properly
-##																						 applying the expected column widths. 
-##																			     - Updated dynamic table building logic using revised array of objects structure implementation
-##																					 - Updated report id columns to include Jama item hyperlinks for improved usability of report.
+## 31-JUL-2015   A          Shawnna Williams  Created with Preston. 
+## 31-JUL-2015	 B          Preston Mitchell  Formatted so that parent item data repeats in each row to allow filtering in Excel
+## 19-APR-2023   C          Anna FitzGerald   Added new Velocity API Data Sources
+##                                            Collapsed border on table 
+## 04-APR-2024   3.1        Anna FitzGerald   Removed unsupported Velocity API sources 
+##                                            Updated .areItemsInSync call w/doc node ref id arguments as Velocity API specifies   
+## 					      Updated style/page formatting and added heading content 
 ##
 #########################################################################################################################
-## Report Criteria:
-## ---------------------------    
-##
-##      Type:       Display Name:                   Report Global Variable:   Function:
-##      ----------------------------------------------------------------------------------------------------------------------
-##      Boolean     Only Show Out of Sync Items     reportOnlyOutOfSync       - Customer can choose to only show out of sync items
-##			Boolean     Only Show In Sync Items         reportOnlyInSync          - Customer can choose to only show in sync items
-##      String      Sync Items Project ID Filter    reportProjectIdFilter     - If populated filter all sync items by provided 
-##																																							project ID for improved performance.
-##																																					  - If not populated do not apply project filtering
-##																																							to retrieved sync items.
-##
-#########################################################################################################################
-##
 ## Data Sources Utilized in this report
 ##-----------------------------------##
 ##           $documentSource         ##
@@ -57,12 +26,11 @@
 ## Sources Utilized: 
 ## $documentSource
 ## 
-
-
+##
 ## Timezone 
 ##-----------------------------------##
 #set( $timeZone = "America/Los_Angeles" )
-
+##
 ## Formatting
 ##-----------------------------------##
 #if( $format == 'pdf' || $format == 'html')
@@ -70,44 +38,6 @@
 #else 
 	#set( $primaryFont = "Calibri")
 #end
-
-
-## Parameter Validation
-##-----------------------------------##
-
-## In Sync / Out Of Sync Filter
-#set($validSyncResultFiltering = true)
-
-#if($reportOnlyOutOfSync == true && $reportOnlyInSync == true)
-	#set($validSyncResultFiltering = false)
-#end
-
-## Sync Items Project ID Filter
-#set($projectFilterUsed = false)
-#set($validProjectIdFilter = false)
-
-#if($reportProjectIdFilter != '')
-	#set($projectFilterUsed = true)
-	#set($projectIdFilter = $reportProjectIdFilter.replaceAll("\d", ""))
-
-	#if($projectIdFilter == '')
-		#set($projectIdFilter = $reportProjectIdFilter.replaceAll("(\d*)|[^*]", "$1"))
-		#set($projectIdFilter = $mathTool.toInteger($projectIdFilter))
-		
-		#set($projects = $projectSource.getProjects(true))
-		#foreach($prod in $projects)
-			#if($prod.id == $projectIdFilter)
-				#set($validProjectIdFilter = true)
-				#break
-			#end
-		#end
-
-	#end
-#end
-
-
-
-
 ##
 ##
 #########################################################################################################################
@@ -143,47 +73,6 @@ col {
 br {
 	mso-data-placement:same-cell;
 }
-.style0
-  {mso-number-format:General;
-  text-align:left;
-  vertical-align:top;
-  white-space:nowrap;
-  mso-rotate:0;
-  mso-background-source:auto;
-  mso-pattern:auto;
-  color:black;
-  font-size:9.0pt;
-  font-weight:400;
-  font-style:normal;
-  text-decoration:none;
-  font-family:'$primaryFont',sans-serif;
-  mso-font-charset:0;
-  border:none;
-  mso-protection:locked visible;
-  mso-style-name:Normal;
-  mso-style-id:0;}
-td
-  {mso-style-parent:style0;
-  padding-top:1px;
-  padding-right:1px;
-  padding-left:1px;
-  mso-ignore:padding;
-  color:black;
-  font-size:9.0pt;
-  font-weight:400;
-  font-style:normal;
-  text-decoration:none;
-  font-family:'$primaryFont',sans-serif;
-  mso-font-charset:0;
-  mso-number-format:General;
-  text-align:left;
-  vertical-align:top;
-  border:none;
-  mso-background-source:auto;
-  mso-pattern:auto;
-  mso-protection:locked visible;
-  white-space:normal;
-  mso-rotate:0;}
 td.title {
 	font-size:13pt;
 	font-weight:700;
@@ -240,6 +129,17 @@ div.SectionLandscape {
 ##
 ## =================================================================================================================
 #########################################################################################################################
+##          Macro: getDate
+##          Input: Java Time Zone ID to determine which timezone to display the date in
+##          Output: Formatted date in the desired timezone
+#########################################################################################################################
+#macro( getDate $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  #set( $date = $dateTool.format( 'MM/dd/yyyy', $inputDate, $locale, $outTz ))
+  $!date
+#end
+#########################################################################################################################
 ##          Macro: getDateTime
 ##          Input: Java Time Zone ID to determine which timezone to display the date in
 ##          Output: Formatted date in the desired timezone
@@ -250,43 +150,6 @@ div.SectionLandscape {
   #set( $dateTime = $dateTool.format( 'MM/dd/yyyy hh:mm a', $inputDate, $locale, $outTz ))
   $!dateTime
 #end
-
-
-
-
-#########################################################################################################################
-## =================================================================================================================
-##
-##
-## Report Data Gathering
-##
-##
-## =================================================================================================================
-#set($syncItemsObjList = [])
-#foreach($vDoc in $documentList)		
-	#set($doc = $vDoc.document )	
-	## Gather all sync items by shared global ID
-	#set($docsWithGlobalId = $documentSource.getDocumentsWithGlobalId( $doc.globalId, $mathTool.toInteger($project.organizationId)))
-
-	#foreach($syncDoc in $docsWithGlobalId)
-		## Omit source item duplicate included from .getDocumentsWithGlobalId()
-		#if($doc.id != $syncDoc.id) 
-			## If project filtering is being used filter sync items by project id value
-			#if($projectFilterUsed && $validProjectIdFilter && $!projectIdFilter)
-				#if($syncDoc.project.id == $!projectIdFilter)
-					#set($success = $syncItemsObjList.add({"SourceDoc": $doc, "SyncDoc": $syncDoc}))
-				#end
-			#else
-				#set($success = $syncItemsObjList.add({"SourceDoc": $doc, "SyncDoc": $syncDoc}))
-			#end
-
-		#end
-	#end
-
-#end
-
-
-
 #########################################################################################################################
 ## =================================================================================================================
 ##
@@ -295,30 +158,17 @@ div.SectionLandscape {
 ##
 ##
 ## =================================================================================================================
-
 <body>
 	<div class=SectionLandscape>
-		
-		#if($format == 'xlsx')
-			<table border=0 cellpadding=0 cellspacing=0 width=602 style='border-collapse:collapse;table-layout:fixed;width:450pt'>
-				<col width=87 span=2 style='mso-width-source:userset;mso-width-alt:2773;width:65pt'>
-				<col width=127 style='mso-width-source:userset;mso-width-alt:4053;width:95pt'>
-				<col width=87 style='mso-width-source:userset;mso-width-alt:2773;width:65pt'>
-				<col width=127 style='mso-width-source:userset;mso-width-alt:4053;width:95pt'>
-				<col width=87 style='mso-width-source:userset;mso-width-alt:2773;width:65pt'>
-		#else
-			<table style='width:100%;table-layout:fixed;'>
-				<colgroup>
-					<col style='width:15%'/>
-					<col style='width:15%'/>
-					<col style='width:20%'/>
-					<col style='width:20%'/>
-					<col style='width:20%'/>
-					<col style='width:10%'/>
-				</colgroup>
-		#end
-
-
+		<table style='width:100%;table-layout:fixed;'>
+			<colgroup>
+				<col style='width:15%'/>
+				<col style='width:15%'/>
+				<col style='width:20%'/>
+				<col style='width:20%'/>
+				<col style='width:20%'/>
+				<col style='width:10%'/>
+			</colgroup>
 			<thead>
 				<tr>
 					<td class=title colspan=2 style='text-align:left;border:none;font-size:11pt'>$project.organization.name</td>
@@ -338,49 +188,39 @@ div.SectionLandscape {
 					<td class=header><b>In Sync?</b></td>
 				</tr>
 			</thead>
+			#foreach($vDoc in $documentList)		
+				#set( $doc = $vDoc.document )		
+				#set( $syncDocs = [])
+				#set( $syncDocs = $documentSource.getDocumentsWithGlobalId( $doc.globalId, $mathTool.toInteger($project.organizationId)))
+				#set( $sourceDocNode = $documentSource.getDocumentNode(5, $doc.id))
 
+				##$syncDocs will print all docs that are synced with this document
+				#foreach( $s in $syncDocs )
+					#set( $syncDocNode = $documentSource.getDocumentNode(5, $s.id))
+					#set( $inSync = $documentSource.areItemsInSync( $mathTool.toInteger($sourceDocNode.refId), $mathTool.toInteger($syncDocNode.refId)))
 
-			## Invalid Sync Result Filtering Option Error Message
-			#if(!$validSyncResultFiltering)
-				<tr>
-					<td class=cell colspan=6 style='width:100%;font-size:14pt;color:red'>Invalid sync status result filtering options selected. Please only select either a single sync status result filtering option or neither to include all sync status result rows.</td>
-				</tr>
-
-			## Invalid Project Filtering Error Message
-			#elseif($projectFilterUsed && !$validProjectIdFilter)
-				<tr>
-					<td class=cell colspan=6 style='width:100%;font-size:14pt;color:red'>Invalid project ID value supplied to report parameter. Please provide valid project ID for sync items filtering functionality found in your Jama Connect Admin menu.</td>
-				</tr>
-
-			## Sync Status Dynamic Rows
-			#else
-
-				#foreach($syncItemsObj in $syncItemsObjList)
-					#set($sourceDoc = $syncItemsObj.get("SourceDoc"))
-					#set($syncDoc = $syncItemsObj.get("SyncDoc"))
-
-					#set($inSync = $documentSource.areItemsInSync( $sourceDoc.id, $syncDoc.id))
-					#set($inSyncResult = "No")
-					#if($!inSync == true)
-						#set($inSyncResult = "Yes")
+					#if( $doc.documentKey != $s.documentKey )
+					<tr>
+						<td class=cell>$doc.documentKey</td>
+						<td class=cell>$doc.globalId</td>
+						<td class=cell>$doc.name</td>
+						<td class=cell>$s.documentKey</td>
+						<td class=cell>$s.project.name</td>
+						<td class=cell>
+							#if($!inSync == false)
+								No
+							#else
+								Yes
+							#end
+						</td>
+					</tr>
 					#end
-
-					#if((!$reportOnlyOutOfSync && !$reportOnlyInSync) || ($reportOnlyOutOfSync && !$inSync) || ($reportOnlyInSync && $inSync))
-						<tr>
-							<td class=cell><a href="$baseUrl/perspective.req#/items/$sourceDoc.id?projectId=$project.id">$sourceDoc.documentKey</a></td>
-							<td class=cell>$sourceDoc.globalId</td>
-							<td class=cell>$sourceDoc.name</td>
-							<td class=cell><a href="$baseUrl/perspective.req#/items/$syncDoc.id?projectId=$syncDoc.project.id">$syncDoc.documentKey</a></td>
-							<td class=cell>$syncDoc.project.name</td>
-							<td class=cell>$!inSyncResult</td>
-						</tr>
-					#end
-					
 				#end
-
-			#end
+			#end 
 			</table>
-
 		</div>
 	</body>
 </html>
+
+
+

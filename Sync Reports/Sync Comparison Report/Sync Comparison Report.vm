@@ -44,13 +44,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D8DFBE.2078AF30"
 ##                                             compare based on attachment list size and file names. 
 ##                                           - Removed description source sync column given that we can now include redlining diff.
 ##                                           - Updated target description to include description field redlining.  
-## 2024-04-05   2.1        Anna FitzGerald   - Updated .areItemsInSync call w/doc node ref id arguments as Velocity API specifies     
-## 2024-07-17   2.2        Liam Rotchford   - Following internal performance investigation Jama identified that .areItemsInSync()
-##                                             call can be supplied the standard item .id value instead of the items associated
-##                                             DocumentNode .refId value. 
-##                                           - This adjustment still ensures the proper return value result from .areItemsInSync()
-##                                             in addition to a noted performance improvement as the associated DocumentNode object
-##                                             no longer needs to be retrieved.                                           
+## 2024-04-05   2.1        Anna FitzGerald   - Updated .areItemsInSync call w/doc node ref id arguments as Velocity API specifies                                                
 ##
 ##
 ##
@@ -925,7 +919,9 @@ td
     ## Sync Status
     ## ============================
     #if($trgtSyncItem != false)
-      #set( $inSync = $syncService.areItemsInSync( $doc.id, $trgtSyncItem.id)))
+      #set( $sourceDocNode = $documentNodeDao.getDocumentNode(5, $doc.id))
+      #set( $targetDocNode = $documentNodeDao.getDocumentNode(5, $trgtSyncItem.id))
+      #set( $inSync = $syncService.areItemsInSync( $mathTool.toInteger($sourceDocNode.refId), $mathTool.toInteger($targetDocNode.refId)))
     #else
        #set( $inSync = false)
     #end
@@ -1496,7 +1492,9 @@ td
     #getColumnSyncStatus($columnSyncStatus, $itemSyncDataContainer) ## returns updated $columnSyncStatus
 
     #if($targetSyncItem != false)
-      #set( $inSync = $syncService.areItemsInSync($sourceSyncItem.id, $targetSyncItem.id))
+      #set( $sourceDocNode = $documentNodeDao.getDocumentNode(5, $sourceSyncItem.id))
+      #set( $targetDocNode = $documentNodeDao.getDocumentNode(5, $targetSyncItem.id))
+      #set( $inSync = $syncService.areItemsInSync( $mathTool.toInteger($sourceDocNode.refId), $mathTool.toInteger($targetDocNode.refId)))
     #else
       #set( $inSync = false)
     #end
@@ -2256,7 +2254,9 @@ xmlns="http://www.w3.org/TR/REC-html40">
       #else
 
         #if($report6OnlyDiffItems)
-          #set( $inSync = $syncService.areItemsInSync( $sourceSyncItem.id, $targetSyncItem.id))
+          #set( $sourceDocNode = $documentNodeDao.getDocumentNode(5, $sourceSyncItem.id))
+          #set( $targetDocNode = $documentNodeDao.getDocumentNode(5, $targetSyncItem.id))
+          #set( $inSync = $syncService.areItemsInSync( $mathTool.toInteger($sourceDocNode.refId), $mathTool.toInteger($targetDocNode.refId)))
         
           #if(!$!inSync)
             #parentExportSyncRow($sourceSyncItem $targetSyncItem)
