@@ -1,18 +1,22 @@
 # Sync Status Report
 
 ## Description 
-The Sync Status Report outputs user selected source sync item/s. For each source sync item the report gets all the items that share a global id across projects. For each source item the report checks if any gathered item sharing the same global id is in sync.
+The Sync Status Report can be exported from your project tree and provides a table output that outlines each exported items associated sync item(s). Each output row provides helpful item data fields such as ID, Global ID, Name, Sync Item ID, Sync Item Project, and resulting Sync Status. Additionally, each exported source and associated sync item provides a direct Jama item hyperlink for quick navigation into your Jama instance. 
 
-* To speed up run time export less than 500 items. Max items for sync report: 1000. 
+The report additionally provides three filtering parameter options to assist in controling your output results. Should you wish to only see either the In Sync or Out of Sync items for your exported source items two boolean checkbox parameters provide this selection. If you are interested in only seeing associated sync items that belong to a particular project you can supply a Project API ID value to the provided string parameter input. A project API ID value can be found in your Jama Admin > Project > Details > API-ID view. 
+
 
 ## Preview
 
-![SyncStatusPreview](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/c3daac38-8315-41ea-9ed4-885a41f358ba)
+![SyncStatusPreview](https://github.com/user-attachments/assets/3d97f04a-bcef-45ef-96c6-81fdc8bff7aa)
+
 
 ## Installation Configuration
 
-![SyncStatusInstallationConfiguration](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/73c07652-3d3d-4c59-8fae-f710051e964a)
+![Screenshot 2024-07-18 at 12 54 46 PM](https://github.com/user-attachments/assets/2355d0ef-bf12-4091-b5a6-2c1a0d4ecd03)
 
+
+###### Configuration Specifications
 <ul>
 <li>Report Type: Select Velocity</li>
 <li>Report Formats: Select your preference</li>
@@ -21,10 +25,35 @@ The Sync Status Report outputs user selected source sync item/s. For each source
 <li>Context Sensitive: check the box</li>
 </ul>
 
+<h6>Criteria</h6>
+<table>
+  <tr>
+    <th>Type</th>
+    <th>Display</th>
+    <th>Name</th>
+  </tr>
+  <tr>
+    <td>Boolean</td>
+    <td>Only Show In Sync Items</td>
+    <td>reportOnlyInSync</td>
+  </tr>
+  <tr>
+    <td>Boolean</td>
+    <td>Only Show Out of Sync Items</td>
+    <td>reportOnlyOutOfSync</td>
+  </tr>
+  <tr>
+    <td>String</td>
+    <td>Sync Items Project ID Filter</td>
+    <td>reportProjectIdFilter</td>
+  </tr>
+</table>
+
+
 ## Running the Report
 1. Log into a project
 2. Select sync source items in the project tree ( ensure list or reading or document view)
 3. Export > View all export options > find 'Sync_Status_Report'
-4. Run 
-
+4. Select report output filtering parameter options if using
+5. Run 
 

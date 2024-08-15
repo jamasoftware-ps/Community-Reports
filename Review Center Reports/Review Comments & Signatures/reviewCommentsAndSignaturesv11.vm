@@ -4,18 +4,19 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 #end
 
 ## ======================================================================================================================
-## Name: reviewCommentsAndSignaturesv9.vm
+## Name: reviewCommentsAndSignaturesv11.vm
 ## 
 ## Description: Context Insensitive report that shows Review Approver Signatures and Comments. 
 ##
-##              User enters a string 'REV-id' and report will show Approver Signatures from the latest revision of the 
-##              review, a comment summary of the review, and for each revision in the review the revision item comments. 
+##              User enters a string 'REV-id' and report will show a comment summary of the review, and for each 
+##              revision in the review the revision item comments. 
 ##         
 ##              The user can also enter a string revision 'V-x' version number to get comments for the select revision 
 ##              only. 
 ## ======================================================================================================================
 ## MODIFICATION HISTORY 
 ## 
+##
 ## Date         Revision   Person            Comments 
 ## -----------  ---------  ----------------  ---------------------------------- 
 ## 2024-02-16     1.0      Anna FitzGerald    Review Center Comments 
@@ -45,6 +46,9 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##                                            Added a nextRev and nextRevCreatedDate variable to utilize for comparing dates to ensure 
 ##                                             that the event of concern is the latest state of the 'Review activity' given the respective review or revision. 
 ##                                            Reconfigured active comments logic 
+## 2024-07-12     3.4.4    Anna FitzGerald    Added boolean parameter to 'Include Description' for RevisionItems
+##                                            Removed columns 'Comment Type' & 'Resolved'
+## 2024-07-12     3.4.4.1  Anna FitzGerald    Adjusted colspans and column widths per comment table update
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -53,9 +57,9 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##
 ##     Type:       Display Name:       Report Global Variable:   Function:
 ##      ----------------------------------------------------------------------------------------------------------------------
-##     String       Review Id           reportReviewId        supplies the report with the review id, i.e. "Rev-25", not case sensitive
-##     String       Revision Version    reportRevisionV       supplies the report with the revision version, i.e. "V2", not case sensitive
-##
+##     String       Review Id              reportReviewId           supplies the report with the review id, i.e. "Rev-25", not case sensitive
+##     String       Revision Version       reportRevisionV          supplies the report with the revision version, i.e. "V2", not case sensitive
+##     Boolean      Include Description    reportDescription        if true includes the description for revision items  
 ##    
 ##
 ## ======================================================================================================================
@@ -69,7 +73,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## Review Comments & Signatures:
 ## 
 ## Word & PDF Format
-##	-Report Formats: Micosoft Word, PDF
+##  -Report Formats: Micosoft Word, PDF
 ##  -Scope: Organization
 ##  -Organization: Select yours
 ##  -Visible to Users: true
@@ -114,29 +118,29 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## Get the REV-id 
 ##-------------------------------------------
 #if( $reportReviewId.toUpperCase().contains("REV"))
-	#set( $reviewId = $reportReviewId.replaceAll("(?:rev|REV).(\d*)", "$1"))
-	#set( $reviewId = $reviewId.trim())
-	#set( $reviewForComments = $reviewSource.getReview($mathTool.toInteger($reviewId)))
+  #set( $reviewId = $reportReviewId.replaceAll("(?:rev|REV).(\d*)", "$1"))
+  #set( $reviewId = $reviewId.trim())
+  #set( $reviewForComments = $reviewSource.getReview($mathTool.toInteger($reviewId)))
   #if( !$reviewForComments )
     #set( $reviewSequence = $reviewId) 
     #set( $reviewForComments = $reviewSource.getReviewBySequence($mathTool.toInteger($reviewSequence)))
   #end 
 #else 
-	#set( $printParameterWarningMessage = true)
+  #set( $printParameterWarningMessage = true)
 #end
 ##
 ##
 ## Get if user selected revision 
 ##-------------------------------------------
 #if( $reportRevisionV.toUpperCase().contains("V"))
-	#set( $revisionNum = $reportRevisionV.replaceAll("v|V", ""))
-	#set( $revisionNum = $mathTool.toInteger($revisionNum.trim()))
-	#if( $reviewForComments )
-		#set( $revisions = $reviewForComments.revisions ) 
-		#foreach( $revision in $revisions )
-			#if( $revision.sequenceNumber == $revisionNum )
-				#set( $revisionForComments = $revision )
-				#set( $revisionInput = true )
+  #set( $revisionNum = $reportRevisionV.replaceAll("v|V", ""))
+  #set( $revisionNum = $mathTool.toInteger($revisionNum.trim()))
+  #if( $reviewForComments )
+    #set( $revisions = $reviewForComments.revisions ) 
+    #foreach( $revision in $revisions )
+      #if( $revision.sequenceNumber == $revisionNum )
+        #set( $revisionForComments = $revision )
+        #set( $revisionInput = true )
         #set( $success = $revisionListUpToVersion.add( $revision ))
         #if( $foreach.hasNext )
           #set( $nextIdx = $foreach.index + 1 )
@@ -146,11 +150,11 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
           #set( $nextRev = false )
           #set( $nextRevCreatedDate = false)
         #end 
-			#elseif( $revision.sequenceNumber < $revisionNum)
+      #elseif( $revision.sequenceNumber < $revisionNum)
         #set( $success = $revisionListUpToVersion.add( $revision ))
       #end 
-		#end 
-	#end 
+    #end 
+  #end 
 #end 
 ##
 ##
@@ -223,11 +227,11 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## iText PDF does not have Arial, the closest typeface it has is Helvetica
 ## Arimo is very close in appearance to Arial, and the remote accessible font is linked in the PDF head
 #if( $format == "doc" )
-	#set( $primaryFont = "Open Sans")
-	##set( $primaryFont = "Arial")
+  #set( $primaryFont = "Open Sans")
+  ##set( $primaryFont = "Arial")
 #else ## pdf, html 
-	##set( $primaryFont = "Arimo")  	
-  	#set( $primaryFont = "Open Sans")
+  ##set( $primaryFont = "Arimo")    
+    #set( $primaryFont = "Open Sans")
 #end
 
 #set( $primaryFontSize = "10pt")
@@ -961,11 +965,11 @@ w\:* {behavior:url(#default#VML);}
   mso-font-pitch:variable;
   mso-font-signature:-536870145 1342185562 0 0 415 0;}
 @font-face
-	{font-family:"Open Sans";
-	mso-font-charset:0;
-	mso-generic-font-family:swiss;
-	mso-font-pitch:variable;
-	mso-font-signature:-536870161 1073750107 40 0 415 0;}
+  {font-family:"Open Sans";
+  mso-font-charset:0;
+  mso-generic-font-family:swiss;
+  mso-font-pitch:variable;
+  mso-font-signature:-536870161 1073750107 40 0 415 0;}
 
 /* Set the global font family and base font-size */
 
@@ -1073,7 +1077,7 @@ h6
   font-weight:normal;}
 /*tables of... leaders ->blank,dashed,dotted,heavy,lined,middot */
 span {
-	.mso-tab-count:blank !important;
+  .mso-tab-count:blank !important;
 }
 p.MsoHeading7, li.MsoHeading7, div.MsoHeading7
   {mso-style-priority:9;
@@ -1322,7 +1326,7 @@ li
   text-indent:-1.1in;}
 
 /********************************************************************************************************
-		3.2 WORD_PAGE_DEFINITIONS_STYLE_SHEET
+    3.2 WORD_PAGE_DEFINITIONS_STYLE_SHEET
 ********************************************************************************************************/
 
 /* Normal Page Definition */
@@ -1380,7 +1384,7 @@ div.WordSectionLandscape
 
 
 /********************************************************************************************************
-		3.3 WORD_TABLE_STYLE_SHEET
+    3.3 WORD_TABLE_STYLE_SHEET
 ********************************************************************************************************/
 table 
   {margin-top:2pt;
@@ -1483,11 +1487,11 @@ td.TableCell
 ##  If the client has a typeface that is locally accessible to them, it can be included using @font-face. 
 ##  Make sure to place within the style tags below, Example:
 ##  @font-face {
-##		font-family: 'rakkasregular';
-##		src: url('/Users/krichards/Desktop/Rakkas/Rakkas-Regular.ttf') format('ttf'),
-##		url('/Users/krichards/Desktop/Rakkas/Rakkas-Regular.ttf') format('ttf');
-##		font-weight: normal;
-##		font-style: normal;}  
+##    font-family: 'rakkasregular';
+##    src: url('/Users/krichards/Desktop/Rakkas/Rakkas-Regular.ttf') format('ttf'),
+##    url('/Users/krichards/Desktop/Rakkas/Rakkas-Regular.ttf') format('ttf');
+##    font-weight: normal;
+##    font-style: normal;}  
 ##
 #########################################################################################################################
 
@@ -1730,10 +1734,10 @@ page-break-before: always;
 div.reportBodyCounterContainer {counter-reset:h1Report h2Report h3Report h4Report h5Report h6Report h7Report;}
 
 h1 {counter-increment: h1Report;
-	counter-reset:h2Report h3Report h4Report h5Report h6Report h7Report;}
+  counter-reset:h2Report h3Report h4Report h5Report h6Report h7Report;}
 
 h2 {counter-increment:h2Report;
-	counter-reset:h3Report h4Report h5Report h6Report h7Report;}
+  counter-reset:h3Report h4Report h5Report h6Report h7Report;}
 
 h3 {counter-increment: h3Report;
    counter-reset:h4Report h5Report h6Report h7Report;}
@@ -2120,13 +2124,13 @@ $string
       #end
 
       #if( $srcStart < $srcEnd )
-	      #set($imgSrc = $imgString.substring( $srcStart, $srcEnd ))
-	      #set($imgSrc = $imgSrc.replaceAll("\?dpi.*$", ""))
+        #set($imgSrc = $imgString.substring( $srcStart, $srcEnd ))
+        #set($imgSrc = $imgSrc.replaceAll("\?dpi.*$", ""))
 
-	      #if($imgString.indexOf( $baseUrl) > -1 && $imgString.indexOf( "blob:http") == -1)
-	        #set( $success = $findSourceMHTMLReturn.add( $imgSrc))
-	      #end
-	  #end 
+        #if($imgString.indexOf( $baseUrl) > -1 && $imgString.indexOf( "blob:http") == -1)
+          #set( $success = $findSourceMHTMLReturn.add( $imgSrc))
+        #end
+    #end 
     #end
   #end
 #end
@@ -2579,150 +2583,150 @@ $string
     #### Debug imgSources: $imgSources
 
     ## For each identified image
-    ## 	- 'doc' format replace the HTML img tag with Word Shape 
-    ## 	- 'pdf' format replace the HTML img tag with base64
+    ##  - 'doc' format replace the HTML img tag with Word Shape 
+    ##  - 'pdf' format replace the HTML img tag with base64
 
     #foreach( $imgSource in $imgSources)
-		  #set( $imgIndex = $foreach.index )
+      #set( $imgIndex = $foreach.index )
 
-  		## if the image is not already base64 encoded
-  		#if( $imgUrls.get($imgIndex).indexOf(";base64") == -1 )
-  		## Locate the position of this image
-  			#set( $sourcePosition = $input.indexOf($imgUrls.get($imgIndex)) )
-  			#set( $inputStart = $input.lastIndexOf("<img", $sourcePosition) )
-  			#set( $inputEnd = $input.indexOf(">", $sourcePosition) )
-  			#if( $inputStart > -1 && $inputEnd > -1 )
-			    #set( $inputImage = "" )
-			    #set( $inputImage = $input.substring($inputStart, $inputEnd) )
-  		
-  				## Determine the size of the image stored in HTML
-  				#if( $inputImage.indexOf( "height=") > -1 && $inputImage.indexOf( "width=") > -1)
-  					#set($height = $inputImage.replaceAll('(?s).*?height="([0-9]*)".*','$1'))
-  					#set($width = $inputImage.replaceAll('(?s).*?width="([0-9]*)".*','$1'))
-  					## If no image size is found in HTML, use the image size extracted directly from the image
-  					## Only works for PNGs. Non-PNGs return a height and width of false
-  				#elseif( $imageSizes.size() > $imgIndex )
-  					#set( $height = $imageSizes.get($imgIndex).height )
-  					#set( $width = $imageSizes.get($imgIndex).width )
-  				#end
-  			  ##Debug: width=$width, height=$height
-  			 
-  			  ## if a height and width are known, resize the image appropriately
-			  	#if( $height && $width )
-  		  			## Adjust extracted values from px to pt to accurately compare to max page dimensions: ((1px = 1/96th of 1in) - (1pt = 1/72 of 1in))
-  					#set( $widthInt = $mathTool.toNumber($width) * 0.75 )
-  					#set( $heightInt = $mathTool.toNumber($height) * 0.75)
-  					##<p class=MsoNormal style='margin-bottom:20pt;font-size:8pt;'>Debug: $width x $height px</p>
+      ## if the image is not already base64 encoded
+      #if( $imgUrls.get($imgIndex).indexOf(";base64") == -1 )
+      ## Locate the position of this image
+        #set( $sourcePosition = $input.indexOf($imgUrls.get($imgIndex)) )
+        #set( $inputStart = $input.lastIndexOf("<img", $sourcePosition) )
+        #set( $inputEnd = $input.indexOf(">", $sourcePosition) )
+        #if( $inputStart > -1 && $inputEnd > -1 )
+          #set( $inputImage = "" )
+          #set( $inputImage = $input.substring($inputStart, $inputEnd) )
+      
+          ## Determine the size of the image stored in HTML
+          #if( $inputImage.indexOf( "height=") > -1 && $inputImage.indexOf( "width=") > -1)
+            #set($height = $inputImage.replaceAll('(?s).*?height="([0-9]*)".*','$1'))
+            #set($width = $inputImage.replaceAll('(?s).*?width="([0-9]*)".*','$1'))
+            ## If no image size is found in HTML, use the image size extracted directly from the image
+            ## Only works for PNGs. Non-PNGs return a height and width of false
+          #elseif( $imageSizes.size() > $imgIndex )
+            #set( $height = $imageSizes.get($imgIndex).height )
+            #set( $width = $imageSizes.get($imgIndex).width )
+          #end
+          ##Debug: width=$width, height=$height
+         
+          ## if a height and width are known, resize the image appropriately
+          #if( $height && $width )
+              ## Adjust extracted values from px to pt to accurately compare to max page dimensions: ((1px = 1/96th of 1in) - (1pt = 1/72 of 1in))
+            #set( $widthInt = $mathTool.toNumber($width) * 0.75 )
+            #set( $heightInt = $mathTool.toNumber($height) * 0.75)
+            ##<p class=MsoNormal style='margin-bottom:20pt;font-size:8pt;'>Debug: $width x $height px</p>
 
-  					#set ($aspectRatio = 1.5)
-  					#set ($aspectRatio = $mathTool.toDouble($widthInt) / $mathTool.toDouble($heightInt))
-  					#### Debug Aspect Ratio: $aspectRatio
-  					## if the image is higher than allowed, resize
-  					#if( $heightInt > $maxHeight )
-  				    #set( $targetHeight = $maxHeight)
-  				    #set( $targetWidth = $mathTool.mul($mathTool.toNumber($targetHeight), $aspectRatio)) 
-  				  	## if the image is still wider than allowed, resize again
-  				    #if( $targetWidth > $maxWidth )
-  			        #set ($targetWidth = $maxWidth)
-  			        #set ($targetHeight = $mathTool.div($mathTool.toNumber($targetWidth), $aspectRatio))
-  				    #end
-  				    #if( $inputImage.contains("equation")) ## size to pixels
-  						  #set( $targetWidth = $targetWidth / 0.75 )
-  						  #set( $targetHeight = $targetHeight / 0.75)
-  						#end
-  					## if the image is wider than allowed, resize
-  					#elseif( $widthInt > $maxWidth )
-  				  	#set ($targetWidth = $maxWidth)
-  				  	#set ($targetHeight = $mathTool.div($mathTool.toNumber($targetWidth), $aspectRatio))
-  				    ## if the image is still higher than allowed, resize again
-  				  	#if( $targetHeight > $maxHeight )
-  				    	#set ($targetHeight = $maxHeight)
-  				    	#set ($targetWidth = $mathTool.mul($mathTool.toNumber($targetHeight), $aspectRatio))
-  				  	#end
-  				  	#if( $inputImage.contains("equation")) ## size to pixels
-  					    #set( $targetWidth = $targetWidth / 0.75 )
-  					    #set( $targetHeight = $targetHeight / 0.75)
-  					  #end
-  					#else
-  						#if( $inputImage.contains("equation")) 
-  	  					## We avoid altering the equation by keeping its source px size to preserve its rendering.##
-  							#set( $targetWidth = $mathTool.toNumber($width))
-  							#set( $targetHeight = $mathTool.toNumber($height))
-  						#else 
-  			  			#set( $targetWidth = $widthInt )
-  			  			#set( $targetHeight = $heightInt )	
-  			  		#end   	
-  					#end
-  				#else
-  					## if no height and width found set to 1/2 max expecting a 4:3 ratio
-  					## PDF has auto responsive heights and therefore needs only the targetWidth, but Word shapes must have a both edge values
-  					#set( $targetWidth = 234 )
-  					#set( $targetHeight = 176 )
-  				#end      
+            #set ($aspectRatio = 1.5)
+            #set ($aspectRatio = $mathTool.toDouble($widthInt) / $mathTool.toDouble($heightInt))
+            #### Debug Aspect Ratio: $aspectRatio
+            ## if the image is higher than allowed, resize
+            #if( $heightInt > $maxHeight )
+              #set( $targetHeight = $maxHeight)
+              #set( $targetWidth = $mathTool.mul($mathTool.toNumber($targetHeight), $aspectRatio)) 
+              ## if the image is still wider than allowed, resize again
+              #if( $targetWidth > $maxWidth )
+                #set ($targetWidth = $maxWidth)
+                #set ($targetHeight = $mathTool.div($mathTool.toNumber($targetWidth), $aspectRatio))
+              #end
+              #if( $inputImage.contains("equation")) ## size to pixels
+                #set( $targetWidth = $targetWidth / 0.75 )
+                #set( $targetHeight = $targetHeight / 0.75)
+              #end
+            ## if the image is wider than allowed, resize
+            #elseif( $widthInt > $maxWidth )
+              #set ($targetWidth = $maxWidth)
+              #set ($targetHeight = $mathTool.div($mathTool.toNumber($targetWidth), $aspectRatio))
+              ## if the image is still higher than allowed, resize again
+              #if( $targetHeight > $maxHeight )
+                #set ($targetHeight = $maxHeight)
+                #set ($targetWidth = $mathTool.mul($mathTool.toNumber($targetHeight), $aspectRatio))
+              #end
+              #if( $inputImage.contains("equation")) ## size to pixels
+                #set( $targetWidth = $targetWidth / 0.75 )
+                #set( $targetHeight = $targetHeight / 0.75)
+              #end
+            #else
+              #if( $inputImage.contains("equation")) 
+                ## We avoid altering the equation by keeping its source px size to preserve its rendering.##
+                #set( $targetWidth = $mathTool.toNumber($width))
+                #set( $targetHeight = $mathTool.toNumber($height))
+              #else 
+                #set( $targetWidth = $widthInt )
+                #set( $targetHeight = $heightInt )  
+              #end    
+            #end
+          #else
+            ## if no height and width found set to 1/2 max expecting a 4:3 ratio
+            ## PDF has auto responsive heights and therefore needs only the targetWidth, but Word shapes must have a both edge values
+            #set( $targetWidth = 234 )
+            #set( $targetHeight = 176 )
+          #end      
 
-  				## find string for use in final replace all
-  				#set( $find = "(?s)<img{^>}*?$imgUrls.get($imgIndex){^>}*?>" )
-  				#set( $find = $find.replaceAll("\/", "\\/") )
-  				#set( $find = $find.replaceAll("\{", "[") )
-  				#set( $find = $find.replaceAll("\}", "]") )
-  				
-  				##Debug find: $find <br>
+          ## find string for use in final replace all
+          #set( $find = "(?s)<img{^>}*?$imgUrls.get($imgIndex){^>}*?>" )
+          #set( $find = $find.replaceAll("\/", "\\/") )
+          #set( $find = $find.replaceAll("\{", "[") )
+          #set( $find = $find.replaceAll("\}", "]") )
+          
+          ##Debug find: $find <br>
 
-  		    #######################################################################################
-  				## Find Img Location 
-  				##             - utilize $find to determine img position in rich text to ensure proper
-  				##               replacement format  
-  				#######################################################################################
-  				#set( $imgInTable = false )
-  				#set( $imgInFigure = false)
-  				#set( $isImgInTable = $input )
-  				#set( $isImgInFig = $input )
-  				
-  				#set( $isImgInTable = $isImgInTable.replaceAll( "<td.*?>.*?$find.*?<\/td>", "[imgInTable]"))
-  				
-  				#if( $isImgInTable.contains("[imgInTable]"))
-  					#set( $imgInTable = true )
-  				#else
-  					#set( $isImgInFig = $isImgInFig.replaceAll("<figure.*?>.*?$find", "[imgInFigTags]"))
-  					#if( $isImgInFig.contains( "[imgInFigTags]"))
-  						#set( $imgInFigure = true )   
-  					#end
-  				#end 
-  	
-  				#######################################################################################
-  				## Img Alignment 
-  				##             - utilize $find to locate alignment on the img and store it in $imgAlign
-  				#######################################################################################
-  				#set( $isThereAlignment = $input )
-  				#set( $imgAlign = $input )
+          #######################################################################################
+          ## Find Img Location 
+          ##             - utilize $find to determine img position in rich text to ensure proper
+          ##               replacement format  
+          #######################################################################################
+          #set( $imgInTable = false )
+          #set( $imgInFigure = false)
+          #set( $isImgInTable = $input )
+          #set( $isImgInFig = $input )
+          
+          #set( $isImgInTable = $isImgInTable.replaceAll( "<td.*?>.*?$find.*?<\/td>", "[imgInTable]"))
+          
+          #if( $isImgInTable.contains("[imgInTable]"))
+            #set( $imgInTable = true )
+          #else
+            #set( $isImgInFig = $isImgInFig.replaceAll("<figure.*?>.*?$find", "[imgInFigTags]"))
+            #if( $isImgInFig.contains( "[imgInFigTags]"))
+              #set( $imgInFigure = true )   
+            #end
+          #end 
+    
+          #######################################################################################
+          ## Img Alignment 
+          ##             - utilize $find to locate alignment on the img and store it in $imgAlign
+          #######################################################################################
+          #set( $isThereAlignment = $input )
+          #set( $imgAlign = $input )
 
-  				#if( $imgInFigure )
-  					#set( $isThereAlignment = $isThereAlignment.replaceAll("<(figure|div).*?(text-align|float):(\w*?).*?>.*?$find", "[align]"))
-  					#if( $isThereAlignment.contains("[align]"))
-  						#set( $imgAlign = $imgAlign.replaceAll("[^*]*?<(figure|div).*?(text-align|float):(\w*).*$find(?:.*)", "$3" ))
-  						#set( $imgAlign = $imgAlign.trim())
-  					#else
-  						#set( $imgAlign = 'left')
-  					#end 
-  				#else
-  					#set( $isThereAlignment = $isThereAlignment.replaceAll("<(p|div).*?(text-align:)(\w*?).*?>.*?$find", "[align]"))
-  					#if( $isThereAlignment.contains("[align]"))
-  						#set( $imgAlign = $imgAlign.replaceAll("[^*]*?<(p|div).*?text-align:(\w*).*$find(?:.*)", "$2" ))
-  						#set( $imgAlign = $imgAlign.trim())
-  					#else 
-  						#set( $imgAlign ='left')
-  					#end
-  				#end 
+          #if( $imgInFigure )
+            #set( $isThereAlignment = $isThereAlignment.replaceAll("<(figure|div).*?(text-align|float):(\w*?).*?>.*?$find", "[align]"))
+            #if( $isThereAlignment.contains("[align]"))
+              #set( $imgAlign = $imgAlign.replaceAll("[^*]*?<(figure|div).*?(text-align|float):(\w*).*$find(?:.*)", "$3" ))
+              #set( $imgAlign = $imgAlign.trim())
+            #else
+              #set( $imgAlign = 'left')
+            #end 
+          #else
+            #set( $isThereAlignment = $isThereAlignment.replaceAll("<(p|div).*?(text-align:)(\w*?).*?>.*?$find", "[align]"))
+            #if( $isThereAlignment.contains("[align]"))
+              #set( $imgAlign = $imgAlign.replaceAll("[^*]*?<(p|div).*?text-align:(\w*).*$find(?:.*)", "$2" ))
+              #set( $imgAlign = $imgAlign.trim())
+            #else 
+              #set( $imgAlign ='left')
+            #end
+          #end 
 
-  				#if( $format == 'pdf')
-  					#if( $imgAlign == 'center')
-  						#set( $imgAlignMargin = 'margin:auto !important;')
-  					#elseif( $imgAlign == 'right')
-  						#set( $imgAlignMargin = 'margin-left:auto !important;margin-right:0pt !important;')
-  					#else 
-  						#set( $imgAlignMargin = 'margin:0;')
-  					#end 
-  				#end 
+          #if( $format == 'pdf')
+            #if( $imgAlign == 'center')
+              #set( $imgAlignMargin = 'margin:auto !important;')
+            #elseif( $imgAlign == 'right')
+              #set( $imgAlignMargin = 'margin-left:auto !important;margin-right:0pt !important;')
+            #else 
+              #set( $imgAlignMargin = 'margin:0;')
+            #end 
+          #end 
 
           #######################################################################################
           ## Equation Vertical Alignment
@@ -2735,96 +2739,96 @@ $string
             #set( $eqVerAlign = $eqVerAlign.trim())
           #end
 
-  				#######################################################################################
-  				## Figcaption Alignment
-  				##         - set the default alignment (Figcaptions in Jama are left aligned and unless
-  				##           an img is centered )
-  				#######################################################################################
+          #######################################################################################
+          ## Figcaption Alignment
+          ##         - set the default alignment (Figcaptions in Jama are left aligned and unless
+          ##           an img is centered )
+          #######################################################################################
 
-  				#if( $imgAlign == 'center')
-  					#set( $figCapAlign = 'center')
-  				#else 
-  					#set( $figCapAlign = 'center') ## Set default figCaption alignment here 
-  				#end 
-  				
-  				##DEBUG IMG ALIGN $imgAlign <br>
+          #if( $imgAlign == 'center')
+            #set( $figCapAlign = 'center')
+          #else 
+            #set( $figCapAlign = 'center') ## Set default figCaption alignment here 
+          #end 
+          
+          ##DEBUG IMG ALIGN $imgAlign <br>
 
-  				#######################################################################################
-  				## Figcaption Content 
-  				##         - locate figcaption content on the img and store it in $figCaptionContent
-  				#######################################################################################
-  				#set( $figCaptionContent = $input)
-  				#set( $figCaptionContent = $figCaptionContent.replaceAll("\n|\t", ""))
+          #######################################################################################
+          ## Figcaption Content 
+          ##         - locate figcaption content on the img and store it in $figCaptionContent
+          #######################################################################################
+          #set( $figCaptionContent = $input)
+          #set( $figCaptionContent = $figCaptionContent.replaceAll("\n|\t", ""))
 
-  			  #if( $imgInFigure)
-  	      	#set( $figCaptionContent = $input.replaceAll("[^*]*?$find.*?(<figcaption.*?>)(.*?\s*?|.*\n*?|.*\t*?)(<\/figcaption>)(?:.*)|[^*]", "$1$2$3"))
+          #if( $imgInFigure)
+            #set( $figCaptionContent = $input.replaceAll("[^*]*?$find.*?(<figcaption.*?>)(.*?\s*?|.*\n*?|.*\t*?)(<\/figcaption>)(?:.*)|[^*]", "$1$2$3"))
 
-  	      	#set( $figCaptionContent = $figCaptionContent.replaceAll("<\/figcaption>",""))
-  	      	#set( $figCaptionContent = $figCaptionContent.replaceAll("<figcaption>",""))
-  		    #end 
+            #set( $figCaptionContent = $figCaptionContent.replaceAll("<\/figcaption>",""))
+            #set( $figCaptionContent = $figCaptionContent.replaceAll("<figcaption>",""))
+          #end 
 
-  		    ##DEBUG FIG CAP CONTENT $figCaptionContent <br>
+          ##DEBUG FIG CAP CONTENT $figCaptionContent <br>
 
-  				#######################################################################################
-  				## - Word img and figcaption $replace handling: One of the following macros will 
-  				##			set $replace accordingly with the Word Shape $imgSource of that img.
-  				#######################################################################################
-  				#if( $format == "doc")
+          #######################################################################################
+          ## - Word img and figcaption $replace handling: One of the following macros will 
+          ##      set $replace accordingly with the Word Shape $imgSource of that img.
+          #######################################################################################
+          #if( $format == "doc")
 
-  					#if( $find.contains("equation"))
-  						#formatEquation_DOC( $targetWidth $imgSource $eqVerAlign $imgAlign )
+            #if( $find.contains("equation"))
+              #formatEquation_DOC( $targetWidth $imgSource $eqVerAlign $imgAlign )
 
-  					#elseif( $imgInTable )
-  						#formatImgInTable_DOC( $targetWidth $targetHeight $imgSource $eqVerAlign)
+            #elseif( $imgInTable )
+              #formatImgInTable_DOC( $targetWidth $targetHeight $imgSource $eqVerAlign)
 
-  					#elseif( $imgInFigure )
-  						#formatFigWithCaptions_DOC( $targetWidth $targetHeight $imgSource $eqVerAlign $imgAlign $figCapAlign $figCaptionContent )
-  						
-  					#else
-  						#formatImgWithOptionForCaptions_DOC( $targetWidth $targetHeight $imgSource $eqVerAlign $imgAlign $figCapAlign)
+            #elseif( $imgInFigure )
+              #formatFigWithCaptions_DOC( $targetWidth $targetHeight $imgSource $eqVerAlign $imgAlign $figCapAlign $figCaptionContent )
+              
+            #else
+              #formatImgWithOptionForCaptions_DOC( $targetWidth $targetHeight $imgSource $eqVerAlign $imgAlign $figCapAlign)
 
-  					#end 
+            #end 
 
-  				#######################################################################################
-  				## - PDF img and figcaption $replace handling: One of the following macros will 
-  				##		                  set $replace accordingly with the base64 of that img.
-  				#######################################################################################
-  				#elseif( $format == "pdf") 
-  					
-  					#if( $find.contains("equation"))
-  						#formatEquation_PDF( $imgIndex $targetWidth $targetHeight $eqVerAlign $imageBase64s)
-  					
-  					#elseif( $imgInTable ) 
-  						#formatImgInTable_PDF( $imgIndex $targetWidth $imageBase64s ) 
+          #######################################################################################
+          ## - PDF img and figcaption $replace handling: One of the following macros will 
+          ##                      set $replace accordingly with the base64 of that img.
+          #######################################################################################
+          #elseif( $format == "pdf") 
+            
+            #if( $find.contains("equation"))
+              #formatEquation_PDF( $imgIndex $targetWidth $targetHeight $eqVerAlign $imageBase64s)
+            
+            #elseif( $imgInTable ) 
+              #formatImgInTable_PDF( $imgIndex $targetWidth $imageBase64s ) 
 
-  					#elseif( $imgInFigure )
-  						#formatFigWithCaptions_PDF( $imgIndex $targetWidth $imageBase64s $imgAlignMargin $figCapAlign $figCaptionContent )
-  			
-  					#else 
-  						#formatImgWithOptionForCaptions_PDF( $imgIndex $targetWidth $imageBase64s $imgAlignMargin $figCapAlign )    
+            #elseif( $imgInFigure )
+              #formatFigWithCaptions_PDF( $imgIndex $targetWidth $imageBase64s $imgAlignMargin $figCapAlign $figCaptionContent )
+        
+            #else 
+              #formatImgWithOptionForCaptions_PDF( $imgIndex $targetWidth $imageBase64s $imgAlignMargin $figCapAlign )    
 
-  					#end 
-  				#######################################################################################
-  				## - Else likely html format, set generic img replacement 
-      		#######################################################################################
+            #end 
+          #######################################################################################
+          ## - Else likely html format, set generic img replacement 
+          #######################################################################################
           #else 
             #set( $replace = "<img src='$imageBase64s.get($foreach.index)' style='height:${targetHeight}pt;width:${targetWidth}pt' />" )
-  				#end 
-  			
-	        ########################################################################################
-	        ## - Now that $replace is set with the proper replacement format, 
-	        ##   it is utilized to officially $replace the img in the rich text $output string
-	        ########################################################################################
-	        
-		   		#if( $imgInFigure )
-		   			#set( $output = $output.replaceAll( "(<figure.*?>|<div.*?>)(.*\s*?|.*\n*?|.*\t*?)($find.*?)(<figcaption.*?>)(.*?\s*?.*?\s*?)(<\/figcaption>)(.*\s*?|.*\n*?|.*\t*?)(<\/figure>|<\/div>)", "$3"))
-		   			#set( $output = $output.replaceAll( $find, $replace))	
-				  #else
-			        #set( $output = $output.replaceAll( $find, $replace ))
-			    #end 
-  			   
+          #end 
+        
+          ########################################################################################
+          ## - Now that $replace is set with the proper replacement format, 
+          ##   it is utilized to officially $replace the img in the rich text $output string
+          ########################################################################################
+          
+          #if( $imgInFigure )
+            #set( $output = $output.replaceAll( "(<figure.*?>|<div.*?>)(.*\s*?|.*\n*?|.*\t*?)($find.*?)(<figcaption.*?>)(.*?\s*?.*?\s*?)(<\/figcaption>)(.*\s*?|.*\n*?|.*\t*?)(<\/figure>|<\/div>)", "$3"))
+            #set( $output = $output.replaceAll( $find, $replace)) 
+          #else
+              #set( $output = $output.replaceAll( $find, $replace ))
+          #end 
+           
         #end ##if( $inputStart > -1 && $inputEnd > -1 )
-      #end 	##if( $imgUrls.get($imgIndex).indexOf(";base64") == -1 )
+      #end  ##if( $imgUrls.get($imgIndex).indexOf(";base64") == -1 )
     #end  ##foreach( $imgSource in $imgSources)
   #end ##if( $input.indexOf("<img") > -1 )
   ##------------------------
@@ -2882,12 +2886,12 @@ $string
 ##  - formats figure with figure captions
 ##---------------------------------------------## 
 #macro( formatFigWithCaptions_DOC $targetWidth $targetHeight $imgSource $eqVerAlign $imgAlign $figCapAlign $figCaptionContent)
-	#set( $tableWidth = $targetWidth +1)
-	#set( $figureRefNum = $figureRefNum + 1)
+  #set( $tableWidth = $targetWidth +1)
+  #set( $figureRefNum = $figureRefNum + 1)
 
   #if(!$eqVerAlign || $eqVerAlign == '')
 
-	  #set( $replace = "<table align=$imgAlign class='invisibleTableContainsFIGURE' border='0' cellpadding='1' cellspacing='0' style='border-collapse:collapse;borders:none;margin:0'><tr><td style='text-align:center;width:${tableWidth}pt;margin:0;'><!--[if gte vml 1]><v:shape style='width:${targetWidth}pt;height:${targetHeight}pt;visibility:visible;mso-wrap-style:square;margin:0'><v:imagedata src='$imgSource' o:title='$imgSource' /></v:shape><![endif]--><p class=MsoCaption style='margin-top:-10pt;text-align:${figCapAlign};'><a name='_FIG${figureRefNum}'>Figure </a><!--[if supportFields]><span style='mso-bookmark:_FIG${figureRefNum}'></span><span style='mso-element:field-begin'></span><span style='mso-bookmark:_FIG${figureRefNum}'>SEQ Figure \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span style='mso-bookmark:_FIG${figureRefNum}'><span style='mso-no-proof:yes'>$figureRefNum</span></span><!--[if supportFields]><span style='mso-bookmark:_FIG${figureRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span style='mso-bookmark:_FIG${figureRefNum}'></span> $figCaptionContent</p></td></tr></table>" )
+    #set( $replace = "<table align=$imgAlign class='invisibleTableContainsFIGURE' border='0' cellpadding='1' cellspacing='0' style='border-collapse:collapse;borders:none;margin:0'><tr><td style='text-align:center;width:${tableWidth}pt;margin:0;'><!--[if gte vml 1]><v:shape style='width:${targetWidth}pt;height:${targetHeight}pt;visibility:visible;mso-wrap-style:square;margin:0'><v:imagedata src='$imgSource' o:title='$imgSource' /></v:shape><![endif]--><p class=MsoCaption style='margin-top:-10pt;text-align:${figCapAlign};'><a name='_FIG${figureRefNum}'>Figure </a><!--[if supportFields]><span style='mso-bookmark:_FIG${figureRefNum}'></span><span style='mso-element:field-begin'></span><span style='mso-bookmark:_FIG${figureRefNum}'>SEQ Figure \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span style='mso-bookmark:_FIG${figureRefNum}'><span style='mso-no-proof:yes'>$figureRefNum</span></span><!--[if supportFields]><span style='mso-bookmark:_FIG${figureRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span style='mso-bookmark:_FIG${figureRefNum}'></span> $figCaptionContent</p></td></tr></table>" )
   #else
     #set( $eqTopVerAlign = $eqVerAlign.replaceAll("-",""))
     #set( $replace = "<table align=$imgAlign class='invisibleTableContainsFIGURE' border='0' cellpadding='1' cellspacing='0' style='border-collapse:collapse;borders:none;margin:0'><tr><td style='text-align:center;width:${tableWidth}pt;margin:0;'><span style='position:relative;top:${eqTopVerAlign};mso-text-raise:${eqVerAlign};mso-no-proof:yes'><!--[if gte vml 1]><v:shape style='width:${targetWidth}pt;height:${targetHeight}pt;visibility:visible;mso-wrap-style:square;margin:0'><v:imagedata src='$imgSource' o:title='$imgSource' /></v:shape><![endif]--></span><p class=MsoCaption style='margin-top:-10pt;text-align:$figCapAlign;'><a name='_FIG${figureRefNum}'>Figure </a><!--[if supportFields]><span style='mso-bookmark:_FIG${figureRefNum}'></span><span style='mso-element:field-begin'></span><span style='mso-bookmark:_FIG${figureRefNum}'>SEQ Figure \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span style='mso-bookmark:_FIG${figureRefNum}'><span style='mso-no-proof:yes'>$figureRefNum</span></span><!--[if supportFields]><span style='mso-bookmark:_FIG${figureRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span style='mso-bookmark:_FIG${figureRefNum}'></span> $figCaptionContent</p></td></tr></table>" )
@@ -2899,28 +2903,28 @@ $string
 ##  1. considering img is not in fig tags w/ figcaptions, option to format img with captions and include in the TOF 
 ##     - consider another parameter that may store figcaption content whether utilizing the document name, a field, or 
 ##        extracted rich text content 
-##---------------------------------------------------------------------------------------------------------------------##	
+##---------------------------------------------------------------------------------------------------------------------## 
 #macro( formatImgWithOptionForCaptions_DOC $targetWidth $targetHeight $imgSource $eqVerAlign $imgAlign $figCapAlign )
   #set( $tableWidth = $targetWidth +1)
 
-	#if( $TOF_includeAllFigures )
-		## Add Figcaptions to All Images and Include in the TOF ##  
-		#set( $figureRefNum = $figureRefNum + 1)
-	  #if(!$eqVerAlign || $eqVerAlign == '')
+  #if( $TOF_includeAllFigures )
+    ## Add Figcaptions to All Images and Include in the TOF ##  
+    #set( $figureRefNum = $figureRefNum + 1)
+    #if(!$eqVerAlign || $eqVerAlign == '')
       #set( $replace = "<table align=$imgAlign class='invisibleTableContainsFIGURE' border='0' cellpadding='1' cellspacing='0' style='border-collapse:collapse;borders:none;margin:0'><tr><td style='text-align:center;width:${tableWidth}pt;margin:0'><!--[if gte vml 1]><v:shape style='width:${targetWidth}pt;height:${targetHeight}pt;visibility:visible;mso-wrap-style:square;margin:0'><v:imagedata src='$imgSource' o:title='$imgSource' /></v:shape><![endif]--><p class=MsoCaption style='margin-top:-10pt;text-align:$figCapAlign'><a name='_FIG${figureRefNum}'>Figure </a><!--[if supportFields]><span style='mso-bookmark:_FIG${figureRefNum}'></span><span style='mso-element:field-begin'></span><span style='mso-bookmark:_FIG${figureRefNum}'>SEQ Figure \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span style='mso-bookmark:_FIG${figureRefNum}'><span style='mso-no-proof:yes'>$figureRefNum</span></span><!--[if supportFields]><span style='mso-bookmark:_FIG${figureRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span style='mso-bookmark:_FIG${figureRefNum}'></span></p></td></tr></table>" )
     #else
       #set( $eqTopVerAlign = $eqVerAlign.replaceAll("-",""))
       #set( $replace = "<table align=$imgAlign class='invisibleTableContainsFIGURE' border='0' cellpadding='1' cellspacing='0' style='border-collapse:collapse;borders:none;margin:0'><tr><td style='text-align:center;width:${tableWidth}pt;margin:0'><span style='position:relative;top:${eqTopVerAlign};mso-text-raise:${eqVerAlign};mso-no-proof:yes'><!--[if gte vml 1]><v:shape style='width:${targetWidth}pt;height:${targetHeight}pt;visibility:visible;mso-wrap-style:square;margin:0'><v:imagedata src='$imgSource' o:title='$imgSource' /></v:shape><![endif]--></span><p class=MsoCaption style='margin-top:-10pt;text-align:$figCapAlign'><a name='_FIG${figureRefNum}'>Figure </a><!--[if supportFields]><span style='mso-bookmark:_FIG${figureRefNum}'></span><span style='mso-element:field-begin'></span><span style='mso-bookmark:_FIG${figureRefNum}'>SEQ Figure \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span style='mso-bookmark:_FIG${figureRefNum}'><span style='mso-no-proof:yes'>$figureRefNum</span></span><!--[if supportFields]><span style='mso-bookmark:_FIG${figureRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span style='mso-bookmark:_FIG${figureRefNum}'></span></p></td></tr></table>" )
     #end
-	#else
-	  ## No Extra Figcaptions No Inclusion in TOF ## 
+  #else
+    ## No Extra Figcaptions No Inclusion in TOF ## 
     #if(!$eqVerAlign || $eqVerAlign == '')
-	    #set( $replace = "<!--[if gte vml 1]><v:shape style='width:${targetWidth}pt;height:${targetHeight}pt;visibility:visible;mso-wrap-style:square'><v:imagedata src='$imgSource' o:title='$imgSource' /></v:shape><![endif]-->" )
+      #set( $replace = "<!--[if gte vml 1]><v:shape style='width:${targetWidth}pt;height:${targetHeight}pt;visibility:visible;mso-wrap-style:square'><v:imagedata src='$imgSource' o:title='$imgSource' /></v:shape><![endif]-->" )
     #else
       #set( $eqTopVerAlign = $eqVerAlign.replaceAll("-",""))
       #set( $replace = "<span style='position:relative;top:${eqTopVerAlign};mso-text-raise:${eqVerAlign};mso-no-proof:yes'><!--[if gte vml 1]><v:shape style='width:${targetWidth}pt;height:${targetHeight}pt;visibility:visible;mso-wrap-style:square'><v:imagedata src='$imgSource' o:title='$imgSource' /></v:shape><![endif]--></span>" )
     #end
-	#end 
+  #end 
 #end
 ##
 ###################################################################################################################
@@ -2966,15 +2970,15 @@ $string
 ##        extracted rich text content 
 ##---------------------------------------------------------------------------------------------------------------------##
 #macro( formatImgWithOptionForCaptions_PDF $imgIndex $targetWidth $imageBase64s $imgAlignMargin $figCapAlign )
-	#if( $TOF_includeAllFigures )
-		## Add Figcaptions to All Images and Include in the TOF ##  
-		#set( $figureRefNum = $figureRefNum + 1)
-		#set( $replace = "<figure style='height:auto;width:${targetWidth}pt;text-align:$figCapAlign !important;$imgAlignMargin'><img src='$imageBase64s.get($imgIndex) style='width=100% !important;height:auto;object-fit:contain;'/><figcaption style='margin-top:-4pt'></figcaption></figure>")
+  #if( $TOF_includeAllFigures )
+    ## Add Figcaptions to All Images and Include in the TOF ##  
+    #set( $figureRefNum = $figureRefNum + 1)
+    #set( $replace = "<figure style='height:auto;width:${targetWidth}pt;text-align:$figCapAlign !important;$imgAlignMargin'><img src='$imageBase64s.get($imgIndex) style='width=100% !important;height:auto;object-fit:contain;'/><figcaption style='margin-top:-4pt'></figcaption></figure>")
 
-	#else 
-		## No Extra Figcaptions No Inclusion in TOF ## 
-		#set( $replace = "<figure style='height:auto;width:${targetWidth}pt;text-align:$figCapAlign !important;$imgAlignMargin'><img src='$imageBase64s.get($imgIndex) style='width=100% !important;height:auto;object-fit:contain;'/></figure>")
-	#end 
+  #else 
+    ## No Extra Figcaptions No Inclusion in TOF ## 
+    #set( $replace = "<figure style='height:auto;width:${targetWidth}pt;text-align:$figCapAlign !important;$imgAlignMargin'><img src='$imageBase64s.get($imgIndex) style='width=100% !important;height:auto;object-fit:contain;'/></figure>")
+  #end 
 #end 
 ##
 #########################################################################################################################
@@ -3314,37 +3318,37 @@ $string
         ###########################################################################
    
 
-	      #if( $table && !$tableHeader && $tableCell )
-	        #set($sub = $sub.replaceAll('<p(.*)','<p class=TableCell$1')) ##
-	        #set( $sub = $sub.replaceAll('<li(.*?)>','<li class=TableCell$1>'))
-	      #end
+        #if( $table && !$tableHeader && $tableCell )
+          #set($sub = $sub.replaceAll('<p(.*)','<p class=TableCell$1')) ##
+          #set( $sub = $sub.replaceAll('<li(.*?)>','<li class=TableCell$1>'))
+        #end
 
-	      #if($table && $tableHeader && $tableCell)
-	        #set($sub = $sub.replaceAll('<p(.*)','<p class=TableHeader$1')) ##
-	        #set( $sub = $sub.replaceAll('<li(.*?)>','<li class=TableHeader$1>'))
-	      #end
+        #if($table && $tableHeader && $tableCell)
+          #set($sub = $sub.replaceAll('<p(.*)','<p class=TableHeader$1')) ##
+          #set( $sub = $sub.replaceAll('<li(.*?)>','<li class=TableHeader$1>'))
+        #end
 
-	      ## cells with no formatting
-	      #if( $sub.contains("<td") &&
-	            !$subs[$nextSubIndex].contains("<p") && 
-	            !$subs[$nextSubIndex].contains("<li") )
-	        #set( $sub = "$sub<p class=TableCell>")
-	      #end
+        ## cells with no formatting
+        #if( $sub.contains("<td") &&
+              !$subs[$nextSubIndex].contains("<p") && 
+              !$subs[$nextSubIndex].contains("<li") )
+          #set( $sub = "$sub<p class=TableCell>")
+        #end
 
-	      #if( $sub.contains("<th") && ($docName != "Inspection Plan" && $docName != "Release History") &&
-	            !$subs[$nextSubIndex].contains("<p") && 
-	            !$subs[$nextSubIndex].contains("<li") )
-	        #set( $sub = "$sub<p class=TableHeader>")
-	      #end
-	      #if( ($sub.contains("</td") || $sub.contains("</th")) &&
-	            !$subs[$prevSubIndex].contains("</p") && 
-	            !$subs[$prevSubIndex].contains("</li") )
-	        #set( $end = $sub.indexOf("</t") )
-	        #set( $contents = $sub.substring(0, $end) ) ##
-	        #set( $endTag = $sub.substring($end, $sub.length()) )
-	        #set( $sub = "$contents</p>$endTag")
-	      #end
-	
+        #if( $sub.contains("<th") && ($docName != "Inspection Plan" && $docName != "Release History") &&
+              !$subs[$nextSubIndex].contains("<p") && 
+              !$subs[$nextSubIndex].contains("<li") )
+          #set( $sub = "$sub<p class=TableHeader>")
+        #end
+        #if( ($sub.contains("</td") || $sub.contains("</th")) &&
+              !$subs[$prevSubIndex].contains("</p") && 
+              !$subs[$prevSubIndex].contains("</li") )
+          #set( $end = $sub.indexOf("</t") )
+          #set( $contents = $sub.substring(0, $end) ) ##
+          #set( $endTag = $sub.substring($end, $sub.length()) )
+          #set( $sub = "$contents</p>$endTag")
+        #end
+  
         ###########################################################################
         ## - make sure all tables have the borders collapsed
         ###########################################################################
@@ -3417,113 +3421,113 @@ $string
           #end
         #end
 
-      	###########################################################################
-      	###########################################################################
-      	##  Map <key, value> each table so that it is possible to recall each row 
-      	##   and col of the the table, and to calculate cell widths as a proportion 
-      	##    to the longest width of the table. And size PDF and Word tables 
-      	##    as % in relation to maxWidth
-      	###########################################################################
-      	#set( $findWidth = "(?s).*(?:\s|;|\x27|\x22)width\s*(=|:)([\s*|\x27\x22])*(\d*.*?)(pt|px|in|%)[;|\x27\x22](?:.*)|[^*]")
-      	#set( $findHeight = "(?s).*(?:\s|;|\x27|\x22)height\s*(=|:)([\s*|\x27\x22])*(\d*.*?)(pt|px|in|%)[;|\x27\x22](?:.*)|[^*]")
-      	#set( $findColSpan = "(?s).*(?:\s|;|\x27|\x22)colspan\s*(=|:)([\s*|\x27\x22])*(\d*.*?)[;|\x27\x22|\s*](?:.*)|[^*]")
+        ###########################################################################
+        ###########################################################################
+        ##  Map <key, value> each table so that it is possible to recall each row 
+        ##   and col of the the table, and to calculate cell widths as a proportion 
+        ##    to the longest width of the table. And size PDF and Word tables 
+        ##    as % in relation to maxWidth
+        ###########################################################################
+        #set( $findWidth = "(?s).*(?:\s|;|\x27|\x22)width\s*(=|:)([\s*|\x27\x22])*(\d*.*?)(pt|px|in|%)[;|\x27\x22](?:.*)|[^*]")
+        #set( $findHeight = "(?s).*(?:\s|;|\x27|\x22)height\s*(=|:)([\s*|\x27\x22])*(\d*.*?)(pt|px|in|%)[;|\x27\x22](?:.*)|[^*]")
+        #set( $findColSpan = "(?s).*(?:\s|;|\x27|\x22)colspan\s*(=|:)([\s*|\x27\x22])*(\d*.*?)[;|\x27\x22|\s*](?:.*)|[^*]")
 
-      	#set( $imgCount = 0 )
-	
-      	#if( $sub.contains("<table" ) )
+        #set( $imgCount = 0 )
+  
+        #if( $sub.contains("<table" ) )
 
-      		## Create a Map of the Table 
-      		#set( $tableMap = {} )
-      		#set( $tableWidthFound = false )
-      		#set( $rowCount = 0 )
-      		#set( $start = $foreach.index )
-      		#set( $end = $subs.size() - 1 )
+          ## Create a Map of the Table 
+          #set( $tableMap = {} )
+          #set( $tableWidthFound = false )
+          #set( $rowCount = 0 )
+          #set( $start = $foreach.index )
+          #set( $end = $subs.size() - 1 )
 
-      		## check for table widths and add <table = width> to map
-      		#if( $sub.contains( "width" ))
-      			#convertWidths( $sub $findWidth )
-      			#if( !$elementWidth )
-      				#set( $success = $tableMap.put("table","no width"))
-      			#else
-      				#set( $success = $tableMap.put("table", "${elementWidth}"))
-      				#set( $tableWidthFound = true)
-      			#end 
-      		#elseif( $sub.contains("<table") && !$sub.contains("width"))
-      			#set( $success = $tableMap.put("table","no width"))
-      		#end 
+          ## check for table widths and add <table = width> to map
+          #if( $sub.contains( "width" ))
+            #convertWidths( $sub $findWidth )
+            #if( !$elementWidth )
+              #set( $success = $tableMap.put("table","no width"))
+            #else
+              #set( $success = $tableMap.put("table", "${elementWidth}"))
+              #set( $tableWidthFound = true)
+            #end 
+          #elseif( $sub.contains("<table") && !$sub.contains("width"))
+            #set( $success = $tableMap.put("table","no width"))
+          #end 
 
-	
-      		#foreach( $i in [$start..$end] )	
-      			#set( $colSpan = false )
+  
+          #foreach( $i in [$start..$end] )  
+            #set( $colSpan = false )
 
-      			## add each <img# = $i> to tableMap ## 
-      			#if( $subs[$i].contains("<v:shape") && $format == 'doc') ## store location of v:shape img 
-      				#set( $imgCount = $imgCount + 1) 
-      				#set( $success = $tableMap.put("image${imgCount}", $i))
-      			#end 
+            ## add each <img# = $i> to tableMap ## 
+            #if( $subs[$i].contains("<v:shape") && $format == 'doc') ## store location of v:shape img 
+              #set( $imgCount = $imgCount + 1) 
+              #set( $success = $tableMap.put("image${imgCount}", $i))
+            #end 
 
-      			#if( $subs[$i].contains("<tr"))
-      				#set( $rowCount = $rowCount + 1 )
-      				#set( $rowCellWidths = [] )
-      			#end 
+            #if( $subs[$i].contains("<tr"))
+              #set( $rowCount = $rowCount + 1 )
+              #set( $rowCellWidths = [] )
+            #end 
 
-      			#if( $subs[$i].contains("<td") || $subs[$i].contains("<th")) 
-      				#if( $subs[$i].contains("colspan"))
-      					#set( $colSpan = true ) 
-      					#set( $colSpanCount = $mathTool.toNumber($subs[$i].replaceAll( $findColSpan,"$3")))
-      					#foreach( $x in [1..$colSpanCount ])
-      						#if( $foreach.first && $subs[$i].contains("width"))
-      							#convertWidths($subs[$i] $findWidth )
-      							#set( $success = $rowCellWidths.add([$elementWidth, $i, $colSpanCount]))
-      							#break 
-      						#else 
-      							#set( $success = $rowCellWidths.add(["col", $i]) )
-      						#end 
-      					#end 
+            #if( $subs[$i].contains("<td") || $subs[$i].contains("<th")) 
+              #if( $subs[$i].contains("colspan"))
+                #set( $colSpan = true ) 
+                #set( $colSpanCount = $mathTool.toNumber($subs[$i].replaceAll( $findColSpan,"$3")))
+                #foreach( $x in [1..$colSpanCount ])
+                  #if( $foreach.first && $subs[$i].contains("width"))
+                    #convertWidths($subs[$i] $findWidth )
+                    #set( $success = $rowCellWidths.add([$elementWidth, $i, $colSpanCount]))
+                    #break 
+                  #else 
+                    #set( $success = $rowCellWidths.add(["col", $i]) )
+                  #end 
+                #end 
 
-      				#elseif( $subs[$i].contains("width") && !$colSpan ) 
-      					#convertWidths( $subs[$i] $findWidth ) 
-      					#if( !$elementWidth )
-      						#set( $success = $rowCellWidths.add(["col", $i]) )
-      					#else 
-      						#set( $success = $rowCellWidths.add( [$elementWidth, $i] ))
-      					#end
+              #elseif( $subs[$i].contains("width") && !$colSpan ) 
+                #convertWidths( $subs[$i] $findWidth ) 
+                #if( !$elementWidth )
+                  #set( $success = $rowCellWidths.add(["col", $i]) )
+                #else 
+                  #set( $success = $rowCellWidths.add( [$elementWidth, $i] ))
+                #end
 
-      				#else 
-      					#set( $success = $rowCellWidths.add(["col", $i]) )
-      				#end 
-      			#end 
+              #else 
+                #set( $success = $rowCellWidths.add(["col", $i]) )
+              #end 
+            #end 
 
-      			## add each <row# = [[colWidth, $i]...]> to tableMap ## 
-      			#if( $subs[$i].contains("</tr") )
-      				#set( $success = $tableMap.put("$rowCount", $rowCellWidths))
-      			#end 
+            ## add each <row# = [[colWidth, $i]...]> to tableMap ## 
+            #if( $subs[$i].contains("</tr") )
+              #set( $success = $tableMap.put("$rowCount", $rowCellWidths))
+            #end 
 
-      			#if( $subs[$i].contains("</table") )
-      				#break
-      			#end
-      	
-      		#end ##foreach( $i in [$start..$end] )	
-		
+            #if( $subs[$i].contains("</table") )
+              #break
+            #end
+        
+          #end ##foreach( $i in [$start..$end] )  
+    
 
-      		## End of Creating Map of Table ##
-      		#############################################
-      		##<p>Debug Table Map $tableMap</p>
+          ## End of Creating Map of Table ##
+          #############################################
+          ##<p>Debug Table Map $tableMap</p>
 
-      		#############################################
-      		## Find Max Row Width and set colGroupKey 
-      		#############################################
-      		#set( $maxWidthCount = 0 )
-      		#set( $maxRowWidth = 0 )
-      		#set( $maxTotalCols = 0)
-      		#foreach( $element in $tableMap.entrySet())
+          #############################################
+          ## Find Max Row Width and set colGroupKey 
+          #############################################
+          #set( $maxWidthCount = 0 )
+          #set( $maxRowWidth = 0 )
+          #set( $maxTotalCols = 0)
+          #foreach( $element in $tableMap.entrySet())
             #set( $row = false )
-      			#set( $tableMapKey = $element.key )
-      			#set( $tempRowWidth = 0 )
-      			#set( $tempWidthCount = 0 )
-      			#set( $tempTotalCols = 0 )
-      			#set( $totalRowWidthFound = 0 )
-      			#set( $totalPercWidthFound = 0 )
+            #set( $tableMapKey = $element.key )
+            #set( $tempRowWidth = 0 )
+            #set( $tempWidthCount = 0 )
+            #set( $tempTotalCols = 0 )
+            #set( $totalRowWidthFound = 0 )
+            #set( $totalPercWidthFound = 0 )
 
             #if( $tableMapKey != "table" && !$tableMapKey.contains("image") )
               #set( $row = $element.value )
@@ -3557,260 +3561,260 @@ $string
               #end ##if( $row )
             #end ##if( $tableMapKey != "table" && !$tableMapKey.contains("image")  )
           #end ##foreach( $element in $tableMap.entrySet())
-      		
-      		#if( $maxRowWidth < 1 )
-      			#set( $maxRowWidth = $maxWidth )
-      		#end 
-      		## if there is no table width and there are columns without widths found 
-      		#if( !$tableWidthFound && $maxTotalCols > $maxWidthCount ) ## ensure the maxRowWidth 
-      		## has additional width set so no columns have zero width. 
-      			#set( $additionalWidth = $mathTool.floor($maxRowWidth * .2)) 
-      			#set( $maxRowWidth = $maxRowWidth + $additionalWidth)
-      		#end 
-      		############################################################
-      		##<p>Debug final max: $colGroupKey, $maxWidthCount, $maxRowWidth</p>
+          
+          #if( $maxRowWidth < 1 )
+            #set( $maxRowWidth = $maxWidth )
+          #end 
+          ## if there is no table width and there are columns without widths found 
+          #if( !$tableWidthFound && $maxTotalCols > $maxWidthCount ) ## ensure the maxRowWidth 
+          ## has additional width set so no columns have zero width. 
+            #set( $additionalWidth = $mathTool.floor($maxRowWidth * .2)) 
+            #set( $maxRowWidth = $maxRowWidth + $additionalWidth)
+          #end 
+          ############################################################
+          ##<p>Debug final max: $colGroupKey, $maxWidthCount, $maxRowWidth</p>
 
-      		############################################################
-      		## Replace Table Widths and Cell Widths with Percent Widths  
-      		############################################################
+          ############################################################
+          ## Replace Table Widths and Cell Widths with Percent Widths  
+          ############################################################
 
-      		#set( $colGroup = "<colgroup>")
-      		#foreach( $element in $tableMap.entrySet())
-      			#set( $tableMapKey = $element.key )
-      			#set( $tableMapValue = $element.value )
-			
-			      #if( $tableMapKey == "table" )
+          #set( $colGroup = "<colgroup>")
+          #foreach( $element in $tableMap.entrySet())
+            #set( $tableMapKey = $element.key )
+            #set( $tableMapValue = $element.value )
+      
+            #if( $tableMapKey == "table" )
 
-				      ## Table Width Replace 
-      				#if( $tableMapValue.contains("no width"))
+              ## Table Width Replace 
+              #if( $tableMapValue.contains("no width"))
 
-      					## No Table Width Found 
+                ## No Table Width Found 
 
-      					#if( $maxRowWidth > 0 && $maxRowWidth < $maxWidth )
-      						#set( $tableWidthPerc = $maxRowWidth / $maxWidth * 100 )		
-      					#else 
-      						#set( $tableWidthPerc = 100 )
-      					#end 
-      					
-      					#set( $tableWidthPerc = $mathTool.round( $tableWidthPerc ))
-      					#set( $find = "(<table)(.*?)(>)")
-      					#set( $replace = "$1$2 width=${tableWidthPerc}% $3")
+                #if( $maxRowWidth > 0 && $maxRowWidth < $maxWidth )
+                  #set( $tableWidthPerc = $maxRowWidth / $maxWidth * 100 )    
+                #else 
+                  #set( $tableWidthPerc = 100 )
+                #end 
+                
+                #set( $tableWidthPerc = $mathTool.round( $tableWidthPerc ))
+                #set( $find = "(<table)(.*?)(>)")
+                #set( $replace = "$1$2 width=${tableWidthPerc}% $3")
 
-      					##<p>Debug final tableWidthPerc: ${tableWidthPerc}%</p>
-      					#set( $sub = $sub.replaceAll($find, $replace)) 
+                ##<p>Debug final tableWidthPerc: ${tableWidthPerc}%</p>
+                #set( $sub = $sub.replaceAll($find, $replace)) 
 
-      				#else 
+              #else 
 
-      					## Table Width Found 
+                ## Table Width Found 
 
-      					#if( $tableMapValue.contains("%") )
-      						#set( $tableWidthPerc = $mathTool.toDouble($tableMapValue.replaceAll("%", "")))
+                #if( $tableMapValue.contains("%") )
+                  #set( $tableWidthPerc = $mathTool.toDouble($tableMapValue.replaceAll("%", "")))
 
-      					#else
-      						#set( $tableWidth = $mathTool.toDouble($tableMapValue))
-      					
-      						#if( $tableWidth > $maxWidth )
-      							#set( $tableWidthPerc = 100 )
-      						#else
-      							#set( $tableWidthPerc = $tableWidth / $maxWidth * 100 )
-      						#end 
-      						#if( $tableWidth > $maxRowWidth ) 
-      							#set( $maxRowWidth = $tableWidth )
-      						#end 
-      					#end 
+                #else
+                  #set( $tableWidth = $mathTool.toDouble($tableMapValue))
+                
+                  #if( $tableWidth > $maxWidth )
+                    #set( $tableWidthPerc = 100 )
+                  #else
+                    #set( $tableWidthPerc = $tableWidth / $maxWidth * 100 )
+                  #end 
+                  #if( $tableWidth > $maxRowWidth ) 
+                    #set( $maxRowWidth = $tableWidth )
+                  #end 
+                #end 
 
-      					#if( $tableWidthPerc > 100 && $tableWidthPerc < 1 || !$tableWidthPerc )
-      						#set( $tableWidthPerc = 100 )
-      					#end 
-      					#set( $tableWidthPerc = $mathTool.round( $tableWidthPerc)) 
-      					#set( $find = "(width)(=|:)([\s*|\x27\x22|])?(\d*.*?)(pt|px|in|%)")
-      					#set( $replace = "$1$2$3${tableWidthPerc}% !important" )
-      					
-      					##<p>Debug final tableWidthPerc: ${tableWidthPerc}%</p>
-      					#set( $sub = $sub.replaceAll($find, $replace) )
+                #if( $tableWidthPerc > 100 && $tableWidthPerc < 1 || !$tableWidthPerc )
+                  #set( $tableWidthPerc = 100 )
+                #end 
+                #set( $tableWidthPerc = $mathTool.round( $tableWidthPerc)) 
+                #set( $find = "(width)(=|:)([\s*|\x27\x22|])?(\d*.*?)(pt|px|in|%)")
+                #set( $replace = "$1$2$3${tableWidthPerc}% !important" )
+                
+                ##<p>Debug final tableWidthPerc: ${tableWidthPerc}%</p>
+                #set( $sub = $sub.replaceAll($find, $replace) )
 
-      				#end 
+              #end 
 
-			
+      
 
-      			#elseif( $tableMapKey.contains("image") )
+            #elseif( $tableMapKey.contains("image") )
 
-      				## Word <v:shape replace pt according to cell width ##
+              ## Word <v:shape replace pt according to cell width ##
 
-      				#set( $imgIndex = $tableMapValue )
-      				#set( $imgSub = $subs[$imgIndex] )
-      				
-      				#set( $height = $mathTool.toDouble($imgSub.replaceAll( $findHeight, "$3")))
-      				#set( $width = $mathTool.toDouble( $imgSub.replaceAll( $findWidth, "$3")))
-      				#if( $height != $imgSub && $width != $imgSub )
-      					#set( $aspectRatio = $mathTool.toDouble( $width / $height )) 
-      				#else 
-      					#set( $width = $mathTool.toDouble( 180 ))
-      					#set( $aspectRatio = $mathTool.toDouble( 1.3 )) 
-      				#end 
-      		
-      				## cellPerc gathered from last map iteration
-      				#set( $cellWidthPt = 0 )
-      				#set( $cellPerc = $mathTool.toDouble( $cellPerc ))
-      				
-      				#set( $maxImgWidth = $maxWidth - 100 ) ## give space for table
-      				#set( $cellWidthPt = $cellPerc / 100 * $maxImgWidth )
-      		
-      				#if( $cellWidthPt > 0 )
-      					#if( $width > $cellWidthPt ) 
-      						#set( $width = $cellWidthPt )
-      						#set( $height = $width / $aspectRatio ) 
-      						#set( $replace = "width:${width}pt" )
-      					
-      						#set( $subs[$imgIndex] = $subs[$imgIndex].replaceAll("width:([\d\.]*?)pt",$replace) )
-      						#set( $replace = "height:${height}pt" )
-      						#set( $subs[$imgIndex] = $subs[$imgIndex].replaceAll("height:([\d\.]*?)pt",$replace) )
-      					#end
-      				#end
-	
+              #set( $imgIndex = $tableMapValue )
+              #set( $imgSub = $subs[$imgIndex] )
+              
+              #set( $height = $mathTool.toDouble($imgSub.replaceAll( $findHeight, "$3")))
+              #set( $width = $mathTool.toDouble( $imgSub.replaceAll( $findWidth, "$3")))
+              #if( $height != $imgSub && $width != $imgSub )
+                #set( $aspectRatio = $mathTool.toDouble( $width / $height )) 
+              #else 
+                #set( $width = $mathTool.toDouble( 180 ))
+                #set( $aspectRatio = $mathTool.toDouble( 1.3 )) 
+              #end 
+          
+              ## cellPerc gathered from last map iteration
+              #set( $cellWidthPt = 0 )
+              #set( $cellPerc = $mathTool.toDouble( $cellPerc ))
+              
+              #set( $maxImgWidth = $maxWidth - 100 ) ## give space for table
+              #set( $cellWidthPt = $cellPerc / 100 * $maxImgWidth )
+          
+              #if( $cellWidthPt > 0 )
+                #if( $width > $cellWidthPt ) 
+                  #set( $width = $cellWidthPt )
+                  #set( $height = $width / $aspectRatio ) 
+                  #set( $replace = "width:${width}pt" )
+                
+                  #set( $subs[$imgIndex] = $subs[$imgIndex].replaceAll("width:([\d\.]*?)pt",$replace) )
+                  #set( $replace = "height:${height}pt" )
+                  #set( $subs[$imgIndex] = $subs[$imgIndex].replaceAll("height:([\d\.]*?)pt",$replace) )
+                #end
+              #end
+  
 
-		        #else 
+            #else 
 
-      				## Cell Width Replace ## 
-      				## Else the tableMapKey is a row# and holds the cols in the row e.g if a row had 2 cols:
-      				## <key row#> = <value [[colWidth, subs index #],[[colWidth, subs index #]] > 
-      				
+              ## Cell Width Replace ## 
+              ## Else the tableMapKey is a row# and holds the cols in the row e.g if a row had 2 cols:
+              ## <key row#> = <value [[colWidth, subs index #],[[colWidth, subs index #]] > 
+              
 
-      				#foreach( $col in $tableMapValue )
-      					#set( $cellPerc = 0 )
-      					#set( $cellWidth = $col[0])
-      					#set( $cellIndex = $col[1])
-					
-      					## if there is only one cell in the row without rowspan size to 100% width 
-      					#if( $tableMapValue.size() == 1 )
-      						#set( $cellPerc = 100 )
+              #foreach( $col in $tableMapValue )
+                #set( $cellPerc = 0 )
+                #set( $cellWidth = $col[0])
+                #set( $cellIndex = $col[1])
+          
+                ## if there is only one cell in the row without rowspan size to 100% width 
+                #if( $tableMapValue.size() == 1 )
+                  #set( $cellPerc = 100 )
 
-      					## if cell is already a % then get the double value
-      					#elseif( $cellWidth.contains("%"))
-      						#set( $cellPerc = $mathTool.toDouble( $cellWidth.replaceAll("%", "")) )		
+                ## if cell is already a % then get the double value
+                #elseif( $cellWidth.contains("%"))
+                  #set( $cellPerc = $mathTool.toDouble( $cellWidth.replaceAll("%", "")) )   
 
-      					## else convert cellWidth from pt to % width in proportion to table
-      					#elseif( $cellPerc == 0 && !$cellWidth.contains("col")) 
-      						#if( $cellWidth > 0 )
-      							#set( $cellPerc = $cellWidth / $maxRowWidth * 100 )
-      						#end 
-      					#end 
+                ## else convert cellWidth from pt to % width in proportion to table
+                #elseif( $cellPerc == 0 && !$cellWidth.contains("col")) 
+                  #if( $cellWidth > 0 )
+                    #set( $cellPerc = $cellWidth / $maxRowWidth * 100 )
+                  #end 
+                #end 
 
-      					## replace $subs[$i] width with % value
-      					#if( !$cellWidth.contains("col"))
-      						#set( $cellPerc = $mathTool.round( $cellPerc)) 
-      						#if( $cellPerc > 100 && $cellPerc < 1 ) 
-      							#set( $cellPerc = 100 ) 
-      						#end 
+                ## replace $subs[$i] width with % value
+                #if( !$cellWidth.contains("col"))
+                  #set( $cellPerc = $mathTool.round( $cellPerc)) 
+                  #if( $cellPerc > 100 && $cellPerc < 1 ) 
+                    #set( $cellPerc = 100 ) 
+                  #end 
 
-      						##<p>Debug Row# $tableMapKey, cellPerc ${cellPerc}%, maxRowWidth $maxRowWidth, cellIndex $cellIndex</p>
-      						#set( $find = "(width)(=|:)([\s*|\x27\x22|])?(\d*.*?)(pt|px|in|%)")
-      						#set( $replace = "$1$2$3${cellPerc}%" )
-      						#set( $subs[$cellIndex] = $subs[$cellIndex].replaceAll($find, $replace))
-      					#end 
-					
-      					#if( $tableMapKey == $colGroupKey ) 
-      						#if( $maxWidthCount >= 2 )
-      							#if( $col.size() == 3 ) 
-      								#set( $colCount = $col[2])
-      								#foreach( $x in [1..$colCount])
-      									#set( $colGroup = "${colGroup}<col>" )
-      								#end 
-      							#elseif( $cellWidth.contains("col")) 
-      								#set( $colGroup = "${colGroup}<col>" )
-      							#else
-      								#set( $colGroup = "${colGroup}<col style='width:${cellPerc}%'>" )
-      							#end 
-      							#if( $foreach.last )
-      								#set( $colGroup = "${colGroup}</colgroup>")
-      							#end 
-      						#end 
-      					#end 
-			
-				      #end ##foreach( $col in $tableMapValue )		
+                  ##<p>Debug Row# $tableMapKey, cellPerc ${cellPerc}%, maxRowWidth $maxRowWidth, cellIndex $cellIndex</p>
+                  #set( $find = "(width)(=|:)([\s*|\x27\x22|])?(\d*.*?)(pt|px|in|%)")
+                  #set( $replace = "$1$2$3${cellPerc}%" )
+                  #set( $subs[$cellIndex] = $subs[$cellIndex].replaceAll($find, $replace))
+                #end 
+          
+                #if( $tableMapKey == $colGroupKey ) 
+                  #if( $maxWidthCount >= 2 )
+                    #if( $col.size() == 3 ) 
+                      #set( $colCount = $col[2])
+                      #foreach( $x in [1..$colCount])
+                        #set( $colGroup = "${colGroup}<col>" )
+                      #end 
+                    #elseif( $cellWidth.contains("col")) 
+                      #set( $colGroup = "${colGroup}<col>" )
+                    #else
+                      #set( $colGroup = "${colGroup}<col style='width:${cellPerc}%'>" )
+                    #end 
+                    #if( $foreach.last )
+                      #set( $colGroup = "${colGroup}</colgroup>")
+                    #end 
+                  #end 
+                #end 
+      
+              #end ##foreach( $col in $tableMapValue )    
 
-      			#end ##if( $tableMapKey == "table" )
-      		#end ##foreach( $element in $tableMap.entrySet())
+            #end ##if( $tableMapKey == "table" )
+          #end ##foreach( $element in $tableMap.entrySet())
 
-      		###########################################################################
-      		##  PDF Add <colgroup> to ensure fixed column widths
-      		###########################################################################
-      		#if( $format == 'pdf' && $maxWidthCount >= 2) 
-      			#set( $sub = "${sub}${colGroup}")
-      		#end 		
-		
-	
+          ###########################################################################
+          ##  PDF Add <colgroup> to ensure fixed column widths
+          ###########################################################################
+          #if( $format == 'pdf' && $maxWidthCount >= 2) 
+            #set( $sub = "${sub}${colGroup}")
+          #end    
+    
+  
 
         #end ##if( $sub.contains("<table" ) ) ## End of checking table for widths
       #end ##if( !$sub.contains("invisibleTableContainsFIGURE")) 
 
-   		###########################################################################
-		
-  		###########################################################################
-  		## Find unique alignments coming from Jama and preserve them. 
-  		## If a unique alignment is not found the parameter value of $tableAlign is preserved. 
-  		## - DOC alignments are removed from the table and set to a parent div
-  		## - PDF alignments must be removed from the table and set via margins 
-  		###########################################################################
-  		#if( $sub.contains("<table") )	
+      ###########################################################################
+    
+      ###########################################################################
+      ## Find unique alignments coming from Jama and preserve them. 
+      ## If a unique alignment is not found the parameter value of $tableAlign is preserved. 
+      ## - DOC alignments are removed from the table and set to a parent div
+      ## - PDF alignments must be removed from the table and set via margins 
+      ###########################################################################
+      #if( $sub.contains("<table") )  
 
-  			#set( $isAlignTable = $sub.replaceAll("(?s).*align\s*=(?:[\s*|\x27\x22])*(\w*.*?)[;|\x27\x22|\s*](?:.*)", "$1") )
-  			#set( $isAlignTable = $isAlignTable.trim())
+        #set( $isAlignTable = $sub.replaceAll("(?s).*align\s*=(?:[\s*|\x27\x22])*(\w*.*?)[;|\x27\x22|\s*](?:.*)", "$1") )
+        #set( $isAlignTable = $isAlignTable.trim())
 
-  			#if( $isAlignTable == "center" || $isAlignTable == "right" || $isAlignTable == "left" )
-  				#set( $tableAlign = $isAlignTable)
-  			#end 
+        #if( $isAlignTable == "center" || $isAlignTable == "right" || $isAlignTable == "left" )
+          #set( $tableAlign = $isAlignTable)
+        #end 
 
-  			#set( $sub = $sub.replaceAll("(margin-left|margin-right|margin)(:.*?)(;|[\x27\x22])", "$3") )
-  			#set( $sub = $sub.replaceAll("align=([\x27\x22].*?[\x27\x22]|\w*)", "") ) ## take alignment off
-
-
-  			#if( $format == 'doc')	
-  				#set( $sub = $sub.replaceAll("<table", "<div align=$tableAlign><table"))
-  			#elseif( $format == 'pdf')
-  				#if( $tableAlign == "center")
-  					#if( $sub.contains("style"))
-  						#set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1$2$3;margin:auto;$4"))
-  					#else 
-  						#set( $sub = $sub.replaceAll("(<table)","$1 style='margin:auto'"))
-  					#end 
-  				#elseif( $tableAlign == "right")
-  					#if( $sub.contains("style"))
-  						#set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1$2$3;margin-left:auto;margin-right:0pt;$4"))
-  					#else 
-  						#set( $sub = $sub.replaceAll("(<table)","$1 style='margin-left:auto;margin-right:0pt;'"))
-  					#end 
-  				#end 	
-  			#end 
-  		#end
-		  ##<p>Debug Table Align: $tableAlign<p>
+        #set( $sub = $sub.replaceAll("(margin-left|margin-right|margin)(:.*?)(;|[\x27\x22])", "$3") )
+        #set( $sub = $sub.replaceAll("align=([\x27\x22].*?[\x27\x22]|\w*)", "") ) ## take alignment off
 
 
-		  ###########################################################################
+        #if( $format == 'doc')  
+          #set( $sub = $sub.replaceAll("<table", "<div align=$tableAlign><table"))
+        #elseif( $format == 'pdf')
+          #if( $tableAlign == "center")
+            #if( $sub.contains("style"))
+              #set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1$2$3;margin:auto;$4"))
+            #else 
+              #set( $sub = $sub.replaceAll("(<table)","$1 style='margin:auto'"))
+            #end 
+          #elseif( $tableAlign == "right")
+            #if( $sub.contains("style"))
+              #set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1$2$3;margin-left:auto;margin-right:0pt;$4"))
+            #else 
+              #set( $sub = $sub.replaceAll("(<table)","$1 style='margin-left:auto;margin-right:0pt;'"))
+            #end 
+          #end  
+        #end 
+      #end
+      ##<p>Debug Table Align: $tableAlign<p>
 
-		  ## close the parent div which has the alignment for the table if Word
-		  #if( $sub.contains("</table") && $format == 'doc')
-    		#set( $sub = "$sub</div>")  
-    	#end 
+
+      ###########################################################################
+
+      ## close the parent div which has the alignment for the table if Word
+      #if( $sub.contains("</table") && $format == 'doc')
+        #set( $sub = "$sub</div>")  
+      #end 
  
-     	###########################################################################
+      ###########################################################################
 
-  		###########################################################################
-  		## Miscellaneous cell style transformations
-  		###########################################################################
-  		#set( $sub = $sub.replaceAll("padding.*?([;|\x27\x22])", "$1") )
-  		#set( $sub = $sub.replaceAll('(style=")[;| ]+', '$1'))
-  		#if( $format == 'pdf')
-  			#set( $sub = $sub.replaceAll("writing-mode:tb-rl",""))
-  		#end
+      ###########################################################################
+      ## Miscellaneous cell style transformations
+      ###########################################################################
+      #set( $sub = $sub.replaceAll("padding.*?([;|\x27\x22])", "$1") )
+      #set( $sub = $sub.replaceAll('(style=")[;| ]+', '$1'))
+      #if( $format == 'pdf')
+        #set( $sub = $sub.replaceAll("writing-mode:tb-rl",""))
+      #end
 
-  		## Handle text content alignment for vertical text on tables
-  		#if($sub.contains("transform:rotate(180deg);"))
-  			#set( $sub = $sub.replaceAll("transform:rotate\(180deg\);","mso-rotate:90;") )
-  		#end 	
+      ## Handle text content alignment for vertical text on tables
+      #if($sub.contains("transform:rotate(180deg);"))
+        #set( $sub = $sub.replaceAll("transform:rotate\(180deg\);","mso-rotate:90;") )
+      #end  
 
 
-	    ###########################################################################
+      ###########################################################################
       ## add the processed sub to the output string
       #set ( $output = "${output}${sub}" ) ##
 
@@ -3844,15 +3848,15 @@ $string
   ##   if $TOT_includeAllTables is true so that they can be included in the TOT
   #######################################################################################
 
-	#if($output.contains("</table>"))
-	  	#if( $format == 'pdf') 
-	  		#buildTableCaptions_PDF( $output $tableAlign ) 
-	  	#else 
-	  		#buildTableCaptions_DOC( $output )
-	  	#end 
-	#end	
+  #if($output.contains("</table>"))
+      #if( $format == 'pdf') 
+        #buildTableCaptions_PDF( $output $tableAlign ) 
+      #else 
+        #buildTableCaptions_DOC( $output )
+      #end 
+  #end  
 
-	$output 	 
+  $output    
 
 #end 
 ###########################################################################################################################
@@ -3862,20 +3866,20 @@ $string
 ##   Output: pt width unless its a percent width 
 #########################################################################################################################
 #macro( convertWidths $inputElement $findWidth )
-	#set( $elementPerc = false )
-	#set( $elementWidth = $inputElement.replaceAll( $findWidth,"$3") )
-	#set( $elementWidth = $mathTool.toDouble( $elementWidth.trim()))	
-	#set( $elementMeasurement = $inputElement.replaceAll( $findWidth,"$4") )
+  #set( $elementPerc = false )
+  #set( $elementWidth = $inputElement.replaceAll( $findWidth,"$3") )
+  #set( $elementWidth = $mathTool.toDouble( $elementWidth.trim()))  
+  #set( $elementMeasurement = $inputElement.replaceAll( $findWidth,"$4") )
 
-	#if( $elementMeasurement.contains("px") ) 
-		#set( $elementWidth = $elementWidth * 0.75 ) 
+  #if( $elementMeasurement.contains("px") ) 
+    #set( $elementWidth = $elementWidth * 0.75 ) 
 
-	#elseif( $elementMeasurement.contains("in"))
-		#set( $elementWidth = $elementWidth * 72 )
+  #elseif( $elementMeasurement.contains("in"))
+    #set( $elementWidth = $elementWidth * 72 )
 
-	#elseif( $elementMeasurement.contains("%") ) 
-		#set( $elementWidth = "${elementWidth}%" )
-	#end
+  #elseif( $elementMeasurement.contains("%") ) 
+    #set( $elementWidth = "${elementWidth}%" )
+  #end
 
 #end 
 ##
@@ -3894,64 +3898,64 @@ $string
 #set( $output = $output.replaceAll("<table", "<table[TABLE]"))
 #set( $splitList = $output.split("<table"))
 ##
-	#foreach ($splitItem in $splitList)
-	    #if( $splitItem.contains("[TABLE]"))
-		    ## Replace the placeholder with the <table tag that was removed in split
-		    #set( $splitItem = $splitItem.replaceAll("\[TABLE\]", "<table"))
-		    ## Extract table width
+  #foreach ($splitItem in $splitList)
+      #if( $splitItem.contains("[TABLE]"))
+        ## Replace the placeholder with the <table tag that was removed in split
+        #set( $splitItem = $splitItem.replaceAll("\[TABLE\]", "<table"))
+        ## Extract table width
 
-		    #if( !$splitItem.contains("invisibleTableContainsFIGURE"))
-			    #set( $tableWidth = '')
-			    #set( $tableWidth = $splitItem.replaceAll("<table.*width.*?:.*?(\d*.*?)[;\x27\x22].*|[\w|\W]","$1") )
+        #if( !$splitItem.contains("invisibleTableContainsFIGURE"))
+          #set( $tableWidth = '')
+          #set( $tableWidth = $splitItem.replaceAll("<table.*width.*?:.*?(\d*.*?)[;\x27\x22].*|[\w|\W]","$1") )
 
-			    #set( $captionContent = "")
-			    #if( $splitItem.contains("</caption>"))
-			      #set( $tableRefNum = $tableRefNum + 1) 
-			      ## Extract Caption Content
+          #set( $captionContent = "")
+          #if( $splitItem.contains("</caption>"))
+            #set( $tableRefNum = $tableRefNum + 1) 
+            ## Extract Caption Content
 
-			      #set( $captionContent = $splitItem.replaceAll("(<caption.*\s*.*\s*<\/caption>)|[\w|\W]", "$1"))
-			      #set( $captionContent = $captionContent.replaceAll("<\/caption>", ""))
-			      #set( $getAlign = $captionContent.replaceAll("<caption(.*?)>", "$1"))
-			      #set( $captionContent = $captionContent.replaceAll("<caption.*?>", ""))
-		          
-		          #set( $captionAlign = '')
-		          #set( $captionAlign = $getAlign.replaceAll("[^*]*?text-align:(\w*).*(?:.*)", "$1"))
+            #set( $captionContent = $splitItem.replaceAll("(<caption.*\s*.*\s*<\/caption>)|[\w|\W]", "$1"))
+            #set( $captionContent = $captionContent.replaceAll("<\/caption>", ""))
+            #set( $getAlign = $captionContent.replaceAll("<caption(.*?)>", "$1"))
+            #set( $captionContent = $captionContent.replaceAll("<caption.*?>", ""))
+              
+              #set( $captionAlign = '')
+              #set( $captionAlign = $getAlign.replaceAll("[^*]*?text-align:(\w*).*(?:.*)", "$1"))
 
 
-		          #set( $captionContent = $captionContent.replaceAll("<\/p>", ""))
-		          #set( $captionContent = $captionContent.replaceAll("<p.*?>", ""))
+              #set( $captionContent = $captionContent.replaceAll("<\/p>", ""))
+              #set( $captionContent = $captionContent.replaceAll("<p.*?>", ""))
 
-		          #if( $!captionContent && $captionContent != '')
-		            #if( $captionAlign != '')
-			          #set($caption = "<table border='0' cellpadding='1' cellspacing='0' style='border-collapse:collapse;borders:none;width:$tableWidth'><tr><td style='width:$tableWidth'><p class=MsoNormal style='text-align:$captionAlign;font-size:10pt;font-family:'Helvetica',sans-serif;font-weight:bold'><p class=MsoCaption style='text-align:$captionAlign !important;margin-top:6pt;page-break-after:avoid'><a name='_TBL${tableRefNum}'>Table </a><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-begin'></span><span style='mso-bookmark:_TBL${tableRefNum}'>SEQ Table \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'><span style='mso-no-proof:yes'>$tableRefNum</span></span><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'></span> $!captionContent</p></td></tr></table>" )
-			        #else
-			          #set($caption = "<table border='0' cellpadding='1' cellspacing='0' style='border-collapse:collapse;borders:none;width:$tableWidth'><tr><td style='width:$tableWidth'><p class=MsoNormal style='text-align:$tableAlign;font-size:10pt;font-family:'Helvetica',sans-serif;font-weight:bold'><p class=MsoCaption style='text-align:$tableAlign;margin-top:6pt;page-break-after:avoid'><a name='_TBL${tableRefNum}'>Table </a><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-begin'></span><span style='mso-bookmark:_TBL${tableRefNum}'>SEQ Table \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'><span style='mso-no-proof:yes'>$tableRefNum</span></span><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'></span> $!captionContent</p></td></tr></table>" )
-			        #end
-			      #end
+              #if( $!captionContent && $captionContent != '')
+                #if( $captionAlign != '')
+                #set($caption = "<table border='0' cellpadding='1' cellspacing='0' style='border-collapse:collapse;borders:none;width:$tableWidth'><tr><td style='width:$tableWidth'><p class=MsoNormal style='text-align:$captionAlign;font-size:10pt;font-family:'Helvetica',sans-serif;font-weight:bold'><p class=MsoCaption style='text-align:$captionAlign !important;margin-top:6pt;page-break-after:avoid'><a name='_TBL${tableRefNum}'>Table </a><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-begin'></span><span style='mso-bookmark:_TBL${tableRefNum}'>SEQ Table \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'><span style='mso-no-proof:yes'>$tableRefNum</span></span><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'></span> $!captionContent</p></td></tr></table>" )
+              #else
+                #set($caption = "<table border='0' cellpadding='1' cellspacing='0' style='border-collapse:collapse;borders:none;width:$tableWidth'><tr><td style='width:$tableWidth'><p class=MsoNormal style='text-align:$tableAlign;font-size:10pt;font-family:'Helvetica',sans-serif;font-weight:bold'><p class=MsoCaption style='text-align:$tableAlign;margin-top:6pt;page-break-after:avoid'><a name='_TBL${tableRefNum}'>Table </a><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-begin'></span><span style='mso-bookmark:_TBL${tableRefNum}'>SEQ Table \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'><span style='mso-no-proof:yes'>$tableRefNum</span></span><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'></span> $!captionContent</p></td></tr></table>" )
+              #end
+            #end
 
-			      #set($splitItem = $splitItem.replaceAll("<caption.*\s*.*\s*<\/caption>", ""))
-			      #set($splitItem = $splitItem.replaceAll("<table", "$caption<table"))
+            #set($splitItem = $splitItem.replaceAll("<caption.*\s*.*\s*<\/caption>", ""))
+            #set($splitItem = $splitItem.replaceAll("<table", "$caption<table"))
 
-			    ## Add captions to All Tables ##
-			    ## Comment out this block if you only want captions for tables that have captions
-			    #else
-			    	#if( $TOT_includeAllTables )
-			    		#set( $tableRefNum = $tableRefNum + 1)
-			    		#set($caption = "<table border='0' cellpadding='1' cellspacing='0' style='border-collapse:collapse;borders:none;width:$tableWidth'><tr><td style='width:$tableWidth'><p class=MsoNormal style='text-align:$tableAlign;font-size:10pt;font-family:'Helvetica',sans-serif;font-weight:bold'><p class=MsoCaption style='text-align:center;margin-top:6pt;page-break-after:avoid'><a name='_TBL${tableRefNum}'>Table </a><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-begin'></span><span style='mso-bookmark:_TBL${tableRefNum}'>SEQ Table \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'><span style='mso-no-proof:yes'>$tableRefNum</span></span><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'></span></p></td></tr></table>" )
-			    		#set($splitItem = $splitItem.replaceAll("<table", "$caption<table"))
-			    	#end 
-	    		#end  ##if($splitItem.contains("</caption>"))
-	    	#end ##if( !$splitItem.contains("invisibleTableContainsFIGURE"))
-		#end  ##if( $splitItem.contains("[TABLE]"))
+          ## Add captions to All Tables ##
+          ## Comment out this block if you only want captions for tables that have captions
+          #else
+            #if( $TOT_includeAllTables )
+              #set( $tableRefNum = $tableRefNum + 1)
+              #set($caption = "<table border='0' cellpadding='1' cellspacing='0' style='border-collapse:collapse;borders:none;width:$tableWidth'><tr><td style='width:$tableWidth'><p class=MsoNormal style='text-align:$tableAlign;font-size:10pt;font-family:'Helvetica',sans-serif;font-weight:bold'><p class=MsoCaption style='text-align:center;margin-top:6pt;page-break-after:avoid'><a name='_TBL${tableRefNum}'>Table </a><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-begin'></span><span style='mso-bookmark:_TBL${tableRefNum}'>SEQ Table \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'><span style='mso-no-proof:yes'>$tableRefNum</span></span><!--[if supportFields]><span style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span style='mso-bookmark:_TBL${tableRefNum}'></span></p></td></tr></table>" )
+              #set($splitItem = $splitItem.replaceAll("<table", "$caption<table"))
+            #end 
+          #end  ##if($splitItem.contains("</caption>"))
+        #end ##if( !$splitItem.contains("invisibleTableContainsFIGURE"))
+    #end  ##if( $splitItem.contains("[TABLE]"))
 ##
-	  	## Rebuild the now modified inString content
-	  	#set ( $tempInString = "${tempInString}${splitItem}" )
+      ## Rebuild the now modified inString content
+      #set ( $tempInString = "${tempInString}${splitItem}" )
 
-	#end  ##foreach ($splitItem in $splitList)
+  #end  ##foreach ($splitItem in $splitList)
 
-	## Reassign inString to its now caption modified version
+  ## Reassign inString to its now caption modified version
 
-	#set($output = $tempInString)
+  #set($output = $tempInString)
 ##
   ##------------------------------##
   ## Returns $output
@@ -3974,21 +3978,21 @@ $string
 #set( $splitList = $output.split("<table"))
 
 #foreach ($splitItem in $splitList)
-  	#if( $splitItem.contains("[TABLE]"))
-		## Replace the placeholder with the <table tag that was removed in split
-		#set( $splitItem = $splitItem.replaceAll("\[TABLE\]", "<table"))
+    #if( $splitItem.contains("[TABLE]"))
+    ## Replace the placeholder with the <table tag that was removed in split
+    #set( $splitItem = $splitItem.replaceAll("\[TABLE\]", "<table"))
 
-		#if(!$splitItem.contains("</caption>") && $TOT_includeAllTables )
-			#if( $tableAlign=='center')
-				#set($caption = "<caption style='text-align:center !important;margin:auto !important'></caption>" )
-			#elseif( $tableAlign =='right')
-				#set($caption = "<caption style='text-align:right !important;margin-right:0pt !important;'></caption>" )
-			#else 
-				#set($caption = "<caption style='text-align:center !important;margin:auto !important;'></caption>" ) ## set default caption align
-			#end 
-		#set($splitItem = $splitItem.replaceAll("(<table.*?>)", "$1 $caption"))
+    #if(!$splitItem.contains("</caption>") && $TOT_includeAllTables )
+      #if( $tableAlign=='center')
+        #set($caption = "<caption style='text-align:center !important;margin:auto !important'></caption>" )
+      #elseif( $tableAlign =='right')
+        #set($caption = "<caption style='text-align:right !important;margin-right:0pt !important;'></caption>" )
+      #else 
+        #set($caption = "<caption style='text-align:center !important;margin:auto !important;'></caption>" ) ## set default caption align
+      #end 
+    #set($splitItem = $splitItem.replaceAll("(<table.*?>)", "$1 $caption"))
 
-	#end  ##if(!$splitItem.contains("</caption>"))
+  #end  ##if(!$splitItem.contains("</caption>"))
   #end  ##if( $splitItem.contains("[TABLE]"))
   
   ## Rebuild the now modified inString content
@@ -4083,37 +4087,37 @@ $string
 ##          Output: string, ready for opening in Word
 #########################################################################################################################
 #macro( formatTableCell $inString $justification $maxImageWidth)
-	#if( $inString && $justification && $maxImageWidth )
-		#set( $string = $inString.toString() )
-		## Re-format text for consistent look and feel
-		#set( $string = "#formatText($string)" )
-		#if( $format == 'pdf')
-			## First re-format tables for consistent look and feel, and fixed column widths
-			#set( $string = "#formatTables($string, $maxImageWidth, 'left')" )
-			## Then prep figures to base64 after formatting tables
-			#set( $string = "#convertFigures($string, $maxImageWidth)" )
-		#else
-			## Prep figures for Word- figures go in invisible table class
-			#set( $string = "#convertFigures($string, $maxImageWidth)" )
-			## then Re-format tables for consistent look and feel
-			#set( $string = "#formatTables($string, $maxImageWidth, 'left')" )
-		#end 
+  #if( $inString && $justification && $maxImageWidth )
+    #set( $string = $inString.toString() )
+    ## Re-format text for consistent look and feel
+    #set( $string = "#formatText($string)" )
+    #if( $format == 'pdf')
+      ## First re-format tables for consistent look and feel, and fixed column widths
+      #set( $string = "#formatTables($string, $maxImageWidth, 'left')" )
+      ## Then prep figures to base64 after formatting tables
+      #set( $string = "#convertFigures($string, $maxImageWidth)" )
+    #else
+      ## Prep figures for Word- figures go in invisible table class
+      #set( $string = "#convertFigures($string, $maxImageWidth)" )
+      ## then Re-format tables for consistent look and feel
+      #set( $string = "#formatTables($string, $maxImageWidth, 'left')" )
+    #end 
     ## Convert hyperlinks in Jama to Word cross-references if Master Template global variable is true
     #if($includeCrossReferences)
       #set( $string = "#convertHyperlinks($string)" )
     #end
-		## format lists appropriately
-		#set( $string = $string.replaceAll('<li>','<li class=TableCell>') )
-		#set( $string = $string.replaceAll('<li\s([^c].*?)>','<li class=TableCell $1>') )
-		## Make sure all cells are contained in a paragraph with the appropriate style
-		#if( !$string.contains("<p"))
-		  #set( $string = "<p class=TableCell style='text-align:$justification'>$string</p>" )
-		#else
-		  #set( $string = $string.replaceAll("<p>","<p class=TableCell style='text-align:$justification'>") )
-		  #set( $string = $string.replaceAll("<p\s([^c].*?)>","<p class=TableCell $1 style='text-align:$justification'>") )
-		#end
-		$string
-	#end
+    ## format lists appropriately
+    #set( $string = $string.replaceAll('<li>','<li class=TableCell>') )
+    #set( $string = $string.replaceAll('<li\s([^c].*?)>','<li class=TableCell $1>') )
+    ## Make sure all cells are contained in a paragraph with the appropriate style
+    #if( !$string.contains("<p"))
+      #set( $string = "<p class=TableCell style='text-align:$justification'>$string</p>" )
+    #else
+      #set( $string = $string.replaceAll("<p>","<p class=TableCell style='text-align:$justification'>") )
+      #set( $string = $string.replaceAll("<p\s([^c].*?)>","<p class=TableCell $1 style='text-align:$justification'>") )
+    #end
+    $string
+  #end
 #end
 #########################################################################################################################
 ##          Macro: formatRichText
@@ -4121,37 +4125,37 @@ $string
 ##          Return: string, ready for opening in Word
 #########################################################################################################################
 #macro( formatRichText $inString )
-	#if( $inString )
-		#set( $string = $inString.toString() )
-		## Re-format text for consistent look and feel
-		#set( $string = "#formatText($string)" )
-		#if( $format == 'pdf')
-			## First re-format tables for consistent look and feel and fixed column widths
-			#set( $string = "#formatTables($string, $maxPageWidth, 'left')" )
-			## Then prep figures to base64 after formatting tables
-			#set( $string = "#convertFigures($string, $maxPageWidth)" )
-		#else
-			## Prep figures for Word- figures go in invisible table class
-			#set( $string = "#convertFigures($string, $maxPageWidth)" )
-			## then Re-format tables for consistent look and feel
-			#set( $string = "#formatTables($string, $maxPageWidth, 'left')" )
-		#end 
+  #if( $inString )
+    #set( $string = $inString.toString() )
+    ## Re-format text for consistent look and feel
+    #set( $string = "#formatText($string)" )
+    #if( $format == 'pdf')
+      ## First re-format tables for consistent look and feel and fixed column widths
+      #set( $string = "#formatTables($string, $maxPageWidth, 'left')" )
+      ## Then prep figures to base64 after formatting tables
+      #set( $string = "#convertFigures($string, $maxPageWidth)" )
+    #else
+      ## Prep figures for Word- figures go in invisible table class
+      #set( $string = "#convertFigures($string, $maxPageWidth)" )
+      ## then Re-format tables for consistent look and feel
+      #set( $string = "#formatTables($string, $maxPageWidth, 'left')" )
+    #end 
     ## Convert hyperlinks in Jama to Word cross-references if Master Template global variable is true
     #if($includeCrossReferences)
       #set( $string = "#convertHyperlinks($string)" )
     #end
-		## format lists appropriately
-		#set( $string = $string.replaceAll('<li>','<li class=MsoListParagraph>'))
-		#set( $string = $string.replaceAll('<li\s([^c].*?)>','<li class=MsoListParagraph $1>'))
-		## Make sure all content that is not already in a paragraph with a class is in a paragraph with class Normal
-		#if( !$string.contains("<p"))
-		  #set( $string = "<p class=MsoNormal>$string</p>" )
-		#else
-		  #set( $string = $string.replaceAll("<p>","<p class=MsoNormal>") )
-		  #set( $string = $string.replaceAll("<p\s([^c].*?)>","<p class=MsoNormal $1>") )
-		#end
-		$string
-	#end
+    ## format lists appropriately
+    #set( $string = $string.replaceAll('<li>','<li class=MsoListParagraph>'))
+    #set( $string = $string.replaceAll('<li\s([^c].*?)>','<li class=MsoListParagraph $1>'))
+    ## Make sure all content that is not already in a paragraph with a class is in a paragraph with class Normal
+    #if( !$string.contains("<p"))
+      #set( $string = "<p class=MsoNormal>$string</p>" )
+    #else
+      #set( $string = $string.replaceAll("<p>","<p class=MsoNormal>") )
+      #set( $string = $string.replaceAll("<p\s([^c].*?)>","<p class=MsoNormal $1>") )
+    #end
+    $string
+  #end
 #end
 #########################################################################################################################
 ##
@@ -4179,15 +4183,15 @@ $string
     #set( $revUserObj= $revisionUser.user)
 
     #if( $revisionUser.isApprover )
-    	#set( $success = $approvers.add( $revUserObj ))
+      #set( $success = $approvers.add( $revUserObj ))
 
       #foreach( $revUserItem in $revUserItems)
-  			#set( $revisionItemStatus = $revUserItem.status.name )
+        #set( $revisionItemStatus = $revUserItem.status.name )
         ##Debug: $revUserItem.status.name <br>
-  			#if( $revisionItemStatus.toUpperCase().trim() == "NEEDS MORE WORK" )
-  		  	#set( $workStatus = "Needs Work" )
-  			#end 
-  		#end 
+        #if( $revisionItemStatus.toUpperCase().trim() == "NEEDS MORE WORK" )
+          #set( $workStatus = "Needs Work" )
+        #end 
+      #end 
 
       #if( !$revisionUser.finishedRevision )
         #set( $status = "Not Finished")
@@ -4225,7 +4229,7 @@ Approvers &amp; Reviewers</span></p>
     APPROVERS</span></p>
   </td>
   <td width=25% valign=top style='border:solid windowtext .5pt;border-left:none;text-align:center;background:#cccccc;'>
-  	<p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end>
+    <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end>
       <span style='text-transform:uppercase;font-size:9pt'>
      APPROVER STATUS</span></p>
   </td>
@@ -4334,14 +4338,14 @@ Approver Signatures #*v$!revisionForComments.sequenceNumber*#
 #set( $noSigEvidence = 0 )
 
 #if( $approvers.size() > 0 )
-	#foreach( $approver in $approvers  )
+  #foreach( $approver in $approvers  )
     #set( $revokedSigMatch = false )
-		#set( $signature = false )
+    #set( $signature = false )
     #set( $signatureAddedEvent = false )
     #set( $signatureRevoked = false )
 
-		#set( $signature = $reviewSource.getLatestSignatureForUserAndScopeRef( $approver.id, 10, $revisionForComments.id, false))
-		#set( $signatureAddedEvent = $eventSource.getAllEventsForObjectsByAction([4],[$revisionForComments.id],19,'Signature added'))
+    #set( $signature = $reviewSource.getLatestSignatureForUserAndScopeRef( $approver.id, 10, $revisionForComments.id, false))
+    #set( $signatureAddedEvent = $eventSource.getAllEventsForObjectsByAction([4],[$revisionForComments.id],19,'Signature added'))
     #set( $signatureRevoked = $eventSource.getAllEventsForObjectsByAction([4],[$revisionForComments.id],19,'Signature revoked'))
 
     #if( $signatureAddedEvent ) 
@@ -4355,11 +4359,11 @@ Approver Signatures #*v$!revisionForComments.sequenceNumber*#
    
 
     ## When a signature is revoked the Signature Interface does not return a createdDate or modifiedDate on the SignatureInterface Object ##
-		#if( $signature.createdDate || $signature.modifiedDate || $signatureRevoked.size() > 0 )
+    #if( $signature.createdDate || $signature.modifiedDate || $signatureRevoked.size() > 0 )
 
-  		<tr style='mso-yfti-irow:2;mso-yfti-lastrow:yes'>
-  			<td valign=top style='border:solid windowtext .5pt;border-top:none;padding:0in 5.4pt 0in 5.4pt'>
-    			#if(  $signature.createdDate || $signature.modifiedDate )
+      <tr style='mso-yfti-irow:2;mso-yfti-lastrow:yes'>
+        <td valign=top style='border:solid windowtext .5pt;border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+          #if(  $signature.createdDate || $signature.modifiedDate )
             $!signature.user.fullName
           #elseif( $signatureRevoked )
             #foreach( $revokedSig in $signatureRevoked )
@@ -4369,33 +4373,33 @@ Approver Signatures #*v$!revisionForComments.sequenceNumber*#
               #end 
             #end
           #end 
-  			</td>
-  			<td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
-    			#if( $revokedSigMatch )
+        </td>
+        <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+          #if( $revokedSigMatch )
             #foreach( $revokedSig in $signatureRevoked )
               #if( $approver.id == $revokedSig.eventUser.id )
                 $!revokedSig.comments  
               #end 
             #end
           #else 
-      			#* #set( $roles = $!signature.user.roles ) 
-      			#foreach( $role in $roles ) $role.name #end > this returns all the roles and not the roles particular to the review
-      			while the signature eventEntry returns the role associated with the signature: *# 
-      			#set( $checkIfRole = "")
-      			#foreach( $sigRoleEvent in $signatureAddedEvent )
-      				#if( $approver.id == $sigRoleEvent.eventUser.id )
-      					#set( $checkIfRole = $sigRoleEvent.comments.replaceAll('(.*)(as.\".*?\")', '$2'))
-      					#if( $checkIfRole.length() > 0 )
-      						$!sigRoleEvent.comments
-      					#else 
-      						$!sigRoleEvent.comments as 'N/A' role.
-      					#end 
-      				#end
-      			#end 
-    			#end ##if( $revokedSigMatch )
-  			</td>
-  			<td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
-    			#if( $signature.createdDate )
+            #* #set( $roles = $!signature.user.roles ) 
+            #foreach( $role in $roles ) $role.name #end > this returns all the roles and not the roles particular to the review
+            while the signature eventEntry returns the role associated with the signature: *# 
+            #set( $checkIfRole = "")
+            #foreach( $sigRoleEvent in $signatureAddedEvent )
+              #if( $approver.id == $sigRoleEvent.eventUser.id )
+                #set( $checkIfRole = $sigRoleEvent.comments.replaceAll('(.*)(as.\".*?\")', '$2'))
+                #if( $checkIfRole.length() > 0 )
+                  $!sigRoleEvent.comments
+                #else 
+                  $!sigRoleEvent.comments as 'N/A' role.
+                #end 
+              #end
+            #end 
+          #end ##if( $revokedSigMatch )
+        </td>
+        <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+          #if( $signature.createdDate )
             #set( $signatureDate = "#getDateTime( $signature.createdDate, $timeZone)")
           #elseif( $signature.modifiedDate ) 
             #set( $signatureDate = "#getDateTime( $signature.createdDate, $timeZone)")
@@ -4403,9 +4407,9 @@ Approver Signatures #*v$!revisionForComments.sequenceNumber*#
             #set( $signatureDate = "")
           #end 
           $!signatureDate 
-  			</td>
-  			<td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
-    		  #if( $revokedSigMatch )
+        </td>
+        <td valign=top style='border-top:none;border-left:none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'>
+          #if( $revokedSigMatch )
             Signature Revoked    
             #foreach( $revokedSig in $signatureRevoked )
               #if( $approver.id == $revokedSig.eventUser.id )
@@ -4414,23 +4418,23 @@ Approver Signatures #*v$!revisionForComments.sequenceNumber*#
               #end 
             #end
           #else 
-    			 $!signature.comments
+           $!signature.comments
           #end 
-  			</td>
-  		</tr>
+        </td>
+      </tr>
 
     #else 
 
       #set( $noSigEvidence = $noSigEvidence + 1)
 
-		#end ##if( $signature.createdDate || $signature.modifiedDate || $signatureRevoked.size() > 0 )
-	#end ##foreach( $approver in $approvers  )
+    #end ##if( $signature.createdDate || $signature.modifiedDate || $signatureRevoked.size() > 0 )
+  #end ##foreach( $approver in $approvers  )
 #end 
 
 #if( $approvers.size() == 0 || $noSigEvidence == $approvers.size() ) 
-	<tr>
-		<td colspan=4 style='border:solid windowtext .5pt;'>Not signed</td>
-	</tr>
+  <tr>
+    <td colspan=4 style='border:solid windowtext .5pt;'>Not signed</td>
+  </tr>
 #end ##if( $approvers.size() > 0 )
 
 
@@ -4519,7 +4523,7 @@ Approver Signatures #*v$!revisionForComments.sequenceNumber*#
 #macro( buildReviewCommentSummary )
 
 <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='font-size:14.0pt;line-height:180%;'>
-	Review Comment Summary
+  Review Comment Summary
 </span></p>
 
 ## Next check the ids of the comments for each return 
@@ -4537,8 +4541,8 @@ Approver Signatures #*v$!revisionForComments.sequenceNumber*#
 
   <td width=360 valign=top style='width:269.75pt;border:solid windowtext .5pt;background:#ecf2f9;padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal align=center #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='font-size:10.0pt;'>
-	
-	Total Revision Item Comments</span></p></p>
+  
+  Total Revision Item Comments</span></p></p>
   <p class=MsoNormal align=center style='margin-bottom:0in;text-align:center;line-height:normal'><span style='font-size:20.0pt;'>
     #set( $count = 0 )
     #foreach( $itemGroup in $revItemCommentsByGlobalId )
@@ -4547,7 +4551,7 @@ Approver Signatures #*v$!revisionForComments.sequenceNumber*#
       #end
     #end 
     $!count
-  	</span></p>
+    </span></p>
   </td>
  </tr>
 </table>
@@ -4569,22 +4573,19 @@ Review Comments
 
 <table class=MsoTableGrid border='.5pt' cellspacing=0 cellpadding=0 width="100%" style='border-collapse:collapse;mso-table-layout-alt:fixed;border:none;mso-yfti-tbllook:1184;mso-padding-alt:0in 5.4pt 0in 5.4pt;width:100% !important;margin:0pt;'>
  <colgroup>
-  <col width='11%'/>
-  <col width='10%'/>
+  <col width='12%'/>
+  <col width='16%'/>
   <col width='7%'/>
-  <col width='8%'/>
-  ##<col width='6%'/>
-  <col width='8%'/>
-  <col width='50%'/>
+  <col width='65%'/>
 </colgroup>
 <thead>
    ## Comment Column Headings ## 
    <tr>
-    <td width=11% style='background:#cccccc;padding:0in 5.4pt 0in 5.4pt;border:solid black .5pt;'>
+    <td width=12% style='background:#cccccc;padding:0in 5.4pt 0in 5.4pt;border:solid black .5pt;'>
    <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
   Date</span></p>
     </td>
-    <td width=10% style='border:solid black .5pt;background:#cccccc;padding:0in 5.4pt 0in 5.4pt'>
+    <td width=16% style='border:solid black .5pt;background:#cccccc;padding:0in 5.4pt 0in 5.4pt'>
    <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
   User</span></p>
     </td>
@@ -4592,15 +4593,7 @@ Review Comments
    <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
   Review<br>Version</span></p>
     </td>
-    <td width=8% style='border:solid black .5pt;background:#cccccc;padding:0in 5.4pt 0in 5.4pt'>
-   <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
-  Resolved</span></p>
-    </td>
-    <td width=8% style='border:solid black .5pt;background:#cccccc;padding:0in 5.4pt 0in 5.4pt'>
-   <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
-  Comment Type</span></p>
-    </td>
-    <td width=50% style='border:solid black .5pt;background:#cccccc;padding:0in 5.4pt 0in 5.4pt'>
+    <td width=65% style='border:solid black .5pt;background:#cccccc;padding:0in 5.4pt 0in 5.4pt'>
    <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
   Comment Text</span></p>
     </td>
@@ -4619,11 +4612,7 @@ Review Comments
       #set( $important = "")
       #set( $isActive = "")
       #set( $active = "")
-      #set( $isResolved = "")
-      #set( $resolved = "")
-      #set( $commentType = "")
       #set( $commentText = "")
-
       #set( $comment = $reviewComment.comment ) 
       #set( $commentDate = $reviewComment.createdDate )
       #set( $userId = $reviewComment.userId )
@@ -4641,21 +4630,14 @@ Review Comments
       #else 
         #set( $active = "No")
       #end 
-      #set( $isResolved = $reviewComment.isResolved )
-      #if( $isResolved )
-        #set( $resolved = "Yes")
-      #else 
-        #set( $resolved = "No")
-      #end 
-      #set( $commentType = $reviewComment.commentType ) 
       #set( $commentText = $reviewComment.commentText ) 
 
      <tr>
-      <td width=11% style='border:solid black .5pt;border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+      <td width=12% style='border:solid black .5pt;border-top:none;padding:0in 5.4pt 0in 5.4pt'>
       <p class=MsoNormal style='margin-bottom:0in;'>
       #getDateTime( $commentDate, $timeZone)</p>
       </td>
-      <td width=10% style='border-top:none;border-left:none;border-bottom:solid black .5pt;border-right:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
+      <td width=16% style='border-top:none;border-left:none;border-bottom:solid black .5pt;border-right:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
       <p class=MsoNormal style='margin-bottom:0in;'>
       $!commentAuthor</p>
       </td>
@@ -4664,18 +4646,7 @@ Review Comments
       <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
      v$!reviewComment.revision.sequenceNumber</span></p>
       </td>
-      <td width=8% style='border-top:none;border-left:none;border-bottom:
-      solid black 1.0pt;border-right:solid black .5pt;padding:0in 5.4pt 0in 5.4pt'>
-      <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
-      $!resolved</span></p>
-      </td>
-      <td width=8% style='border-top:none;border-left:none;
-      border-bottom:solid black .5pt;border-right:solid black .5pt;'>
-      <p class=MsoNormal style='margin-bottom:0in;'>
-      $!commentType
-      </p>
-      </td>
-      <td width=50% style='border-top:none;border-left:none;
+      <td width=65% style='border-top:none;border-left:none;
       border-bottom:solid black .5pt;border-right:solid black .5pt;'>
       <p class=MsoNormal style='margin-bottom:0in;'>
         #formatTableCell($commentText, "left", 276)     
@@ -4686,7 +4657,7 @@ Review Comments
  
   #else 
     <tr>
-      <td colspan=6 width=100% style='border:solid black .5pt;'>
+      <td colspan=4 width=100% style='border:solid black .5pt;'>
       <p class=MsoNormal style='margin-bottom:0in;'>
         No comments on the review.
       </p>
@@ -4719,27 +4690,27 @@ Review Comments
   #foreach( $revItem in $itemGroup )
     #set( $itemComments = $revItem.revisionItemComments )
 
-  	#if( $itemComments )
-  		#set( $itemComments = $sortTool.sort( $itemComments, "createdDate"))
-  		#foreach( $revItemComment in $itemComments )
-  			#set( $thisParent = false )
-  			#set( $targetParent = false )
-  			#if( !$revItemComment.parentId )
-  				#set( $thisParent = $revItemComment.id )
-  			#else 
-  				#set( $targetParent = $revItemComment.parentId )
-  			#end 
+    #if( $itemComments )
+      #set( $itemComments = $sortTool.sort( $itemComments, "createdDate"))
+      #foreach( $revItemComment in $itemComments )
+        #set( $thisParent = false )
+        #set( $targetParent = false )
+        #if( !$revItemComment.parentId )
+          #set( $thisParent = $revItemComment.id )
+        #else 
+          #set( $targetParent = $revItemComment.parentId )
+        #end 
 
         #set( $comment = $revItemComment.comment ) ## Comment Interface object
 
-  			#if( $comment.getActive()) ## only add Active Comments, i.e. do not show deleted comments 
-  				#if( $thisParent )
-  					#set( $success = $itemCommentsByParent.add({"parent":"yes", "parentId":$thisParent, "revItemComment":$revItemComment}))
-  				#elseif( $targetParent )
-  					#set( $success = $itemCommentsByParent.add({"parent":"no", "parentId":$targetParent, "revItemComment":$revItemComment}))
-  				#end 
-  			#end 
-  		#end 
+        #if( $comment.getActive()) ## only add Active Comments, i.e. do not show deleted comments 
+          #if( $thisParent )
+            #set( $success = $itemCommentsByParent.add({"parent":"yes", "parentId":$thisParent, "revItemComment":$revItemComment}))
+          #elseif( $targetParent )
+            #set( $success = $itemCommentsByParent.add({"parent":"no", "parentId":$targetParent, "revItemComment":$revItemComment}))
+          #end 
+        #end 
+      #end 
     #end  ##if( $itemComments )
     #if( $foreach.last )
       #set( $itemCommentsByParent = $sortTool.sort( $itemCommentsByParent, "parentId"))
@@ -4757,20 +4728,28 @@ Review Comments
   #foreach( $item in $finalRevisionItemComments )
     #set( $comments = $item.get("comments"))
     #set( $revisionItem = $item.get("revisionItem"))
-
+    #set( $revisionDoc = $revisionItem.version.document)
     ## Revision Item Heading
     <p class=MsoNormal style='text-align:left'><span style='font-size:12.0pt;color:#595959;font-weight:600;'>
-      $!revisionItem.version.document.documentKey $!revisionItem.version.document.name</span></p></p>
-      #set( $desc = $revisionItem.version.document.description )
-      #if( $desc.length() < 1 )
-        #set( $desc = "N/A")
-      #else 
-        #set( $desc= "#formatRichText( $desc)")
-        #set( $desc = $desc.trim())
+      $!revisionDoc.documentKey  $!revisionDoc.name</span></p></p>
+
+      ## Revision Item Descritpion ## 
+      #if( $reportDescription )
+        #set( $desc =  $!revisionDoc.description )
+        #if( $desc.length() < 1 )
+          #set( $desc = "N/A")
+        #else 
+          #set( $desc= "#formatRichText( $desc)")
+          #set( $desc = $desc.trim())
+        #end 
+        <p class=MsoNormal style='text-align:left !important;'>
+        <span style='font-size:9.0pt;text-transform:uppercase;color:#595959;font-weight:bold;'>Description</span></p>
+        <div align=left width=100%>$!desc</div>
       #end 
-    <p class=MsoNormal style='text-align:left !important;'><span style='font-size:9.0pt;text-transform:uppercase;color:#595959;font-weight:bold;'>Description</span></p>
-    <div align=left width=100%>$!desc</div>
-    <p class=MsoNormal style='text-align:left;'><span style='font-size:9.0pt;text-transform:uppercase;color:#595959;font-weight:bold;'>Comments</span></p>
+
+    <p class=MsoNormal style='text-align:left;'>
+      <span style='font-size:9.0pt;text-transform:uppercase;color:#595959;font-weight:bold;'>Comments</span>
+    </p>
 
     #if( !$comments )
       <p class=MsoNormal style='margin-bottom:0in;text-align:left'>No comments present on revision item.</p>
@@ -4780,49 +4759,39 @@ Review Comments
       <table class=MsoTableGrid border='.5pt' cellspacing=0 cellpadding=0 width="100%"
        style='border-collapse:collapse;mso-table-layout-alt:fixed;border:none;mso-padding-alt:0in 5.4pt 0in 5.4pt;width:100% !important;margin:0pt;margin-top:2pt'>
        <colgroup>
-        <col width='11%'/>
-        <col width='9%'/>
+        <col width='12%'/>
+        <col width='16%'/>
         <col width='7%'/>
         <col width='8%'/>
-        <col width='8%'/>
-        <col width='8%'/>
-        <col width='50%'/>
+        <col width='57%'/>
       </colgroup>
       <thead>
-    	 <tr style='mso-yfti-irow:2'>
-    	  <td width=11% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
-    	  <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
+       <tr style='mso-yfti-irow:2'>
+        <td width=12% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
+        <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
       Date</span></p>
-    	  </td>
-    	  <td width=9% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
-    	  <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
-    	User</span></p>
-    	  </td>
-    	  <td width=7% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
-    	  <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
-    	Review<br>Version</span></p>
-    	  </td>
-    	  <td width=8% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
-    	  <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
-    	Thread<br>Identity</span></p>
-    	  </td>
-    	  <td width=8% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
-    	  <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
-    	Resolved</span></p>
-    	  </td>
-    	  <td width=8% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
-    	  <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
-    	Comment Type</span></p>
-    	  </td>
-    	  <td width=50% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
-    	  <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
-    	Comment Text<br>Highlight Quote*</span></p>
-    	  </td>
-    	 </tr>
+        </td>
+        <td width=16% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
+        <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
+      User</span></p>
+        </td>
+        <td width=7% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
+        <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
+      Review<br>Version</span></p>
+        </td>
+        <td width=8% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
+        <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
+      Thread<br>Identity</span></p>
+        </td>
+        <td width=57% style='border:solid windowtext .5pt;background:#CCCCCC;padding:0in 5.4pt 0in 5.4pt'>
+        <p class=MsoNormal #if( $format == 'doc') style='font-weight:600'; #else style='font-weight:900' #end><span style='text-transform:uppercase;font-size:8pt'>
+      Comment Text<br>Highlight Quote*</span></p>
+        </td>
+       </tr>
       </thead>
 
     #if( $comments.size() > 0 )
-    	#foreach( $commentByParent in $comments )
+      #foreach( $commentByParent in $comments )
         #set( $parent = "")
         #set( $parentId = "")
         #set( $revItemComment = "")
@@ -4833,14 +4802,11 @@ Review Comments
         #set( $important = "")
         #set( $isActive = "")
         #set( $active = "")
-        #set( $isResolved = "")
-        #set( $resolved = "")
         #set( $highlightQuote = "")
-        #set( $commentType = "")
         #set( $commentText = "")
         #set( $color = "ffffff")
         
-    	 	#set( $parent = $commentByParent.get("parent"))
+        #set( $parent = $commentByParent.get("parent"))
         #if( $parent == "yes" )
           #set( $color = "f2f2f2")
           #set($threadIdentity = "Thread Parent")
@@ -4848,81 +4814,63 @@ Review Comments
           #set($threadIdentity = "Thread Child") 
         #end 
 
-    	 	#set( $parentId = $commentByParent.get("parentId"))
-    	 	#set( $revItemComment = $commentByParent.get("revItemComment"))
+        #set( $parentId = $commentByParent.get("parentId"))
+        #set( $revItemComment = $commentByParent.get("revItemComment"))
         #set( $comment = $revItemComment.comment ) ## Comment Interface object
-
-   
-    	 	#set( $commentDate = $revItemComment.createdDate )
-    		#set( $userId = $revItemComment.userId )
-    		#set( $commentAuthor = $userSource.getUser($mathTool.toInteger($userId)))
-    		#set( $commentAuthor = $commentAuthor.fullName )
-    		#set( $isImportant = $comment.important )
-    		#if( $isImportant )
-    			#set( $important = "Yes")
-    		#else 
-    			#set( $important = "No")
-    		#end
-    		#set( $isActive = $revItemComment.isActive )
-    		#if( $isActive )
-    			#set( $active = "Yes")
-    		#else 
-    			#set( $active = "No")
-    		#end 
-    		#set( $isResolved = $revItemComment.isResolved )
-    		#if( $isResolved )
-    			#set( $resolved = "Yes")
-    		#else 
-    			#set( $resolved = "No")
-    		#end 
+        #set( $commentDate = $revItemComment.createdDate )
+        #set( $userId = $revItemComment.userId )
+        #set( $commentAuthor = $userSource.getUser($mathTool.toInteger($userId)))
+        #set( $commentAuthor = $commentAuthor.fullName )
+        #set( $isImportant = $comment.important )
+        #if( $isImportant )
+          #set( $important = "Yes")
+        #else 
+          #set( $important = "No")
+        #end
+        #set( $isActive = $revItemComment.isActive )
+        #if( $isActive )
+          #set( $active = "Yes")
+        #else 
+          #set( $active = "No")
+        #end 
         #set( $highlightQuote = $comment.highlightQuote)
-    		#set( $commentType = $revItemComment.commentType ) 
-    		#set( $commentText = $revItemComment.commentText ) 
+        #set( $commentText = $revItemComment.commentText ) 
       
-    		 <tr style='mso-yfti-irow:4;mso-yfti-lastrow:yes'>
-    		  <td width=11% style='border:solid windowtext .5pt;border-top:none;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
-    		  <p class=MsoNormal style='margin-bottom:0in;'>
-    		  #getDateTime( $commentDate, $timeZone)</p>
-    		  </td>
-    		  <td width=9% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
-    		  <p class=MsoNormal style='margin-bottom:0in;'>
-    		  $!commentAuthor</p>
-    		  </td>
-    		   <td width=7% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
-    		  <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
-    		  v$!revItemComment.revision.sequenceNumber</span></p>
-    		  </td>
-    		  <td width=8% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
-    		  <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
-    		  $!threadIdentity</span></p>
-    		  </td>
-    		  <td width=8% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
-    		  <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
-    		  $!resolved</span></p>
-    		  </td>
-    		  <td width=8% style='border:solid windowtext .5pt;background:#$color;'>
-    		  <p class=MsoNormal style='margin-bottom:0in;'>
-    		  $!commentType
-    		  </p>
-    		  </td>
-    		  <td width=50% style='border:solid windowtext .5pt;background:#$color;'>
-    		  <p class=MsoNormal style='margin-bottom:0in;'>
+         <tr style='mso-yfti-irow:4;mso-yfti-lastrow:yes'>
+          <td width=12% style='border:solid windowtext .5pt;border-top:none;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
+          <p class=MsoNormal style='margin-bottom:0in;'>
+          #getDateTime( $commentDate, $timeZone)</p>
+          </td>
+          <td width=16% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
+          <p class=MsoNormal style='margin-bottom:0in;'>
+          $!commentAuthor</p>
+          </td>
+           <td width=7% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
+          <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
+          v$!revItemComment.revision.sequenceNumber</span></p>
+          </td>
+          <td width=8% style='border:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt;background:#$color;'>
+          <p class=MsoNormal style='margin-bottom:0in;'><span style='font-size:10.0pt;'>
+          $!threadIdentity</span></p>
+          </td>
+          <td width=57% style='border:solid windowtext .5pt;background:#$color;'>
+          <p class=MsoNormal style='margin-bottom:0in;'>
             #if( $highlightQuote )<span style='background-color:#ffdd99'>$!highlightQuote*</span>#end
-    		  	#if( $commentText.length() > 0 )#formatTableCell($commentText, "left", 276) #end 
-    		  </p>
-    		  </td>
-    		 </tr>
-    	#end ##foreach( $revItemComment in $itemComments )
+            #if( $commentText.length() > 0 )#formatTableCell($commentText, "left", 276) #end 
+          </p>
+          </td>
+         </tr>
+      #end ##foreach( $revItemComment in $itemComments )
         
-  	#else 
-  		<tr>
-  		  <td colspan=7 width=100% style='border:solid black .5pt;'>
-  		  <p class=MsoNormal style='margin-bottom:0in;'>
-  		  	No comments present on revision item.
-  		  </p>
-  		  </td>
-  		</tr>
-  	#end ###if( $itemCommentsByParent.size() > 0 )
+    #else 
+      <tr>
+        <td colspan=5 width=100% style='border:solid black .5pt;'>
+        <p class=MsoNormal style='margin-bottom:0in;'>
+          No comments present on revision item.
+        </p>
+        </td>
+      </tr>
+    #end ###if( $itemCommentsByParent.size() > 0 )
     </table>
     <p class=MsoNormal>&nbsp;</p>
   #end ##if( !$comments ) 
@@ -5227,38 +5175,38 @@ Review Comments & Signatures
 #end 
 
 <table class=MsoTableGrid border=0 cellspacing=0 cellpadding=0 style='border-collapse:collapse;border:none;mso-border-insideh:none;mso-border-insidev:none;width:100%'>
-	<tr>
-		<td width=23%>
+  <tr>
+    <td width=23%>
     <p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end>
       <span style='font-size:9.0pt;color:#404040;'>REVIEW NAME & VERSION:</span></p>
-		</td>
-		<td width=77%>
-			<p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>
-			REV-$!revisionForComments.review.id $!revisionForComments.review.name v$!revisionForComments.sequenceNumber
-			</p>
-		</td>
-		</tr>
+    </td>
+    <td width=77%>
+      <p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>
+      REV-$!revisionForComments.review.id $!revisionForComments.review.name v$!revisionForComments.sequenceNumber
+      </p>
+    </td>
+    </tr>
     #### Moderator Initiated Review 
     ####--------------------------------
-		<tr>
-  		<td width=23%><p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end>
+    <tr>
+      <td width=23%><p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end>
           <span style='font-size:9.0pt;color:#404040;'>MODERATOR INITIATED REVIEW:</span></p>
-  		</td>
-  		<td width=77%><p class=MsoNormal style='margin-bottom:0in;color:#404040;'>
-  			#if( $reviewInitiated.size() > 0 )
-  			  #set( $eventUser = $reviewInitiated[0].eventUser) ## moderator from the initial creation of this review
-  			#end 
-  			#getDateTime( $revisionForComments.review.createdDate, $timeZone) #if( $reviewInitiated.size() > 0 ) by $!eventUser.fullName #end
-  			</p>
-  		</td>
-		</tr>
+      </td>
+      <td width=77%><p class=MsoNormal style='margin-bottom:0in;color:#404040;'>
+        #if( $reviewInitiated.size() > 0 )
+          #set( $eventUser = $reviewInitiated[0].eventUser) ## moderator from the initial creation of this review
+        #end 
+        #getDateTime( $revisionForComments.review.createdDate, $timeZone) #if( $reviewInitiated.size() > 0 ) by $!eventUser.fullName #end
+        </p>
+      </td>
+    </tr>
     #### Moderator closed revision? 
     ####-------------------------------
-		<tr>
-  		<td width=23%><p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end>
+    <tr>
+      <td width=23%><p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end>
           <span style='font-size:9.0pt;color:#404040;'>MODERATOR CLOSED REVISION:</span></p>
-  		</td>
-  		<td width=77%><p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>
+      </td>
+      <td width=77%><p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>
         #if( $reviewClosed && !$reviewAutoClose )
           #compareEventDates( $revClosedEventDate )
           #if( $printEvent )
@@ -5268,17 +5216,17 @@ Review Comments & Signatures
           #end 
         #else 
           No 
-  			#end 
+        #end 
         </p>
-  		</td>
-		</tr>
+      </td>
+    </tr>
     #### Review auto closed? 
     ####--------------------------------
-		<tr>
-    	<td width=23%><p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end>
+    <tr>
+      <td width=23%><p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end>
         <span style='font-size:9.0pt;color:#404040;'>REVIEW AUTO CLOSE:</span></p>
-    	</td>
-    	<td width=77%><p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>
+      </td>
+      <td width=77%><p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>
         #if( $reviewAutoClose )
           #compareEventDates( $reviewAutoCloseDate )
           #if( $printEvent )
@@ -5289,16 +5237,16 @@ Review Comments & Signatures
         #else 
           No 
         #end 
-    		</p>
-    	</td>
-		</tr>
+        </p>
+      </td>
+    </tr>
     #### Review marked as finalized? 
     ####--------------------------------
-		<tr>
-		<td width=23%><p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end>
+    <tr>
+    <td width=23%><p class=MsoNormal #if( $format == 'doc') style='font-weight:600;line-height:normal'; #else style='font-weight:900;line-height:110%' #end>
         <span style='font-size:9.0pt;color:#404040;'>REVIEW MARKED AS FINALIZED:</span></p>
-		</td>
-		<td width=77%><p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>
+    </td>
+    <td width=77%><p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>
         #if( $reviewMarkedAsFinalized )
           #compareEventDates( $revMarkedFinalDate )
           #if( $printEvent )
@@ -5310,8 +5258,8 @@ Review Comments & Signatures
           No 
         #end 
       </p>
-		</td>
-	</tr>
+    </td>
+  </tr>
 </table>
 <p class=MsoNormal>&nbsp;</p>
 

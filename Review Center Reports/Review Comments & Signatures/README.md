@@ -1,7 +1,7 @@
 # Review Comments & Signatures 
-Export approver signatures and review comments. Before running the report the user enters a review id, e.g. REV-38 to get the latest version signatures and all comments for the review. If the user would like to get signatures and comments up to and including a specific revision version, the user enters the review id and a specific version number, e.g V2.
+Export approver signatures and review comments. Before running the report the user enters a review id, e.g. REV-38 to get all comments for the review. If the user would like to get comments up to and including a specific revision version, the user enters the review id and a specific version number, e.g V2.
 
-Note: Currently a comment thread child inherits the revision version of the thread parent - this is a reflection of the current UI in which a User can see the comment thread parent revision version while the thread children do not display a revision version. A comment's revision version is output in the 'Review Version' column of the Revision Item Comment table of this report. There is currently a feature request for each comment to display the review version to which the comment was applied, and not the inherited value of the parent, which would be reflected in Velocity reporting. 
+Note: Currently a comment thread child inherits the revision version of the thread parent - this is a reflection of the current UI in which a user can see the comment thread parent revision version while the thread children do not display a revision version. A comment's revision version is output in the 'Review Version' column of comment tables in this report. There is currently a feature request for each comment to display the review version to which the comment was applied, and not the inherited value of the parent, which would be reflected in Velocity reporting. 
 
 ## Report Sections:
 ###### Approvers & Reviewers
@@ -34,15 +34,16 @@ Note: Currently a comment thread child inherits the revision version of the thre
 
 ## Preview
 
-![readMeExampleOutput](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/d6f829aa-a9f1-47b6-a403-779ba545a180)
+![exampleOutputReport1](https://github.com/user-attachments/assets/3fc94225-a116-4180-8ddb-a87dcd41c1bb)
 
 
-![readMeExampleOutput2](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/8ff9ff1a-03f1-485c-ac4a-e3a7225398d3)
+![exampleOutputReport](https://github.com/user-attachments/assets/0d60cdfd-76af-4251-bd13-e733c4afca62)
 
 
 ## Installation Configuration
 
-![installationConfiguration](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/b25ec19b-823d-4a95-8635-f4a14f82186c) 
+![configuration](https://github.com/user-attachments/assets/d4412147-aeb0-43cc-962d-0ff3be9b4036)
+
 ###### Configuration Specifications
 <ul> 
   <li>Report Type: Select Velocity</li>
@@ -51,7 +52,7 @@ Note: Currently a comment thread child inherits the revision version of the thre
   <li>*Note for export to .pdf or .doc- this template is not configured to have a ToC, ToF, or ToT</li>
   </ul>
   <li>Report File Name: Upload the velocity file</li>
-  <li>Description: <i>Enter a review id, e.g. REV-38 to get the latest version signatures and all comments for the review. To get signatures and comments up to and including a specific revision, enter the review id and enter the version number, e.g V2.</i></li>
+  <li>Description: <i>Enter a review id, e.g. REV-38 to get all comments for the review. To get comments up to and including a specific revision, enter the REV-id and the version, e.g V2. Revision Item descriptions can be included via the provided Include Descriptions parameter.</i></li>
   <li>Organization: select</li>
   <li>Criteria: see below criteria to configure</li>
   <li>Save</li>
@@ -73,6 +74,11 @@ Note: Currently a comment thread child inherits the revision version of the thre
     <td>String</td>
     <td>Revision version, e.g. Vx</td>
     <td>reportRevisionV</td>
+  </tr>
+  <tr>
+    <td>Boolean</td>
+    <td>Include Description</td>
+    <td>reportDescription</td>
   </tr>
 </table>
 
