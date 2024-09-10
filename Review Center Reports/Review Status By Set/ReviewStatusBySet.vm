@@ -59,7 +59,8 @@ xmlns="http://www.w3.org/TR/REC-html40">
 ##                                             - Removed Baseline condition because not needed, and exports off a baseline returning correct stats 
 ##                                             - Removed macros not used
 ##                                             - Corrected conditions tally the group stats in the #getReviewStats macro. 
-## 
+##  09-10-2024   1.8         Anna FitzGerald   - Updated code with revision baseline endpoint, and proper baseline node retrivals, reviewed code
+##                                             - Fixed Moderators string 
 ################################################################################################################
 ##
 ##  Report Features
@@ -144,16 +145,13 @@ xmlns="http://www.w3.org/TR/REC-html40">
 
 ## Report Parameters
 ##-------------------------------------------
-#if($!contextType && $contextType.toUpperCase().contains("BASELINE") )
+#set( $baselineMode = false )
+#set( $baselineId = false )
+#if( $contextType && $contextType.toUpperCase().contains("BASELINE") )
+  #set( $baseline = $baselineSource.getBaseLine($mathTool.toInteger($contextId)))
+  #set( $baselineId = $baseline.id)
   #set( $baselineMode = true)
-  #set( $contextId = $mathTool.toInteger($contextId))
-#else
-  #if( $reportBaseline )
-    #set( $baselineMode = $reportBaseline )
-  #else
-    #set( $baselineMode = false )
-  #end
-#end
+#end 
 ##
 
 #set($cmpKey = "CMP")
@@ -162,14 +160,6 @@ xmlns="http://www.w3.org/TR/REC-html40">
 #set($txtKey = "TXT")
 
 #set( $timeZone = "America/Los_Angeles" )
-
-
-## EXPORT LOCATION
-#set( $docNode = $documentNodeDao.getDocumentNode(5, $documentList[0].document.id) )
-#set( $parentNode = $docNode.getParentNode() )
-#set( $exportLocation = $docDao.getDocument( $parentNode.refId ) )
-
-
 ################################################################################################################
 ##
 ##  Styles
@@ -1095,73 +1085,35 @@ td
 ##
 #########################################################################################################################
 ##          Macro: getHierarchyLevel
-##          Input: $doc - document object
-##                 $baselineMode - true: export was from a baseline, false: export was from the project
-##                 $baselineId   - ID of the baseline that the items are part of, if in baseline mode
-##          Output: $hierarchyLevel - number, which heading level this item is in Jama relative to the container
+##          Input: $doc - ContourItem obj
+##                 Globally available: $baselineMode - true: export was from a baseline, false: export was from the project
+##                 Globally available: $baselineId   - ID of the baseline that the items are part of, if in baseline mode
+##          Output: $headingLevel - number, which heading level this item is in Jama Connect®  relative to the container
 #########################################################################################################################
 #macro( getHierarchyLevel $doc $baselineMode $baselineId )
   #set( $seqSubStrings = [] )
-  #set( $hierarchyLevel = 1)
+  #set( $headingLevel = 1)
+
   ## Get hierarchy from the baseline
   #if( $baselineMode )
-    #set( $docNode = $documentNodeDao.getDocumentNodeForBaseLine(5, $doc.currentVersion.originDocument.id, $baselineId))
+    #set( $docNode = $documentSource.getDocumentNodeForBaseLine(5, $mathTool.toInteger($doc.id), $mathTool.toInteger($baselineId)))
   ## Get hierarchy from the project
   #else
-    #set( $docNode = $documentNodeDao.getDocumentNode(5, $doc.id))
+    #set( $docNode = $documentSource.getDocumentNode(5, $doc.id))
   #end
   ##Debug: $docNode
-  #set( $seqSubStrings = $docNode.sequence.split("\."))
-  ##Debug: $seqSubStrings
-  #set( $hierarchyLevel = $seqSubStrings.size())
-  #if( !$hierarchyLevelTop )
-    #set($hierarchyLevelTop = $hierarchyLevel)
+  
+  #if(!$docNode.indent)
+    #set( $headingLevel = 1)
+  #else
+    #set( $headingLevel = $docNode.indent)
   #end
-  #set($hierarchyLevel = $hierarchyLevel - $hierarchyLevelTop + 1)
+
+  #if( !$headingLevelTop )
+    #set($headingLevelTop = $headingLevel)
+  #end
+  #set( $headingLevel = $headingLevel - $headingLevelTop + 1 )
 #end
-##
-#########################################################################################################################
-#########################################################################################################################
-## Check if Revision is Active (I.e it's latest version isn't deleted )
-## if revision is archived it qualifies
-
-#macro( checkRevisionsStatus $reviewID $review $exclusionList)
-
-  #set( $revisionsForReview = $review.revisions)
-
-  #foreach( $rev in $sortTool.sort( $revisionsForReview, "createdDate:desc" ) )
-
-    #if( $foreach.first)
-      #if($rev.status.name == "Deleted" )
-        #set( $success = $exclusionList.add( $reviewID ))
-      #end
-    #else
-      #break
-    #end
-
-  #end
-
-  ## $exclusionList
-
-#end
-##
-#########################################################################################################################
-#########################################################################################################################
-## Check if this review is in exclusion list as it's been deleted
-
-#macro( exclusionListCheck $reviewID $exclusionList )
-
-  #set(	$omitResult = false )
-
-  #foreach(	$excludedID in $exclusionList)
-    #if(	$excludedID == $reviewID )
-      #set(	$omitResult = true	)
-    #end
-  #end
-
- ## $omitResult
-
-#end 
 #########################################################################################################################
 ##          Macro: getParentCMPpathAndSETnamePerItem
 ##          Input: $doc - document object
@@ -1170,52 +1122,70 @@ td
 ##                 - $setItems, object list, each review summary item paired with the SET name it belongs
 ##             		 - $cmpPath_SetName, object list, each CMP path paired with the SET name contained within it
 #########################################################################################################################
-#macro( getParentCMPpathAndSETnamePerItem $doc $baselineMode )
+#macro( getParentCMPpathAndSETnamePerItem $doc )
 
 #set( $parentSetFound = false )
-#set( $node = $documentNodeDao.getDocumentNode(5, $doc.id))
-#set( $parentNode = $node.parentNode )
+#if( $baselineMode )
+  #set( $docNode = $documentSource.getDocumentNodeForBaseLine(5, $mathTool.toInteger($doc.id), $mathTool.toInteger($baselineId)))
+  #set( $parentNode = $docNode.parent )
+#else
+	#set( $docNode = $documentSource.getDocumentNode(5, $doc.id))
+	#set( $parentNode = $docNode.parentNode )
+#end 
 
-#set( $range = $node.sequence.split("\.").size() - 1 )
+#set( $range = $docNode.indent + 1 )
 
 #foreach( $level in [ 1..$range ] )
-	#set( $parentDoc = $docDao.getDocument( $parentNode.refId ) )
+  #set( $parentDoc = $documentSource.getDocument($mathTool.toInteger($parentNode.refId)))
 		#if( $parentDoc.documentType.documentTypeKey == $setKey )
 			#set( $parentSetFound = true )
 			#set( $parentSet = $parentDoc )
 			## $parentSet.name
 			#break 
-		#else 
-			#set( $parentNode = $parentNode.parentNode )
 		#end
+		#if( $baselineMode )
+			#set( $parentNode = $parentNode.parent )
+		#else 
+	  	#set( $parentNode = $parentNode.parentNode )
+	  #end 
 #end 
-
+##<tr><td colspan=10>$parentSetFound, $parentSet.name</td></tr>
 #if( $parentSetFound ) 
+	#if( $baselineMode )
+		#set( $docNode = $documentSource.getDocumentNodeForBaseLine(5, $mathTool.toInteger($parentSet.id), $mathTool.toInteger($baselineId)))
+		#set( $parentOfSetNode = $docNode.parent )
+	#else
+		#set( $docNode = $documentSource.getDocumentNode(5, $parentSet.id))
+		#set( $parentOfSetNode = $docNode.parentNode )
+	#end 
+	#set( $range = $parentOfSetNode.indent + 1 )
 
-	#set( $setNode = $documentNodeDao.getDocumentNode( 5, $parentSet.id ) )
-	#set( $parentOfSetNode = $setNode.parentNode )
-	#set( $range = $setNode.sequence.split("\.").size() - 1) 
-	
 	#if( $range == 0)
 		#set( $cmpPath = "/")
 	#else
 		#foreach( $level in [1..$range ] )
-			#set( $parentDoc = $docDao.getDocument( $parentOfSetNode.refId ) )
-			
+			#set( $parentId = $mathTool.toInteger($parentOfSetNode.refId))
+  		#set( $parentDoc = $documentSource.getDocument($parentId))
+			##<tr><td colspan=10>$parentId, $parentDoc</td></tr>
 			#if( $parentDoc.documentType.documentTypeKey == $cmpKey )
 				#if( $foreach.first )
 					#set( $cmpPath = "/${parentDoc.name}/")
 				#else 
 					#set( $cmpPath = "/${parentDoc.name}$cmpPath")
 				#end
-				#set( $parentOfSetNode = $parentOfSetNode.parentNode )
-			#end
+			#end 
+			#if( $baselineMode )
+				#set( $parentOfSetNode = $parentOfSetNode.parent )
+			#else 
+	  		#set( $parentOfSetNode = $parentOfSetNode.parentNode )
+	 		#end
 		#end
 	#end
 
 	#set( $success = $CMP_SET_ITEMs.add( { "Path": $cmpPath, "SetName": $parentSet.name, "Item": $doc } ) )
 
 	#end 
+
 #end
 ## 
 #########################################################################################################################
@@ -1326,58 +1296,39 @@ td
 #set( $groupTotalRejected = 0 )
 #set( $groupTotalNotReviewed = 0 ) 
 #set( $groupTotalPartiallyApproved = 0 )
-#set( $groupTotalNotReviewed = 0 )
 #set( $uniqueGroupReviewIds = [] )
 #set( $reviewIdentifiersAndDates = [] )
 
 	#foreach( $doc in $group )
-		## <tr colspan=13><td>Debug $doc.name</td></tr>
-		#set( $reviewRevisionsDatesAndVersions = [] )
-
+		#set( $mostRecentReview = false )
+		#set( $mostRecentRevision = false )
+		#set( $baselineRevision = false ) ## check if this 
 		#if( $baselineMode )
-			#set( $revisions = $reviewDao.getRevisionsForItemId( $doc.currentVersion.originDocument.id ) )
-		#else
-			#set( $revisions = $reviewDao.getRevisionsForItemId( $doc.id ) )
-		#end
-
-		#foreach( $revision in $revisions )
-				
-			#set( $reviewID = $revision.review.id )
-	
-			#exclusionListCheck( $reviewID $exclusionList )
-			## Returns $omitResult ~ check if review ID has been added to the exclusion list of reviews
-
-	    #if( !$omitResult )   
-      ## if the review ID is not on the exclusion list 
-      ## see if it should be- has the latest revision been deleted rendering all previous revisions as deleted? ( don't include these in the report))
-	      #checkRevisionsStatus( $reviewID $revision.review $exclusionList ) ## returns updated $exclusionList
-	      #exclusionListCheck( $reviewID $exclusionList) ## check our updated exclusion list to ensure the current revision is valid or not to still be added to report
-    	#end 
-
-			## If $omitResult is still false, revison is valid
-    	#if( !$omitResult )
-				#set( $success = $reviewRevisionsDatesAndVersions.add( { "revision": $revision, "date": $revision.createdDate } ) )
+			#set( $baselineRevision = $baseline.revisionWithBaseline)
+			#if( $baselineRevision )
+				#set( $mostRecentRevision = $baselineRevision ) 
 			#end
+		#end 
+		#if( !$baselineRevision || !$baselineMode )
+			#set( $revisions = $reviewDao.getRevisionsForItemId( $doc.id ) )
+			#set( $revisions = $sortTool.sort( $revisions, "createdDate:desc"))
+			#if( $revisions.size() > 0 )
+				#set( $mostRecentRevision = $revisions[0]) 
+			#end 
+		#end 
 
-		#end
-
-		## get the most recent revision date 
-		#set( $reviewRevisionsDatesAndVersions = $sortTool.sort( $reviewRevisionsDatesAndVersions, "date:desc") )
-		
-		#if( $reviewRevisionsDatesAndVersions.size() > 0 )
-			#set( $mostRecentRevision = $reviewRevisionsDatesAndVersions[0].revision )
+		#if( $mostRecentRevision)
 			#set( $mostRecentReview = $mostRecentRevision.review )
 			#set( $mostRecentReviewID = $mostRecentRevision.review.id )
-		#else
-			#set( $mostRecentRevision = false )
-			#set( $mostRecentReview = false )
-		#end
+		#end 
+
+		##<tr colspan=13><td>Debug $doc.documentKey, $mostRecentReview.name - $mostRecentReviewID, $mostRecentReview.createDate</td></tr>
 		
 		## Check to see if the item is approved/rejected in the review (if there is one)
 		
 		#if( $mostRecentReview ) 
-		
 			#set( $revisionItem = $reviewDao.getRevision_ItemByRevisionAndItem( $mostRecentRevision.id, $doc.id) )
+			
 			#set( $revisionUsers = $mostRecentRevision.revisionUsers )
 			#set( $revisionStatus = $mostRecentRevision.status.name )
 
@@ -1402,20 +1353,20 @@ td
 
 
 			#foreach( $author in $mostRecentReview.authors )
-				#if( !$foreach.first )
-				#end
 				#if( !$moderators.contains( $author.displayName )) 
 					#set( $success = $moderators.add( $author.displayName ) )
 				#end 
 			#end			
-			
+			##<tr><td colspan=10>$mostRecentReview.name > $moderators</td></tr>
+
+
 			#foreach( $revisionUser in $revisionUsers )
 				#if( $revisionUser.isApprover ) 
 					#set( $approvers = $approvers + 1 ) 
 				#end 
 			#end
 		
-			#foreach( $reviewRevisionUserItem in $revisionItem.revisionUserItems )
+			#foreach( $reviewRevisionUserItem in $revisionItem.revisionUserItems ) ## this counts each users votes for this one revision item ##
 				#if( $reviewRevisionUserItem.status.name == "Approved" ) 
 					#set( $approved = $approved + 1 )
 				#end
@@ -1427,11 +1378,11 @@ td
 			##<tr colspan=13><td>DEBUG Approvers $approvers, Approved $approved, Rejected $rejected</td></tr>
 
 			#if( $approvers == 0 && $approved == 0 && $rejected == 0 || $approvers > 0 && $approved == 0 && $rejected == 0 )
-				#set( $groupTotalNotReviewed = $groupTotalNotReviewed + 1 )
+				#set( $groupTotalNotReviewed = $groupTotalNotReviewed + 1 ) ## This tallys the group 
 
 			#elseif( $approvers > $approved && $approved > 0 && $rejected == 0 )
 				#set( $partiallyApproved = $partiallyApproved + 1 )
-				#set( $groupTotalPartiallyApproved = $groupTotalPartiallyApproved + $partiallyApproved )
+				#set( $groupTotalPartiallyApproved = $groupTotalPartiallyApproved + $partiallyApproved ) 
 					
 			#elseif( $approvers > 0 && $approvers == $approved && $rejected == 0 )
 				#set( $groupTotalApproved = $groupTotalApproved + $approved ) 
@@ -1441,16 +1392,13 @@ td
 
 			#end 
 	  	
-	  	#set( $contains = true )
-			#if( $!mostRecentReviewID && !$uniqueGroupReviewIds.contains( $!mostRecentReviewID ) )
-				#set( $contains = false )
-				#set( $success = $uniqueGroupReviewIds.add(  $!mostRecentReviewID ) )
-			#end 
-			#if( !$contains )
+			#if( $mostRecentReviewID && !$uniqueGroupReviewIds.contains( $mostRecentReviewID ) ) ## add the unique most recent revisions for the set group 
+				#set( $success = $uniqueGroupReviewIds.add( $mostRecentReviewID ) )
 				#set( $success = $reviewIdentifiersAndDates.add({ "reviewSequence": $reviewSequence, "revisionSequence": $revisionSequenceNum, 
 				"moderators": $moderators, "startDate": $reviewStartDate, "endDate": $reviewEndDate } ))
-				##<tr colspan=13><td>Debug Review Details: $reviewIdentifiersAndDates</td></tr>
 			#end 
+			
+			##<tr colspan=13><td>Debug Review Details: $reviewIdentifiersAndDates</td></tr>
 			##<tr colspan=13><td> Unique Group Ids Size $uniqueGroupReviewIds.size()</td></tr>
 		#else 
 			#set( $groupTotalNotReviewed = $groupTotalNotReviewed + 1 )
@@ -1510,7 +1458,7 @@ $groupTotalPartiallyApproved $groupTotalRejected $groupTotalNotReviewed $reviews
 		#if( $reviews.size() > 0 && !$reviewsFinished )
 			#set( $reviewSequence = $reviews.get($reviewsIndex).reviewSequence )
 			#set( $revisionSequenceNum = $reviews.get($reviewsIndex).revisionSequence )
-			#set( $moderators = $reviews.get($reviewsIndex).moderators )
+			#set( $theseModerators = $reviews.get($reviewsIndex).moderators )
 			#set( $reviewStartDate = $reviews.get($reviewsIndex).startDate )
 			#set( $reviewEndDate = $reviews.get($reviewsIndex).endDate )
 
@@ -1522,15 +1470,14 @@ $groupTotalPartiallyApproved $groupTotalRejected $groupTotalNotReviewed $reviews
 		
 		## REVIEW MODERATOR ## 
 			#set( $moderatorNames = "")
-			#if( $moderators.size() == 1)
-				#set( $moderatorNames = $moderatorNames.concat("$moderators.get(0)"))
-			#elseif( $moderators.size() > 1 )
+			#foreach( $moderator in $theseModerators )
+				#if( !$foreach.last )
+					#set( $moderatorNames = $moderatorNames + "$moderator, ")
+				#else 
+					#set( $moderatorNames = $moderatorNames + "$moderator")
+				#end 
+			#end 
 
-					#foreach( $moderator in $moderators )
-						#set( $moderatorsNames = $moderatorNames.concat( "$moderator, "))
-					#end 
-
-			#end
 			<td class=xl70 width=146 style='border-left:none;'>$!moderatorNames</td>
 	  
 	  ## REVIEW START DATE ##
@@ -1582,7 +1529,7 @@ $groupTotalPartiallyApproved $groupTotalRejected $groupTotalNotReviewed $reviews
 ##------------------------    Table Headings        ---------------------------##
 
  <tr height=84>
-  <td height=84 class=xl65 width=351>Path</td>
+  <td height=84 class=xl65 width=351>Path $baselineMode, $baselineId</td>
   <td class=xl65 width=350 style='border-left:none;'>Set Name</td>
   <td class=xl66 width=118 style='border-left:none;'>Review Status</td>
   <td class=xl67 width=90>Approved Items</td>
@@ -1609,10 +1556,10 @@ $groupTotalPartiallyApproved $groupTotalRejected $groupTotalNotReviewed $reviews
 	#set( $docTypeKey = $doc.documentType.documentTypeKey )
 
   #if( $docTypeKey != $setKey && $docTypeKey != $cmpKey )
-  	
   	## For each item, build a list of its parent set, and the component path that contains the set and item.
 	  #getParentCMPpathAndSETnamePerItem( $doc ) 
-	  ## returns $CMP_SET_ITEMs { "Path": $cmpPath, SetName": $parentSet.name, "Item": $doc }
+	  ##<tr><td colspan=12>$CMP_SET_ITEMS</td></tr>
+	  ##returns $CMP_SET_ITEMs { "Path": $cmpPath, SetName": $parentSet.name, "Item": $doc }
 		
 	#end 
 #end 
