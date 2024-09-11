@@ -1,7 +1,7 @@
 # Review Status By Set
 
 ## Description 
-This report can be exported from the project tree or from a baselined review - ensure the SETs of interest are in the selection. 
+This report can be exported from the project tree or from a baselined review. 
 The report groups items by what SET they belong to (If an item is exported that does not belong to a set, it will not be included in the report).
 For each item in a SET group, the report checks for it's most recent review. 
 If the item has been reviewed, the most recent review data for that item is aggregated with the total review stats for the SET Group.
