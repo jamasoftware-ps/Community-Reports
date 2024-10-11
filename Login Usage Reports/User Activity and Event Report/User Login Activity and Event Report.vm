@@ -34,12 +34,17 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D91BCC.85EC6240"
 ## 
 ## Date         Revision   Person            Comments 
 ## -----------  ---------  ----------------  -------------------------------------------------------------------------
-## 2022_12_23   1.0        Anna FitzGerald   Initial Build 
-## 2023_01_05   1.1        Anna FitzGerald   Added error message if User Name parameter is not an exact match
-##                                           Cleaned up formatting
-##                                           Found bug in sort and added condition to prevent it
-## 2023_09_06   1.2        Anna FitzGerald   Removed One Year time parameter
-##                                           Minor update styles
+## 2022_12_23   1.0        Anna FitzGerald   - Initial Build 
+## 2023_01_05   1.1        Anna FitzGerald   - Added error message if User Name parameter is not an exact match
+##                                           - Cleaned up formatting
+##                                           - Found bug in sort and added condition to prevent it
+## 2023_09_06   1.2        Anna FitzGerald   - Removed One Year time parameter
+##                                           - Minor update styles
+## 2024_10_10   1.3        Liam Rotchford    - Updated Login Activity sheet to include username column.
+##                                           - Updated Event Activity sheet to include username & license column.
+##                                           - Updated report to ensure column header filters are applied to both sheets. 
+##                                           - Updated report to apply freeze panes to header rows on both sheets.
+##                                           
 ##
 ##
 ## ===================================================================================================================== 
@@ -256,10 +261,22 @@ xmlns="http://www.w3.org/TR/REC-html40">
   <x:ExcelWorksheets>
    <x:ExcelWorksheet>
     <x:Name>Login Activity</x:Name>
+    <x:WorksheetOptions>
+      <FreezePanes/>
+      <FrozenNoSplit/>
+      <SplitHorizontal>3</SplitHorizontal> 
+      <TopRowBottomPane>3</TopRowBottomPane>
+    </x:WorksheetOptions>
     <x:WorksheetSource HRef="UserLoginActivityandEventReport_files/sheet001.htm"/>
    </x:ExcelWorksheet>
    <x:ExcelWorksheet>
     <x:Name>Event Activity</x:Name>
+    <x:WorksheetOptions>
+      <FreezePanes/>
+      <FrozenNoSplit/>
+      <SplitHorizontal>2</SplitHorizontal> 
+      <TopRowBottomPane>2</TopRowBottomPane>
+    </x:WorksheetOptions>
     <x:WorksheetSource HRef="UserLoginActivityandEventReport_files/sheet002.htm"/>
    </x:ExcelWorksheet>
   </x:ExcelWorksheets>
@@ -875,7 +892,8 @@ td
   #foreach( $userAccount in $finalUserSourceHistory ) 
 
     #set( $user = $userAccount.get("user"))
-    #set( $userName = $user.getFullName() )
+    #set( $userFullName = $user.getFullName() )
+    #set( $userName = $user.getUserName() )
     #set( $userCreatedDate = $user.getCreatedDate())
     #set( $license = $userAccount.get("license"))
 
@@ -884,7 +902,8 @@ td
     #set( $lastLogin = $userAccount.get("lastLogin"))
 
     <tr height=27 style='mso-height-source:userset;height:20.25pt'>
-      <td height=27 class=xl69 style='height:20.25pt;border-top:none'>$!userName</td>
+      <td height=27 class=xl69 style='height:20.25pt;border-top:none'>$!userFullName</td>
+      <td class=xl70 style='border-top:none;border-left:none'>$!userName</td>
       <td class=xl70 style='border-top:none;border-left:none'>#getDate( $userCreatedDate $timeZone)</td>
       <td class=xl71 style='border-top:none;border-left:none'>#getLicenseType($license)</td>
       <td class=xl70 style='border-top:none;border-left:none'>#getDateTime($lastLogin $timeZone)</td>
@@ -935,35 +954,37 @@ td
   #foreach( $eventUser in $eventUserStatsByUser )
     #set( $licenseFound = false )
     #set( $user = $eventUser.get("user"))
-    #set( $userName = $user.fullName )
+    #set( $userFullName = $user.fullName )
+    #set( $userFullName = $userFullName.trim())
+    #set( $userName = $user.userName )
     #set( $userName = $userName.trim())
     #set( $eventStats = $eventUser.get("eventStats"))
 
     #foreach( $userLicense in $sortedUserLicenseList )
-      #set( $fullName = $userLicense.get("userName"))
+      #set( $fullName = $userLicense.get("userFullName"))
       #set( $fullName = $fullName.trim())
       #set( $license = $userLicense.get("license"))
-      #if( $userName.contains($fullName) || $userName == $fullName )
-        #set( $userName = "#formatRichTextCell($userName)")
-        #set( $userName = $userName.trim())
+      #if( $userFullName.contains($fullName) || $userFullName == $fullName )
+        #set( $userFullName = "#formatRichTextCell($userFullName)")
+        #set( $userFullName = $userFullName.trim())
         #set( $license =  "#getLicenseType($license)")
         #set( $license = "#formatRichTextCell($license)")
         #set( $license = $license.trim())
-        #set( $userName = $userName.concat(" $license"))
+        #set( $userFullNameLicense = $userFullName.concat(" - $license"))
 
         <tr height=21 style='height:15.75pt'>
-          <td colspan=6 height=21 class=xl81 style='height:15.75pt;text-align:left;padding-left:3pt;border-right:solid gray .5pt;'>$userName</td>
+          <td colspan=9 height=21 class=xl81 style='height:15.75pt;text-align:left;padding-left:3pt;border-right:solid gray .5pt;'>$userFullNameLicense</td>
         </tr>
         #set( $licenseFound = true )
         #break
       #end 
     #end 
 
-  #if(!$licenseFound )
-   <tr height=21 style='height:15.75pt'>
-    <td colspan=6 height=21 class=xl81 style='border-right:.5pt solid gray;height:15.75pt'>$userName</td>
-   </tr>
-  #end 
+    #if(!$licenseFound )
+     <tr height=21 style='height:15.75pt'>
+      <td colspan=6 height=21 class=xl81 style='border-right:.5pt solid gray;height:15.75pt'>$userFullName</td>
+     </tr>
+    #end 
 
    #foreach( $stat in $eventStats )
 
@@ -992,6 +1013,9 @@ td
  ##height=60 style='height:15.0pt'
      <tr>
       <td class=xl79>$!date</td>
+      <td class=xl79 style='border-left:none'>$!userFullName</td>
+      <td class=xl79 style='border-left:none'>$!userName</td>
+      <td class=xl79 style='border-left:none'>$!license</td>
       <td class=xl79 style='border-left:none'>$!content</td>
       <td class=xl79>$!action</td>
       <td class=xl79>$!eventDocument</td>
@@ -1048,16 +1072,17 @@ xmlns="http://www.w3.org/TR/REC-html40">
 
  <tr height=32 style='mso-height-source:userset;height:24.0pt'>
   <td colspan=3 height=32 class=xl67 width=529 style='height:24.0pt;width:397pt'>Report Runner: $!reportRunner</td>
-  <td colspan=3 class=xl68 width=729 style='border-right:.5pt solid gray;width:547pt'>Organization: $!project.organization.name</td>
+  <td colspan=4 class=xl68 width=729 style='border-right:.5pt solid gray;width:547pt'>Organization: $!project.organization.name</td>
  </tr>
 
  <tr height=32 style='mso-height-source:userset;height:24.0pt'>
-  <td colspan=6 height=32 class=xl72 style='border-right:.5pt solid gray;height:24.0pt'>User Login Activity for the $!timeFrame prior to:#getDate($dateTool.date $timeZone)</td>
+  <td colspan=7 height=32 class=xl72 style='border-right:.5pt solid gray;height:24.0pt'>User Login Activity for the $!timeFrame prior to:#getDate($dateTool.date $timeZone)</td>
  </tr>
 
 
  <tr height=21 style='mso-height-source:userset;height:15.75pt'>
-  <td height=21 class=xl75 width=200 style='height:15.75pt;border-top:none;width:150pt'>User Name</td>
+  <td height=21 class=xl75 width=200 x:autofiltervalue=all x:autofilterrange=$A$3:$G$3 style='height:15.75pt;border-top:none;width:150pt'>User</td>
+  <td class=xl76 width=165 style='border-top:none;border-left:none;width:124pt'>Username</td>
   <td class=xl76 width=165 style='border-top:none;border-left:none;width:124pt'>User Creation Date</td>
   <td class=xl76 width=164 style='border-top:none;border-left:none;width:123pt'>License Type</td>
   <td class=xl76 width=165 style='border-top:none;border-left:none;width:124pt'>Last Activity Date</td>
@@ -1078,21 +1103,21 @@ xmlns="http://www.w3.org/TR/REC-html40">
 
 #foreach( $activity in $userActivitySource ) 
   #set( $user = $activity.getUser() )
-  #set( $userName = $user.getFullName() )
+  #set( $userFullName = $user.getFullName() )
   #set( $loginTime = $activity.getLoginTime() )
   #set( $logoutTime = $activity.getLogoutTime() )
   #set( $license = $activity.getActualLicenseType() )
 
 
   #### check to see if we are filtering stats by user #### 
-  #if( $reportG_userFilter && $userName.toUpperCase() == $reportG_userFilter ||  !$reportG_userFilter && $userName != "" && $userName )
+  #if( $reportG_userFilter && $userFullName.toUpperCase() == $reportG_userFilter ||  !$reportG_userFilter && $userFullName != "" && $userFullName )
     #set( $foundUserNameMatch = true )
-    #set( $success = $userLicenseList.add({"userName":$userName, "license":$license }))
-    #set( $success = $userHistory.add({ "userName":$userName, "user": $user, "login": $loginTime, "logout": $logoutTime, "license": $license }))
+    #set( $success = $userLicenseList.add({"userFullName":$userFullName, "license":$license }))
+    #set( $success = $userHistory.add({ "userFullName":$userFullName, "user": $user, "login": $loginTime, "logout": $logoutTime, "license": $license }))
   #end 
 #end 
 
-  #set( $sortedUserLicenseList = $sortTool.sort( $userLicenseList, "userName:asc"))
+  #set( $sortedUserLicenseList = $sortTool.sort( $userLicenseList, "userFullName:asc"))
 
 
 #if( $reportG_userFilter && !$foundUserNameMatch )
@@ -1104,7 +1129,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
 
   ##------ Group Activity Data Per User --------- ## 
 
-  #set( $sorted_userHistory = $sortTool.sort($userHistory,"userName:asc"))
+  #set( $sorted_userHistory = $sortTool.sort($userHistory,"userFullName:asc"))
   #groupActivityDataPerUser($sorted_userHistory) ## Returns $userHistorySorted
 
 
@@ -1164,11 +1189,14 @@ xmlns="http://www.w3.org/TR/REC-html40">
 <table border=0 cellpadding=0 cellspacing=0 width=1765 style='border-collapse:collapse;table-layout:fixed;width:1325pt'>
 
   <tr height=32 style='mso-height-source:userset;height:24.0pt'>
-    <td colspan=6 height=32 class=xl72 style='border-right:.5pt solid gray;height:24.0pt'>User Event Activity for the $!timeFrame prior to:#getDate($dateTool.date $timeZone)</td>
+    <td colspan=9 height=32 class=xl72 style='border-right:.5pt solid gray;height:24.0pt'>User Event Activity for the $!timeFrame prior to:#getDate($dateTool.date $timeZone)</td>
   </tr>
 
   <tr height=20 style='height:15.0pt'>
-    <td height=20 class=xl76 width=200 style='height:15.0pt;border-top:none;width:150pt'>Event Date</td>
+    <td height=20 class=xl76 width=200 x:autofiltervalue=all x:autofilterrange=$A$2:$I$2 style='height:15.0pt;border-top:none;width:150pt'>Event Date</td>
+    <td class=xl76 width=200 style='border-top:none;border-left:none;width:150pt'>User</td>
+    <td class=xl76 width=200 style='border-top:none;border-left:none;width:150pt'>Username</td>
+    <td class=xl76 width=200 style='border-top:none;border-left:none;width:150pt'>License Type</td>
     <td class=xl76 width=700 style='border-top:none;border-left:none;width:526pt'>Event Content</td>
     <td class=xl76 width=200 style='border-top:none;border-left:none;width:150pt'>Event Action</td>
     <td class=xl76 width=200 style='border-top:none;border-left:none;width:150pt'>Document</td>
@@ -1185,8 +1213,8 @@ xmlns="http://www.w3.org/TR/REC-html40">
 
 #foreach( $event in $eventList )
   #set( $user = $event.eventUser)
-  #set( $userName = "")
-  #set( $userName = $user.fullName )
+  #set( $userFullName = "")
+  #set( $userFullName = $user.fullName )
   #set( $date = $event.getEventDate() )
   #set( $dateTime = $date.replaceAll("(\.\d)", ""))
   #set( $content = $event.content )
@@ -1202,10 +1230,10 @@ xmlns="http://www.w3.org/TR/REC-html40">
 
   #### check to see if we are filtering stats by user #### 
 
-##&& $userName && $userName.toUpper
-  #if( $reportG_userFilter && $userName.toUpperCase() == $reportG_userFilter || !$reportG_userFilter && $userName != "" && $userName  )
+##&& $userFullName && $userFullName.toUpper
+  #if( $reportG_userFilter && $userFullName.toUpperCase() == $reportG_userFilter || !$reportG_userFilter && $userFullName != "" && $userFullName  )
     #set( $foundUserNameMatch = true )
-    #set( $success = $eventUserStats.add({ "userName":$userName, "user":$user, "date":$date,"content":$content,"action":$action,"document":$eventDocument,"project":$eventProject }))
+    #set( $success = $eventUserStats.add({ "userFullName":$userFullName, "user":$user, "date":$date,"content":$content,"action":$action,"document":$eventDocument,"project":$eventProject }))
   #end 
 
 
@@ -1220,7 +1248,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
 
   ##----------- Group Event Data By User --------------- ## 
 
-  #set( $sorted_eventUserStats = $sortTool.sort($eventUserStats, "userName:asc"))
+  #set( $sorted_eventUserStats = $sortTool.sort($eventUserStats, "userFullName:asc"))
  
   #groupEventDataPerUser( $sorted_eventUserStats ) ## returns $eventUserStatsByUser
 
