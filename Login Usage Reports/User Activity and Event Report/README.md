@@ -15,13 +15,13 @@ If the Report Runner would like to narrow in on particular “Event Activity” 
 <h3>Preview Image Sheet 1: "Login Activity"</h3>
 
 
-![Login_Activity](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/b69f31fe-b973-4ad3-a68e-97c98cfc7a8a)
+![Login_Activity](https://github.com/user-attachments/assets/d295cf00-1db5-4774-acb5-523eab64e1ca)
 
 
 <h3>Preview Image Sheet 2: "Event Activity"</h3>
 
 
-![Event Activity](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/aff577e6-c90f-4049-acb3-033d4d9f5cec)
+![Event Activity](https://github.com/user-attachments/assets/504644a5-222d-4658-9320-52798691b446)
 
 
 <h1>Installation Instructions</h1>
