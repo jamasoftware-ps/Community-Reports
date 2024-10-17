@@ -39,6 +39,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 2024-04-26  3.4.1       Liam Rotchford    Minor $dateTool.format() string adjustment for month from 'mm' to proper 'MM' to resolve date
 ##                                             conversion error for #getDate() and #getDateTime() macros. 
 ## 2024-04-29  3.4.2       Anna FitzGerald   Updated condition in the #formatTables macro so that a mapped row value is only checked if its not false
+## 2024-10-17  3.4.3       Anna FitzGerald   Updated the .xAxisTick padding-right from .4em to .1em due to iText v8 upgrade as em measurement was impacted.
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -2087,7 +2088,6 @@ td.TableCell
       display: inline-block;
       float:left;
       font-size:.8em;
-      padding-right:.4em;
       font-weight:700;  
       overflow: hidden; 
     }
@@ -2097,6 +2097,7 @@ td.TableCell
       padding-top:.75em;
       padding-bottom:.75em;
       vertical-align:middle;
+      padding-right:.4em;
     }
      .xAxisTick {
       top:0;
@@ -2104,6 +2105,7 @@ td.TableCell
       width:20%;
       vertical-align:top;
       border-right:.25pt solid #999;
+      padding-right:.1em;
     }
 
     /* Test Run bar colors,colors from Jama UI  */
