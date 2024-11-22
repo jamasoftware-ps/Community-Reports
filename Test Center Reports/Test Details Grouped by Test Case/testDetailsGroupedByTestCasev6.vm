@@ -2194,12 +2194,12 @@ div.totCounterContainer
 
         #if( $format == 'doc' && !$imgPlaceHolder && $targetWidth && $targetHeight && $cid )
        
-          #if( $fileExt.contains("svg")) ## this is a Connect attachment svg converted to base64
-            #set( $imgForReplace = "<!--[if gte vml 1]><v:shape style='width:${targetWidth}px;height:${targetHeight}px;visibility:visible;mso-wrap-style:square'>
-            <v:imagedata src='cid:$cid' o:title='$cid'/></v:shape><![endif]-->"))
-          #else ## keep img html formatting 
-            #set( $imgForReplace = "<img width=$!targetWidth height=$!targetHeight src='cid:$!cid'/>")
-          #end 
+          ## set imgForReplace for all imgs (note: .doc attachment svg images need the replacement to be a v:shape)
+          #set( $imgForReplace = "<!--[if gte vml 1]><v:shape style='width:${targetWidth}px;height:${targetHeight}px;visibility:visible;mso-wrap-style:square'>
+            <v:imagedata src='cid:$cid' o:title='$cid'/></v:shape><![endif]-->")
+          ## other image formats can utilize a img tag but if using key command to update toc the imgs can disappear
+          ##set( $imgForReplace = "<img width=$!targetWidth height=$!targetHeight src='cid:$!cid'/>")
+
      
           #if( $imgSub.contains("equation"))
             #formatEquation_DOC( $imgForReplace $inPTag $textBefore)
