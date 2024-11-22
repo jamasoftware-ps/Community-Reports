@@ -1,0 +1,3920 @@
+#if( $format == 'doc')
+MIME-Version: 1.0
+Content-Type: multipart/related; boundary="----=_NextPart_01DA8992.E7786AB0"
+#end 
+
+#########################################################################################################################
+##====================================================================================================================
+## File Name: Word_PDF_Master_Template.vm
+##
+## Description: Export from Jama Connect® to Word ('doc') and/or PDF ('pdf') format/s.
+##====================================================================================================================
+## MODIFICATION HISTORY 
+##
+## Date          Rev       Person              Comments 
+##-----------   -----     ----------------    ---------------------------------- 
+## 2021-10-20   1.0        Liam Rotchford    - Intial Build updating the Test Plan Report to use
+##                                             the master template due to errors in test run steps having images.
+## 2023-08-02   1.1        Liam Rotchford    - Updated report to Master Template version 2.6.1
+## 2024-03-13   1.2        Anna FitzGerald   - Updated to Master Template version 2.8.3 $imgAlign 
+## 2024-11-20   1.3        Anna FitzGerald   - Updated to Master Template version 3.1.6
+##
+##======================================================================================================================
+## REPORT CRITERIA
+## Type:       Display Name:           Report Global Variable:         Function:
+##----------------------------------------------------------------------------------------------------------------
+##      Test Plan     Test Plan                report_testPlanId  
+##
+##
+##
+#######################################################################################################################
+
+
+
+#########################################################################################################################
+##======================================================================================================================
+## TEMPLATE OUTLINE AND MODIFICATION LOCATIONS  
+## [user directions to modify in brackets]
+##======================================================================================================================
+##
+## + INITIALIZATION 
+##     *    JAMA VELOCITY API 
+##     *    ITEM TYPE KEYS / API IDS [set keys / api ids for conditional filtering of item types]
+##     *    DOCUMENT INITIALIZATION [set include cross refs. and custom parameters]
+##     *    TABLES OF... INITIALIZATION [set ToC, ToF, ToT flags to T/F]
+##     *    FORMATTING GLOBAL VARIABLES [set style global variables]
+## 
+## + WORD HTML HEAD
+##     *    WORD EMBEDDED CSS [set styles]
+##
+## + PDF HTML HEAD
+##     *    PDF EMBEDDED CSS [set styles]
+##
+## + TEMPLATE MACROS
+##     *    RICH TEXT: formatRichText,formatTableCell,formatText,covertHyperlinks 
+##     *    RICH TEXT IMAGE: convertFigures,buildBase64ImgContent,getImgDimensions,
+##                           formatEquation_DOC,formatImgWithOptionForCaptions_DOC, 
+##                           formatEquation_PDF,formatImgWithOptionForCaptions_PDF     
+##     *    RICH TEXT TABLE: formatTables,covertWidths,buildTableCaptions_DOC,buildTableCaptions_PDF
+##     *    RELATIONSHIPS: getRelationships,getBaselineRelationships
+##     *    CONTEXT: getContainer,getReferenceableDocIds,printApproversTable
+##     *    ITEM LINKS: createLink
+##     *    DATE TIME: getDate,getDateTime
+##     *    HEADERS & FOOTERS: responsiveHeaderFooter
+##     *    HEADING: getHierarchyLevel,formatItemDefault
+##     *    CUSTOM: [insert custom macros]
+##
+## + REPORT BODY:
+##     *    TITLE PAGE [paste in title page from mockup]
+##     *    TABLES OF... 
+##     *    OUTPUT DOCUMENT LIST [customize item type mapping/formatting]
+##
+## + TEMPLATE TAIL - WORD SPECIFICATIONS
+##     *    EMBEDDED IMAGES 
+##     *    WORD OBJECTS 
+##     *    WORD EMBEDDED FILE LIST
+##
+##====================================================================================================================== 
+#######################################################################################################################
+     
+
+#########################################################################################################################
+##  ====================================================================================================================
+##   Jama Software® VELOCITY API  https://velocity.jamasoftware.com/
+##  ====================================================================================================================
+##   The 'Source' Interfaces are utilized to access the API and from them traverse to the Sub-Interfaces: 
+##  ------------------------------------------
+##   $adminSource, $baselineSource, $commentSource, $documentSource, $eventSource, 
+##   $filterSource, $projectSource, $testSource, $userSource, $releaseSource
+##
+##   Global Constants available without declaration:  
+##  ------------------------------------------
+##   $baseUrl, $project, $contextId, $documentList, $contextType, $format, $report_name 
+## ======================================================================================================================
+#########################################################################################################################
+
+
+#########################################################################################################################
+## ======================================================================================================================
+##
+##  ITEM TYPE KEYS/API IDS
+##  Set for conditional filtering of item types in the template
+##
+## ======================================================================================================================
+#set( $cmpKey = "CMP")
+#set( $setKey = "SET")
+#set( $fldKey = "FLD")
+#set( $txtKey = "TXT")
+##
+##
+##
+## ======================================================================================================================
+#########################################################################################################################
+
+
+#########################################################################################################################
+##======================================================================================================================
+## DOCUMENT INITIALIZATION  
+## Sets the following information for use in the rest of the template
+##
+##    $baselineMode ..........  Flag that lets the template know if export is from a baseline or not. 
+##    $baseline, $baselineId..  If baselineMode the baseline the report is exported from and said baseline id. 
+##    $containerDoc ..........  Stores the export location of the report aka the 'context'. 
+##                              The 'context' can potentially be Item/s, Test Cycle, Test Plan, Baseline, or Filter.  
+##                              It can be used for headers, footers & title page, e.g. $containerDoc.name
+##   
+##    $referenencableDocIds...  List of all item ids that can be cross-referenced w/ internal links available in the export.
+##    $includeCrossReferences.  Includes cross-references/internal links found in Rich Text fields.                    
+##======================================================================================================================
+##     Template File Specifications
+##------------------------------------------- 
+#set( $boundaryString = "------=_NextPart_01DA8992.E7786AB0")
+#set( $timeZone = "America/Los_Angeles" ) 
+#set( $dataURI_base64_count = 0 )
+#set( $referenceableDocIds = [] )
+#set( $figureList = [] )
+#set( $fileList = [] )
+##
+##
+##     Baseline Variables
+##------------------------------------------- 
+#set( $baseline = false )
+#set( $baselineMode = false )
+#set( $baselineId = false )
+##
+##
+##     Document Link Cross References       
+##-------------------------------------------
+#set( $includeCrossReferences = true )
+##
+##
+##     Context-Sensitive Export?
+##-------------------------------------------
+#if( $documentList && $documentList.size() > 0) ## if this is a Context-Sensitive export 
+  #if( $!contextType && $contextType.toUpperCase().contains("BASELINE") )
+    #set( $baseline = $baselineSource.getBaseLine($mathTool.toInteger($contextId)))
+    #set( $baselineId = $baseline.id)
+    #set( $baselineMode = true)
+  #end 
+  #getContainer( $baselineMode ) ## returns $containerDoc 
+  #getReferenceableDocIds() ## returns: $referenencableDocIds
+#end
+#if( $containerDoc )
+  #set( $title = $containerDoc.name) 
+  ##set( $docNumber = $velocityReportUtil.getValueForField( $containerDoc, "document_id", $dateFormat ))
+#else 
+  #set( $title = "[Title]" )
+#end
+##
+##     Custom Parameters        
+##-------------------------------------------
+## [insert custom conditions/logic here]
+##
+##Get test plan
+#set($testPlan = $testSource.getTestPlan($mathTool.toInteger($report_testPlanId)))
+##
+## ======================================================================================================================
+#########################################################################################################################
+
+
+#########################################################################################################################
+##======================================================================================================================
+## TABLES OF... INITIALIZATION 
+## Set the preference for Tables of...
+##
+##
+##    $tableOfContents: Any content in <h1>-<h6> tags and w/ MsoHeading7 class will be included in the ToC.
+##    $tableOfFigures:  Tables exported from Jama Connect RT fields w/ source html <caption> will be included in ToT.
+##    $tableOfTables:   Figures exported from Jama Connect RT fields w/ source html <figcaption> tags will be included in TOF. 
+##                            
+##    $TOT_includeAllTables, $TOF_includeAllFigures, $TOE_includeAllEquations:
+##                  Automatically include all Tables/Figures exported from Jama Connect Rich Text fields regardless 
+##                  of html <caption> or <figcaption> tags presence in the RT field. *Equations will be provided static 
+##                  captions with dynamic count created by the template. 
+##
+##   *PDF exports: When configuring the PDF report installation select option/s for ToT, ToF, ToT. 
+##                  Within this template, the <div class='TitlePage'>...</div> deliminates the Title Page so that if a Title Page 
+##                  and ToC is configured the 'pdf' ToC will follow the Title Page. 
+##                  The <div class="reportBodyCounterContainer">... initiates the level numbering count of the ToC,ToF,and ToT, 
+##                  and must surround the items to be included if PDF ToC, ToF, or ToT is configured. 
+##=====================================================================================================================
+##  Initialize counts to be used if ToF, ToT, and/or Equation references
+##-------------------------------------------
+#set( $tableRefNum = 0) ## 'doc' counter > Tables
+#set( $figureRefNum = 0) ## 'doc' counter > Figures 
+#set( $equationRefNum = 0) ## 'pdf' or 'doc' counter > Equations 
+##
+##
+#set( $tableOfContents = true ) 
+#set( $tableOfFigures = false )
+#set( $tableOfTables = false )
+##
+##
+#set( $TOT_includeAllTables = false )
+#set( $TOF_includeAllFigures = false )
+#set( $TOE_includeAllEquations = false )
+##
+## ======================================================================================================================
+#########################################################################################################################
+
+
+#########################################################################################################################
+## ======================================================================================================================
+##
+##  FORMATTING VARIABLES
+##  Below customize a mapping for both font and type scale; the mapping is referenced in the style sections (WORD or PDF)
+## ======================================================================================================================
+##  Max page dimensions influence image and table scaling,
+##  Page size in pixels based on a 72 PPI resolution which is effective to use against resizing of image pixel dimensions
+##  * Formula Pixels to Inches: (# pixel value / 72 PPI Resolution) = # inch value
+##  * Formula Inches to Pixels: (# inch value * 72 PPI Resolution) = # pixel value
+##-------------------------------------------
+#set( $maxPageWidth = 468 ) ## Max Page Width in pixels minus margin
+#set( $maxPageHeight = 612 ) ## Max Page Height in pixels minus margin
+#set( $pageMarginTB = "1in" ) ## Page Margin Top, Bottom 
+#set( $pageMarginLR = "1in" ) ## Page Margin Left, Right
+
+##
+## Word Styles:
+##-------------------------------------------
+## This is a mapping of font and type scale; it is referenced for style property values in the WORD EMBEDDED CSS section below. 
+#if( $format == 'doc')
+    ## commonly used Word font-family: "Arial", "Calibri", "Helvetica", "Open Sans", "Times New Roman"
+    ## type 'sans-serif' or 'serif'
+    #set( $primaryFont = {'family':"Arial",'type':'sans-serif'})
+    #set( $typeScale = {"p":"10pt","h1":"16pt","h2":"14pt","h3":"13pt","h4":"12pt","h5":"11pt","h6":"11pt","h7":"11pt",
+                        "title":"20pt","subTitle":"16pt","tableCell":"10pt","header":"10pt","footer":"10pt"})
+    #set( $tocScale = {"tocHeading":"14pt","toc1":"12pt", "toc2":"11pt","toc3":"10pt","toc4":"10pt","toc5":"10pt","toc6":"10pt","toc7":"10pt"})
+## 
+## PDF Styles:
+##-------------------------------------------
+## This is a mapping of font and type scale; it is referenced for style property values in the PDF EMBEDDED CSS section below. 
+#else 
+    ## commonly used font-family: "Helvetica", "Arimo", "Open Sans","Times New Roman"
+    ## type 'sans-serif' or 'serif'
+    #set( $primaryFont = {'family':"Arimo",'type':'sans-serif'})
+    #set( $typeScale = {"p":"10pt","h1":"16pt","h2":"14pt","h3":"13pt","h4":"12pt","h5":"11pt","h6":"11pt","h7":"11pt",
+                        "title":"20pt","subTitle":"16pt","tableCell":"10pt","header":"10pt","footer":"10pt"})
+    #set( $tocScale = {"tocHeading":"14pt","toc1":"12pt", "toc2":"11pt","toc3":"10pt","toc4":"10pt","toc5":"10pt","toc6":"10pt","toc7":"10pt"})
+#end
+## 
+##
+## General Styles:
+##----------------
+#set( $headingColor = "black")
+#set( $tableHeaderBgColor = "#F2F2F2" )
+#set( $tableBorderColor = "#7F7F7F" )
+## ======================================================================================================================
+#########################################################################################################################
+
+
+
+
+#########################################################################################################################
+##   WORD HTML HEAD
+#########################################################################################################################
+#if( $format == 'doc') 
+
+------=_NextPart_01DA8992.E7786AB0
+Content-Location: file:///C:/E04B5D12/WordPDFMaster.htm
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns:m="http://schemas.microsoft.com/office/2004/12/omml"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 15">
+<meta name=Originator content="Microsoft Word 15">
+<link rel=File-List href="WordPDFMaster_files/filelist.xml">
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Template>Normal</o:Template>
+  <o:Company>Jama Software®</o:Company>
+  <o:Version>3.0</o:Version>
+ </o:DocumentProperties>
+ <o:OfficeDocumentSettings>
+  <o:AllowPNG/>
+ </o:OfficeDocumentSettings>
+</xml><![endif]-->
+<link rel=dataStoreItem href="WordPDFMaster_files/item0001.xml" target="WordPDFMaster_files/props002.xml">
+<link rel=themeData href="WordPDFMaster_files/themedata.thmx">
+<link rel=colorSchemeMapping href="WordPDFMaster_files/colorschememapping.xml">
+<!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:TrackMoves/>
+  <w:TrackFormatting/>
+  <w:PunctuationKerning/>
+  <w:ValidateAgainstSchemas/>
+  <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
+  <w:IgnoreMixedContent>false</w:IgnoreMixedContent>
+  <w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
+  <w:DoNotPromoteQF/>
+  <w:LidThemeOther>EN-US</w:LidThemeOther>
+  <w:LidThemeAsian>X-NONE</w:LidThemeAsian>
+  <w:LidThemeComplexScript>X-NONE</w:LidThemeComplexScript>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+   <w:DontGrowAutofit/>
+   <w:SplitPgBreakAndParaMark/>
+   <w:EnableOpenTypeKerning/>
+   <w:DontFlipMirrorIndents/>
+   <w:OverrideTableStyleHps/>
+  </w:Compatibility>
+  <m:mathPr>
+   <m:mathFont m:val="Cambria Math"/>
+   <m:brkBin m:val="before"/>
+   <m:brkBinSub m:val="&#45;-"/>
+   <m:smallFrac m:val="off"/>
+   <m:dispDef/>
+   <m:lMargin m:val="0"/>
+   <m:rMargin m:val="0"/>
+   <m:defJc m:val="centerGroup"/>
+   <m:wrapIndent m:val="1440"/>
+   <m:intLim m:val="subSup"/>
+   <m:naryLim m:val="undOvr"/>
+  </m:mathPr></w:WordDocument>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:LatentStyles DefLockedState="false" DefUnhideWhenUsed="false" DefSemiHidden="false" DefQFormat="false" DefPriority="99"
+  LatentStyleCount="376">
+  <w:LsdException Locked="false" Priority="0" QFormat="true" Name="Normal"/>
+  <w:LsdException Locked="false" Priority="9" QFormat="true" Name="heading 1"/>
+  <w:LsdException Locked="false" Priority="9" SemiHidden="true" UnhideWhenUsed="true" QFormat="true" Name="heading 2"/>
+  <w:LsdException Locked="false" Priority="9" SemiHidden="true" UnhideWhenUsed="true" QFormat="true" Name="heading 3"/>
+  <w:LsdException Locked="false" Priority="9" SemiHidden="true" UnhideWhenUsed="true" Name="heading 4"/>
+  <w:LsdException Locked="false" Priority="9" SemiHidden="true" UnhideWhenUsed="true" QFormat="true" Name="heading 5"/>
+  <w:LsdException Locked="false" Priority="9" SemiHidden="true" UnhideWhenUsed="true" QFormat="true" Name="heading 6"/>
+  <w:LsdException Locked="false" Priority="9" SemiHidden="true" UnhideWhenUsed="true" QFormat="true" Name="heading 7"/>
+  <w:LsdException Locked="false" Priority="9" SemiHidden="true" UnhideWhenUsed="true" QFormat="true" Name="heading 8"/>
+  <w:LsdException Locked="false" Priority="9" SemiHidden="true" UnhideWhenUsed="true" QFormat="true" Name="heading 9"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="index 1"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="index 2"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="index 3"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="index 4"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="index 5"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="index 6"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="index 7"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="index 8"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="index 9"/>
+  <w:LsdException Locked="false" Priority="39" SemiHidden="true" UnhideWhenUsed="true" Name="toc 1"/>
+  <w:LsdException Locked="false" Priority="39" SemiHidden="true" UnhideWhenUsed="true" Name="toc 2"/>
+  <w:LsdException Locked="false" Priority="39" SemiHidden="true" UnhideWhenUsed="true" Name="toc 3"/>
+  <w:LsdException Locked="false" Priority="39" SemiHidden="true" UnhideWhenUsed="true" Name="toc 4"/>
+  <w:LsdException Locked="false" Priority="39" SemiHidden="true" UnhideWhenUsed="true" Name="toc 5"/>
+  <w:LsdException Locked="false" Priority="39" SemiHidden="true" UnhideWhenUsed="true" Name="toc 6"/>
+  <w:LsdException Locked="false" Priority="39" SemiHidden="true" UnhideWhenUsed="true" Name="toc 7"/>
+  <w:LsdException Locked="false" Priority="39" SemiHidden="true" UnhideWhenUsed="true" Name="toc 8"/>
+  <w:LsdException Locked="false" Priority="39" SemiHidden="true" UnhideWhenUsed="true" Name="toc 9"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Normal Indent"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="footnote text"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="annotation text"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="header"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="footer"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="index heading"/>
+  <w:LsdException Locked="false" Priority="35" SemiHidden="true" UnhideWhenUsed="true" QFormat="true" Name="caption"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="table of figures"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="envelope address"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="envelope return"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="footnote reference"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="annotation reference"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="line number"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="page number"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="endnote reference"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="endnote text"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="table of authorities"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="macro"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="toa heading"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List Bullet"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List Number"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List 2"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List 3"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List 4"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List 5"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List Bullet 2"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List Bullet 3"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List Bullet 4"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List Bullet 5"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List Number 2"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List Number 3"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List Number 4"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List Number 5"/>
+  <w:LsdException Locked="false" Priority="10" QFormat="true" Name="Title"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Closing"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Signature"/>
+  <w:LsdException Locked="false" Priority="1" SemiHidden="true" UnhideWhenUsed="true" Name="Default Paragraph Font"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Body Text"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Body Text Indent"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List Continue"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List Continue 2"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List Continue 3"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List Continue 4"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="List Continue 5"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Message Header"/>
+  <w:LsdException Locked="false" Priority="11" QFormat="true" Name="Subtitle"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Salutation"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Date"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Body Text First Indent"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Body Text First Indent 2"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Note Heading"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Body Text 2"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Body Text 3"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Body Text Indent 2"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Body Text Indent 3"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Block Text"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Hyperlink"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="FollowedHyperlink"/>
+  <w:LsdException Locked="false" Priority="22" QFormat="true" Name="Strong"/>
+  <w:LsdException Locked="false" Priority="20" QFormat="true" Name="Emphasis"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Document Map"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Plain Text"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="E-mail Signature"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="HTML Top of Form"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="HTML Bottom of Form"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Normal (Web)"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="HTML Acronym"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="HTML Address"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="HTML Cite"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="HTML Code"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="HTML Definition"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="HTML Keyboard"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="HTML Preformatted"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="HTML Sample"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="HTML Typewriter"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="HTML Variable"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Normal Table"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="annotation subject"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="No List"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Outline List 1"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Outline List 2"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Outline List 3"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Simple 1"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Simple 2"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Simple 3"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Classic 1"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Classic 2"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Classic 3"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Classic 4"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Colorful 1"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Colorful 2"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Colorful 3"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Columns 1"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Columns 2"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Columns 3"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Columns 4"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Columns 5"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Grid 1"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Grid 2"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Grid 3"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Grid 4"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Grid 5"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Grid 6"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Grid 7"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Grid 8"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table List 1"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table List 2"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table List 3"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table List 4"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table List 5"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table List 6"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table List 7"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true"  Name="Table List 8"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table 3D effects 1"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table 3D effects 2"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table 3D effects 3"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Contemporary"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Elegant"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Professional"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Subtle 1"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Subtle 2"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Web 1"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Web 2"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Web 3"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Balloon Text"/>
+  <w:LsdException Locked="false" Priority="39" Name="Table Grid"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Table Theme"/>
+  <w:LsdException Locked="false" SemiHidden="true" Name="Placeholder Text"/>
+  <w:LsdException Locked="false" Priority="1" QFormat="true" Name="No Spacing"/>
+  <w:LsdException Locked="false" Priority="60" Name="Light Shading"/>
+  <w:LsdException Locked="false" Priority="61" Name="Light List"/>
+  <w:LsdException Locked="false" Priority="62" Name="Light Grid"/>
+  <w:LsdException Locked="false" Priority="63" Name="Medium Shading 1"/>
+  <w:LsdException Locked="false" Priority="64" Name="Medium Shading 2"/>
+  <w:LsdException Locked="false" Priority="65" Name="Medium List 1"/>
+  <w:LsdException Locked="false" Priority="66" Name="Medium List 2"/>
+  <w:LsdException Locked="false" Priority="67" Name="Medium Grid 1"/>
+  <w:LsdException Locked="false" Priority="68" Name="Medium Grid 2"/>
+  <w:LsdException Locked="false" Priority="69" Name="Medium Grid 3"/>
+  <w:LsdException Locked="false" Priority="70" Name="Dark List"/>
+  <w:LsdException Locked="false" Priority="71" Name="Colorful Shading"/>
+  <w:LsdException Locked="false" Priority="72" Name="Colorful List"/>
+  <w:LsdException Locked="false" Priority="73" Name="Colorful Grid"/>
+  <w:LsdException Locked="false" Priority="60" Name="Light Shading Accent 1"/>
+  <w:LsdException Locked="false" Priority="61" Name="Light List Accent 1"/>
+  <w:LsdException Locked="false" Priority="62" Name="Light Grid Accent 1"/>
+  <w:LsdException Locked="false" Priority="63" Name="Medium Shading 1 Accent 1"/>
+  <w:LsdException Locked="false" Priority="64" Name="Medium Shading 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="65" Name="Medium List 1 Accent 1"/>
+  <w:LsdException Locked="false" SemiHidden="true" Name="Revision"/>
+  <w:LsdException Locked="false" Priority="34" QFormat="true" Name="List Paragraph"/>
+  <w:LsdException Locked="false" Priority="29" QFormat="true" Name="Quote"/>
+  <w:LsdException Locked="false" Priority="30" QFormat="true" Name="Intense Quote"/>
+  <w:LsdException Locked="false" Priority="66" Name="Medium List 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="67" Name="Medium Grid 1 Accent 1"/>
+  <w:LsdException Locked="false" Priority="68" Name="Medium Grid 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="69" Name="Medium Grid 3 Accent 1"/>
+  <w:LsdException Locked="false" Priority="70" Name="Dark List Accent 1"/>
+  <w:LsdException Locked="false" Priority="71" Name="Colorful Shading Accent 1"/>
+  <w:LsdException Locked="false" Priority="72" Name="Colorful List Accent 1"/>
+  <w:LsdException Locked="false" Priority="73" Name="Colorful Grid Accent 1"/>
+  <w:LsdException Locked="false" Priority="60" Name="Light Shading Accent 2"/>
+  <w:LsdException Locked="false" Priority="61" Name="Light List Accent 2"/>
+  <w:LsdException Locked="false" Priority="62" Name="Light Grid Accent 2"/>
+  <w:LsdException Locked="false" Priority="63" Name="Medium Shading 1 Accent 2"/>
+  <w:LsdException Locked="false" Priority="64" Name="Medium Shading 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="65" Name="Medium List 1 Accent 2"/>
+  <w:LsdException Locked="false" Priority="66" Name="Medium List 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="67" Name="Medium Grid 1 Accent 2"/>
+  <w:LsdException Locked="false" Priority="68" Name="Medium Grid 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="69" Name="Medium Grid 3 Accent 2"/>
+  <w:LsdException Locked="false" Priority="70" Name="Dark List Accent 2"/>
+  <w:LsdException Locked="false" Priority="71" Name="Colorful Shading Accent 2"/>
+  <w:LsdException Locked="false" Priority="72" Name="Colorful List Accent 2"/>
+  <w:LsdException Locked="false" Priority="73" Name="Colorful Grid Accent 2"/>
+  <w:LsdException Locked="false" Priority="60" Name="Light Shading Accent 3"/>
+  <w:LsdException Locked="false" Priority="61" Name="Light List Accent 3"/>
+  <w:LsdException Locked="false" Priority="62" Name="Light Grid Accent 3"/>
+  <w:LsdException Locked="false" Priority="63" Name="Medium Shading 1 Accent 3"/>
+  <w:LsdException Locked="false" Priority="64" Name="Medium Shading 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="65" Name="Medium List 1 Accent 3"/>
+  <w:LsdException Locked="false" Priority="66" Name="Medium List 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="67" Name="Medium Grid 1 Accent 3"/>
+  <w:LsdException Locked="false" Priority="68" Name="Medium Grid 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="69" Name="Medium Grid 3 Accent 3"/>
+  <w:LsdException Locked="false" Priority="70" Name="Dark List Accent 3"/>
+  <w:LsdException Locked="false" Priority="71" Name="Colorful Shading Accent 3"/>
+  <w:LsdException Locked="false" Priority="72" Name="Colorful List Accent 3"/>
+  <w:LsdException Locked="false" Priority="73" Name="Colorful Grid Accent 3"/>
+  <w:LsdException Locked="false" Priority="60" Name="Light Shading Accent 4"/>
+  <w:LsdException Locked="false" Priority="61" Name="Light List Accent 4"/>
+  <w:LsdException Locked="false" Priority="62" Name="Light Grid Accent 4"/>
+  <w:LsdException Locked="false" Priority="63" Name="Medium Shading 1 Accent 4"/>
+  <w:LsdException Locked="false" Priority="64" Name="Medium Shading 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="65" Name="Medium List 1 Accent 4"/>
+  <w:LsdException Locked="false" Priority="66" Name="Medium List 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="67" Name="Medium Grid 1 Accent 4"/>
+  <w:LsdException Locked="false" Priority="68" Name="Medium Grid 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="69" Name="Medium Grid 3 Accent 4"/>
+  <w:LsdException Locked="false" Priority="70" Name="Dark List Accent 4"/>
+  <w:LsdException Locked="false" Priority="71" Name="Colorful Shading Accent 4"/>
+  <w:LsdException Locked="false" Priority="72" Name="Colorful List Accent 4"/>
+  <w:LsdException Locked="false" Priority="73" Name="Colorful Grid Accent 4"/>
+  <w:LsdException Locked="false" Priority="60" Name="Light Shading Accent 5"/>
+  <w:LsdException Locked="false" Priority="61" Name="Light List Accent 5"/>
+  <w:LsdException Locked="false" Priority="62" Name="Light Grid Accent 5"/>
+  <w:LsdException Locked="false" Priority="63" Name="Medium Shading 1 Accent 5"/>
+  <w:LsdException Locked="false" Priority="64" Name="Medium Shading 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="65" Name="Medium List 1 Accent 5"/>
+  <w:LsdException Locked="false" Priority="66" Name="Medium List 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="67" Name="Medium Grid 1 Accent 5"/>
+  <w:LsdException Locked="false" Priority="68" Name="Medium Grid 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="69" Name="Medium Grid 3 Accent 5"/>
+  <w:LsdException Locked="false" Priority="70" Name="Dark List Accent 5"/>
+  <w:LsdException Locked="false" Priority="71" Name="Colorful Shading Accent 5"/>
+  <w:LsdException Locked="false" Priority="72" Name="Colorful List Accent 5"/>
+  <w:LsdException Locked="false" Priority="73" Name="Colorful Grid Accent 5"/>
+  <w:LsdException Locked="false" Priority="60" Name="Light Shading Accent 6"/>
+  <w:LsdException Locked="false" Priority="61" Name="Light List Accent 6"/>
+  <w:LsdException Locked="false" Priority="62" Name="Light Grid Accent 6"/>
+  <w:LsdException Locked="false" Priority="63" Name="Medium Shading 1 Accent 6"/>
+  <w:LsdException Locked="false" Priority="64" Name="Medium Shading 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="65" Name="Medium List 1 Accent 6"/>
+  <w:LsdException Locked="false" Priority="66" Name="Medium List 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="67" Name="Medium Grid 1 Accent 6"/>
+  <w:LsdException Locked="false" Priority="68" Name="Medium Grid 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="69" Name="Medium Grid 3 Accent 6"/>
+  <w:LsdException Locked="false" Priority="70" Name="Dark List Accent 6"/>
+  <w:LsdException Locked="false" Priority="71" Name="Colorful Shading Accent 6"/>
+  <w:LsdException Locked="false" Priority="72" Name="Colorful List Accent 6"/>
+  <w:LsdException Locked="false" Priority="73" Name="Colorful Grid Accent 6"/>
+  <w:LsdException Locked="false" Priority="19" QFormat="true" Name="Subtle Emphasis"/>
+  <w:LsdException Locked="false" Priority="21" QFormat="true" Name="Intense Emphasis"/>
+  <w:LsdException Locked="false" Priority="31" QFormat="true" Name="Subtle Reference"/>
+  <w:LsdException Locked="false" Priority="32" QFormat="true" Name="Intense Reference"/>
+  <w:LsdException Locked="false" Priority="33" QFormat="true" Name="Book Title"/>
+  <w:LsdException Locked="false" Priority="37" SemiHidden="true" UnhideWhenUsed="true" Name="Bibliography"/>
+  <w:LsdException Locked="false" Priority="39" SemiHidden="true" UnhideWhenUsed="true" QFormat="true" Name="TOC Heading"/>
+  <w:LsdException Locked="false" Priority="41" Name="Plain Table 1"/>
+  <w:LsdException Locked="false" Priority="42" Name="Plain Table 2"/>
+  <w:LsdException Locked="false" Priority="43" Name="Plain Table 3"/>
+  <w:LsdException Locked="false" Priority="44" Name="Plain Table 4"/>
+  <w:LsdException Locked="false" Priority="45" Name="Plain Table 5"/>
+  <w:LsdException Locked="false" Priority="40" Name="Grid Table Light"/>
+  <w:LsdException Locked="false" Priority="46" Name="Grid Table 1 Light"/>
+  <w:LsdException Locked="false" Priority="47" Name="Grid Table 2"/>
+  <w:LsdException Locked="false" Priority="48" Name="Grid Table 3"/>
+  <w:LsdException Locked="false" Priority="49" Name="Grid Table 4"/>
+  <w:LsdException Locked="false" Priority="50" Name="Grid Table 5 Dark"/>
+  <w:LsdException Locked="false" Priority="51" Name="Grid Table 6 Colorful"/>
+  <w:LsdException Locked="false" Priority="52" Name="Grid Table 7 Colorful"/>
+  <w:LsdException Locked="false" Priority="46" Name="Grid Table 1 Light Accent 1"/>
+  <w:LsdException Locked="false" Priority="47" Name="Grid Table 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="48" Name="Grid Table 3 Accent 1"/>
+  <w:LsdException Locked="false" Priority="49" Name="Grid Table 4 Accent 1"/>
+  <w:LsdException Locked="false" Priority="50" Name="Grid Table 5 Dark Accent 1"/>
+  <w:LsdException Locked="false" Priority="51" Name="Grid Table 6 Colorful Accent 1"/>
+  <w:LsdException Locked="false" Priority="52" Name="Grid Table 7 Colorful Accent 1"/>
+  <w:LsdException Locked="false" Priority="46" Name="Grid Table 1 Light Accent 2"/>
+  <w:LsdException Locked="false" Priority="47" Name="Grid Table 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="48" Name="Grid Table 3 Accent 2"/>
+  <w:LsdException Locked="false" Priority="49" Name="Grid Table 4 Accent 2"/>
+  <w:LsdException Locked="false" Priority="50" Name="Grid Table 5 Dark Accent 2"/>
+  <w:LsdException Locked="false" Priority="51" Name="Grid Table 6 Colorful Accent 2"/>
+  <w:LsdException Locked="false" Priority="52" Name="Grid Table 7 Colorful Accent 2"/>
+  <w:LsdException Locked="false" Priority="46" Name="Grid Table 1 Light Accent 3"/>
+  <w:LsdException Locked="false" Priority="47" Name="Grid Table 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="48" Name="Grid Table 3 Accent 3"/>
+  <w:LsdException Locked="false" Priority="49" Name="Grid Table 4 Accent 3"/>
+  <w:LsdException Locked="false" Priority="50" Name="Grid Table 5 Dark Accent 3"/>
+  <w:LsdException Locked="false" Priority="51" Name="Grid Table 6 Colorful Accent 3"/>
+  <w:LsdException Locked="false" Priority="52" Name="Grid Table 7 Colorful Accent 3"/>
+  <w:LsdException Locked="false" Priority="46" Name="Grid Table 1 Light Accent 4"/>
+  <w:LsdException Locked="false" Priority="47" Name="Grid Table 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="48" Name="Grid Table 3 Accent 4"/>
+  <w:LsdException Locked="false" Priority="49" Name="Grid Table 4 Accent 4"/>
+  <w:LsdException Locked="false" Priority="50" Name="Grid Table 5 Dark Accent 4"/>
+  <w:LsdException Locked="false" Priority="51" Name="Grid Table 6 Colorful Accent 4"/>
+  <w:LsdException Locked="false" Priority="52" Name="Grid Table 7 Colorful Accent 4"/>
+  <w:LsdException Locked="false" Priority="46" Name="Grid Table 1 Light Accent 5"/>
+  <w:LsdException Locked="false" Priority="47" Name="Grid Table 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="48" Name="Grid Table 3 Accent 5"/>
+  <w:LsdException Locked="false" Priority="49" Name="Grid Table 4 Accent 5"/>
+  <w:LsdException Locked="false" Priority="50" Name="Grid Table 5 Dark Accent 5"/>
+  <w:LsdException Locked="false" Priority="51" Name="Grid Table 6 Colorful Accent 5"/>
+  <w:LsdException Locked="false" Priority="52" Name="Grid Table 7 Colorful Accent 5"/>
+  <w:LsdException Locked="false" Priority="46" Name="Grid Table 1 Light Accent 6"/>
+  <w:LsdException Locked="false" Priority="47" Name="Grid Table 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="48" Name="Grid Table 3 Accent 6"/>
+  <w:LsdException Locked="false" Priority="49" Name="Grid Table 4 Accent 6"/>
+  <w:LsdException Locked="false" Priority="50" Name="Grid Table 5 Dark Accent 6"/>
+  <w:LsdException Locked="false" Priority="51" Name="Grid Table 6 Colorful Accent 6"/>
+  <w:LsdException Locked="false" Priority="52" Name="Grid Table 7 Colorful Accent 6"/>
+  <w:LsdException Locked="false" Priority="46" Name="List Table 1 Light"/>
+  <w:LsdException Locked="false" Priority="47" Name="List Table 2"/>
+  <w:LsdException Locked="false" Priority="48" Name="List Table 3"/>
+  <w:LsdException Locked="false" Priority="49" Name="List Table 4"/>
+  <w:LsdException Locked="false" Priority="50" Name="List Table 5 Dark"/>
+  <w:LsdException Locked="false" Priority="51" Name="List Table 6 Colorful"/>
+  <w:LsdException Locked="false" Priority="52" Name="List Table 7 Colorful"/>
+  <w:LsdException Locked="false" Priority="46" Name="List Table 1 Light Accent 1"/>
+  <w:LsdException Locked="false" Priority="47" Name="List Table 2 Accent 1"/>
+  <w:LsdException Locked="false" Priority="48" Name="List Table 3 Accent 1"/>
+  <w:LsdException Locked="false" Priority="49" Name="List Table 4 Accent 1"/>
+  <w:LsdException Locked="false" Priority="50" Name="List Table 5 Dark Accent 1"/>
+  <w:LsdException Locked="false" Priority="51" Name="List Table 6 Colorful Accent 1"/>
+  <w:LsdException Locked="false" Priority="52" Name="List Table 7 Colorful Accent 1"/>
+  <w:LsdException Locked="false" Priority="46" Name="List Table 1 Light Accent 2"/>
+  <w:LsdException Locked="false" Priority="47" Name="List Table 2 Accent 2"/>
+  <w:LsdException Locked="false" Priority="48" Name="List Table 3 Accent 2"/>
+  <w:LsdException Locked="false" Priority="49" Name="List Table 4 Accent 2"/>
+  <w:LsdException Locked="false" Priority="50" Name="List Table 5 Dark Accent 2"/>
+  <w:LsdException Locked="false" Priority="51" Name="List Table 6 Colorful Accent 2"/>
+  <w:LsdException Locked="false" Priority="52" Name="List Table 7 Colorful Accent 2"/>
+  <w:LsdException Locked="false" Priority="46" Name="List Table 1 Light Accent 3"/>
+  <w:LsdException Locked="false" Priority="47" Name="List Table 2 Accent 3"/>
+  <w:LsdException Locked="false" Priority="48" Name="List Table 3 Accent 3"/>
+  <w:LsdException Locked="false" Priority="49" Name="List Table 4 Accent 3"/>
+  <w:LsdException Locked="false" Priority="50" Name="List Table 5 Dark Accent 3"/>
+  <w:LsdException Locked="false" Priority="51" Name="List Table 6 Colorful Accent 3"/>
+  <w:LsdException Locked="false" Priority="52" Name="List Table 7 Colorful Accent 3"/>
+  <w:LsdException Locked="false" Priority="46" Name="List Table 1 Light Accent 4"/>
+  <w:LsdException Locked="false" Priority="47" Name="List Table 2 Accent 4"/>
+  <w:LsdException Locked="false" Priority="48" Name="List Table 3 Accent 4"/>
+  <w:LsdException Locked="false" Priority="49" Name="List Table 4 Accent 4"/>
+  <w:LsdException Locked="false" Priority="50" Name="List Table 5 Dark Accent 4"/>
+  <w:LsdException Locked="false" Priority="51" Name="List Table 6 Colorful Accent 4"/>
+  <w:LsdException Locked="false" Priority="52" Name="List Table 7 Colorful Accent 4"/>
+  <w:LsdException Locked="false" Priority="46" Name="List Table 1 Light Accent 5"/>
+  <w:LsdException Locked="false" Priority="47" Name="List Table 2 Accent 5"/>
+  <w:LsdException Locked="false" Priority="48" Name="List Table 3 Accent 5"/>
+  <w:LsdException Locked="false" Priority="49" Name="List Table 4 Accent 5"/>
+  <w:LsdException Locked="false" Priority="50" Name="List Table 5 Dark Accent 5"/>
+  <w:LsdException Locked="false" Priority="51" Name="List Table 6 Colorful Accent 5"/>
+  <w:LsdException Locked="false" Priority="52" Name="List Table 7 Colorful Accent 5"/>
+  <w:LsdException Locked="false" Priority="46" Name="List Table 1 Light Accent 6"/>
+  <w:LsdException Locked="false" Priority="47" Name="List Table 2 Accent 6"/>
+  <w:LsdException Locked="false" Priority="48" Name="List Table 3 Accent 6"/>
+  <w:LsdException Locked="false" Priority="49" Name="List Table 4 Accent 6"/>
+  <w:LsdException Locked="false" Priority="50" Name="List Table 5 Dark Accent 6"/>
+  <w:LsdException Locked="false" Priority="51" Name="List Table 6 Colorful Accent 6"/>
+  <w:LsdException Locked="false" Priority="52" Name="List Table 7 Colorful Accent 6"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Mention"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Smart Hyperlink"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Hashtag"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Unresolved Mention"/>
+  <w:LsdException Locked="false" SemiHidden="true" UnhideWhenUsed="true" Name="Smart Link"/>
+ </w:LatentStyles>
+</xml><![endif]-->
+#########################################################################################################################
+##  WORD EMBEDDED CSS 
+######################################################################################################################### 
+<style>
+<!--
+
+/* Word Page Definitions                                  */
+/* -------------------------------------------------------*/
+@page WordSectionPortrait
+  {size:8.5in 11.0in;
+  margin:$pageMarginTB $pageMarginLR $pageMarginTB $pageMarginLR;
+  mso-header-margin:.5in;
+  mso-footer-margin:.5in;
+  mso-title-page:yes;
+  mso-header:pageHeader;
+  mso-footer:pageFooter;
+  mso-first-header:titlePageHeader;
+  mso-first-footer:titlePageFooter;}
+div.WordSectionPortrait
+  {page:WordSectionPortrait;}
+@page WordSectionLandscape
+  {size:11.0in 8.5in;
+  mso-page-orientation:landscape;
+  margin:1.0in 1.0in 1.0in 1.0in;
+  mso-header-margin:.5in;
+  mso-footer-margin:.5in;
+  mso-title-page:yes;
+  mso-header:pageHeader;
+  mso-footer:pageFooter;
+  mso-first-header:titlePageHeader;
+  mso-first-footer:titlePageFooter;}
+div.WordSectionLandscape
+  {page:WordSectionLandscape;}
+
+/* Word Font Definitions                                  */
+/* -------------------------------------------------------*/
+@font-face
+  {font-family:Wingdings;
+  panose-1:5 0 0 0 0 0 0 0 0 0;
+  mso-font-charset:77;
+  mso-generic-font-family:decorative;
+  mso-font-pitch:variable;
+  mso-font-signature:3 268435456 0 0 -2147483647 0;}
+@font-face
+  {font-family:"Cambria Math";
+  panose-1:2 4 5 3 5 4 6 3 2 4;
+  mso-font-charset:0;
+  mso-generic-font-family:roman;
+  mso-font-pitch:variable;
+  mso-font-signature:-536869121 1107305727 33554432 0 415 0;}
+@font-face
+  {font-family:"Helvetica Neue";
+  panose-1:2 0 5 3 0 0 0 2 0 4;
+  mso-font-charset:0;
+  mso-generic-font-family:auto;
+  mso-font-pitch:variable;
+  mso-font-signature:-452984065 1342208475 16 0 1 0;}
+@font-face
+  {font-family:"Calibri";
+  panose-1:2 15 5 2 2 2 4 3 2 4;
+  mso-font-charset:0;
+  mso-generic-font-family:swiss;
+  mso-font-pitch:variable;
+  mso-font-signature:-1610611985 1073750139 0 0 159 0;}
+@font-face
+   {font-family:Aptos;
+   mso-font-charset:0;
+   mso-generic-font-family:swiss;
+   mso-font-pitch:variable;
+   mso-font-signature:536871559 3 0 0 415 0;}
+@font-face
+  {font-family:"Times New Roman \(Body CS\)";
+  panose-1:2 11 6 4 2 2 2 2 2 4;
+  mso-font-alt:"Times New Roman";
+  mso-font-charset:0;
+  mso-generic-font-family:roman;
+  mso-font-pitch:auto;
+  mso-font-signature:0 0 0 0 0 0;}
+@font-face
+  {font-family:"Open Sans";
+  mso-font-charset:0;
+  mso-generic-font-family:swiss;
+  mso-font-pitch:variable;
+  mso-font-signature:-536870161 1073750107 40 0 415 0;}
+
+
+/* Word Style Class Definitions                           */
+/* -------------------------------------------------------*/
+body {
+  font-family:"$primaryFont.family",$primaryFont.type;}
+
+/* Word Primary Text Style Class     */
+/* ----------------------------------*/
+p, li, p.MsoNormal, li.MsoNormal, div.MsoNormal
+  {mso-style-qformat:yes;
+  margin-top:3.0pt;
+  margin-right:0in;
+  margin-bottom:3.0pt;
+  margin-left:0in;
+  font-family:"$primaryFont.family",$primaryFont.type;
+  font-size:$typeScale.p;}
+
+/* Word Sub/Sup Style Classes        */
+/* ----------------------------------*/
+sub, sup {font-size:8pt;}
+
+/* Word List Style Classes           */
+/* ----------------------------------*/
+/* mso-list:none; utilize if ul or ol elements are listing when they should not*/
+ol
+  {margin:0pt;}
+ul
+  {margin:0pt;}
+li
+  {margin:0pt;}
+
+/* Word Hyperlinks Style Classes     */
+/* ----------------------------------*/
+a:visited, span.MsoHyperlinkFollowed
+  {color:#96607D;
+  text-decoration:underline;
+  text-underline:single;}
+a:link, span.MsoHyperlink, span.CrossRefLink
+  {color:#0563C1;
+  text-decoration:underline;
+  text-underline:single;}
+
+/* Word Headings Style Classes       */
+/* ----------------------------------*/
+h1
+  {mso-style-qformat:yes;
+  margin:12pt 0pt 3pt .3in;
+  text-indent:-.3in;
+  page-break-after:avoid;
+  mso-outline-level:1;
+  mso-list:l0 level1 lfo1;
+  font-family:"$primaryFont.family",$primaryFont.type;
+  font-size:$typeScale.h1;
+  color:#2F5496;
+  mso-font-kerning:0pt;
+  font-weight:normal;}
+h2
+  {mso-style-qformat:yes;
+  margin:6pt 0pt 3pt .5in;
+  text-indent:-.5in;
+  page-break-after:avoid;
+  mso-outline-level:2;
+  mso-list:l0 level2 lfo1;
+  font-size:$typeScale.h2;
+  font-family:"$primaryFont.family",$primaryFont.type;
+  color:#2F5496;
+  font-weight:normal;}
+h3
+  {mso-style-qformat:yes;
+  margin:6pt 0pt 3pt .6in;
+  text-indent:-.6in;
+  page-break-after:avoid;
+  mso-outline-level:3;
+  mso-list:l0 level3 lfo1;
+  font-size:$typeScale.h3;
+  font-family:"$primaryFont.family",$primaryFont.type;
+  color:#1F3763;
+  font-weight:normal;}
+h4
+  {mso-style-priority:9;
+  mso-style-qformat:yes;
+  margin:6pt 0pt 3pt .7in;
+  text-indent:-.7in;
+  page-break-after:avoid;
+  mso-outline-level:4;
+  mso-list:l0 level4 lfo1;
+  font-size:$typeScale.h4;
+  font-family:"$primaryFont.family",$primaryFont.type;
+  color:#2F5496;
+  font-weight:normal;
+  font-style:italic;}
+h5
+  {mso-style-qformat:yes;
+  margin:6pt 0pt 3pt .8in;
+  text-indent:-.8in;
+  page-break-after:avoid;
+  mso-outline-level:5;
+  mso-list:l0 level5 lfo1;
+  font-size:$typeScale.h5;
+  font-family:"$primaryFont.family",$primaryFont.type;
+  color:#2F5496;
+  font-weight:normal;}
+h6
+  {mso-style-qformat:yes;
+  margin:6pt 0pt 3pt 1in;
+  text-indent:-1in;
+  page-break-after:avoid;
+  mso-outline-level:6;
+  mso-list:l0 level6 lfo1;
+  font-size:$typeScale.h6;
+ font-family:"$primaryFont.family",$primaryFont.type;
+  color:#1F3763;
+  font-weight:normal;}
+p.MsoHeading7, li.MsoHeading7, div.MsoHeading7
+  {mso-style-qformat:yes;
+  margin:6pt 0pt 3pt 1.1in;
+  text-indent:-1.1in;
+  page-break-after:avoid;
+  mso-outline-level:7;
+  mso-list:l0 level7 lfo1;
+  font-size:$typeScale.h7;
+  font-family:"$primaryFont.family",$primaryFont.type;
+  color:#1F3763;
+  font-weight:normal;}
+
+/* Word TOC Heading Style Classes    */
+/* ----------------------------------*/
+p.MsoToc1, li.MsoToc1, div.MsoToc1
+  {mso-style-update:auto;
+  margin:6pt 0 3pt 0;
+  font-size:$tocScale.toc1;
+  font-family:"$primaryFont.family",$primaryFont.type;
+  font-weight:bold;}
+p.MsoToc2, li.MsoToc2, div.MsoToc2
+  {mso-style-update:auto;
+  margin:3pt 0 3pt 10.0pt;
+   font-size:$tocScale.toc2;
+   font-family:"$primaryFont.family",$primaryFont.type;}
+p.MsoToc3, li.MsoToc3, div.MsoToc3
+  {mso-style-update:auto;
+  margin:3pt 0 3pt 20.0pt;
+  font-size:$tocScale.toc3;
+   font-family:"$primaryFont.family",$primaryFont.type;}
+p.MsoToc4, li.MsoToc4, div.MsoToc4
+  {mso-style-update:auto;
+   margin:3pt 0 3pt 30.0pt;
+  font-size:$tocScale.toc4;
+  font-family:"$primaryFont.family",$primaryFont.type;}
+p.MsoToc5, li.MsoToc5, div.MsoToc5
+  {mso-style-update:auto;
+   margin:3pt 0 3pt 40.0pt;
+  font-size:$tocScale.toc5;
+   font-family:"$primaryFont.family",$primaryFont.type;}
+p.MsoToc6, li.MsoToc6, div.MsoToc6
+  {mso-style-update:auto;
+   margin:3pt 0 3pt 50.0pt;
+  font-size:$tocScale.toc6;
+ font-family:"$primaryFont.family",$primaryFont.type;}
+p.MsoToc7, li.MsoToc7, div.MsoToc7
+  {mso-style-update:auto;
+   margin:3pt 0 3pt 60.0pt;
+  font-size:$tocScale.toc7;
+  font-family:"$primaryFont.family",$primaryFont.type;}
+p.MsoTocHeading, li.MsoTocHeading, div.MsoTocHeading
+   { mso-style-qformat:yes;
+   mso-style-parent:"Heading 1";
+   mso-style-next:Normal;
+   margin:12.0pt 0pt 0pt 0pt;
+   text-align:left;
+   line-height:107%;
+   page-break-after:avoid;
+   font-size:$tocScale.tocHeading;
+   font-family:"$primaryFont.family",$primaryFont.type;
+   font-variant:small-caps;
+   font-weight:bold !important;}
+
+/* Word Title/Subtitle Style Classes */
+/* ----------------------------------*/
+p.MsoTitle, li.MsoTitle, div.MsoTitle
+  {mso-style-qformat:yes;
+  mso-style-link:"Title Char";
+  mso-style-next:Normal;
+  margin:3.0pt 0pt 4pt 0pt;
+  color:${headingColor};
+  font-size:$typeScale.title;
+  font-family:"$primaryFont.family",$primaryFont.type;}
+p.MsoSubtitle, li.MsoSubtitle, div.MsoSubtitle
+  {mso-style-qformat:yes;
+  mso-style-link:"Subtitle Char";
+  mso-style-next:Normal;
+  margin:3.0pt 0pt 3pt 0pt;
+  font-size:$typeScale.subTitle;
+   font-family:"$primaryFont.family",$primaryFont.type;
+  color:#595959;
+  letter-spacing:.75pt;}
+
+/* Word Header/Footer Style Classes  */
+/* ----------------------------------*/
+p.MsoHeader, li.MsoHeader, div.MsoHeader
+  {mso-style-qformat:yes;
+  margin:0pt;
+  font-size:$typeScale.header;
+  font-family:"$primaryFont.family",$primaryFont.type;}
+p.MsoFooter, li.MsoFooter, div.MsoFooter
+  {mso-style-qformat:yes;
+  margin:0pt;
+  font-size:$typeScale.footer;
+  font-family:"$primaryFont.family",$primaryFont.type;}
+
+/* Word Caption Style Classes        */
+/* ----------------------------------*/
+p.MsoCaption, li.MsoCaption, div.MsoCaption,span.MsoCaption
+ {font-size:8.0pt !important;
+  color:${headingColor};
+  font-weight:bold !important;
+  font-family:'Helvetica',sans-serif !important;
+  page-break-inside:avoid !important;
+  margin:0;}
+
+/* Word Table Style Classes          */
+/* ----------------------------------*/
+table 
+  {margin-top:2pt;
+  border-collapse: collapse;
+  table-layout: fixed;
+  mso-tstyle-rowband-size:0;
+  mso-tstyle-colband-size:0;
+  padding:0in 5.4pt 0in 5.4pt;
+  border:.5pt solid $tableBorderColor;
+  font-size:$typeScale.tableCell;
+  font-family:"$primaryFont.family",$primaryFont.type;
+  margin:0in;}
+table.MsoNormalTable
+  {mso-style-name:"Table Normal";
+  mso-style-parent:"";}
+table.MsoTableGrid
+  {mso-style-name:"Table Grid";
+  mso-style-unhide:no;}
+table.TableGridwithHeader
+  {border:none;
+  mso-style-name:"Table Grid with Header";
+  mso-style-parent:"Table Grid";}
+th, td
+  {padding-left: 2pt;
+  padding-right: 2pt;
+  text-align:left;
+  overflow-wrap:break-word; /*normal | anywhere | break-word | initial | inherit */ 
+  word-break:break-word;
+  white-space:normal !important; 
+  font-size:$typeScale.tableCell;}
+th
+  {background:$tableHeaderBgColor;}
+th.TableHeader
+  {border:solid $tableBorderColor .5pt;}
+p.TableHeader, li.TableHeader, div.TableHeader
+  {mso-style-name:"Table Header";
+  mso-style-qformat:yes;
+  margin:0pt;
+  font-size:$typeScale.p;
+  font-weight:bold;}
+td.TableCell
+  {border:solid $tableBorderColor .5pt;}
+td, p.TableCell, li.TableCell, div.TableCell
+  {mso-style-name:"Table Cell";
+  mso-style-qformat:yes;
+  margin:0pt;
+  font-size:$typeScale.TableCell;}
+
+
+/* Word Table of... List Definitions                      */
+/* -------------------------------------------------------*/
+@list l0
+  {mso-list-id:1764108000;
+  mso-list-template-ids:1094757160;}
+@list l0:level1
+  {mso-level-style-link:"Heading 1";
+  mso-level-text:%1;
+  mso-level-tab-stop:none;
+  mso-level-number-position:left;
+  margin-left:.3in;
+  text-indent:-.3in;}
+@list l0:level2
+  {mso-level-style-link:"Heading 2";
+  mso-level-text:"%1\.%2";
+  mso-level-tab-stop:none;
+  mso-level-number-position:left;
+  margin-left:.4in;
+  text-indent:-.4in;}
+@list l0:level3
+  {mso-level-style-link:"Heading 3";
+  mso-level-text:"%1\.%2\.%3";
+  mso-level-tab-stop:none;
+  mso-level-number-position:left;
+  margin-left:.5in;
+  text-indent:-.5in;}
+@list l0:level4
+  {mso-level-style-link:"Heading 4";
+  mso-level-text:"%1\.%2\.%3\.%4";
+  mso-level-tab-stop:none;
+  mso-level-number-position:left;
+  margin-left:.6in;
+  text-indent:-.6in;}
+@list l0:level5
+  {mso-level-style-link:"Heading 5";
+  mso-level-text:"%1\.%2\.%3\.%4\.%5";
+  mso-level-tab-stop:none;
+  mso-level-number-position:left;
+  margin-left:.7in;
+  text-indent:-.7in;}
+@list l0:level6
+  {mso-level-style-link:"Heading 6";
+  mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6";
+  mso-level-tab-stop:none;
+  mso-level-number-position:left;
+  margin-left:.8in;
+  text-indent:-.8in;}
+@list l0:level7
+  {mso-level-style-link:"Heading 7";
+  mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7";
+  mso-level-tab-stop:none;
+  mso-level-number-position:left;
+  margin-left:.9in;
+  text-indent:-.9in;}
+@list l0:level8
+  {mso-level-style-link:"Heading 8";
+  mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.%8";
+  mso-level-tab-stop:none;
+  mso-level-number-position:left;
+  margin-left:1.0in;
+  text-indent:-1.0in;}
+@list l0:level9
+  {mso-level-style-link:"Heading 9";
+  mso-level-text:"%1\.%2\.%3\.%4\.%5\.%6\.%7\.%8\.%9";
+  mso-level-tab-stop:none;
+  mso-level-number-position:left;
+  margin-left:1.1in;
+  text-indent:-1.1in;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="1026"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+
+
+
+
+
+#else ## pdf ##
+#########################################################################################################################
+##  PDF HTML HEAD
+######################################################################################################################### 
+
+## If the PDF report has remote access fonts include via a <link> here:
+## Arimo
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+## Open Sans 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+
+#########################################################################################################################
+##  PDF EMBEDDED CSS  
+#########################################################################################################################  
+##  iText PDF has 14 standard fonts which can be referenced in the CSS/HTML without an external link: 
+##  Courier, Courier-Bold, Courier-Bold Oblique, Courier-Oblique, Helvetica, Helvetica-Bold, Helvetica-Bold Oblique,  
+##  Helvetica-Oblique, Times-Roman, Times-Bold,Times-BoldItalic, Times-Italic, Symbol, ZapfDingbats
+##  
+##  Locally accessible fonts can be included using @font-face. Ensure to place within the style tags below, e.g.:
+##  @font-face {
+##    font-family: 'rakkasregular';
+##    src: url('/Users/krichards/Desktop/Rakkas/Rakkas-Regular.ttf') format('ttf'),
+##    url('/Users/krichards/Desktop/Rakkas/Rakkas-Regular.ttf') format('ttf');
+##    font-weight: normal;
+##    font-style: normal;}  
+#########################################################################################################################
+<style>
+
+/* PDF Page Definitions                                   */
+/* -------------------------------------------------------*/
+  /* Specify page size/orientation, i.e. size: "Landscape"; or size: "A4"; etc. */
+  /* set margins to preference, margins determine the potential height and width of the header and footer */
+@page {  
+  size:8.5in 11.0in;  
+  margin: $pageMarginTB $pageMarginLR $pageMarginTB $pageMarginLR; 
+  @top-center 
+  {content: element(pageHeader)}
+  @bottom-center 
+  {content: element(pageFooter)}
+}
+
+/* If no diff first page header/footer comment-out the "@page :first..." block */
+@page :first {     
+  margin: $pageMarginTB $pageMarginLR $pageMarginTB $pageMarginLR;
+  @top-center 
+  {content: element(titlePageHeader)} 
+  @bottom-center 
+  {content: element(titlePageFooter)}
+}
+#pageNumber::after {
+    content: counter(page)
+}
+#totalPages::after {
+    content: counter(pages)
+}
+
+div.titlePageHeader {
+  display: block;
+  text-align: center;
+  position: running(titlePageHeader);
+ }
+div.titlePageFooter {
+  display: block;
+  text-align: center;
+  position: running(titlePageFooter);
+}
+div.pageHeader {
+  display: block;
+  text-align: center;
+  position: running(pageHeader);
+}
+div.pageFooter {
+  display: block;
+  text-align: center;
+  position: running(pageFooter);
+}
+/* To center a table vertically and horizontally use margin:auto; */
+.pageHeader-table,
+.pageFooter-table {
+  margin:auto; 
+  border:none;
+  width:100%;
+  height:100%;
+}
+
+/*font-family:$primaryFont.family,'$primaryFont.type';*/
+/* PDF Style Class Definitions                            */
+/* -------------------------------------------------------*/
+* {font-family:"$primaryFont.family",$primaryFont.type;}
+
+body 
+  {margin:auto;
+  counter-reset: figCapCounter tableCapCounter;} 
+
+/* PDF Primary Text Style Class      */
+/* ----------------------------------*/
+p, li, p.MsoNormal 
+  {margin:0;
+  padding:0;
+  line-height:normal;
+  font-size:$typeScale.p;
+  font-weight:300;}
+p.error
+  {margin-bottom:.0001pt;
+  color:red;}
+span 
+  {line-height:normal;}
+
+/* PDF Sub/Sup Style Classes         */
+/* ----------------------------------*/
+sub, sup 
+  {font-size:8pt;}
+
+/* PDF Images Style Classes          */
+/* ----------------------------------*/
+  /* Images */ 
+figure 
+  {padding:0;
+  margin:0;}
+img 
+  {max-height:100%;
+  max-width:100%;
+  padding:0;
+  margin:0;
+  object-fit:contain;}
+
+/* PDF List Style Classes            */
+/* ----------------------------------*/
+ol
+  {margin:0pt;}
+ul
+  {margin:0pt;}
+li
+  {margin:0pt;}
+
+/* PDF Hyperlinks Style Classes      */
+/* ----------------------------------*/
+a:link, span.CrossRefLink
+  {color:#0563C1;
+  text-decoration:underline;
+  text-underline:single;}
+a:visited
+  {color:#954F72;
+  text-decoration:underline;
+  text-underline:single;}
+
+/* PDF Headings Style Classes        */
+/* ----------------------------------*/
+  /* Font Styles- Note: The PDF ToC will include any content within h1-h6 tags */
+h1, .heading1
+  {margin:12pt 0pt 3pt .2in;
+  text-indent:-.2in;
+  page-break-after:avoid;
+  page-break-inside:avoid;
+  font-size:$typeScale.h1;
+  color:${headingColor};
+  font-family:"$primaryFont.family",$primaryFont.type;
+  font-weight:bold;}
+h2, .heading2 
+  {margin:6pt 0pt 3pt .2in;
+  text-indent:-.2in;
+  font-size:$typeScale.h2;
+  font-family:"$primaryFont.family",$primaryFont.type;
+  page-break-after:avoid;
+  page-break-inside:avoid;
+  color:${headingColor};
+  font-weight:bold;}
+h3, .heading3 
+  {margin:6pt 0pt 3pt .2in;
+  text-indent:-.2in;
+  font-size:$typeScale.h3;
+  page-break-after:avoid;
+  page-break-inside:avoid;
+  font-family:"$primaryFont.family",$primaryFont.type;
+  color:${headingColor};
+  font-weight:bold;}
+h4, .heading4 
+  {margin:6pt 0pt 3pt .2in;
+  text-indent:-.2in;
+  font-size:$typeScale.h4;
+  page-break-after:avoid;
+  page-break-inside:avoid;
+  color:${headingColor};
+  font-family:"$primaryFont.family",$primaryFont.type;
+  font-weight:bold;}
+h5, .heading5 
+  {margin:6pt 0pt 3pt .3in;
+  text-indent:-.3in;
+  font-size:$typeScale.h5;
+  page-break-after:avoid;
+  page-break-inside:avoid;
+  color:${headingColor};
+  font-family:"$primaryFont.family",$primaryFont.type;
+  font-weight:bold;}
+h6, .heading6
+  {margin:6pt 0pt 3pt .3in;
+  text-indent:-.3in;
+  font-size:$typeScale.h6;
+  page-break-after:avoid;
+  page-break-inside:avoid;
+  color:${headingColor};
+  font-family:"$primaryFont.family",$primaryFont.type;
+  font-weight:bold;}
+p.MsoHeading7, li.MsoHeading7, div.MsoHeading7, .heading7
+  {margin:6pt 0pt 3pt .4in;
+  text-indent:-.4in;
+  page-break-after:avoid;
+  color:${headingColor};
+  font-size:$typeScale.h7;
+  font-family:"$primaryFont.family",$primaryFont.type;
+  font-weight:bold;}
+
+
+/* PDF TOC Heading Style Classes     */
+/* ----------------------------------*/
+  /* Use the following Jama Connect classes to style the ToC, ToF, and ToT.*/
+  /* Trail the CSS property value with !important;*/
+  /* https://jamaservice.atlassian.net/wiki/spaces/EN/pages/1714126862/iText+Table+of...+Styling*/
+
+/*
+.table-of-reference-page-break {
+page-break-before: always;
+} To overide page-break-before: avoid!important;
+*/
+.table-of-index-page-number 
+  {font-size:$typeScale.p !important;
+  font-family:"$primaryFont.family",$primaryFont.type !important;}
+.table-of-reference-title 
+  {font-size:$tocScale.tocHeading !important;
+  font-weight:bold !important;
+  text-align:left !important;
+  text-transform:small-caps !important;}
+.TOC_table-of-contents-item-level1 
+  {font-family:"$primaryFont.family",$primaryFont.type!important;
+  font-size:$tocScale.toc1 !important;
+  font-weight: 700 !important;
+  width: 90% !important;}
+.TOC_table-of-contents-item-level2 
+  {font-family:"$primaryFont.family",$primaryFont.type!important;
+  font-size:$tocScale.toc2 !important;
+  width: 90% !important;
+  font-weight: 700 !important;}
+.TOC_table-of-contents-item-level3 
+  {font-family:"$primaryFont.family",$primaryFont.type!important;
+  font-size:$tocScale.toc3 !important;
+  width: 90% !important;}
+.TOC_table-of-contents-item-level4 
+  {font-family:"$primaryFont.family",$primaryFont.type!important;
+  font-size:$tocScale.toc4 !important;
+  width: 90% !important;}
+.TOC_table-of-contents-item-level5 
+  {font-family:"$primaryFont.family",$primaryFont.type!important;
+  font-size:$tocScale.toc5 !important;
+  width: 90% !important;}
+.TOC_table-of-contents-item-level6 
+  {font-family:"$primaryFont.family",$primaryFont.type!important;
+  font-size:$tocScale.toc6 !important;
+  width: 90% !important;}
+.TOC_table-of-contents-item-level7 
+  {font-family:"$primaryFont.family",$primaryFont.type!important;
+  font-size:$tocScale.toc7 !important;
+  width: 90% !important;}
+.TOT_table-of-tables-item,
+.TOF_table-of-figures-item 
+  {font-family:"$primaryFont.family",$primaryFont.type!important;
+  font-size:10pt !important;
+  padding: 0 !important!;
+  overflow:hidden !important;
+  width:90% !important;}
+
+/* PDF Title/Subtitle Style Classes  */
+/* ----------------------------------*/
+p.MsoTitle, li.MsoTitle, div.MsoTitle
+  {margin:0pt;
+  font-size:$typeScale.title;
+  color:${headingColor};
+  font-family:"$primaryFont.family",$primaryFont.type;}
+  /*font-weight:600;}*/
+p.MsoSubtitle, li.MsoSubtitle, div.MsoSubtitle
+  {margin:0pt 0pt 3pt 0pt;
+  font-size:$typeScale.subTitle;
+  font-family:"$primaryFont.family",$primaryFont.type;
+  font-weight:400;}
+
+/* PDF Header/Footer Style Classes   */
+/* ----------------------------------*/
+p.MsoHeader, li.MsoHeader, div.MsoHeader
+  {margin:0pt;
+  font-size:$typeScale.header;
+  font-family:"$primaryFont.family",$primaryFont.type;}
+p.MsoFooter, li.MsoFooter, div.MsoFooter, .pdfPageNum
+  {margin:0pt;
+  font-size:$typeScale.footer;
+  font-family:"$primaryFont.family",$primaryFont.type;}
+
+/* PDF Caption Style Classes         */
+/* ----------------------------------*/
+.MsoCaption, figcaption, caption 
+  {font-size:8.0pt;
+  color:${headingColor};
+  font-weight:bold !important;
+  page-break-inside:avoid;
+  margin:0;
+  line-height:180%;
+  /*font-weight:bold;*/}
+  figcaption {margin-top:0pt;}
+  caption {margin-top:6pt;}
+
+/* PDF Table Style Classes           */
+/* ----------------------------------*/
+table 
+  {margin-top:2pt;
+  border-collapse:collapse;
+  table-layout:fixed;
+  padding:0in 5.4pt 0in 5.4pt;
+  margin:0in;
+  font-size:$typeScale.TableCell;}
+th, td
+  {padding-left:2pt;
+  padding-right:2pt;
+  overflow-wrap:break-word; /*normal | anywhere | break-word | initial | inherit */ 
+  word-break:break-word;
+  white-space:normal !important; 
+  font-size:$typeScale.TableCell;} 
+th
+  {background:$tableHeaderBgColor;}
+th.TableHeader
+  {border:solid $tableBorderColor .5pt;}
+td.TableCell
+  {border:solid $tableBorderColor .5pt;}
+p.TableHeader, li.TableHeader, div.TableHeader
+  {margin:0pt;
+  font-weight:bold;
+  font-family:"$primaryFont.family",$primaryFont.type;}
+p.TableCell, li.TableCell, div.TableCell
+  {font-size:$typeScale.tableCell;
+  font-family:"$primaryFont.family",$primaryFont.type;
+  margin:0pt;}
+
+
+/* PDF Table of... List Definitions                       */
+/* -------------------------------------------------------*/
+
+/* PDF Report Body Counter Elements & Classes   */
+/* ----------------------------------*/
+  /* Report Body 7 levels of counters (these run in parallel to the Table of Contents Counters)*/
+
+div.reportBodyCounterContainer 
+  {counter-reset:h1Report h2Report h3Report h4Report h5Report h6Report h7Report;}
+h1 
+  {counter-increment: h1Report;
+  counter-reset:h2Report h3Report h4Report h5Report h6Report h7Report;}
+h2 
+  {counter-increment:h2Report;
+  counter-reset:h3Report h4Report h5Report h6Report h7Report;}
+h3 
+  {counter-increment: h3Report;
+  counter-reset:h4Report h5Report h6Report h7Report;}
+h4 
+  {counter-increment: h4Report;
+  counter-reset:h5Report h6Report h7Report;}
+h5 
+  {counter-increment:h5Report;
+  counter-reset:h6Report h7Report;}
+h6
+  {counter-increment: h6Report;
+  counter-reset:h7Report;}
+.MsoHeading7
+  {counter-increment: h7Report;}
+
+h1::before 
+  {content: counter(h1Report) "\0000a0";}
+h2::before 
+  {content: counter(h1Report) "." counter(h2Report) "\0000a0";}
+h3::before 
+  {content: counter(h1Report) "." counter(h2Report) "." counter(h3Report) "\0000a0";}
+h4::before 
+  {content: counter(h1Report) "." counter(h2Report) "." counter(h3Report) "." counter(h4Report) "\0000a0";}
+h5::before
+  {content: counter(h1Report) "." counter(h2Report) "." counter(h3Report) "." counter(h4Report) "." counter(h5Report) "\0000a0";}
+h6::before
+  {content: counter(h1Report) "." counter(h2Report) "." counter(h3Report) "." counter(h4Report) "." counter(h5Report) "." counter(h6Report) "\0000a0" "\0000a0";}
+.MsoHeading7::before
+  {content: counter(h1Report) "." counter(h2Report) "." counter(h3Report) "." counter(h4Report) "." counter(h5Report) "." counter(h6Report) "." counter(h7Report) "\0000a0" "\0000a0";}
+
+/* PDF TOC Counter Classes   */
+/* ----------------------------------*/
+  /* Table of Contents 7 levels of counters (these run in parallel to the Report Body Counters) */
+
+.tocCounterContainer 
+  {counter-reset: h1toc h2toc h3toc h4toc h5toc h6toc h7toc; }
+
+.TOC_table-of-contents-item-level1-forCount 
+  {counter-reset: h2toc h3toc h4toc h5toc h6toc h7toc;
+  counter-increment: h1toc;}
+
+.TOC_table-of-contents-item-level1::before 
+  {content: counter(h1toc) "\0000a0" "\0000a0" ;}
+
+.TOC_table-of-contents-item-level2-forCount 
+  {counter-reset: h3toc h4toc h5toc h6toc h7toc;
+  counter-increment: h2toc;}
+
+.TOC_table-of-contents-item-level2::before 
+  {content: counter(h1toc) "." counter(h2toc) "\0000a0" "\0000a0";}
+
+.TOC_table-of-contents-item-level3-forCount 
+  {counter-reset: h4toc h5toc h6toc h7toc;
+  counter-increment: h3toc;}
+
+.TOC_table-of-contents-item-level3::before 
+  {content: counter(h1toc) "." counter(h2toc) "." counter(h3toc) "\0000a0" "\0000a0" ;}
+
+.TOC_table-of-contents-item-level4-forCount 
+  {counter-reset: h5toc h6toc h7toc;
+  counter-increment: h4toc;}
+
+.TOC_table-of-contents-item-level4::before 
+  {content: counter(h1toc) "." counter(h2toc) "." counter(h3toc) "." counter(h4toc) "\0000a0" "\0000a0";}
+
+.TOC_table-of-contents-item-level5-forCount 
+  {counter-reset: h6toc h7toc;
+  counter-increment: h5toc;}
+
+.TOC_table-of-contents-item-level5::before 
+  {content: counter(h1toc) "." counter(h2toc) "." counter(h3toc) "." counter(h4toc) "." counter(h5toc) "\0000a0" "\0000a0";}
+
+.TOC_table-of-contents-item-level6-forCount 
+  {counter-reset: h7toc;counter-increment: h6toc;}
+
+.TOC_table-of-contents-item-level6::before 
+  {content: counter(h1toc) "." counter(h2toc) "." counter(h3toc) "." counter(h4toc) "." counter(h5toc) "." counter(h6toc) "\0000a0" "\0000a0";}
+
+.TOC_table-of-contents-item-level7-forCount 
+  {counter-increment: h7toc;}
+
+.TOC_table-of-contents-item-level7::before 
+  {content: counter(h1toc) "." counter(h2toc) "." counter(h3toc) "." counter(h4toc) "." counter(h5toc) "." counter(h6toc) "." counter(h7toc) "\0000a0" "\0000a0";}
+
+/* PDF Image/Table Caption Counter Elements */
+/* ------------------------------------------------*/
+  /* Report Body Counter for Figures (counter-reset on the body) */
+figcaption::before {
+  counter-increment: figCapCounter;
+  content: "Figure" "\0000a0" counter(figCapCounter) "\0000a0";
+}
+/* Report Body Counter For Tables  (counter-reset on the body) */
+caption::before {
+  counter-increment: tableCapCounter;
+  content:"Table" "\0000a0" counter(tableCapCounter) "\0000a0";
+}
+
+/* PDF TOF & TOT Counter Elements & Classes */
+/* --------------------------------------*/
+  /* Table of Figures Counter */
+div.tofCounterContainer 
+  {counter-reset:tableOfFigures;}
+
+.TOF_table-of-figures-item::before 
+  {counter-increment: tableOfFigures;
+  content: "Figure" "\0000a0" counter(tableOfFigures) "\0000a0"; }
+
+/* Table of Tables Counter */
+div.totCounterContainer 
+  {counter-reset:tableOfTables;}
+
+.TOT_table-of-tables-item::before 
+  {counter-increment: tableOfTables;
+  content: "Table" "\0000a0" counter(tableOfTables) "\0000a0"; }
+
+
+</style>
+#end ##if( $format == "doc")...#else(pdf or possibly html)...## 
+</head>
+#######################################################################################################################                                              
+################################                 TEMPLATE MACROS                    ###################################
+#######################################################################################################################
+                              ########################################################
+                              ##                 RICH TEXT MACROS                   ##
+                              ########################################################
+#######################################################################################################################
+##          Macro: formatRichText
+##          Input: $inString - input string
+##          Return: $string, ready for opening in Word
+#######################################################################################################################
+#macro( formatRichText $inString )
+  #if( $inString )
+    #set( $string = $inString.toString() )
+    ## Re-format text for consistent look and feel
+    #set( $string = "#formatText($string)" )
+    ## First re-format tables for consistent look and feel and fixed column widths
+    #set( $string = "#formatTables($string, $maxPageWidth, 'left')" )
+    ## Then prep figures to base64 after formatting tables
+    #set( $string = "#convertFigures($string, $maxPageWidth)" )
+    ## Convert hyperlinks in Jama Connect to Word cross-references if Master Template global variable is true
+    #if($includeCrossReferences)
+      #set( $string = "#convertHyperlinks($string)" )
+    #end
+    ## format lists appropriately
+    #set( $string = $string.replaceAll('<li>','<li class=MsoListParagraph>'))
+    #set( $string = $string.replaceAll('<li\s([^c].*?)>','<li class=MsoListParagraph $1>'))
+    ## Make sure all content that is not already in a paragraph with a class is in a paragraph with class Normal
+    #if( !$string.contains("<p"))
+      #set( $string = "<p class=MsoNormal>$string</p>" )
+    #else
+      #set( $string = $string.replaceAll("<p>","<p class=MsoNormal>") )
+      #set( $string = $string.replaceAll("<p\s([^c].*?)>","<p class=MsoNormal $1>") )
+    #end
+    ###set( $debug = $string.replaceAll( "<", "<br>-"))
+    ##Debug formatRichText string $debug<br><br>
+
+    $string
+  #end
+#end
+########################################################################################################################
+##          Macro: formatTableCell
+##          Input: $inString - input string
+##                 $justification - string, justification to apply to output (left, right, center)
+##                 $$maxImageWidth - number, maximum pixel width of image in the cell 
+##          Output: $string, ready for opening in Word
+########################################################################################################################
+#macro( formatTableCell $inString $justification $maxImageWidth)
+  #if( $inString && $justification && $maxImageWidth )
+    #set( $string = $inString.toString() )
+    ## Re-format text for consistent look and feel
+    #set( $string = "#formatText($string)" )
+    ## First re-format tables for consistent look and feel, and fixed column widths
+    #set( $string = "#formatTables($string, $maxImageWidth, 'left')" )
+    ## Then prep figures to base64 after formatting tables
+    #set( $string = "#convertFigures($string, $maxImageWidth)" )
+    ## Convert hyperlinks in Jama Connect to Word cross-references if Master Template global variable is true
+    #if($includeCrossReferences)
+      #set( $string = "#convertHyperlinks($string)" )
+    #end
+    ## format lists appropriately
+    #set( $string = $string.replaceAll('<li>','<li class=TableCell>') )
+    #set( $string = $string.replaceAll('<li\s([^c].*?)>','<li class=TableCell $1>') )
+    ## Make sure all cells are contained in a paragraph with the appropriate style
+    #if( !$string.contains("<p"))
+      #set( $string = "<p class=TableCell style='text-align:$justification'>$string</p>" )
+    #else
+      #set( $string = $string.replaceAll("<p>","<p class=TableCell style='text-align:$justification'>") )
+      #set( $string = $string.replaceAll("<p\s([^c].*?)>","<p class=TableCell $1 style='text-align:$justification'>") )
+    #end
+    ##set( $debug = $string.replaceAll( "<", "<br>-"))
+    ###Debug formatTableCell string $debug<br><br>
+
+    $string
+  #end
+#end
+#####################################################################################################################
+##          Macro: formatText
+##          Input: $inString - input string
+##          Return: $string, ready for opening in Word
+#####################################################################################################################
+#macro( formatText $inString )
+
+  #set( $string = $inString )
+  ## clear all span statements to remove character formatting
+  #set( $string = $string.replaceAll("<span.*?>|<\/span>",""))
+  ## clear all embedded headings from rich text fields
+  #set( $string = $string.replaceAll("<h\d*?.*?>","<p><strong>"))
+  #set( $string = $string.replaceAll("<\/h\d*?>","</strong></p>"))
+  ## remove any empty image strings
+  #set( $string = $string.replaceAll("<img alt=[\x27\x22][\x27\x22] />", ""))
+  #set( $string = $string.replaceAll("<img\s?\/>",""))
+  ## replace Micro aka Legacy Symbol to prevent overlapping characters, issue with pdf
+  #set( $string = $string.replaceAll("µsec", "&mu;sec"))
+  #set( $string = $string.replaceAll("", "&#9744;"))
+  ## table edge cases 
+  #set( $string = $string.replaceAll("(nowrap)(=)([\s*|\x27\x22|])?(nowrap)[\x27\x22]", ""))
+  #set( $string = $string.replaceAll("(scope)(=)([\s*|\x27\x22|])?(col)[\x27\x22]",""))
+  #if( $format == 'pdf')
+    #set( $string = $string.replaceAll("<div.*?>|<\/div>", ""))
+  #end 
+
+  $string
+#end
+#######################################################################################################################
+##          Macro: convertHyperlinks
+##          Input: $inString - input string
+##          Return: $string, ready for opening in Word
+#######################################################################################################################
+#macro( convertHyperlinks $inString )
+  ## Reset variables used in the macro
+  #set( $subs = [] )
+  #set( $output = "" )
+  #set( $destDoc = false )
+  #set( $deleteNextSub = false )
+
+
+  ## split the string by > to break it up into HTML tags
+  #set ( $subs = $inString.split(">"))
+
+
+  ## Parse each substring
+  #foreach ($sub in $subs) 
+    ## split removes the split character, so all subs are missing a > except for the last one
+
+    #if( !$foreach.last) 
+      #set( $sub = "${sub}>") 
+    #end
+    
+    ## Hyperlinks are made up of two HTML tags.  If replacing a hyperlink was just replaced, delete the second part of it
+    #if( !$deleteNextSub )
+      ## only process strings that contain a docID and the current Jama base URL, indicating they are hyperlinks to a Jama item
+      #if( $sub.contains("docId=") && $sub.contains($baseUrl) )
+        ##Locate the doc ID in the string
+        #set( $docIdStart = $sub.indexOf("docId=") + 6 )
+        ## the doc ID might before or after the project ID, so check for & or " as the next character
+        #set( $docIdEnd = $sub.indexOf( "&", $docIdStart))
+        
+        #if( $docIdEnd == -1 )
+          #set( $docIdEnd = $sub.indexOf( '"', $docIdStart))
+          ## if still -1 then our link is not stored in the report as a actual <a> link 
+          ## most likely link text wrapped in a <p> tag (I.e user pasted link text to rich text box)
+          #if( $docIdEnd == -1)
+            #set( $docIdEnd = $sub.indexOf( "<", $docIdStart))
+          #end
+        #end
+
+        ## Extract the doc ID from the string
+        #set( $docId = $sub.substring( $docIdStart, $docIdEnd))
+          ##<p class=MsoNorml>Debug: convertHyperlinks docId: $docId </p>
+        ## Get the document corresponding to the docID
+        #set ( $destDoc = $documentSource.getDocument( $mathTool.toInteger($docId) ))
+          ##<p class=MsoNorml>Debug: convertHyperlinks destDoc: $destDoc.name </p>
+
+        #if($baselineMode)
+          #set($destReferencable = $referenceableDocIds.contains($destDoc.currentVersion.id)) ## Checks the origin document ID's of all export list items
+        #else
+          #set($destReferencable = $referenceableDocIds.contains($destDoc.id)) ## Checks only the export list ids
+        #end
+
+        ## Validate that the destination Doc was found
+        #if ( $destDoc && $destReferencable )
+          ## Replace the hyperlink with a Word cross-reference appropriate for the type of destination item
+          #if( $format == "doc" )
+            #set ($sub = $sub.replaceAll("(?s)<a.*?docId=.*?>", "<!--[if supportFields]><span style='mso-element:field-begin'></span>REF _API${docId} \\h <span style='mso-element:field-separator'></span><![endif]--><span class=CrossRefLink style='mso-no-proof:yes'>$destDoc.name</span><!--[if supportFields]><span style='mso-element:field-end'></span><![endif]-->") )
+            #set( $deleteNextSub = true )
+          #elseif($format == 'pdf')
+            #set ($sub = $sub.replaceAll("(?s)<a.*docId=([0-9]*).*>", "<a href='#$docId'>$destDoc.name</a>") )
+            #set( $deleteNextSub = true )
+          #end
+        #end
+
+
+      #end ## #if( $sub.contains("docId=") && $sub.contains($baseUrl) )
+
+      ## append the converted sub to the output string
+      #set ( $output = "${output}${sub}" ) 
+
+    #else
+      #if( $sub.indexOf("</a>") > -1 )
+        #set( $deleteNextSub = false )
+      #end
+
+
+    #end ## #if( !$deleteNextSub )
+
+  #end ## #foreach ($sub in $subs)
+  
+  $output ## return the string with hyperlinks replaced with Word cross-references
+
+#end
+##
+#########################################################################################################################
+                              ########################################################
+                              ##              RICH TEXT IMAGE MACROS                ##
+                              ########################################################                        
+#########################################################################################################################
+##          Macro: convertFigures                                                                             
+##          Input: $input - input string                      
+##                 $maxImageWidth - number, max pixel width of images allowed                                     
+##          Return: $output, string containing img/s replaced w/correct formatting                   
+#########################################################################################################################
+#macro( convertFigures $input $maxImageWidth )
+  #set( $inTable = false )
+  #set( $inFigure = false )
+  #set( $inPTag = false )
+  #set( $inDiv = false )
+  #set( $textBefore = false ) 
+  #set( $imgAlign = 'center') ## SET DEFAULT IMG ALIGNMENT
+  #set( $figCapAlign = 'center') ## SET DEFAULT FIG CAPTION ALIGNMENT 
+  #set( $figCaptionContent = '')
+
+  ## Output string
+  #set( $output = '')
+
+  ## Process if there is at least one img in the string
+  #if( $input.indexOf("<img") > -1 )
+    #set( $imgSubs = $input.split("<"))
+    
+    ## Iterate on each substring
+    #foreach($imgSub in $imgSubs) 
+      #set( $imgSub = $imgSub.trim())
+     
+
+      #if( !$foreach.first && $imgSub.length() > 0) 
+
+        #set( $imgSub = "<${imgSub}") 
+      #end    
+      ##set( $imgSub = $imgSub.replaceAll("\t|\n", ""))       
+
+      ## Determine location in the field and format img considering
+      ## ------------------------------------------------
+      #if( $imgSub.contains("<table"))
+        #set( $inTable = true ) 
+      #elseif( $imgSub.contains("</table"))
+        #set( $inTable = false )
+      #elseif( $imgSub.contains("<p"))
+        #set( $content = $imgSub.replaceAll("<p.*?>", ""))
+        #if( $content.length() > 0 )
+          #set( $textBefore = true )
+        #else 
+          #set( $textBefore = false )
+        #end  
+        #set( $inPTag = true )
+      #elseif( $imgSub.contains("</p>"))
+        #set( $inPTag = false )
+      #elseif( $imgSub.contains("<div"))
+        #set( $inDiv = true )
+      #elseif( $imgSub.contains("</div"))
+        #set( $inDiv = false )
+      #elseif( $imgSub.contains("<figure"))
+
+        ## Figcaption Content 
+        ## ------------------
+        #set( $inFigure = true )
+        #set( $figCapIdx = $foreach.index + 2 ) ## Add one for the img, and one to get to the figcaption 
+        #if( $figCapIdx < $imgSubs.size() )
+          #set( $nextTag = $imgSubs[$figCapIdx])
+          #if( $nextTag.contains("figcaption"))
+            #set( $figCaptionContent = $nextTag.replaceAll("figcaption.*?>", "") )
+            #set( $range = 10 )
+            #set( $figCapClose = false )
+            #foreach( $x in [1..$range] )
+              #if( !$figCapClose )
+                #set( $figCapIdx = $figCapIdx + 1)
+                #if( $figCapIdx < $imgSubs.size())
+                  #set( $isFigCapClose = $imgSubs[$figCapIdx])
+                  #set( $isFigCapClose = "<${isFigCapClose}")
+                  #if( $isFigCapClose.contains("</figcaption"))
+                    #set( $figCapClose = true )
+                    #set( $figCaptionContent = $figCaptionContent.replaceAll("<.*?>", ""))
+                  #else 
+                    #set( $figCaptionContent = $figCaptionContent + $isFigCapClose )
+                  #end 
+                #end 
+              #end
+            #end ## #foreach( $x in [1..$range] )
+          #end ## #if( $nextTag.contains("figcaption"))
+        #end ## #if( $figCapIdx < $imgSubs.size() )
+
+
+      #elseif( $imgSub.contains("</figure>"))
+        #set( $inFigure = false )
+      #end ## #if( $imgSub.contains("<table"))
+
+
+
+      ## Image Alignment 
+      ## ------------------------------------------------
+      #if( $inFigure || $inPTag || $inDiv)
+        #if( $imgSub.contains("align"))
+          #set( $imgAlign = $imgSub.replaceAll("(?s).*(text-align|float|align).*?(\w+).*", "$2"))
+        #end 
+      #end 
+
+      #if( $format == 'pdf')
+        #if( $imgAlign == 'center')
+          #set( $imgAlignMargin = 'margin:auto !important;')
+        #elseif( $imgAlign == 'right')
+          #set( $imgAlignMargin = 'margin-left:auto !important;margin-right:0pt !important;')
+        #else 
+          #set( $imgAlignMargin = 'margin:0;')
+        #end 
+      #end 
+
+      ## Clear tags that will be reformatted 
+      ## ------------------------------------------------
+      #if( $imgSub.contains("<figure")|| $imgSub.contains("</figure")|| $imgSub.contains("<figcaption") || $imgSub.contains("</figcaption") || $imgSub.contains("<div") || $imgSub.contains("<\/div"))
+
+        #set( $imgSub = $imgSub.replaceAll($imgSub, ""))
+      #end  
+
+      ## Image   
+      ## ------------------------------------------------
+      #if( $imgSub.contains("img"))
+        #set( $imgPlaceHolder = false )
+        #getImgDimensions( $imgSub $maxImageWidth ) ## returns targetWidth, targetHeight
+
+         #if( $inTable )
+          #if( $height && $width ) ## Keep source height and width: this image has been resized in #formatTables according to table cell width ##
+            #set( $targetWidth = $width )
+            #set( $targetHeight = $height )
+          #end 
+        #end 
+
+        #if( $imgSub.indexOf('src="') > -1 )
+          #set($srcStartIndex = $imgSub.indexOf('src="') + 5)
+          #set( $quoteChar = '"')
+        #elseif($imgSub.indexOf("src='") > -1)
+          #set($srcStartIndex = $imgSub.indexOf("src='") + 5)
+          #set( $quoteChar = "'")
+        #else
+          #set($srcStartIndex = false )
+        #end
+
+        #if( $srcStartIndex )
+          #set($remainingString = $imgSub.substring($srcStartIndex))
+          #set($srcEndIndex = $remainingString.indexOf($quoteChar))
+          #set($imgSrc = $remainingString.substring(0, $srcEndIndex))
+        #else
+          #set($imgSrc = false )
+          #set( $imgPlaceHolder = true)
+        #end
+        
+        #if( $imgSrc )
+          #set( $imgSrc = $imgSrc.replaceAll("\?dpi.*$", ""))
+
+          #if($imgSrc.indexOf($baseUrl) > -1 && $imgSrc.indexOf("blob:http") == -1 )
+            #set( $dataURI_base64 = false )
+            #buildBase64ImgContent( $imgSrc $dataURI_base64) ## returns cid, imageData
+
+          #elseif($imgSrc.contains("base64") )
+            #set( $dataURI_base64 = true )
+            #buildBase64ImgContent( $imgSrc $dataURI_base64) 
+
+          #else 
+            #set( $imgPlaceHolder = true )
+          #end
+        #end 
+
+          
+        ## Word Image Replace
+        ## ------------------------------------------------
+
+        #if( $format == 'doc' && !$imgPlaceHolder && $targetWidth && $targetHeight && $cid )
+          ## set imgForReplace for all imgs (note: .doc attachment svg images need the replacement to be a v:shape)
+          #set( $imgForReplace = "<!--[if gte vml 1]><v:shape style='width:${targetWidth}px;height:${targetHeight}px;visibility:visible;mso-wrap-style:square'>
+            <v:imagedata src='cid:$cid' o:title='$cid'/></v:shape><![endif]-->")
+          ## other image formats can utilize a img tag but if using key command to update toc the imgs can disappear
+          ##set( $imgForReplace = "<img width=$!targetWidth height=$!targetHeight src='cid:$!cid'/>")
+
+          #if( $imgSub.contains("equation"))
+            #formatEquation_DOC( $imgForReplace $inPTag $textBefore)
+          #else
+            #formatImgWithOptionForCaptions_DOC( $imgForReplace $imgAlign $figCapAlign $figCaptionContent )
+          #end 
+
+     
+          #if( $imgSub.contains("equation"))
+            #formatEquation_DOC( $imgForReplace $inPTag $textBefore)
+          #else
+            #formatImgWithOptionForCaptions_DOC( $imgForReplace $imgAlign $figCapAlign $figCaptionContent )
+          #end 
+
+
+        ## PDF Image Replace
+        ## ------------------------------------------------
+        #elseif( $format == 'pdf' && !$imgPlaceHolder && $targetWidth && $imageData ) 
+
+          #if( $imgSub.contains("equation"))
+            #formatEquation_PDF($targetWidth $imageData $inPTag $textBefore $fileExt)
+          #else 
+            #formatImgWithOptionForCaptions_PDF( $targetWidth $imgAlignMargin $figCapAlign  $figCaptionContent $imageData )    
+          #end 
+
+        #elseif( $imgPlaceHolder )
+          #set( $replace = "[Placeholder: IMAGE]")
+        #end
+
+        ## if this image is wrapped with text ensure the text closes and reopens around the image so 
+        ## that font styles are maintained
+        #if( $inPTag && $textBefore && !$imgSub.contains("equation"))
+          #set( $replace = $replace + "<p class=MsoNormal>")
+        #end 
+
+        #set( $imgSub = $imgSub.replaceAll("(?s)<img.*?>", $replace ))
+        ###set( $replace = $replace.replaceAll( "<", "<br>-"))
+        ###Debug Img Replace $replace<br><br>
+        ##
+        ## ****************************************<br>
+        ##  <p class=MsoNormal>DEBUG IMG for $format format </p> 
+        ##<p class=MsoNormal>TargetWidth: $targetWidth</p>
+        ##<p class=MsoNormal>TargetHeight: $targetHeight </p>
+        ##<p class=MsoNormal>Cid(.doc): $cid </p>
+        ## <p class=MsoNormal>Fig Cap Content: $figCaptionContent</p>
+        ## <p class=MsoNormal>Img Align: $imgAlign</p>
+        ## <p class=MsoNormal>Fig Cap Align: $figCapAlign</p>
+        ## <p class=MsoNormal>Image Src: #if( !$dataURI_base64) $imgSrc 
+        ## #else base64 Data URI char length $imgSrc.length() #end </p>
+        ##  <p class=MsoNormal>ImageData(.pdf): $imageData.length()</p>
+        ##  *****************************************<br>
+        ## 
+      #end  ## #if( $imgSub.contains("img"))
+
+      #set( $output = "${output}${imgSub}" ) 
+
+    #end ## #foreach($sub in $imgSubs) 
+
+  #else 
+    #set( $output = $input)
+  #end ## #if( $input.indexOf("<img") > -1 )
+             
+  $output ##  Return String    
+
+
+#end
+##
+#################################################################################################
+########    WORD IMAGE REPLACE MACROS ( SUB MACROS OF #convertFigures )                        ##
+########    RETURN: $replace, img formatted for proper replacement                             ## 
+#################################################################################################
+##---------------------------------------------------------------------------------------------##
+##  formatEquation_DOC - formats equation 
+##---------------------------------------------------------------------------------------------## 
+#macro( formatEquation_DOC $imgForReplace $inPTag )
+  #set( $tableWidth = $targetWidth +50)
+  #set( $equationRefNum = $equationRefNum +1) 
+  #if( $inPTag && $textBefore ) ## if inline with a ptag and text preceeds the equation push the equation down lower ##
+      #set( $textRaise = "-15pt") ## so that its inline with text, this number can be customized considering the size of the equation ##
+  #else 
+      #set( $textRaise = "0pt")
+  #end 
+  #set( $replace = "<span style='mso-no-proof:yes;position:relative;mso-text-raise:$!textRaise;'>$!imgForReplace</span>")
+
+  #if($TOE_includeAllEquations)
+      #set($replace = $replace + "<span class=MsoCaption style='text-align:left;mso-text-raise:$!textRaise;'>eq. $!equationRefNum</span> ")
+  #end
+#end
+##
+##---------------------------------------------------------------------------------------------##
+##  formatImgWithOptionForCaptions_DOC - img is not in fig tags w/ figcaptions, 
+##                                       option to format img with captions and include in the TOF 
+##---------------------------------------------------------------------------------------------## 
+#macro( formatImgWithOptionForCaptions_DOC $imgForReplace $imgAlign $figCapAlign $figCaptionContent)
+    #if( $TOF_includeAllFigures || $figCaptionContent.length() > 0 ) ## Add Figcaptions to All Images and Include in the TOF ##  
+      #set( $figureRefNum = $figureRefNum + 1)
+      #set( $tableWidth = $targetWidth + 2)
+      #set( $replace = "<p class=MsoNormal style='text-align:$!imgAlign'>
+          <table width=$!tableWidth border=0 style='border-collapse:collapse;border:none;margin:0;table-layout:fixed;'>
+              <tr>
+                  <td>
+                      $!imgForReplace
+                  </td>
+              </tr>
+              <tr>
+                  <td width=$!tableWidth>
+                      <p class=MsoCaption style='margin-top:-10pt;text-align:$!figCapAlign'><a name='_FIG${figureRefNum}'>Figure </a><!--[if supportFields]><span style='mso-bookmark:_FIG${figureRefNum}'></span><span style='mso-element:field-begin'></span><span style='mso-bookmark:_FIG${figureRefNum}'>SEQ Figure \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span style='mso-bookmark:_FIG${figureRefNum}'><span style='mso-no-proof:yes'>$!figureRefNum</span></span><!--[if supportFields]><span style='mso-bookmark:_FIG${figureRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span style='mso-bookmark:_FIG${figureRefNum}'></span> 
+                      $!figCaptionContent</p>
+                  </td>
+              </tr>
+          </table></p>" )
+      #set( $figCaptionContent = '') ## clear the figCaptionContent for next figure 
+    #else ## No Extra Figcaptions No Inclusion in TOF ## 
+        #set( $replace = "<p class=MsoNormal style='text-align:$!imgAlign'>$imgForReplace</p>" )
+    #end 
+#end
+#################################################################################################
+########    PDF IMAGE REPLACE MACROS ( SUB MACROS OF #convertFigures )                         ##
+########    RETURN: $replace, img formatted for proper replacement                             ## 
+#################################################################################################
+##---------------------------------------------------------------------------------------------##
+##  formatEquation_PDF - formats equation 
+##---------------------------------------------------------------------------------------------##
+#macro( formatEquation_PDF $targetWidth $imageData $inPTag $textBefore $fileExt)
+  #set( $equationRefNum = $equationRefNum +1) 
+  ## iText 7.2.5 or after support vertical-align with property values of 'text-top'|'text-bottom'|'sub'|'sup'. The default is baseline
+  #if( $fileExt.contains("svg"))
+     #set( $replace = "<figure style='display:block;text-align:$!figCapAlign !important;$!imgAlignMargin;height:auto;width:${targetWidth}px !important;'>
+      <img src='$!imageData' style='display:block;height:auto;width:${targetWidth}px !important;object-fit:contain;margin:10px'/></figure>")
+  #else 
+    #set( $replace = "<img src='$!imageData' style='height:auto;width:${targetWidth}px !important;object-fit:scale-down;vertical-align:sub;'/>")
+  #end 
+
+  #if($TOE_includeAllEquations)
+      #set($replace = $replace + "<span class=MsoCaption style='text-align:left;'>eq. $!equationRefNum</span> ")
+  #end
+#end  
+##
+##---------------------------------------------------------------------------------------------##
+##  formatImgWithOptionForCaptions_PDF - img is not in fig tags w/ figcaptions, 
+##  - option to format img with captions and include in the TOF 
+##---------------------------------------------------------------------------------------------##
+#macro( formatImgWithOptionForCaptions_PDF $targetWidth $imgAlignMargin $figCapAlign $figCaptionContent $imageData)
+  #if( $TOF_includeAllFigures || $figCaptionContent.length() > 0 )
+      ## Add Figcaptions to All Images and Include in the TOF ##  
+      #set( $figureRefNum = $figureRefNum + 1)
+      #set( $replace = "<figure style='text-align:$!figCapAlign !important;$!imgAlignMargin;height:auto;width:${targetWidth}px !important;'>
+      <img src='${imageData}' style='display:block;height:auto;width:100% !important;object-fit:contain;'/>
+      <figcaption>$!figCaptionContent</figcaption></figure>")
+      #set( $figCaptionContent = '') ## clear the figCaptionContent for next figure 
+  #else 
+      ## No Extra Figcaptions No Inclusion in TOF ## 
+      #set( $replace = "<figure style='text-align:${figCapAlign} !important;$!imgAlignMargin;height:auto;width:${targetWidth}px !important;'>
+      <img src='$!imageData' style='display:block;height:auto;width:100% !important;object-fit:contain;'/></figure>")
+  #end 
+#end       
+#######################################################################################################################
+##         Macro: buildBase64ImgContent   
+##         Input: $imgSrc - string of img src value                                                           
+##         Return: $cid, - string, a file identifier that references a content location for .doc exports
+##            $fileList, each image is formatted as an xml file reference and added to list. 
+##            $figureList, each image is formatted with base64 definition and content location, and added to this list. 
+##            $imageData, each image is formatted as a base64 dataURI: 'pdf' output uses this src value.
+#######################################################################################################################
+#macro( buildBase64ImgContent $imgSrc $dataURI_base64 )   
+  #set( $imgID = false )
+  #set( $fileExt = false )
+  #set( $base64Fig = false )
+  #set( $imageData = "")
+ 
+  #if( !$dataURI_base64 )
+    ## Get the image id 
+    ## -------------------------------
+    #if( $imgSrc.contains("attachment/"))
+      #set( $imgID = $imgSrc.replaceAll("(?s).*\battachment\/(\d+)\/.*", "$1"))
+    #elseif( $imgSrc.contains("diagram/"))
+      #set( $imgID = $imgSrc.replaceAll("(?s).*\bdiagram\/(\d+)\/.*", "$1"))
+    #else 
+      #set( $imgPlaceHolder = true )
+    #end 
+
+    #set( $imgID = $imgID.trim())
+    ##Debug ImgID: $imgID<br>
+    #if( $imgID )
+      ## Get the file extension 
+      ## -------------------------------
+      #set( $fileExt = $imgSrc.replaceAll( "(?s).*\.(\w+)$", "$1"))
+
+      ## Get the base64 
+      ## ------------------------------- 
+      #if( $documentSource.getBase64Image($mathTool.toInteger($imgID)))
+        #set( $base64Fig = $documentSource.getBase64Image( $mathTool.toInteger($imgID)))
+        #set( $base64Fig = $base64Fig.trim())
+      #else 
+        #set( $imgPlaceHolder = true )
+      #end 
+    #else 
+      #set( $imgPlaceHolder = true )
+    #end
+    ##Debug base64 character length: $base64Fig.length()<br>
+
+  #elseif( $dataURI_base64 )
+    #set( $dataURI_base64_count = $dataURI_base64_count + 1 )
+    #if( $imgSrc.indexOf(";") > -1 )
+      #set( $getFileInfo = $imgSrc.split(";"))
+
+      ## Get the file extension 
+      ## -------------------------------
+      #set( $fileExt = $getFileInfo[0])
+      #set( $fileExt = $fileExt.replaceAll(".*?\/(.*)", "$1"))
+
+      ## Get the base64 
+      ## ------------------------------- 
+      #set( $base64Fig = $getFileInfo[1])
+      #set( $base64Fig = $base64Fig.replaceAll("\/>|base64,", ""))
+
+    #else 
+      #set( $imgPlaceHolder = true )
+    #end 
+
+
+  #end ##if( !$dataURI_base64 )
+
+  #if( !$imgPlaceHolder )
+    #if( $format != 'doc' ) ## create dataURI for pdf
+      #if($fileExt.contains("svg"))
+        #set( $fileExt = $fileExt + "+xml")
+      #end 
+      #set( $imageData = "data:image/" + $fileExt + ";base64," + $base64Fig )
+    #else ## doc
+      #set( $contentType =  "Content-Type:image/" + $fileExt )
+      #if( $dataURI_base64 )
+        #set( $cid = "JAMA_IMG_BASE64" + $dataURI_base64_count + "." + $fileExt )
+      #else 
+        #set( $cid = "JAMA_IMG_" + $imgID + "." + $fileExt )
+      #end 
+      #set( $contentId = "Content-ID: " + $cid  )
+
+      ## Add base64 content block to figureList which outputs at base of template  
+      #if( $figureList.add($boundaryString)) #end
+      #if( $figureList.add($contentId)) #end
+      #if( $figureList.add("Content-Transfer-Encoding: base64")) #end
+      #if( $figureList.add($contentType)) #end
+      #if( $figureList.add("")) #end
+      #if( $figureList.add($base64Fig)) #end
+      #if( $figureList.add("")) #end
+
+      ## Add xml file to fileList which outputs at base of template
+      #set( $file = '<o:File HRef="' + $cid + '"/>')
+      #if( $fileList.add( $file)) #end
+
+    #end ##if( $format != 'doc') 
+
+  #end ## #if( !$imgPlaceHolder )
+
+#end
+#######################################################################################################################
+##      Macro: getImgDimensions 
+##      Input: $inputImage -string, substring img element 
+##             $maxImageWidth- number, the value will be the page width if the initial macro called was #formatRichText 
+##                             else the value will be a user set value provided to the #formatTableCell macro
+##      Output: $targetWidth and $targetHeight - number, pixel dimensions of image 
+#######################################################################################################################
+#macro( getImgDimensions $inputImage $maxImageWidth )
+  #set( $width = false )
+  #set( $height = false )
+  #set( $targetWidth = false )
+  #set( $targetHeight = false )
+  #set( $aspectRatio = 1.5 )
+
+  #if( $maxImageWidth < $maxPageWidth )
+    #set( $maxImgWidth = $maxImageWidth )
+  #else 
+    #set( $maxImgWidth = $maxPageWidth )
+  #end 
+  ## InputMaxImageWidth: $maxImageWidth, MaxPageWidth $maxPageWidth, 
+  ## MaxPageHeight $maxPageHeight, Final MaxImgWidth: $maxImgWidth<br>
+
+  ## Determine the size of the image from the source rich text html 
+  #if( $inputImage.contains("height") && $inputImage.contains("width"))
+    #set( $height = $inputImage.replaceAll('(?s).*\bheight.*?(\d+).*','$1'))
+    #set( $height = $mathTool.toDouble( $height.trim() ))
+    #set( $width = $inputImage.replaceAll('(?s).*\bwidth.*?(\d+).*','$1'))
+    #set( $width = $mathTool.toDouble( $width.trim() ))
+    ##1. Debug w x h, $width x $height <br>
+  #end
+
+  #if( $height && $width )
+    #set( $aspectRatio = $width / $height ) 
+
+    ## if the image is taller than allowed, resize
+    #if( $height > $maxPageHeight )
+      #set( $targetHeight = $maxPageHeight )
+      #set( $targetWidth = $mathTool.mul($targetHeight, $aspectRatio)) 
+      ##2. Debug w x h,  $targetWidth x $targetHeight <br>
+      ## if the image is still wider than allowed, resize again
+      #if( $targetWidth > $maxImgWidth )
+        #set( $targetWidth = $maxImgWidth )
+        #set( $targetHeight = $mathTool.div($targetWidth, $aspectRatio))
+        ##3. Debug w x h,  $targetWidth x $targetHeight <br>
+      #end
+    ## if the image is wider than allowed, resize
+    #elseif( $width > $maxImgWidth )
+      #set( $targetWidth = $maxImgWidth)
+      #set( $targetHeight = $mathTool.div($targetWidth, $aspectRatio))
+      ##4. Debug w x h,  $targetWidth x $targetHeight <br>
+
+      ## if the image is still taller than allowed, resize again
+      #if( $targetHeight > $maxPageHeight )
+        #set( $targetHeight = $maxPageHeight )
+        #set( $targetWidth = $mathTool.mul($targetHeight, $aspectRatio ))
+        ##5. Debug w x h,  $targetWidth x $targetHeight <br>
+      #end
+    #else
+      #set( $targetWidth = $width )
+      #set( $targetHeight = $height )   
+      ##6. Debug w x h,  $targetWidth x $targetHeight <br>
+    #end
+
+  #end ## #if( $height && $width )
+
+  #if( !$width || !$height)
+    ## if no height and width found set to custom 4:3 ratio
+    ## PDF only needs the width edge measurement, as 'auto' works for responsive heights
+    ## Word needs the width and height edge measurement as 'auto' distorts the image in doc exports.
+    #set( $targetWidth = $maxImgWidth )
+    #set( $ratioPart = $maxImgWidth / 4)
+    #set( $targetHeight = $ratioPart * 3)
+  #end
+
+  #set( $targetWidth = $mathTool.toInteger($targetWidth ))
+  #set( $targetHeight = $mathTool.toInteger( $targetHeight ))
+  ##Final Debug w x h,  $targetWidth x $targetHeight <br>
+#end 
+#########################################################################################################################
+                              ########################################################
+                              ##             RICH TEXT TABLE MACROS                 ##
+                              ########################################################
+#########################################################################################################################
+##          Macro: formatTables
+##          Input: $inString - input string
+##                 $maxWidth - number, maximum allowed width(pxs) of tables, resize if greater 
+##                 $tableAlign - string, left, right, center alignment of table              
+##          Return: string, ready for opening in Word
+#########################################################################################################################
+#macro( formatTables $inString $maxWidth $tableAlign)
+  #if( $inString.contains("<table") )
+    ## Clear variables used in the macro
+    #set( $output = "" )
+    #set( $table = false )
+    #set( $maxWidth = $mathTool.toDouble( $maxWidth ))
+    #set( $tableCell = false )
+    #set( $tableHeader = false )
+    #set( $tableCellParagraph = false )
+   
+    ## For tables, each tag that makes up the table needs to be independently processed, so split the description into
+    ## an array where each each value in the array is a single tag of the HTML, split on '>'
+    ## $sub = array of individual tags in the description
+    #set ( $subs = $inString.split(">"))##
+
+    ## Iterate on each substring
+    #foreach ($sub in $subs) ##
+      ## append > to each sub except the last one since the split cut it off
+      #if( !$foreach.last) #set( $sub = "${sub}>") #end
+      
+      ## Determine where in a table we are
+      #if( $sub.contains("<table") ) 
+        #set( $table = true )  
+      #end 
+
+      #if( $sub.contains("<thead") ) #set( $tableHeader = true )  #end
+      #if( $sub.contains("<td") || $sub.contains("<th") ) #set( $tableCell = true )  #end
+      #if( $sub.contains("<p") || $sub.contains("<li") ) #set( $tableCellParagraph = true )  #end
+
+      
+      ###########################################################################
+      ## - make sure all table cells include a paragraph with an appropriate class
+      ###########################################################################
+
+      #if( $table && !$tableHeader && $tableCell )
+        #set($sub = $sub.replaceAll('<p(.*)','<p class=TableCell$1')) ##
+        #set( $sub = $sub.replaceAll('<li(.*?)>','<li class=TableCell$1>'))
+      #end
+
+      #if($table && $tableHeader && $tableCell)
+        #set($sub = $sub.replaceAll('<p(.*)','<p class=TableHeader$1')) ##
+        #set( $sub = $sub.replaceAll('<li(.*?)>','<li class=TableHeader$1>'))
+      #end
+
+      ## cells with no formatting
+      #if( $sub.contains("<td") && !$subs[$nextSubIndex].contains("<p") && !$subs[$nextSubIndex].contains("<li") )
+        #set( $sub = "$sub<p class=TableCell>")
+      #end
+
+      #if( $sub.contains("<th") && ($docName != "Inspection Plan" && $docName != "Release History") && !$subs[$nextSubIndex].contains("<p") && !$subs[$nextSubIndex].contains("<li") )
+        #set( $sub = "$sub<p class=TableHeader>")
+      #end
+
+      #if( ($sub.contains("</td") || $sub.contains("</th")) &&!$subs[$prevSubIndex].contains("</p") && !$subs[$prevSubIndex].contains("</li") )
+        #set( $end = $sub.indexOf("</t") )
+        #set( $contents = $sub.substring(0, $end) ) ##
+        #set( $endTag = $sub.substring($end, $sub.length()) )
+        #set( $sub = "$contents</p>$endTag")
+      #end
+
+      ###########################################################################
+      ## - make sure all tables have the borders collapsed
+      ###########################################################################
+      #if( $sub.contains("<table") && !$sub.contains("border-collapse") )
+        #if( $sub.contains("style") )
+          #set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1$2$3;border-collapse:collapse$4") )
+        #else
+          #set( $sub = $sub.replaceAll("(<table)(.*?)(>)","$1$2 style='border-collapse:collapse'$3") )
+        #end
+      #end
+
+      ###########################################################################  
+      ## - make if the table has a border definition that the border attribute 
+      ##   is placed to ensure the outer border box is created
+      ###########################################################################
+      #set( $tableInlineStyle = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$3") )
+      #if( $tableInlineStyle.contains("border:"))  ## Ensure the outside border is created if the table has a border style definition 
+        #set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1 border='1' $2$3$4") )
+      #end
+
+      ###########################################################################
+      ## - add header background color
+      ###########################################################################
+      #if( ($tableHeader && $sub.contains("<td")) || $sub.matches("(?s).*<th[^e].*") )
+        ## If user has table header color set then use that color
+        #set($tableHeaderColor = $sub.replaceAll('background-color:(.*?)[;|"]|[^*]', "$1"))
+         
+        #if($tableHeaderColor != '' || $!tableHeaderColor)
+          #set($tableHeaderBackgroundColor = $tableHeaderColor.trim())
+        #end
+
+        ## Remove old background color from style attribute with multiple CSS or where Background-Color is the only
+        ##  style attribute.
+        #set($sub = $sub.replaceAll("background-color:.*?;", ""))
+        #set($sub = $sub.replaceAll("style='background-color:.*?'", ""))
+        #set($sub = $sub.replaceAll('style="background-color:.*?"', ""))
+        #set($sub = $sub.replaceAll('style=""|style=" "', ""))
+        #set($sub = $sub.replaceAll("style=''|style=' '", ""))
+
+        ## Preserve already assigned cell color if already set to prevent double inline style setting.
+        #if( $sub.contains("style") && !$sub.contains("background-color"))
+          #set( $replace = "$1$2;background-color:$tableHeaderBackgroundColor$3" )
+          #set( $sub = $sub.replaceAll("(<t.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)",$replace) )
+        #elseif(!$sub.contains("style") && !$sub.contains("background-color"))
+          #set( $replace = "$1 style='background-color:$tableHeaderBackgroundColor'$2" )
+          #set( $sub = $sub.replaceAll("(<t.*?)(>)",$replace) )
+        #end
+      #end
+
+      ###########################################################################
+      ###########################################################################
+      ## - add border color
+      ###########################################################################
+      #*
+      #if( $sub.contains("<table") )
+          #if( $sub.contains("style") )
+            #set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1$2$3;border: 0.5pt solid $tableBorderColor$4") )
+          #else
+            #set( $sub = $sub.replaceAll("(<table)(.*?)(>)","$1$2 style='border: 0.5pt solid $tableBorderColor'$3") )
+          #end
+      #end
+      *#
+      #if( $sub.contains("<td") || $sub.matches("(?s).*<th[^e].*") )
+        #if( $sub.contains("style") )
+          #set( $replace = "$1$2;border-color: $tableBorderColor$3" )
+          #set( $sub = $sub.replaceAll("(<t.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)",$replace) )
+        #else
+          #set( $replace = "$1 style='border-color: $tableBorderColor'$2" )
+          #set( $sub = $sub.replaceAll("(<t.*?)(>)",$replace) )
+        #end
+      #end
+
+      ###########################################################################
+      ###########################################################################
+      ##  Map <key, value> each table so that it is possible to recall each row 
+      ##   and col of the the table, and to calculate cell widths as a proportion 
+      ##    to the longest width of the table. And size PDF and Word tables 
+      ##    as % in relation to maxWidth
+      ###########################################################################
+      #set( $findWidth = "(?s).*\bwidth.*?(\d*\.?\d*)(pt|px|in|%).*")
+      #set( $findHeight = "(?s).*\bheight.*?(\d*\.?\d*)(pt|px|in|%).*")
+      #set( $findColSpan = "(?s).*\bcolspan\s*=\s*[\x27\x22]?([^\x27\x22\s>]+).*")
+
+      #set( $imgCount = 0 )
+
+      #if( $sub.contains("<table" ) )
+        ## Create a Map of the Table 
+        #set( $tableMap = {} )
+        #set( $tableWidthFound = false )
+        #set( $rowCount = 0 )
+        #set( $start = $foreach.index )
+        #set( $end = $subs.size() - 1 )
+
+        ## check for table widths and add <table = width> to map
+        #if( $sub.contains( "width" ))
+          #convertWidths( $sub $findWidth $start)
+          #if( !$elementWidth )
+            #set( $success = $tableMap.put("table","no width"))
+          #else
+            #set( $success = $tableMap.put("table", "${elementWidth}"))
+            #set( $tableWidthFound = true)
+          #end 
+        #elseif( $sub.contains("<table") && !$sub.contains("width"))
+          #set( $success = $tableMap.put("table","no width"))
+        #end 
+
+
+        #foreach( $i in [$start..$end] )  
+          #set( $colSpan = false )
+          ## add each <img# = $i> to tableMap ##  ## add class or id to image for it to be ignored if no resizing
+          #if( $subs[$i].contains("<img")) ## store location of img 
+            #set( $imgCount = $imgCount + 1) 
+            #set( $success = $tableMap.put("image${imgCount}", $i))
+          #end 
+
+          #if( $subs[$i].contains("<tr"))
+            #set( $rowCount = $rowCount + 1 )
+            #set( $rowCellWidths = [] )
+          #end 
+
+          #if( $subs[$i].contains("<td") || $subs[$i].contains("<th")) 
+            #if( $subs[$i].contains("colspan"))
+              #set( $colSpan = true ) 
+              #set( $colSpanCount = $mathTool.toNumber($subs[$i].replaceAll( $findColSpan,"$1")))
+              #foreach( $x in [1..$colSpanCount ])
+                #if( $foreach.first && $subs[$i].contains("width"))
+                  #convertWidths($subs[$i] $findWidth $i)
+                  #set( $success = $rowCellWidths.add([$elementWidth, $i, $colSpanCount]))
+                  #break 
+                #else 
+                  #set( $success = $rowCellWidths.add(["col", $i]) )
+                #end 
+              #end 
+
+            #elseif( $subs[$i].contains("width") && !$colSpan ) 
+              #convertWidths( $subs[$i] $findWidth $i) 
+              #if( !$elementWidth )
+                #set( $success = $rowCellWidths.add(["col", $i]) )
+              #else 
+                #set( $success = $rowCellWidths.add( [$elementWidth, $i] ))
+              #end
+
+            #else 
+              #set( $success = $rowCellWidths.add(["col", $i]) )
+            #end 
+          #end 
+
+          ## add each <row# = [[colWidth, $i]...]> to tableMap ## 
+          #if( $subs[$i].contains("</tr") )
+            #set( $success = $tableMap.put("$rowCount", $rowCellWidths))
+          #end 
+
+          #if( $subs[$i].contains("</table") )
+            #break
+          #end
+      
+        #end ##foreach( $i in [$start..$end] )  
+
+        ## End of Creating Map of Table ##
+        #############################################
+        ##<p>Debug Table Map $tableMap
+
+        #############################################
+        ## Find Max Row Width and set colGroupKey 
+        #############################################
+        #set( $maxWidthCount = 0 )
+        #set( $maxRowWidth = 0 )
+        #set( $maxTotalCols = 0)
+
+        #foreach( $element in $tableMap.entrySet())
+          #set( $row = false )
+          #set( $tableMapKey = $element.key )
+          #set( $row = $element.value )
+          #set( $tempRowWidth = 0 )
+          #set( $tempWidthCount = 0 )
+          #set( $tempTotalCols = 0 )
+          #set( $totalRowWidthFound = 0 )
+          #set( $totalPercWidthFound = 0 )
+        
+          #if( $tableMapKey != "table" && !$tableMapKey.contains("image") )
+            #set( $row = $element.value )
+            #if( $row )
+              #foreach( $cell in $row )
+                #set( $tempTotalCols = $tempTotalCols + 1)
+                #if( !$cell[0].contains("col") && !$cell[0].contains("%"))
+                  #set( $cellWidth = $mathTool.toDouble($cell[0]) )
+                  #set( $tempWidthCount = $tempWidthCount + 1 )
+                  #set( $tempRowWidth = $tempRowWidth + $cellWidth )
+                  ##<p>Debug Temp: $cellWidth, $tempWidthCount, $tempRowWidth</p>
+                #end  
+              #end 
+
+              #if( $tempWidthCount >= $maxWidthCount ) ## store the row with the most unique widths
+                #set( $maxWidthCount = $tempWidthCount )
+                #set( $colGroupKey = $tableMapKey )
+              #end 
+              #if( $tempRowWidth > $maxRowWidth ) ## store the greatest width 
+                #set( $maxRowWidth = $mathTool.toDouble( $tempRowWidth ) )
+              #end 
+              #if( $tempTotalCols > $maxTotalCols )
+                #set( $maxTotalCols = $tempTotalCols )
+              #end 
+
+              ## if we have an abnormally small maxRowWidth for a table expecting 4 or more cols 
+              ## set maxRowWidth to the page maxWidth 
+              #if( $row.size() >= 4 && $maxRowWidth < 200 )
+                #set( $maxRowWidth = $maxWidth )
+              #end 
+            #end ##if( $row )
+          #end ##if( $tableMapKey != "table" && !$tableMapKey.contains("image")  )
+        #end ##foreach( $element in $tableMap.entrySet())
+        
+        #if( $maxRowWidth < 1 )
+          #set( $maxRowWidth = $maxWidth )
+        #end 
+
+        ## if there is no table width and there are columns without widths found 
+        #if( !$tableWidthFound && $maxTotalCols > $maxWidthCount ) ## ensure the maxRowWidth 
+        ## has additional width set so no columns have zero width. 
+          #set( $additionalWidth = $mathTool.toInteger($maxRowWidth * .2)) 
+          #set( $maxRowWidth = $maxRowWidth + $additionalWidth)
+        #end 
+        ############################################################
+        ##<p>Debug final max: $colGroupKey, $maxWidthCount, $maxRowWidth</p>
+
+        ############################################################
+        ## Replace Table width with Percent width  
+        ############################################################
+
+        #set( $colGroup = "<colgroup>")
+        #foreach( $element in $tableMap.entrySet())
+          #set( $tableMapKey = $element.key )
+          #set( $tableMapValue = $element.value )
+    
+          #if( $tableMapKey == "table" )
+            ## Table Width Replace 
+
+            #if( $tableMapValue.contains("no width"))
+              ## No Table Width Found 
+              #if( $maxRowWidth > 0 && $maxRowWidth < $maxWidth )
+                #set( $tableWidthPerc = $maxRowWidth / $maxWidth * 100 )    
+              #else 
+                #set( $tableWidthPerc = 100 )
+              #end 
+              
+              #set( $tableWidthPerc = $mathTool.toInteger( $tableWidthPerc ))
+              #set( $find = "(<table)(.*?)(>)")
+              #set( $replace = "$1$2 width=${tableWidthPerc}% $3")
+
+              ##<p>Debug final tableWidthPerc: ${tableWidthPerc}%</p>
+              #if( $tableWidthPerc )
+                #set( $sub = $sub.replaceAll($find, $replace)) 
+              #end
+
+            #else 
+              ## Table Width Found 
+              #if( $tableMapValue.contains("%") )
+                #set( $tableWidthPerc = $mathTool.toDouble($tableMapValue.replaceAll("%", "")))
+
+              #else
+                #set( $tableWidth = $mathTool.toDouble($tableMapValue))
+                #if( $tableWidth > $maxWidth )
+                  #set( $tableWidthPerc = 100 )
+                #else
+                  #set( $tableWidthPerc = $tableWidth / $maxWidth * 100 )
+                #end 
+                #if( $tableWidth > $maxRowWidth ) 
+                  #set( $maxRowWidth = $tableWidth )
+                #end 
+              #end 
+
+              #if( $tableWidthPerc > 100 && $tableWidthPerc < 1 || !$tableWidthPerc )
+                #set( $tableWidthPerc = 100 )
+              #end 
+
+              #set( $tableWidthPerc = $mathTool.toInteger( $tableWidthPerc)) 
+              #set( $find = "(width)(=|:)([\s*|\x27\x22|])?(\d*.*?)(pt|px|in|%)")
+              #set( $replace = "$1$2$3${tableWidthPerc}% !important" )
+              
+              ##<p>Debug final tableWidthPerc: ${tableWidthPerc}%</p>
+              #if($tableWidthPerc)
+                #set( $sub = $sub.replaceAll($find, $replace) )
+              #end 
+
+            #end ## #if( $tableMapValue.contains("no width"))
+
+
+          ############################################################
+          ## Replace Image width/height with px width/height proportionate
+          ## to table cell   
+          ############################################################
+          #elseif( $tableMapKey.contains("image") ) 
+              ## Word <img replace px according to cell width ##
+              #set( $imgIndex = $tableMapValue )
+              #set( $imgSub = $subs[$imgIndex] )
+              #set( $cellWidthPx = 0 )
+              #if( $cellPerc > 0 )
+                  #set( $cellPerc = $mathTool.toDouble( $cellPerc ))
+              #else 
+                  #set( $cellPerc = $mathTool.toDouble( $tableWidthPerc ))
+                  #set( $cellPerc = $cellPerc / $maxTotalCols )
+              #end 
+              #set( $cellWidthPx = $cellPerc / 100 * $maxWidth )
+              #set( $cellWidthPx = $mathTool.toDouble( $cellWidthPx ))
+              #set( $cellWidthPx = $cellWidthPx - 50 ) ## account for margin of error/ adjust custom padding 
+
+              #getImgDimensions( $imgSub $cellWidthPx )
+
+              #set( $replace = "width=${targetWidth}" )
+              #if( $targetWidth )
+                  #set( $subs[$imgIndex] = $subs[$imgIndex].replaceAll("\bwidth=.?\d*.?",$replace) )
+              #end
+              #if( $format == 'pdf' )
+                  #set( $replace = "height=auto" )
+              #else 
+                 #set( $replace = "height=${targetHeight}" )
+              #end 
+              #if( $targetHeight || $format == 'pdf' )
+                  #set( $subs[$imgIndex] = $subs[$imgIndex].replaceAll("\bheight=.?\d*.?",$replace) )
+              #end
+
+              ##TEST REPLACE $test <br>
+
+          ############################################################
+          ## Replace Table Cell Widths with Percent Widths    
+          ############################################################
+          #else 
+            ## Cell Width Replace ## 
+            ## Else the tableMapKey is a row# and holds the cols in the row e.g if a row had 2 cols:
+            ## <key row#> = <value [[colWidth, subs index #],[[colWidth, subs index #]] > 
+            
+            #foreach( $col in $tableMapValue )
+              #set( $cellPerc = 0 )
+              #set( $cellWidth = $col[0])
+              #set( $cellIndex = $col[1])
+        
+              ## if there is only one cell in the row without rowspan size to 100% width 
+              #if( $tableMapValue.size() == 1 )
+                #set( $cellPerc = 100 )
+
+              ## if cell is already a % then get the double value
+              #elseif( $cellWidth.contains("%"))
+                #set( $cellPerc = $mathTool.toDouble( $cellWidth.replaceAll("%", "")) )   
+
+              ## else convert cellWidth from pt to % width in proportion to table
+              #elseif( $cellPerc == 0 && !$cellWidth.contains("col")) 
+                #if( $cellWidth > 0 )
+                  #set( $cellPerc = $cellWidth / $maxRowWidth * 100 )
+                #end 
+              #end 
+
+              ## replace $subs[$i] width with % value
+              #if( !$cellWidth.contains("col"))
+                #set( $cellPerc = $mathTool.toInteger( $cellPerc)) 
+                #if( $cellPerc > 100 && $cellPerc < 1 ) 
+                  #set( $cellPerc = 100 ) 
+                #end 
+
+                ##<p>Debug Row# $tableMapKey, cellPerc ${cellPerc}%, maxRowWidth $maxRowWidth, cellIndex $cellIndex</p>
+                #set( $find = "(width)(=|:)([\s*|\x27\x22|])?(\d*.*?)(pt|px|in|%)")
+                #set( $replace = "$1$2$3${cellPerc}%" )
+                #if( $cellPerc )
+                  #set( $subs[$cellIndex] = $subs[$cellIndex].replaceAll($find, $replace))
+                #end 
+              #end 
+        
+              #if( $tableMapKey == $colGroupKey ) 
+                #if( $maxWidthCount >= 2 )
+                  #if( $col.size() == 3 ) 
+                    #set( $colCount = $col[2])
+                    #foreach( $x in [1..$colCount])
+                      #set( $colGroup = "${colGroup}<col>" )
+                    #end 
+                  #elseif( $cellWidth.contains("col")) 
+                    #set( $colGroup = "${colGroup}<col>" )
+                  #else
+                    #set( $colGroup = "${colGroup}<col style='width:${cellPerc}%'>" )
+                  #end 
+                  #if( $foreach.last )
+                    #set( $colGroup = "${colGroup}</colgroup>")
+                  #end 
+                #end 
+              #end 
+    
+            #end ##foreach( $col in $tableMapValue )    
+
+          #end ##if( $tableMapKey == "table" )
+        #end ##foreach( $element in $tableMap.entrySet())
+
+        ###########################################################################
+        ##  PDF Add <colgroup> to ensure fixed column widths
+        ###########################################################################
+        #if( $format == 'pdf' && $maxWidthCount >= 2) 
+          #set( $sub = "${sub}${colGroup}")
+        #end    
+
+      #end ##if( $sub.contains("<table" ) ) ## End of checking table for widths 
+
+      ###########################################################################
+    
+      ###########################################################################
+      ## Apply table alignment from $tableAlign. 
+      ## - DOC alignments are removed from the table and set to a parent div
+      ## - PDF alignments must be removed from the table and set via margins 
+      ###########################################################################
+      #if( $sub.contains("<table") )  
+        #set( $sub = $sub.replaceAll("(margin-left|margin-right|margin)(:.*?)(;|[\x27\x22])", "$3") )
+        #set( $sub = $sub.replaceAll("align=([\x27\x22].*?[\x27\x22]|\w*)", "") ) ## take alignment off
+
+        #if( $format == 'doc')  
+          #set( $sub = $sub.replaceAll("<table", "<div align=$tableAlign><table"))
+
+        #elseif( $format == 'pdf')
+          #if( $tableAlign == "center")
+            #if( $sub.contains("style"))
+              #set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1$2$3;margin:auto;$4"))
+            #else 
+              #set( $sub = $sub.replaceAll("(<table)","$1 style='margin:auto'"))
+            #end 
+          #elseif( $tableAlign == "right")
+            #if( $sub.contains("style"))
+              #set( $sub = $sub.replaceAll("(<table)(.*?style=[\x27\x22])(.*?)([\x27\x22].*?>)","$1$2$3;margin-left:auto;margin-right:0pt;$4"))
+            #else 
+              #set( $sub = $sub.replaceAll("(<table)","$1 style='margin-left:auto;margin-right:0pt;'"))
+            #end 
+          #end  
+        #end 
+
+      #end
+      ##<p>Debug Table Align: $tableAlign<p>
+
+      ###########################################################################
+      ## close the parent div which has the alignment for the table if Word
+      #if( $sub.contains("</table") && $format == 'doc')
+        #set( $sub = "$sub</div>")  
+      #end 
+ 
+      ###########################################################################
+      ## Miscellaneous cell style transformations
+      ###########################################################################
+      #set( $sub = $sub.replaceAll("padding.*?([;|\x27\x22])", "$1") )
+      #set( $sub = $sub.replaceAll('(style=")[;| ]+', '$1'))
+
+      #if( $format == 'pdf')
+        #set( $sub = $sub.replaceAll("writing-mode:tb-rl",""))
+      #end
+
+      ## Handle text content alignment for vertical text on tables
+      #if($sub.contains("transform:rotate(180deg);"))
+        #set( $sub = $sub.replaceAll("transform:rotate\(180deg\);","mso-rotate:90;") )
+      #end  
+
+      ###########################################################################
+      ## add the processed sub to the output string
+      #set ( $output = "${output}${sub}" ) ##
+
+      ## Determine where in a table we are
+      #if( $sub.contains("</p") || $sub.contains("</li") ) #set( $tableCellParagraph = false )  #end ##
+      #if( $sub.contains("</thead") ) #set( $tableHeader = false ) #end ##
+      #if( $sub.contains("</td") || $sub.contains("</th") ) #set( $tableCell = false ) #end ##
+      #if( $sub.contains("</table") ) #set( $table = false ) #end ##
+    
+    #end ##foreach ($sub in $subs)
+
+  #else
+    #set ( $output = $inString )
+  #end ##if( $inString.contains("<table") )
+
+  #######################################################################################
+  ## + WORD caption handling by extracting caption and creating a new single cell table on top
+  ##
+  ##  - This allows preservation of the caption alignment and prevents word from applying
+  ##    heading formatting to the caption as it does when caption is still present on 
+  ##    original table as the first table row.
+  ## 
+  ##  - #buildTableCaptions_DOC will add captions to tables that do not have them
+  ##    if $TOT_includeAllTables is true so that they can be included in the TOT
+  ##
+  #######################################################################################
+  ## + PDF captions are automatically found by the template and do not need to be reformatted
+  ##
+  ##  - #buildTableCaptions_PDF will add captions to tables that do not have them
+  ##    if $TOT_includeAllTables is true so that they can be included in the TOT
+  #####################################################################################*#
+
+  #if($output.contains("</table>"))
+    #if( $format == 'pdf' ) 
+      #buildTableCaptions_PDF( $output ) 
+    #else 
+      #buildTableCaptions_DOC( $output $findWidth)
+    #end 
+  #end  
+
+  $output
+#end 
+#########################################################################################################################
+##          Macro: convertWidths, convert widths found on a table element to px unless its a percent width. 
+##          Input: $inputElement - string, table element (table, th, td) 
+##                 $findWidth - string, regex pattern to find width
+##          Output: $elementWidth, pixel width unless its a percent width 
+#######################################################################################################################*#
+#macro( convertWidths $inputElement $findWidth $idx )
+  #set( $elementPerc = false )
+  #set( $elementWidth = $inputElement.replaceAll( $findWidth,"$1") )
+  #set( $elementWidth = $mathTool.toInteger( $elementWidth.trim())) 
+
+  #if( $elementWidth > 0 )
+    #set( $elementMeasurement = $inputElement.replaceAll( $findWidth,"$2") )
+
+    #if( $elementMeasurement.contains("pt") ) 
+      #set( $elementWidth = $mathTool.round($elementWidth * 1.33 )) ## convert to pixels 
+
+    #elseif( $elementMeasurement.contains("in"))
+      #set( $elementWidth = $mathTool.round($elementWidth * 72 )) ## convert to pixels
+
+    #elseif( $elementMeasurement.contains("%") ) 
+      #set( $elementWidth = "${elementWidth}%" )
+    #end
+  #elseif( $elementWidth == 0 ) 
+    ## replace zero found widths with nothing
+    #set( $subs[$idx] = $subs[$idx].replaceAll("\bwidth(=|:)[\s*|\x27\x22|]?\d*.*?(pt|px|in|%);*", ""))
+    #set( $elementWidth = false)
+  #else 
+    #set( $elementWidth = false)
+  #end
+#end 
+##
+#########################################################################################################################
+## Macro: buildTableCaptions_DOC                                                                                            
+##  1. For each table found check if it has a caption                                                                  
+##  2. If caption utilize the caption content and construct caption for Word                                          
+##  3. Else if a table does not have captions, option to format table with captions and include in the TOT     
+##  Input: $tableString, RT string w/ table elements
+##  Output: $output with proper table captions                                                                    
+#######################################################################################################################*#
+#macro( buildTableCaptions_DOC $tableString $findWidth )
+#set( $tempInString = "")
+#set( $caption = "")
+#set( $tableString = $tableString.replaceAll("<table", "<table[TABLE]"))
+#set( $splitList = $tableString.split("<table"))
+#set( $captionAlign = 'center') ## default 
+
+    #foreach( $splitItem in $splitList )
+        #if( $splitItem.contains("[TABLE]"))
+
+          ## Replace the placeholder with the <table tag that was removed in split
+          #set( $splitItem = $splitItem.replaceAll("\[TABLE\]", "<table"))
+
+          ## Get the table width 
+          #set( $tableWidth = $splitItem.replaceAll("(?s)<table.*?\bwidth.*?(\d*\.?\d*)(pt|px|in|%).*","$1$2"))
+          #if( $tableWidth == $splitItem )
+              #set( $tableWidth = "100%")
+          #end 
+
+          #set( $captionContent = "")
+          #if( $splitItem.contains("</caption>"))
+
+              ## Extract Caption Content
+
+              #set( $captionContent = $splitItem.replaceAll("(?s).*?(<caption.*?>.*?<\/caption>).*", "$1"))
+              #set( $getAlign = $captionContent.replaceAll("<caption(.*?)>", "$1"))
+              #set( $captionContent = $captionContent.replaceAll("<caption.*?>|<\/caption>", ""))
+              ##DEBUG $captionContent<br>
+
+              #set( $captionAlign = "")
+              #set( $captionAlign = $getAlign.replaceAll("(?s).*?\btext-align:(\w*).*", "$1"))
+              ##DEBUG $captionAlign<br>
+
+              #set( $captionContent = $captionContent.replaceAll("<\/p>", ""))
+              #set( $captionContent = $captionContent.replaceAll("<p.*?>", ""))
+          #end ##if( $splitItem.contains("</caption>"))
+
+          #if( $captionContent.length() > 0 || $TOT_includeAllTables )
+              #set( $tableRefNum = $tableRefNum + 1) 
+              #set( $caption = "<table border='0' cellpadding='1' cellspacing='0' style='border-collapse:collapse;borders:none;width:$!tableWidth'>
+                                  <tr>
+                                      <td style='border:none !important'>
+                                          <p class=MsoCaption align=center style='text-align:$!captionAlign;page-break-after:
+                                          avoid'><a name='_TBL${tableRefNum}'>Table </a><!--[if supportFields]><span
+                                          style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-begin'></span><span
+                                          style='mso-bookmark:_TBL${tableRefNum}'><span style='mso-spacerun:yes'></span>SEQ Table
+                                          \\* ARABIC <span style='mso-element:field-separator'></span></span><![endif]--><span
+                                          style='mso-bookmark:_TBL${tableRefNum}'><span style='mso-no-proof:yes'> ${tableRefNum}</span></span><!--[if supportFields]><span
+                                          style='mso-bookmark:_TBL${tableRefNum}'></span><span style='mso-element:field-end'></span><![endif]--><span
+                                          style='mso-bookmark:_TBL${tableRefNum}'> $!captionContent</span></p>
+                                      </td>
+                                  </tr>
+                                </table>")
+
+              #set($splitItem = $splitItem.replaceAll("(?s)<caption.*?>.*?<\/caption>", ""))
+              #set($splitItem = $splitItem.replaceAll("<table", "$!caption<table"))
+          #end ##if( $captionContent.length() > 0 || $TOT_includeAllTables )
+
+        #end  ## #if( $splitItem.contains("[TABLE]"))
+
+        ## Rebuild the now modified inString content
+        #set ( $tempInString = "${tempInString}${splitItem}" )
+
+    #end ## ##foreach ($splitItem in $splitList)
+
+    ## Reassign inString to its now caption modified version
+    #set($output = $tempInString) ## Returns $output
+#end 
+## 
+#########################################################################################################################
+##   Macro: buildTableCaptions_PDF  
+##   Input: $tableString, RT string w/ table elements
+##   Output: $output with proper table captions                                                                                                                   
+#######################################################################################################################*#
+#macro( buildTableCaptions_PDF $tableString )
+    #set( $tempInString = "")
+    #set( $caption = "")
+    #set( $tableString = $tableString.replaceAll("<table", "<table[TABLE]"))
+    #set( $splitList = $tableString.split("<table"))
+    #set( $captionAlign = 'center') ## default 
+
+    #foreach ($splitItem in $splitList)
+        #if( $splitItem.contains("[TABLE]"))
+
+            ## Replace the placeholder with the <table tag that was removed in split
+            #set( $splitItem = $splitItem.replaceAll("\[TABLE\]", "<table"))
+
+
+            ## If there is no caption and $TOT_includeAllTables, add a caption tag to the table for iTextPDF. 
+            ## iTextPDF likes margins to set the alignment of elements to page.
+            #if(!$splitItem.contains("</caption>") && $TOT_includeAllTables )
+
+                #if( $captionAlign =='center')
+                    #set($caption = "<caption style='text-align:center !important;margin:auto !important'></caption>" )
+                #elseif( $captionAlign =='right')
+                    #set($caption = "<caption style='text-align:right !important;margin-right:0pt !important;'></caption>" )
+                #else 
+                    #set($caption = "<caption style='text-align:center !important;margin:auto !important;'></caption>" ) ## set default caption align
+                #end 
+
+                #set($splitItem = $splitItem.replaceAll("(<table.*?>)", "$1 $caption"))
+
+            #end  ##if(!$splitItem.contains("</caption>"))
+        #end  ##if( $splitItem.contains("[TABLE]"))
+
+        ## Rebuild the now modified inString content
+        #set ( $tempInString = "${tempInString}${splitItem}" )
+
+    #end  ##foreach ($splitItem in $splitList)
+
+    ## Reassign inString to its now caption modified version
+    #set($output = $tempInString)
+    ## Returns $output
+
+#end 
+#########################################################################################################################
+                              ########################################################
+                              ##               RELATIONSHIP MACROS                  ##
+                              ########################################################
+#########################################################################################################################
+##   Macro: getRelationships
+##   Inputs: $baselineMode - Global, tells the report if the export was from a baseline or not 
+##           $baselineId - Global, ID of a baseline       
+##           $inDoc - current item
+##           $inDownstream - true provides downstream relationships, false provides upstream relationships
+##   Output: $returnRels - list of relationships with sub-elements of "fromItem" and "toItem" each of type item
+##           
+#######################################################################################################################*#
+#macro( getRelationships $inDoc $inDownstream )
+  #set( $returnRels = [] )
+
+  #if( $baselineMode && $baselineId )
+    #set( $inDocId = $inDoc.id )
+    #* If the item is active then it is the most recent version of the item. 
+    * The $inDoc.id is equivalent to the $inDoc.currentVersion.originDocument.id. 
+    * Thus we utilize the $inDoc.id as it is the more efficient retrieval of that id. 
+    * This 'current version' id will be utilized as the first argument in the method
+    * getRelationships($currentVersionId,$baselineId,$start,$count)) in the #getBaselineRelationships macro. 
+    *
+    * If the item is not active, then we have a prior version of the item or the item has been deleted, 
+    * but we still want it to show up in the baselined trace - we want to show every related 
+    * item that existed when the baseline snapshot was made. In this case, to get the current version id of the 
+    * non-active item we utilize $inDoc.currentVersion.originDocument.id.
+    *#
+    #if( !$inDoc.active )
+      #set( $currentVersion = $inDoc.currentVersion ) 
+      #set( $inDocId = $currentVersion.originDocument.id ) 
+    #end 
+    #getBaselineRelationships( $inDocId, $baselineId, $inDoc, $inDownstream ) ## Creates $returnBaselineRels 
+    #set( $returnRels = $returnBaselineRels )
+
+  #else
+    #set( $rels = [] )
+    #set ( $rels = $documentSource.getRelationshipsForDocument($inDoc.id, $inDownstream) )
+    #foreach( $rel in $rels )
+      #if( $inDownstream )  ## Get Downstream Relationships
+        #if ( $rel.toDocument.active )
+          #set( $success = $returnRels.add( $rel ) )
+        #end
+      #else                 ## Get Upstream Relationships
+        #if ( $rel.fromDocument.active )
+          #set( $success = $returnRels.add( $rel ) )
+        #end
+      #end
+    #end
+  #end
+
+#end
+##
+#########################################################################################################################
+##  Macro: getBaselineRelationships
+##  Input: $currentVersionId - ID of the currentVersion of an item 
+##         $baselineId - ID of a baseline   
+##         $inDoc - item in hand ( may be active, may not be active if its a prior version item or deleted )
+##         $inDownstream - true provides downstream relationships, false provides upstream relationships    
+##  Output: $returnBaselineRels list of upstream Or downstream baseline relationships 
+#######################################################################################################################*#
+#macro( getBaselineRelationships $currentVersionId $baselineId $inDoc $inDownstream )
+  #set( $start = 0 )
+  #set( $count = 20 )
+  #set( $versionedRelationships = [] )
+  #set( $returnBaselineRels = [])
+  #set( $pageSize = 20)
+  #set( $relatedIds = [] )
+  ##
+  #set($baseRelsPage = $documentSource.getRelationships($currentVersionId,$baselineId,$start,$count))
+  ##
+  #set( $totalRels = [])
+  #set( $totalRels = $baseRelsPage.getPageInfo().getTotalResults())
+  ## DEBUG Baseline Page Info: $baseRelsPage.getPageInfo() <br><br>
+  ## DEBUG Baseline Relationship Count: $baseRelsPage.getPageInfo().getTotalResults()<br><br>
+  ## DEBUG Baseline Results: $baseRelsPage.getResults() 
+  #if( $totalRels && $totalRels > 0)
+    #set( $page_count = $mathTool.floor($mathTool.div($totalRels,$pageSize)) )
+    #foreach( $page in [0..$page_count])
+      #set( $baseRelsPage = $documentSource.getRelationships($currentVersionId,$baselineId,$start,$count))
+      #set( $baseRelsPageResults = $baseRelsPage.getResults())
+      #if( $baseRelsPageResults )
+       #set( $success = $versionedRelationships.addAll($baseRelsPageResults ))
+      #end 
+      #set( $start = $start + $count)
+    #end
+  #end
+  ##
+  #foreach( $versionedRelationship in $versionedRelationships )
+    #if( $inDownstream ) ## Get Downstream Relationships
+      #set( $upItemId = $versionedRelationship.getFromItem().getValue().get(0) )
+      #set( $upItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
+      
+      ## Get CountourItem by Id and Version ## 
+      #set( $upDocVersion = $documentSource.getVersionByDocAndVersionNumber($upItemId,$upItemVersion))
+      #set( $upDoc = $upDocVersion.document)
+
+      #if( $inDoc.id == $upDoc.id ) 
+        #set( $dnItemId = $versionedRelationship.getToItem().getValue().get(0) )
+        #set( $dnItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
+    
+        ## Get CountourItem by Id and Version ##  
+        #set( $dnVersion = $documentSource.getVersionByDocAndVersionNumber($dnItemId,$dnItemVersion))
+        #set( $dnDoc = $dnVersion.document ) 
+        ##<tr><td colspan=20>$dnDoc.documentKey, $dnItemId, $dnDoc.id, $dnItemVersion, $dnDoc.currentVersion.versionNumber</td></tr>
+
+        #if( !$relatedIds.contains($dnDoc.id) )
+          #set( $success = $relatedIds.add($dnDoc.id) )
+          #set( $success = $returnBaselineRels.add( {"fromDocument":$inDoc,"toDocument":$dnDoc} ) )
+        #end
+      #end 
+
+    #else
+      #set( $dnItemId = $versionedRelationship.getToItem().getValue().get(0) )
+      #set( $dnItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
+      
+      ## Get CountourItem by Id and Version ## 
+      #set( $dnDocVersion = $documentSource.getVersionByDocAndVersionNumber($dnItemId,$dnItemVersion))
+      #set( $dnDoc = $dnDocVersion.document)
+    
+
+      #if( $inDoc.id == $dnDoc.id ) ## Get Upstream Relationships
+        #set( $upItemId = $versionedRelationship.getFromItem().getValue().get(0) )
+        #set( $upItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
+  
+        ## Get CountourItem by Id and Version ##  
+        #set( $upVersion = $documentSource.getVersionByDocAndVersionNumber($upItemId,$upItemVersion))
+        #set( $upDoc = $upVersion.document )
+ 
+
+        #if( !$relatedIds.contains( $upDoc.id) )
+          #set( $success = $relatedIds.add( $upDoc.id) )
+          #set( $success = $returnBaselineRels.add( {"fromDocument":$upDoc,"toDocument":$inDoc} ) )
+        #end
+      #end
+
+    #end 
+  #end
+#end
+#########################################################################################################################
+                              ########################################################
+                              ##                  CONTEXT MACROS                    ##
+                              ########################################################
+#########################################################################################################################
+##    Macro: getContainer                                                           
+##    Inputs: $baselineMode (type:boolean), flags if the report if the export was from a baseline or not                                                                               
+##    Output: $containerDoc (type:document), the container obj report is exported from, to be used in report
+#########################################################################################################################
+#macro( getContainer $baselineMode )
+
+  ## Export From Baseline
+  #if($baselineMode)
+    #set($containerDoc = $baselineSource.getBaseLine($mathTool.toInteger($contextId)))
+  #else
+    #set($docNode = $documentSource.getDocumentNode(5, $documentList[0].document.id))
+    #set($parentNode = $docNode.getParentNode())
+    
+    ## Export From Project
+    #if(!$parentNode.parentNode.id && $contextType.length() == 0)
+      #set($containerDoc = $project)
+    ## Export From Test Plan
+    #elseif($documentList[0].document.documentType.documentTypeKey == "TSTPL")
+      #set($containerDoc = $documentList[0].document)
+    ## Export From Test Cycle
+    #elseif($contextType.toUpperCase() == "TESTCYCLE")
+      #set($containerDoc = $documentList[0].document.testCycle)
+    #else
+      #if($!contextId)
+        ## Export From Filter
+        #if($contextType.toUpperCase() == "ADVANCED FILTER")
+          #set($containerDoc = $filterSource.getSmartFilter($mathTool.toInteger($contextId)))
+        ## Export From Project Tree
+        #else
+          #set($containerDoc = $documentSource.getDocument($mathTool.toInteger($contextId)))
+        #end
+      #else
+        #set($containerDoc = false)
+      #end
+    #end
+  #end
+
+#end
+#########################################################################################################################
+##    Macro: getReferenceableDocIds
+##    Input: documentList
+##    Output: getReferenceableDocIds - list of all the doc IDs that will be referenceable in the document
+#########################################################################################################################
+#macro( getReferenceableDocIds ) 
+  #foreach( $vDoc in $documentList )
+    #set( $doc = $vDoc.document )
+    #if($baselineMode)
+      #set( $success = $referenceableDocIds.add($doc.currentVersion.id) )
+    #else
+      #set( $success = $referenceableDocIds.add($doc.id) )
+    #end
+  #end
+#end
+#########################################################################################################################
+##    Macro: printApproversTable
+##    Input: $baselineId, globally available 
+##    Output: 'Signature Approval' table with full names of users who have signed the baseline & dates of signatures
+#########################################################################################################################
+#macro( printApproversTable $baselineId)
+  #if( $baselineId )
+    #set( $baseSignatures = $baselineSource.getSignaturesForBaseLine( $baselineId ))
+
+    #if( $baseSignatures.size() > 0)
+      <p class=MsoSubtitle style='text-transform:uppercase;'>Signature Approval</p>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th class=TableHeader style="background:$tableHeaderBgColor;width:50%">Signed By</th>
+            <th class=TableHeader style="background:$tableHeaderBgColor;width:50%">Signed On (Pacific Time)</th>
+          </tr>
+        </thead>
+        #foreach( $sig in $baseSignatures)
+          <tr>
+            <td class=TableCell style="width:50%;">$sig.user.fullName</td>
+            <td class=TableCell style="width:50%;">#getDateTime($sig.createdDate $timeZone)</td>
+          </tr>
+        #end
+      </table>
+    #end                  
+  #end ##if( $baselineId )
+
+#end 
+#########################################################################################################################
+                              ########################################################
+                              ##                ITEM LINK MACROS                    ##
+                              ########################################################
+#########################################################################################################################   
+##    Macro: createLink                                                                                              
+##    Input: $item, type Document or ContourItem obj, what the link is to be created for     
+##           $versionNumber, the version of the $item                                                  
+##    Output: $createLinkReturn - the src link to the item in Jama Connect®                                          
+#########################################################################################################################
+#macro( createLink $item $versionNumber) 
+  #set( $createLinkReturn = "" )
+  #set( $projectId = $project.id.toString())
+  #set( $docId = $item.currentVersion.originDocument.id.toString())
+
+  #if( $item.documentType.display == "Test Plan")
+    #set( $createLinkReturn = $baseUrl + '/perspective.req#/testPlans/' + $docId + '/home/?projectId=' + $projectId)
+  #elseif( $item.documentType.display == "Test Run")
+    #set( $createLinkReturn = $baseUrl + '/perspective.req#/testRuns/' + $docId + '?projectId=' + $projectId)
+  #elseif( $item.documentType.display == "Test Cycle")
+    #set( $createLinkReturn = $baseUrl + '/perspective.req#/testPlans/' + $docId + '?projectId=' + $projectId)
+  #else
+    #set( $createLinkReturn = $baseUrl + '/perspective.req#/items/' + $docId + '?projectId=' + $projectId)
+  #end
+
+  #if( $versionNumber)
+    #set( $createLinkReturn = $createLinkReturn + "&version=" + $versionNumber)
+  #end
+  ##$createLinkReturn
+#end
+#########################################################################################################################
+                              ########################################################
+                              ##                 DATE/TIME MACROS                   ##
+                              ########################################################
+#########################################################################################################################
+##    Macro: getDate
+##    Input: $inputDate- date obj 
+##           $inputTimeZone - string, TZ Identifier 
+##    Output: Formatted date in the desired timezone
+#########################################################################################################################
+#macro( getDate $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  #set( $date = $dateTool.format( 'MM/dd/yyyy', $inputDate, $locale, $outTz ))
+  $!date
+#end
+#########################################################################################################################
+##    Macro: getDateTime
+##    Input: $inputDate- date obj 
+##           $inputTimeZone - string, TZ Identifier 
+##    Output: Formatted date in the desired timezone
+#########################################################################################################################
+#macro( getDateTime $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  #set( $dateTime = $dateTool.format( 'MM/dd/yyyy hh:mm a', $inputDate, $locale, $outTz ))
+  $!dateTime
+#end
+#########################################################################################################################
+                              ########################################################
+                              ##                 HEADERS & FOOTERS                  ##
+                              ########################################################
+#########################################################################################################################
+##    Macro:  responsiveHeaderFooter
+##    Input:  none
+##    Note:   If .pdf or .doc output has portrait && landscape layouts, ensure that header and footer 
+##            table & cell widths are a percentage of the page so they responsively size with the layout. 
+##            Call the macro directly after the opening of each page layout div. 
+##    Output: Header and Footers printed to the page. 
+#########################################################################################################################
+#macro( responsiveHeaderFooter )
+  ##############
+  ##   WORD                                                                                                                                            
+  ##############
+  #if( $format == "doc" )
+    <table style='margin-left:15in'>
+      <tr style='height:.1in;mso-height-rule:exactly'>
+        <td>
+          ## Content Header
+          <div style='mso-element:header' id=pageHeader>
+            <div align=center>
+              <table class=MsoTableGrid border=0 cellspacing=0 cellpadding=0 width="100%"
+              style='width:100.0%;border-collapse:collapse;border:none;mso-yfti-tbllook:
+              1184;mso-padding-alt:0in 5.75pt 0in 5.75pt;mso-border-insideh:none;mso-border-insidev:
+              none'>
+                <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes;'>
+                <td style='padding:0in 5.75pt 0in 5.75pt;'>
+                <p class=MsoNormal>$project.name</p>
+                </td>
+                <td style='padding:0in 5.75pt 0in 5.75pt;'>
+                <p class=MsoNormal align=right style='text-align:right'>Test Plan: $testPlan.name</p>
+                </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          ## Content Footer
+          <div style='mso-element:footer' id=pageFooter>
+            <table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0 width=522
+            style='width:100%;border-collapse:collapse;mso-yfti-tbllook:
+            1184;mso-padding-alt:0in 5.4pt 0in 5.4pt;border-top: solid #000 1.0pt;'>
+              <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes'>
+              <td valign=top style='padding:0in 5.4pt 0in 5.4pt;border:none;'>
+              <p class=MsoFooter>Test Plan: $testPlan.name</p>
+              </td>
+              <td valign=top style='padding:0in 5.4pt 0in 5.4pt;border:none;'>
+              <p class=MsoNormal align=right style='text-align:right'><span
+              style='font-family:"Calibri",sans-serif'>Page </span><!--[if supportFields]><span
+              style='font-family:"Calibri",sans-serif'><span style='mso-element:field-begin'></span><span
+              style='mso-spacerun:yes'></span>PAGE <span style='mso-element:field-separator'></span></span><![endif]--><span
+              style='font-family:"Calibri",sans-serif'><span style='mso-no-proof:yes'>3</span></span><!--[if supportFields]><span
+              style='font-family:"Calibri",sans-serif;mso-no-proof:yes'><span
+              style='mso-element:field-end'></span></span><![endif]--><span
+              style='font-family:"Calibri",sans-serif'> of </span><!--[if supportFields]><span
+              style='font-family:"Calibri",sans-serif'><span style='mso-element:field-begin'></span><span
+              style='mso-spacerun:yes'></span>NUMPAGES<span style='mso-spacerun:yes'>
+              </span><span style='mso-element:field-separator'></span></span><![endif]--><span
+              style='font-family:"Calibri",sans-serif'><span style='mso-no-proof:yes'>3</span></span><!--[if supportFields]><span
+              style='font-family:"Calibri",sans-serif;mso-no-proof:yes'><span
+              style='mso-element:field-end'></span></span><![endif]--><span
+              style='font-family:"Calibri",sans-serif'><o:p></o:p></span></p>
+              </td>
+              </tr>
+            </table>
+          </div>
+
+          ## Title Page Header
+          <div style='mso-element:header' id=titlePageHeader>
+            <p class=MsoHeader>&nbsp;</p>
+            <p class=MsoHeader align=right style='text-align:right'>&nbsp;</p>
+          </div>
+
+          ## Title Page Footer
+          <div style='mso-element:footer' id=titlePageFooter>
+            <p class=MsoFooter style='text-align:center'>
+              &copy; $project.organization.name, All Right Reserved. This document may not in any form be reproduced, distributed or utilized, in whole or in part without prior, express written consent of $project.organization.name.</p><w:PTab Leader="NONE"></w:PTab>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+  #############
+  ##   PDF                                                                                                                                            
+  #############
+  #elseif( $format == "pdf" )
+    ## Content Header
+    <div class="pageHeader" align="center">  
+      <table class="pageHeader-table" style='border:none;'>
+        <tr>
+          <td style='border:none;text-align:left;width:50%;'><p class=MsoHeader>$project.name</p></td>
+          <td rowspan="1" style='border:none;text-align:right;width:50%;'><p class=MsoHeader>$title</p></td>
+        </tr>
+      </table>
+    </div>
+
+    ## Content Footer
+    <div class="pageFooter" align="center">
+      <table class="pageFooter-table" style='border:none;'>
+        <tr>
+          <td style='border:none;text-align:left;width:33%;'>
+            <p class=MsoFooter>$project.name</p>
+          </td>
+          <td style='border:none;text-align:center;width:33%;'>
+             <p class=MsoFooter>Confidential. $project.organization.name</p>
+          </td>
+          <td style='border:none;text-align:right;width:33%;'>
+            <p class=MsoFooter>Page <span id="pageNumber" class='pdfPageNum'></span> of <span id="totalPages" class='pdfPageNum'></span></p>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    ## Title Page Header
+    <div class="titlePageHeader">
+      <p class=MsoHeader>&nbsp;</p>
+      <p class=MsoHeader align=right style='text-align:right'>&nbsp;</p>
+    </div>
+
+    ## Title Page Footer
+    <div class="titlePageFooter">
+      <table class="pageFooter-table" style='border:none;width:100%'>
+        <tr>
+          <td rowspan="2" style='border:none;text-align:center;width:100%'>
+            <p class=MsoFooter>&copy; $project.organization.name, All Right Reserved. This document may not in any form be reproduced, distributed or utilized, in whole or in part without prior, express written consent of $project.organization.name.</p>
+          </td>
+        </tr>
+      </table>
+    </div>
+  #end ##if( $format == "doc")...#elseif($format == "pdf")...## 
+#end 
+#########################################################################################################################
+
+#########################################################################################################################
+#################################################################################################
+########                                                                                       ## 
+########  CUSTOM MACROS: INSERT/BUILD CUSTOM MACROS HERE                                       ##
+########                                                                                       ## 
+#################################################################################################
+
+
+
+
+
+
+
+                              ########################################################
+                              ##               ITEM HEADING MACROS                  ##
+                              ########################################################
+#########################################################################################################################
+##    Macro: getHierarchyLevel
+##    Input: $doc - ContourItem type object
+##           Globally available: $baselineMode - true: export was from a baseline, false: export was from the project
+##           Globally available: $baselineId   - ID of the baseline that the items are part of, if in baseline mode
+##    Output: $headingLevel - number, what heading level this item is in Jama Connect®  relative to the container
+#########################################################################################################################
+#macro( getHierarchyLevel $doc $baselineMode $baselineId )
+  ## Get hierarchy from the baseline
+  #if( $baselineMode )
+    #set( $docNode = $documentSource.getDocumentNodeForBaseLine(5, $mathTool.toInteger($doc.id), $mathTool.toInteger($baselineId)))
+  ## Get hierarchy from the project
+  #else
+    #set( $docNode = $documentSource.getDocumentNode(5, $doc.id))
+  #end
+  ##Debug: $docNode
+  
+  #if(!$docNode.indent)
+    #set( $headingLevel = 1)
+  #else
+    #set( $headingLevel = $docNode.indent)
+  #end
+
+  #if( !$headingLevelTop )
+    #set($headingLevelTop = $headingLevel)
+  #end
+  #set( $headingLevel = $headingLevel - $headingLevelTop + 1 )
+#end
+#########################################################################################################################
+##    Macro: formatItemDefault 
+##    Input: $doc - ContourItem type obj
+##           $headingLevel - the heading level of the item 
+##           $includeDescription - boolean true or false 
+##    Output: Heading with/without description. 
+##
+##    Word notes- cross references: headings have a mso-bookmark name with "_API" + the identifier "_API$docID"
+##
+##    PDF notes - cross references: the html id attribute value is the target "$docID". 
+##    styles: iText PDF span tags have inheriting issues, so span tags need to be given a class to resemble its parent styles. 
+##    In the case of pdf headings if a heading class is not given to the span tag, then you may see a difference in typescale 
+##    between the level numbering and the heading content     
+#########################################################################################################################
+#macro( formatItemDefault $doc $headingLevel $includeDescription )
+  #if( $baselineMode ) 
+    #set($docID = $doc.currentVersion.id) 
+  #else 
+    #set($docID = $doc.id)
+  #end
+  #if( $format == "doc")
+    #if( $headingLevel < 7 )
+      <h$headingLevel style='text-align:left !important;'>
+        <a name="_API$docID"><span style='mso-bookmark:_API$docID'>$doc.name</span></a>
+      </h$headingLevel>
+    #else
+      <p class=MsoHeading7 style='text-align:left !important;'>
+        <a name="_API$docID"><span style='mso-bookmark:_API$docID'>$doc.name</span></a>
+      </p>
+    #end
+  #else ## pdf
+    #if( $headingLevel < 7 )
+      <h$headingLevel style='text-align:left !important;'>
+        <span class=heading${headingLevel} id=$docID>$!doc.name</span>
+      </h$headingLevel>
+    #else
+      <p class=MsoHeading7 style='text-align:left !important;'>
+        <span class=heading${headingLevel} id=$docID>$!doc.name</span>
+      </p>
+    #end
+  #end ##if( $format == "doc")...#else ## 
+
+  #if( $includeDescription )
+    #formatRichText($doc.description )
+  #end 
+
+#end
+#############
+#############
+#################################################################################################
+########                                                                                       ## 
+########     REPORT BODY                                                                       ##
+########                                                                                       ##                                              
+#################################################################################################
+#############
+#############
+<body>
+  <div class=WordSectionPortrait> 
+    #responsiveHeaderFooter()
+
+    #################################################################################################
+    ########                                                                                       ## 
+    ########  TITLE PAGE:                                                                          ##
+    ########                                                                                       ##                                              
+    #################################################################################################
+    <div class='TitlePage'>
+        ## Main Title Page Content
+      <table class=MsoNormalTable border=1 cellspacing=0 cellpadding=0 align=right
+        width="80%" style='width:80.0%;border-collapse:collapse;border:none;
+        mso-border-left-alt:solid #4F81BD 2.25pt;mso-table-overlap:never;mso-yfti-tbllook:
+        1184;mso-table-lspace:9.35pt;margin-left:6.35pt;mso-table-rspace:9.35pt;
+        margin-right:6.35pt;mso-table-anchor-vertical:page;mso-table-anchor-horizontal:
+        column;mso-table-left:right;mso-table-top:216.05pt;mso-padding-alt:0in 5.4pt 0in 5.4pt'>
+        <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+        <td width=384 valign=top style='width:383.6pt;border:none;border-left:solid #4F81BD 2.25pt;
+        padding:.15in 5.75pt .15in 5.75pt'>
+        <p class=ColorfulList-Accent21 style='mso-element:frame;mso-element-frame-hspace:
+        9.35pt;mso-element-wrap:around;mso-element-anchor-vertical:page;mso-element-anchor-horizontal:
+        column;mso-element-left:right;mso-element-top:216.05pt;mso-height-rule:exactly'><span
+        style='font-size:11.0pt;mso-bidi-font-family:Calibri'>$project.name</p>
+        </td>
+        </tr>
+        <tr style='mso-yfti-irow:1'>
+        <td width=383 valign=top style='width:383.4pt;border:none;border-left:solid #4F81BD 2.25pt;
+        padding:0in 5.4pt 0in 5.4pt'>
+        <p class=ColorfulList-Accent21 style='mso-element:frame;mso-element-frame-hspace:
+        9.35pt;mso-element-wrap:around;mso-element-anchor-vertical:page;mso-element-anchor-horizontal:
+        column;mso-element-left:right;mso-element-top:216.05pt;mso-height-rule:exactly'><span
+        style='font-size:28.0pt;mso-bidi-font-family:Calibri;color:#4F81BD'>
+        Test Report: $testPlan.name
+        </span></p>
+        </td>
+        </tr>
+        <tr style='mso-yfti-irow:2;mso-yfti-lastrow:yes'>
+        <td width=384 valign=top style='width:383.6pt;border:none;border-left:solid #4F81BD 2.25pt;
+        padding:.15in 5.75pt .15in 5.75pt'>
+        <p class=ColorfulList-Accent21 style='mso-element:frame;mso-element-frame-hspace:
+        9.35pt;mso-element-wrap:around;mso-element-anchor-vertical:page;mso-element-anchor-horizontal:
+        column;mso-element-left:right;mso-element-top:216.05pt;mso-height-rule:exactly'><span
+        style='font-size:11.0pt;mso-bidi-font-family:Calibri'>Produced on $dateTool.get('MMMM dd, yyyy')</span></p>
+        </td>
+        </tr>
+      </table>
+   
+      
+      #printApproversTable($baselineId)
+  
+      ## if pdf page break must be inside the title page div
+      #if( $format == 'pdf')
+         <div clear=all style='page-break-before:always;'></div>
+      #else 
+         <br clear=all style='page-break-before:always;'/>
+      #end 
+
+    </div> ## <div class=TitlePage>
+
+    #################################################################################################
+    ########                                                                                       ## 
+    ########  TABLES OF...                                                                         ##
+    ########                                                                                       ##                                              
+    #################################################################################################
+    #if( $format == "doc" )
+      #if( $tableOfContents ) 
+        <p class=MsoTocHeading>Table of Contents</p>
+        <p class=MsoNormal>
+        <!--[if supportFields]><span style='mso-element:field-begin'></span> 
+        TOC \h \o 1-7 \* MERGEFORMAT <span style='mso-element:field-separator'></span>
+        <![endif]--><span style='color:red;mso-no-proof:yes'>Select the entire document (Windows: Ctrl+a) 
+        (Mac: Command+a) and press F9 to update the TOC and Cross-References</span>
+        <!--[if supportFields]><span style='mso-element:field-end'></span><![endif]--></p>
+        <br clear=all style='mso-special-character:line-break;page-break-before:always'>
+      #end 
+      #if( $tableOfFigures )
+        <p class=MsoTocHeading>Table of Figures</p>
+        <p class=MsoNormal>
+        <!--[if supportFields]><span style='mso-element:field-begin'></span>
+        TOC \h \z \c &quot;Figure&quot;<span style='mso-element:field-separator'></span><![endif]-->
+        <span style='color:red;mso-no-proof:yes'>Select the entire document (Windows: Ctrl+a) 
+        (Mac: Command+a) and press F9 to update the TOC and Cross-References</span>
+        <!--[if supportFields]><span style='mso-element:field-end'></span><![endif]--></p>
+        <br clear=all style='mso-special-character:line-break;page-break-before:always'>
+      #end
+      #if( $tableOfTables )
+        <p class=MsoTocHeading>Table of Tables</p>
+        <p class=MsoNormal>
+        <!--[if supportFields]><span style='mso-element:field-begin'></span>
+        TOC \h \z \c &quot;Table&quot;<span style='mso-element:field-separator'></span><![endif]-->
+        <span style='color:red;mso-no-proof:yes'>Select the entire document (Windows: Ctrl+a) 
+        (Mac: Command+a) and press F9 to update the TOC and Cross-References</span>
+        <!--[if supportFields]><span style='mso-element:field-end'></span><![endif]--></p>
+        <br clear=all style='mso-special-character:line-break;page-break-before:always'>
+      #end
+    #end ##if( $format == "doc" )
+
+    #################################################################################################
+    ########                                                                                       ## 
+    ########  OUTPUT DOCUMENT LIST: Generate each item in DocumentList                             ##
+    ########                                                                                       ##
+    #################################################################################################
+    <div class="reportBodyCounterContainer">
+ 
+
+      #################################################################################################
+      ########                                                                                       ## 
+      ########    CONTEXT IN-SENSITIVE and/or OUTSIDE documentList LOOP REPORT BODY CODE HERE        ##
+      ########                                                                                       ## 
+      #################################################################################################
+
+      #################################################################
+      ##
+      ## Test Runs Per Test Cycle ~~ Data Gathering & Organization
+      ##
+      ##################################################################
+      ## Gather Test Sets
+      #set($testSets = $testPlan.testSets)
+
+      ## Gather all Test Plan Test Cases per test group
+      #set($finalTestCaseCollection = [])
+
+      #foreach($testSet in $testSets)
+        #set($testSetCases = $testSet.testSetCases)
+        #set($testCases = [])
+
+        #foreach($testSetCase in $testSetCases)
+          #set($success = $testCases.add($testSetCase.testCase))
+        #end
+
+        #set($success = $finalTestCaseCollection.add({"TestSet": $testSet, "TestCases": $testCases}))
+      #end
+
+
+
+      ########### Display Test Plan ###########################
+      <h1>$testPlan.name ($testPlan.documentKey)</h1>
+      #if( $testPlan.description)  
+       <p class=MsoNormal>#formatRichText($testPlan.description)</p>
+      #end
+
+      ## Page Break
+      <br clear=all style='mso-special-character:line-break;page-break-before:always'>
+
+      ########### Display Test Case Results #########################
+
+      <h1>Detailed Plan</h1>
+
+      #foreach( $testData in $finalTestCaseCollection)
+        #set($testSet = $testData.get("TestSet"))
+        #set($testCases = $testData.get("TestCases"))
+
+        <h2>$testSet.name</h2>
+
+        #foreach( $testCase  in $testCases )
+          
+          <h3>$testCase.name ($testCase.documentKey)</h3>
+          
+          <table class=MsoNormalTable cellpadding="0" cellspacing="0" border="1" width="100%" style='border-collapse:collapse;border:none;mso-border-alt:solid black .5pt; mso-yfti-tbllook:1184;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:.5pt solid black;mso-border-insidev:.5pt solid black'>
+
+              ## Test Run Description
+              <tr bgcolor="ffffff">
+                  <td colspan="4"><p class=MsoNormal><b>Description:</b></p><p class=MsoNormal>#formatTableCell($testCase.description, "left", 325)</p></td>
+              </tr>
+
+              ## Test Case Creation Date
+              <tr bgcolor="ffffff">
+                <td width="15%"><p class=MsoNormal><b>Created on:</b></p></td>
+                <td colspan="3" width="85%"><p class=MsoNormal>$dateTool.format('MMM d, yyyy, h:mm a z', $testCase.createdDate)</p></td>
+              </tr>
+
+              ## Test Case Created By User
+              <tr bgcolor="ffffff">
+                <td width="15%"><p class=MsoNormal><b>Created By:</b></p></td>
+                <td colspan="3" width="85%"><p class=MsoNormal>$userSource.getUser($testCase.createdBy).fullName</p></td>
+              </tr>
+
+              ## Test Case Steps
+              <tr bgcolor="ffffff">
+                <td colspan="4"><p class=MsoNormal><b>Steps</b></p></td>
+              </tr>
+              <tr bgcolor="ffffff">
+                <td width="10%" style='background:#D9D9D9'><p class=MsoNormal><b>#</b></p></td>
+                <td width="20%" style='background:#D9D9D9'><p class=MsoNormal><b>Action</b></p></td>
+                <td width="20%" style='background:#D9D9D9'><p class=MsoNormal><b>Expected Result</b></p></td>
+                <td width="20%" style='background:#D9D9D9'><p class=MsoNormal><b>Notes</b></p></td>
+              </tr>
+              #if( $testCase.testCaseSteps.size() > 0 )
+                #foreach( $step in $testCase.testCaseSteps)
+                  <tr bgcolor="ffffff">
+                    <td width="10%"><p class=MsoNormal>#if($step.stepIndex) #formatTableCell($step.stepIndex, "left", 100) #end</p></td>
+                    <td width="30%"><p class=MsoNormal>#if($step.action) #formatTableCell($step.action, "left", 200) #end</p></td>
+                    <td width="30%"><p class=MsoNormal>#if($step.expectedResult) #formatTableCell($step.expectedResult, "left", 200) #end</p></td>
+                    <td width="30%"><p class=MsoNormal>#if($step.notes) #formatTableCell($step.notes, "left", 200) #end</p></td>
+                  </tr>
+                #end    
+              #else 
+               <tr bgcolor="ffffff">
+                <td colspan=4 width="100%"><p class=MsoNormal>No Test Steps present on the Test Case.</p></td>
+               </tr>    
+              #end      
+            </table>
+
+            <p class=MsoNormal></p>
+        
+        #end ## #foreach($testRun in $testRuns)
+          
+      #end ## #foreach($testData in $finalTestRunCollection)
+
+    </div> ## <div class="reportBodyCounterContainer">
+  </div> ## closes WordSectionPortrait 
+</body>
+</html>
+#########################################################################################################################
+#############################
+###################################
+########################################
+###########################################
+##
+##   TEMPLATE TAIL WORD SPECIFICATIONS
+##
+###########################################
+########################################
+###################################
+###########################
+
+#if( $format == "doc" )
+#########################################################################################################################
+##    FIGURE LIST For Word .doc exports
+##    $figureList: This list contains the exported images from Jama Connect as base64 content. 
+#########################################################################################################################
+#foreach( $figure in $figureList)
+$figure
+#end
+#########################################################################################################################
+
+------=_NextPart_01DA8992.E7786AB0
+Content-Location: file:///C:/E04B5D12/WordPDFMaster_files/item0001.xml
+Content-Type: text/xml; charset="utf-8"
+
+<?xml version="1.0" standalone="no"?><b:Sources xmlns:b="http://schemas.openxmlformats.org/officeDocument/2006/bibliography" xmlns="http://schemas.openxmlformats.org/officeDocument/2006/bibliography" SelectedStyle="\APASixthEditionOfficeOnline.xsl" StyleName="APA" Version="6"></b:Sources>
+------=_NextPart_01DA8992.E7786AB0
+Content-Location: file:///C:/E04B5D12/WordPDFMaster_files/props002.xml
+Content-Type: text/xml; charset="utf-8"
+
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ds:datastoreItem ds:itemID="{34F14231-9515-4CEB-B5F1-2D2337856887}" xmlns:ds="http://schemas.openxmlformats.org/officeDocument/2006/customXml"><ds:schemaRefs><ds:schemaRef ds:uri="http://schemas.openxmlformats.org/officeDocument/2006/bibliography"/></ds:schemaRefs></ds:datastoreItem>
+------=_NextPart_01DA8992.E7786AB0
+Content-Location: file:///C:/E04B5D12/WordPDFMaster_files/themedata.thmx
+Content-Transfer-Encoding: base64
+Content-Type: application/vnd.ms-officetheme
+
+UEsDBBQABgAIAAAAIQDp3g+//wAAABwCAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbKyRy07DMBBF
+90j8g+UtSpyyQAgl6YLHjseifMDImSQWydiyp1X790zSVEKoIBZsLNkz954743K9Hwe1w5icp0qv
+8kIrJOsbR12l3zdP2a1WiYEaGDxhpQ+Y9Lq+vCg3h4BJiZpSpXvmcGdMsj2OkHIfkKTS+jgCyzV2
+JoD9gA7NdVHcGOuJkTjjyUPX5QO2sB1YPe7l+Zgk4pC0uj82TqxKQwiDs8CS1Oyo+UbJFkIuyrkn
+9S6kK4mhzVnCVPkZsOheZTXRNajeIPILjBLDsAyJX89nIBkt5r87nons29ZZbLzdjrKOfDZezE7B
+/xRg9T/oE9PMf1t/AgAA//8DAFBLAwQUAAYACAAAACEApdan58AAAAA2AQAACwAAAF9yZWxzLy5y
+ZWxzhI/PasMwDIfvhb2D0X1R0sMYJXYvpZBDL6N9AOEof2giG9sb69tPxwYKuwiEpO/3qT3+rov5
+4ZTnIBaaqgbD4kM/y2jhdj2/f4LJhaSnJQhbeHCGo3vbtV+8UNGjPM0xG6VItjCVEg+I2U+8Uq5C
+ZNHJENJKRds0YiR/p5FxX9cfmJ4Z4DZM0/UWUtc3YK6PqMn/s8MwzJ5PwX+vLOVFBG43lExp5GKh
+qC/jU72QqGWq1B7Qtbj51v0BAAD//wMAUEsDBBQABgAIAAAAIQBreZYWgwAAAIoAAAAcAAAAdGhl
+bWUvdGhlbWUvdGhlbWVNYW5hZ2VyLnhtbAzMTQrDIBBA4X2hd5DZN2O7KEVissuuu/YAQ5waQceg
+0p/b1+XjgzfO3xTVm0sNWSycBw2KZc0uiLfwfCynG6jaSBzFLGzhxxXm6XgYybSNE99JyHNRfSPV
+kIWttd0g1rUr1SHvLN1euSRqPYtHV+jT9yniResrJgoCOP0BAAD//wMAUEsDBBQABgAIAAAAIQBn
+gPy0jgcAAM0gAAAWAAAAdGhlbWUvdGhlbWUvdGhlbWUxLnhtbOxZS48buRG+B8h/aPRdVrceLWlg
+eaGnZ+0Z27BkB3vkSJSaHnazQVIzFhYGAu8plwABdhe5BMgthyDIAlkgi1zyYwzYSDY/IkV2q0VK
+lOcBAzGCmbmo2V8VP1YVq6rJ+1+8Tqh3gbkgLO364b3A93A6Y3OSLrv+i+m40vY9IVE6R5SluOuv
+sfC/ePDLX9xHRzLGCfZAPhVHqOvHUmZH1aqYwTAS91iGU3i3YDxBEh75sjrn6BL0JrRaC4KomiCS
++l6KElD7dLEgM+xNlUr/wUb5iMJjKoUamFE+UaqxJaGx8/NQIcRaDCj3LhDt+jDPnF1O8WvpexQJ
+CS+6fqD//OqD+1V0VAhReUDWkBvrv0KuEJif1/ScfHlWThqMau1GWOrXACr3caO2+i/1aQCazWCl
+ORdTZ9iMgnatwBqg/KdDd6cV1m28ob++xznsRP1aw9KvQbn+xh4+GHdGw6aF16Ac39zD94Jav1O3
+8BqU46M9fGPUa9VGFl6DYkrS83101Gq3owJdQhaMHjvhnSgKWsMCvkVBNJTRpaZYsFQeirUEvWJ8
+DAAFpEiS1JPrDC/QDKK4l0kmvCERGUVr38tQygQMB7UwhNBrBLXyX1scHWFkSCtewETsDSk+nphx
+ksmu/wi0+gbk/U8/vXv747u3f3/3zTfv3v7VOyHLWOaqLLljlC5NuZ//9Lv//OHX3r//9sefv/3O
+jRcm/sNffvPhH//8mHrYaltTvP/+hw8//vD+97/915+/dWjvcXRmwqckwcJ7gi+95yyBBWpT2Pzx
+Gb+ZxDRGxJTopUuBUqRmcegfydhCP1kjihy4Prbt+JJDqnEBH65eWYQnMV9J4tD4OE4s4CljtM+4
+0wqP1VyGmaerdOmenK9M3HOELlxzD1BqeXm0yiDHEpfKQYwtms8oSiVa4hRLT71j5xg7VvcVIZZd
+T8mMM8EW0vuKeH1EnCaZkjMrmrZCxyQBv6xdBMHflm1OX3p9Rl2rHuILGwl7A1EH+SmmlhkfopVE
+iUvlFCXUNPgJkrGL5GTNZyZuJCR4eokp80ZzLIRL5imH9RpOf4wguzndfkrXiY3kkpy7dJ4gxkzk
+kJ0PYpRkLuyEpLGJ/VKcQ4gi7xmTLvgps3eIegY/oPSgu18SbLn76mzwArKcSWkbIOrNijt8+RAz
+K34na7pA2JVqejyxUmyPE2d09FdLK7RPMKboEs0x9l586WDQZ5ll8y3pRzFklWPsCqxHyI5V9Zxi
+Ab2Sam728+QJEVbITvCSHeBzut5JPGuUJogf0vwEvG7afHTGYTM6KDyls3MT+IRADwjx4jTKUwE6
+jOA+qPVZjKwCpp6FO17X3PLfdfYY7MtXFo1r7EuQwTeWgcRuynzUNlNErQm2ATNFxDtxpVsQsdy/
+FVHFVYutnHILe9Nu3QDdkdX0JCS9ogP633Q+jkD8ND2PW7GVsG7Y7RxKKMc7Pc4h3G5nM2B8Tj7/
+xmaIVukzDLVkP2vd9TV3fY3/f9/XHNrPd93MoZ7jrpvxocu462aKA5ZP081sGxjobdQhQ37Yo49+
+koMnPwtC6USuKT4R+vBHwDfNfAyDSk6feuLyJDCL4acqczCBhVtypGU8zuSviIwnMcrghCj0lZKl
+KFQvhZcxAQdHetipW+HpKjll8/zAU58wBXllFUhux4MmHD3l43BYJXN01CoGFT99qgp8NdulPmzd
+EFCyNyFhTGaTqDtItDaDV5BQZ2efhkXHwaKt1G9ctWcKoFZ6BT66PfhU7/rNhiIEJ+ViBg36XPkp
+d/XGu9qZn9LTh4xpRQAcLuYrgaP50tMdxfXg8tTq8lC7hqctEtopeVjZJLRldIMnYvgULqJTjV6H
+xk193dm61KKnTKHng/je0mi1P8bitr4Gud3cQFMzU9DUu+z6Ub0JITNDWddfwMEx/EwyiB2hvrsQ
+XcLty0zyfMPfJrNkXMghEnFucJ10cvckRGLuUZJ0fbX80g001TlEcwtrkBA+W3IdSCufGzlwuu1k
+vFjgmTTdbowoS+ePkOHzXOF8q8VvD1aSbAXunsTzS++MrvhzBCHWbIXKgHMi4P4gzK05J3AhViay
+bfztFKYi+Zs3UjqG8nFEsxgVFcVM5jlc15OSjn4qbWA8FWsGgxomKQrh2VIVWNOoVjUtS1fO4WDV
+vVpIWc5ImtuaaWUVVTXdWcyaYVMGdmx5uyJvsNqYGHKaWeHz1L2bcjubXLfTJ5RVAgxe2u92pd+g
+tp3MoqYY76dhlbOLUbt2bBZ4BbXrFAkj60cbtTt2K2uEczoYvFXlB7ndqIWhxaav1JbWN+fm5TY7
+ewXJYwhd7opKoV0Jp7scQVc20T1JnjZgi7yWxdaAX96Kk67/ddDsNQa15qAStJujSqPeCCrtZq9e
+6TWb9XDUDINhv/YGCouMk7CZ39qP4RKDrou7ez2+d3+fbO5p7s1YUmX6fr6qiev7+7B2+P7eI5B0
+vo5q4069048qnXpvXGkM++1KZxD1K8No0BqOh4NmuzN+43sXGtzo1QeNaNSuROFgUGlEgaLf7lRa
+jVqt12j12qNG703RxsDK8/RR2ALMq3k9+C8AAAD//wMAUEsDBBQABgAIAAAAIQAN0ZCftgAAABsB
+AAAnAAAAdGhlbWUvdGhlbWUvX3JlbHMvdGhlbWVNYW5hZ2VyLnhtbC5yZWxzhI9NCsIwFIT3gncI
+b2/TuhCRJt2I0K3UA4TkNQ02PyRR7O0NriwILodhvplpu5edyRNjMt4xaKoaCDrplXGawW247I5A
+UhZOidk7ZLBggo5vN+0VZ5FLKE0mJFIoLjGYcg4nSpOc0IpU+YCuOKOPVuQio6ZByLvQSPd1faDx
+mwF8xSS9YhB71QAZllCa/7P9OBqJZy8fFl3+UUFz2YUFKKLGzOAjm6pMBMpburrE3wAAAP//AwBQ
+SwECLQAUAAYACAAAACEA6d4Pv/8AAAAcAgAAEwAAAAAAAAAAAAAAAAAAAAAAW0NvbnRlbnRfVHlw
+ZXNdLnhtbFBLAQItABQABgAIAAAAIQCl1qfnwAAAADYBAAALAAAAAAAAAAAAAAAAADABAABfcmVs
+cy8ucmVsc1BLAQItABQABgAIAAAAIQBreZYWgwAAAIoAAAAcAAAAAAAAAAAAAAAAABkCAAB0aGVt
+ZS90aGVtZS90aGVtZU1hbmFnZXIueG1sUEsBAi0AFAAGAAgAAAAhAGeA/LSOBwAAzSAAABYAAAAA
+AAAAAAAAAAAA1gIAAHRoZW1lL3RoZW1lL3RoZW1lMS54bWxQSwECLQAUAAYACAAAACEADdGQn7YA
+AAAbAQAAJwAAAAAAAAAAAAAAAACYCgAAdGhlbWUvdGhlbWUvX3JlbHMvdGhlbWVNYW5hZ2VyLnht
+bC5yZWxzUEsFBgAAAAAFAAUAXQEAAJMLAAAAAA=
+
+------=_NextPart_01DA8992.E7786AB0
+Content-Location: file:///C:/E04B5D12/WordPDFMaster_files/colorschememapping.xml
+Content-Type: text/xml; charset="utf-8"
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<a:clrMap xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" bg1="lt1" tx1="dk1" bg2="lt2" tx2="dk2" accent1="accent1" accent2="accent2" accent3="accent3" accent4="accent4" accent5="accent5" accent6="accent6" hlink="hlink" folHlink="folHlink"/>
+
+#########################################################################################################################
+------=_NextPart_01DA8992.E7786AB0
+Content-Location: file:///C:/E04B5D12/WordPDFMaster_files/filelist.xml
+Content-Type: text/xml; charset="utf-8"
+
+<xml xmlns:o="urn:schemas-microsoft-com:office:office">
+ <o:MainFile HRef="../WordPDFMaster.htm"/>
+ <o:File HRef="item0001.xml"/>
+ <o:File HRef="props002.xml"/>
+ <o:File HRef="themedata.thmx"/>
+ <o:File HRef="colorschememapping.xml"/>
+ #foreach( $file in $fileList)
+    $!file
+ #end
+ <o:File HRef="filelist.xml"/>
+</xml>
+------=_NextPart_01DA8992.E7786AB0--
+#end
