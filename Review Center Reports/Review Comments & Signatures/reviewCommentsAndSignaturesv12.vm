@@ -4,7 +4,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 #end
 
 ## ======================================================================================================================
-## Name: reviewCommentsAndSignaturesv11.vm
+## Name: reviewCommentsAndSignaturesv12.vm
 ## 
 ## Description: Context Insensitive report that shows Review Approver Signatures and Comments. 
 ##
@@ -19,36 +19,41 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ##
 ## Date         Revision   Person            Comments 
 ## -----------  ---------  ----------------  ---------------------------------- 
-## 2024-02-16     1.0      Anna FitzGerald    Review Center Comments 
-## 2024-02-27     1.1      Anna FitzGerald    Update for revoked approver signatures 
-##                                            Update of review comment summary revision item heading
-## 2023-03-05     1.2      Anna FitzGerald    Update of Approvers & Reviewers tables structure and added 'Status' column
-##                                            Removed the 'Important' and 'Active' column from the comments tables 
-##                                            Adjusted logic to show all comments up to and including the revision version exported 
-##                                            Updated the Revision Item Comment table with 'Thread Identity' column
-##                                            Updated comments tables with 'Review Version' column.
-## 2023-03-11     1.3      Anna FitzGerald    Removed Revision Item Version number from heading 
-##                                            Removed condition around comment row that had set a limitation on what comments show. 
-##                                            Updated revision items to be grouped by global id so that there is one table per revision item. 
-## 2024-03-15     1.4      Anna FitzGerald    Updated so that all revision items show regardless of it they have comments 
-## 2024-04-23     3.2      Anna FitzGerald    Added condition around retrieving base64 for an attachment to ensure base64 conversion is possible
-##                                            Updated regex pattern that gets input review id
-## 2023-04-24     3.3      Anna FitzGerald    Updated timeZones to be consistently UTC and formatted w/ ISO International date format
-## 2024-04-26     3.3.1    Liam Rotchford     Minor $dateTool.format() string adjustment for month from 'mm' to proper 'MM' to resolve date 
+## 2024-02-16     1.0      Anna FitzGerald    - Review Center Comments 
+## 2024-02-27     1.1      Anna FitzGerald    - Update for revoked approver signatures 
+##                                            - Update of review comment summary revision item heading
+## 2023-03-05     1.2      Anna FitzGerald    - Update of Approvers & Reviewers tables structure and added 'Status' column
+##                                            - Removed the 'Important' and 'Active' column from the comments tables 
+##                                            - Adjusted logic to show all comments up to and including the revision version exported 
+##                                            - Updated the Revision Item Comment table with 'Thread Identity' column
+##                                            - Updated comments tables with 'Review Version' column.
+## 2023-03-11     1.3      Anna FitzGerald    - Removed Revision Item Version number from heading 
+##                                            - Removed condition around comment row that had set a limitation on what comments show. 
+##                                            - Updated revision items to be grouped by global id so that there is one table per revision item. 
+## 2024-03-15     1.4      Anna FitzGerald    - Updated so that all revision items show regardless of it they have comments 
+## 2024-04-23     3.2      Anna FitzGerald    - Added condition around retrieving base64 for an attachment to ensure base64 conversion is possible
+##                                            - Updated regex pattern that gets input review id
+## 2023-04-24     3.3      Anna FitzGerald    - Updated timeZones to be consistently UTC and formatted w/ ISO International date format
+## 2024-04-26     3.3.1    Liam Rotchford     - Minor $dateTool.format() string adjustment for month from 'mm' to proper 'MM' to resolve date 
 ##                                              conversion error for #getDate() and #getDateTime() macros. 
-## 2024-04-29     3.3.2    Anna FitzGerald    Updated condition in the #formatTables macro so that a mapped row value is only checked if its not false
-## 2024-04-30     3.4      Anna FitzGerald    Added method so that if the review is not located by id it is located by sequence
-##                                            Added logic so that only active comments show
-## 2024-04-30     3.4.1    Anna FitzGerald    Minor update added count initiation for deleted comments on revision items
-## 2024-04-30     3.4.2    Anna FitzGerald    Minor update adjustment of colspan
-## 2024-05-07     3.4.3    Anna FitzGerald    Updated review event conditions w/ the inclusion of a new macro #compareEventDates.
-##                                            Set additional types of review events to utilize in event date comparison
-##                                            Added a nextRev and nextRevCreatedDate variable to utilize for comparing dates to ensure 
-##                                             that the event of concern is the latest state of the 'Review activity' given the respective review or revision. 
-##                                            Reconfigured active comments logic 
-## 2024-07-12     3.4.4    Anna FitzGerald    Added boolean parameter to 'Include Description' for RevisionItems
-##                                            Removed columns 'Comment Type' & 'Resolved'
-## 2024-07-12     3.4.4.1  Anna FitzGerald    Adjusted colspans and column widths per comment table update
+## 2024-04-29     3.3.2    Anna FitzGerald    - Updated condition in the #formatTables macro so that a mapped row value is only checked if its not false
+## 2024-04-30     3.4      Anna FitzGerald    - Added method so that if the review is not located by id it is located by sequence
+##                                            - Added logic so that only active comments show
+## 2024-04-30     3.4.1    Anna FitzGerald    - Minor update added count initiation for deleted comments on revision items
+## 2024-04-30     3.4.2    Anna FitzGerald    - Minor update adjustment of colspan
+## 2024-05-07     3.4.3    Anna FitzGerald    - Updated review event conditions w/ the inclusion of a new macro #compareEventDates.
+##                                            - Set additional types of review events to utilize in event date comparison
+##                                            - Added a nextRev and nextRevCreatedDate variable to utilize for comparing dates to ensure 
+##                                              that the event of concern is the latest state of the 'Review activity' given the respective review or revision. 
+##                                            - Reconfigured active comments logic 
+## 2024-07-12     3.4.4    Anna FitzGerald    - Added boolean parameter to 'Include Description' for RevisionItems
+##                                            - Removed columns 'Comment Type' & 'Resolved'
+## 2024-07-12     3.4.4.1  Anna FitzGerald    - Adjusted colspans and column widths per comment table update.
+## 2025-01-09     3.4.5    Liam Rotchford     - Resolved SOS-DEF-8704 to omit empty highlighted quote static '*' when a null highlighted quote return is supplied. 
+##                                            - Resolved SOS-DEF-8702 revised review 'Finalized / Not Finalized' determination logic to ensure
+##                                              the latest finalization action event is used to determine review 'Finalized' status on title page summary table.
+##
+##
 ## ======================================================================================================================
 ##
 ## Report Criteria:
@@ -4855,7 +4860,7 @@ Review Comments
           </td>
           <td width=57% style='border:solid windowtext .5pt;background:#$color;'>
           <p class=MsoNormal style='margin-bottom:0in;'>
-            #if( $highlightQuote )<span style='background-color:#ffdd99'>$!highlightQuote*</span>#end
+            #if( $!highlightQuote && $!highlightQuote.trim() != '')<span style='background-color:#ffdd99'>$!highlightQuote*</span>#end
             #if( $commentText.length() > 0 )#formatTableCell($commentText, "left", 276) #end 
           </p>
           </td>
@@ -5141,7 +5146,8 @@ Review Comments & Signatures
   #set( $idx = $reviewClosed.size() - 1) ## get the last review closure activity for this revision 
   #set( $revClosedUser= $reviewClosed[$idx].eventUser )
   #set( $revClosedEventDate = $reviewClosed[$idx].getEventDate())
-  #if( !$reviewClosed[$idx].createdBy )
+
+  #if( !$reviewClosed[$idx].eventUser )
     #set( $reviewAutoClose = true)
     #set( $reviewAutoCloseDate = $revClosedEventDate )
   #end 
@@ -5149,31 +5155,47 @@ Review Comments & Signatures
   #set( $reviewClosed = false )
 #end 
 
-#### Gather 'Review marked as not finalized' events (update event available on review object) ##
+
+#### Review 'Finialized / Not Finalized'? (update event available on review object) ##
 ####--------------------------------
+#set($finalizationStatus = false)
+#set($finalizationUser = false)
+#set($finalizeationDate = false)
+
 #set( $reviewMarkedAsNotFinalized = $eventSource.getAllEventsForObjectsByAction([4],[$revisionForComments.review.id],18,"Review marked as not finalized"))
-##<tr><td width=100% colspan=2><p>Debug-Review Marked Not Finalized:  $reviewMarkedAsNotFinalized </p></td><tr>
-#if( $reviewMarkedAsNotFinalized.size() > 0 )
-  #set( $idx = $reviewMarkedAsNotFinalized.size() - 1 )
-  #set( $reviewMarkedNotFinalDate = $reviewMarkedAsNotFinalized[$idx].getEventDate())
-#else 
-  #set( $reviewMarkedAsNotFinalized = false )
-#end 
-
-
-#### Review marked as finalized? (update event available on review object)
-####--------------------------------
 #set( $reviewMarkedAsFinalized = $eventSource.getAllEventsForObjectsByAction([4],[$revisionForComments.review.id],18,"Review marked as finalized")) 
- ##<tr><td width=100% colspan=2><p>Debug-Review Marked As Finalized: $reviewMarkedAsFinalized</p></td><tr>
-#set( $idx = $reviewMarkedAsFinalized.size() - 1) ## get the last marked finalized activity for this revision 
-#if( $reviewMarkedAsFinalized.size() > 0 )
-  #set( $idx = $reviewMarkedAsFinalized.size() - 1 )
-   #set( $revMarkedFinalUser = $reviewMarkedAsFinalized[$idx].eventUser)
-   #set( $revMarkedFinalDate = $reviewMarkedAsFinalized[$idx].getEventDate())
-#else 
-  #set( $reviewMarkedAsFinalized = false )
+
+#set( $reviewMarkedNotFinalDate = false)
+#if( $reviewMarkedAsNotFinalized.size() > 0 )
+  #set( $id_nf = $reviewMarkedAsNotFinalized.size() - 1 )
+  #set( $reviewMarkedNotFinalDate = $reviewMarkedAsNotFinalized[$id_nf].getEventDate())
 #end 
 
+#set( $revMarkedFinalDate = false)
+#if( $reviewMarkedAsFinalized.size() > 0 )
+  #set( $id_f = $reviewMarkedAsFinalized.size() - 1 )
+  #set( $revMarkedFinalDate = $reviewMarkedAsFinalized[$idx_f].getEventDate())
+#end 
+
+## Determine the latest finialization event action
+## If latest finalization action is 'Finalized' then save the event user and date
+#if((!$reviewMarkedNotFinalDate && $revMarkedFinalDate) || $revMarkedFinalDate > $reviewMarkedNotFinalDate) 
+  #set($finalizationUser = $reviewMarkedAsFinalized[$idx_f].eventUser)
+  #set($finalizeationDate = $revMarkedFinalDate)
+#end
+
+
+
+
+
+
+
+##########################################################################################
+##
+## Review Comments & Signatures
+##  - Moderator Information & Review Closure / Finalization Status Summary Table
+##
+##########################################################################################
 <table class=MsoTableGrid border=0 cellspacing=0 cellpadding=0 style='border-collapse:collapse;border:none;mso-border-insideh:none;mso-border-insidev:none;width:100%'>
   <tr>
     <td width=23%>
@@ -5215,7 +5237,7 @@ Review Comments & Signatures
             No
           #end 
         #else 
-          No 
+          No
         #end 
         </p>
       </td>
@@ -5232,10 +5254,10 @@ Review Comments & Signatures
           #if( $printEvent )
             #getDateTime($reviewAutoCloseDate, $timeZone) Review closed, reaching the review deadline date and time.
           #else 
-            No 
+            No
           #end 
         #else 
-          No 
+          No
         #end 
         </p>
       </td>
@@ -5247,15 +5269,16 @@ Review Comments & Signatures
         <span style='font-size:9.0pt;color:#404040;'>REVIEW MARKED AS FINALIZED:</span></p>
     </td>
     <td width=77%><p class=MsoNormal style='margin-bottom:0in;line-height:normal;color:#404040;'>
-        #if( $reviewMarkedAsFinalized )
-          #compareEventDates( $revMarkedFinalDate )
+
+        #if( $finalizeationDate )
+          #compareEventDates( $finalizeationDate )
           #if( $printEvent )
-            #getDateTime($revMarkedFinalDate, $timeZone) by $!revMarkedFinalUser.fullName
-           #else 
-            No 
+            #getDateTime($finalizeationDate, $timeZone) by $!finalizationUser.fullName
+          #else 
+            No
           #end 
         #else 
-          No 
+          No
         #end 
       </p>
     </td>
