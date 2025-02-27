@@ -61,7 +61,9 @@ Content-Type: multipart/related; boundary="----=_NextPart_01DA8992.E7786AB0"
 ##                                             extraction to account of unexpected unit inclusion values. 
 ##                                           - Additionally updated primary macro set to latest versions from EES Master Word/PDF Template Version 2.8.5 for improved
 ##                                             report content handling. 
-## 2025-02-11   3.12       Shawnna Williams  - Move over to latest master template for better image handling
+## 2025-02-11   3.12       Shawnna Williams  - Updated to new master word_pdf tempalate version 3.1.7 for better image handling.
+## 2025-02-26   3.12.1     Liam Rotchford    - Adjusted #createLink() macro to have proper handling for hyperlink creation to container items and baseline items.
+##                                           - Resolved minor hyperlink creation inconsistencies.
 ##
 ##======================================================================================================================
 ## REPORT CRITERIA
@@ -3664,12 +3666,14 @@ $string
 ##           $versionNumber, the version of the $item                                                  
 ##    Output: $createLinkReturn - the src link to the item in Jama Connect®                                          
 #########################################################################################################################
-#macro( createLink $item $versionNumber) 
+#macro( createLink $item $versionNumber $baselineId) 
   #set( $createLinkReturn = "" )
   #set( $projectId = $project.id.toString())
   #set( $docId = $item.currentVersion.originDocument.id.toString())
 
-  #if( $item.documentType.display == "Test Plan")
+  #if($item.documentType.display == "Component" || $item.documentType.display == "Set" || $item.documentType.display == "Folder")
+    #set( $createLinkReturn = $baseUrl + '/perspective.req#/containers/' + $docId + '/details?/?projectId=' + $projectId)
+  #elseif( $item.documentType.display == "Test Plan")
     #set( $createLinkReturn = $baseUrl + '/perspective.req#/testPlans/' + $docId + '/home/?projectId=' + $projectId)
   #elseif( $item.documentType.display == "Test Run")
     #set( $createLinkReturn = $baseUrl + '/perspective.req#/testRuns/' + $docId + '?projectId=' + $projectId)
@@ -3681,6 +3685,10 @@ $string
 
   #if( $versionNumber)
     #set( $createLinkReturn = $createLinkReturn + "&version=" + $versionNumber)
+  #end
+
+  #if($baselineId)
+    #set( $createLinkReturn = $createLinkReturn + "&baselineId=" + $baselineId)
   #end
   ##$createLinkReturn
 #end
@@ -4003,7 +4011,7 @@ $string
 
 <h2 style='text-align:left !important;'>
   #set( $lk = "")
-  #createLink( $baseDoc.currentVersion.originDocument, $baseDoc.currentVersion.versionNumber)
+  #createLink( $baseDoc, $baseDoc.currentVersion.versionNumber, $r2)
     #set( $lk = $createLinkReturn)
   #set( $baseName = $baseDoc.name)
   #encodeText( $baseName)
@@ -4527,11 +4535,11 @@ $string
       #set($toItem = $documentSource.getItem( $toItemId, $toItemVersion ))
       
       #set( $fromName = $fromItem.name )
-    #encodeText( $fromName)
-    #set( $fromName = $encodeTextReturn)
+      #encodeText( $fromName)
+      #set( $fromName = $encodeTextReturn)
       #set( $toName = $toItem.name )
-    #encodeText( $toName)
-    #set( $toName = $encodeTextReturn)
+      #encodeText( $toName)
+      #set( $toName = $encodeTextReturn)
       #set( $fromDocumentKey = $fromItem.documentKey )
       #set( $toDocumentKey = $toItem.documentKey )
       #set( $fromVersion = $fromItem.documentVersionNumber)
@@ -4539,19 +4547,19 @@ $string
 
       #if( $removedRelationship.contains( $base1ID ))
         ##set( $rel1String = $rel1String.concat("$fromName ($fromDocumentKey) &#8594; $toName ($toDocumentKey)<br>") )
-    #set( $rel1String = "$fromName ($fromDocumentKey) &#8594; $toName ($toDocumentKey)<br>")
-    #set( $success = $rel1Strings.add( $rel1String))
-    #end 
+        #set( $rel1String = "$fromName ($fromDocumentKey) &#8594; $toName ($toDocumentKey)<br>")
+        #set( $success = $rel1Strings.add( $rel1String))
+      #end 
     
-    #set( $fromItemDoc = $documentSource.getDocument( $fromItem.id))
-    #set( $toItemDoc = $documentSource.getDocument( $toItem.id))
-    #set( $lk = "")
-    #createLink( $fromItemDoc.currentVersion.originDocument, $fromVersion)
-    #set( $lk = $createLinkReturn)
-         &#8226; <a href="$lk">$!fromName ($!fromDocumentKey)</a>
-    #set( $lk = "")
-    #createLink( $toItemDoc.currentVersion.originDocument, $toVersion)
-    #set( $lk = $createLinkReturn)
+      #set( $fromItemDoc = $documentSource.getDocument( $fromItem.id))
+      #set( $toItemDoc = $documentSource.getDocument( $toItem.id))
+      #set( $lk = "")
+      #createLink( $fromItemDoc, $fromVersion, false)
+      #set( $lk = $createLinkReturn)
+           &#8226; <a href="$lk">$!fromName ($!fromDocumentKey)</a>
+      #set( $lk = "")
+      #createLink( $toItemDoc, $toVersion, false)
+      #set( $lk = $createLinkReturn)
         &#8594; <a href="$lk">$!toName ($!toDocumentKey)</a>
         <br><br>
       #end
@@ -4628,11 +4636,11 @@ $string
         #set( $fromItemDoc = $documentSource.getDocument( $fromItem.id))
           #set( $toItemDoc = $documentSource.getDocument( $toItem.id))
         #set( $lk = "")
-        #createLink( $fromItemDoc.currentVersion.originDocument, $fromItemVersion)
+        #createLink( $fromItemDoc, $fromItemVersion, false)
         #set( $lk = $createLinkReturn)
             &#8226; <a href="$!lk">$!fromName ($!fromDocumentKey)</a>
         #set( $lk = "")
-        #createLink( $toItemDoc.currentVersion.originDocument, $toItemVersion)
+        #createLink( $toItemDoc, $toItemVersion, false)
         #set( $lk = $createLinkReturn)
             &#8594; <a href="$!lk">$!toName ($!toDocumentKey)</a>
          <br> <br>
@@ -4785,7 +4793,7 @@ $string
       <h2>
         #set( $lk = "")
         #set( $cDoc = $documentSource.getDocument( $cDocDTO.id))
-        #createLink( $cDoc.currentVersion.originDocument, $cDoc.currentVersion.versionNumber.toString())
+        #createLink( $cDoc, $cDoc.currentVersion.versionNumber.toString(), $r2)
         #set( $lk = $createLinkReturn)
       
         #encodeText( $cDoc.name)
@@ -4850,13 +4858,13 @@ $string
                   &#8594; <a href="perspective.req?projectId=$toItem.project.id&docId=$toItem.id">$toItem.documentKey</a>
                   <br> <br>*#
                   #set( $lk = "")
-                  #createLink( $fromItem $fromItemVersion)
+                  #createLink( $fromItem $fromItemVersion false)
                   #set( $lk = $createLinkReturn)
                   #encodeText( $fromItem.name)
                   #set( $fromItemName = $encodeTextReturn)
                   <a href='$lk'>$fromItemName ($fromItem.documentKey)</a>
                   #set( $lk = "")
-                  #createLink( $toItem $toItemVersion)
+                  #createLink( $toItem $toItemVersion false)
                   #set( $lk = $createLinkReturn)
                   #encodeText( $toItem.name)
                   #set( $toItemName = $encodeTextReturn)
