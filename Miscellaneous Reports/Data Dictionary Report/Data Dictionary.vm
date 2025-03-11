@@ -1,0 +1,1292 @@
+MIME-Version: 1.0
+X-Document-Type: Workbook
+Content-Type: multipart/related; boundary="----=_NextPart_01D8DBD5.4D8FB410"
+
+#########################################################################################################################
+## ======================================================================================================================
+##
+##  Boundaries are necessary deliminators for a Multisheet .xlsx report. In the conversion 
+##  of .mht to .xlsx, the file is parsed to distinguish and separate sheets, i.e:
+##
+##  1. Check Content-Type: multipart/related; boundary="----=_NextPart_01D8D1DD.28209070" to get “boundary”
+##  2. Split .mht to HTML files by boundary and name each HTML file with the value of “Content-Location”
+##  3. Parse “x:ExcelWorkbook” xml section to get HREF of “x:WorksheetSource”,
+##  4. Gets the HTML stream of the worksheet by comparing HREF of “x:WorksheetSource” and “Content-Location”
+##  5. Read the data of the worksheet.
+##
+#########################################################################################################################
+
+
+#########################################################################################################################
+## ======================================================================================================================
+## Name: Data Dictionary.vm
+##
+## Output Type: Excel XLXS, Excel Legacy, HTML
+## 
+## Description/Notes:
+## - Report builds 'Item Types' and 'Pick Lists' sheets from instance item type and pick list information as seen in the
+## instance's Admin view 
+## 
+## Context Sensitive: F
+## 
+##
+## ======================================================================================================================
+## MODIFICATION HISTORY 
+## 
+## Date         Revision   Person            Comments 
+## -----------  ---------  ----------------  -------------------------------------------------------------------------
+## 2025_03_10   1.0        Henry Sides       - Initial build based on Master Excel MultiSheet Template version 1.3
+##
+##
+##
+## ===================================================================================================================== 
+## Criteria: 
+##
+##      Type:     Display Name:           Report Global Variable:
+##      ------------------------------------------------------------
+##
+##
+##
+#########################################################################################################################
+
+#########################################################################################################################
+## ======================================================================================================================
+## Template Steps:
+## -----------------
+##  1. In your Mockup .mhtml file: 
+##     o Find: =\n Replace: <nothing>
+##     o Find: =3D Replace: =
+##     o Remove any JS <script>...</script> tags and content between tags
+##     o Remove <frameset>...</frameset> tags and content between tags
+##     o Remove all "Content-Transfer-Encoding: quoted-printable" (this is important because it can ruin styles if present)
+##     o Remove the entire Tab Sheet ( you only will need the xml in the "HEAD" for the tabs )
+##  2. Find the HEAD section of this template, and from you Mockup copy and paste all the content that matches to the HEAD section 
+##  3. Find the STYLES section, and from your Mockup copy and paste all the content that matches to the STYLES section 
+##  4. Find the BODY section, and from your Mockup copy and paste all the Worksheets to the BODY section
+##  5. Find the FILE LIST section, and from your Mockup copy and paste the content that matches to the FILE LIST section
+##  6. Replace the initial boundary in this template, "Content-Type: multipart/related; boundary="----=_NextPart_01D8DBD5.4D8FB410""
+##      with the initial boundary from your mockup. 
+##  7. Do not place comments above the opening code of the file "MIME-Version: 1.0..."
+## 
+## ======================================================================================================================
+#########################################################################################################################
+#########################################################################################################################
+##
+##  1. DATA_SOURCES
+##
+#########################################################################################################################
+##
+## Data Sources available without declaration
+##-------------------------------------------
+## $format
+## $project
+## $documentList
+## $baseUrl
+## $contextType
+## $contextId
+## $report_name
+##
+## Data Sources loaded for this report
+##-------------------------------------------
+#if( $documentSource ) ##
+  ## Jama 8.44 or greater
+  ## Jama 8.42 if New Velocity Feature Flag Enabled
+  #set( $docDao = $documentSource )
+  #set( $documentNodeDao = $documentSource )
+  #set( $attachmentDao = $documentSource )
+  #set( $attachmentService = $documentSource )
+  #set( $docTypeFieldDao = $documentSource )
+  #set( $relDao = $documentSource )
+  #set( $versionDao = $documentSource )
+  #set( $testRunDao = $testSource )
+  #set( $testPlanDao = $testSource)
+  #set( $testSetDao = $testSource)
+  #set( $testCycleDao = $testSource)
+  #set( $velocityServiceWrapper = $documentSource )
+  #set( $baselineDao = $baselineSource )
+  #set( $contourItemDao = $documentSource )
+  #set( $userDao = $userSource )
+  #set( $lookupDao = $documentSource )
+#else
+  ## Jama 8.43 or older
+  ## Jama 8.43 or older ## Zoll is version 8.42.1 without the Velocity Feature Flag Enabled
+  #set( $contourItemDao = $applicationContext.getBean("contourItemDao"))
+  #set( $docDao = $applicationContext.getBean("documentDao"))
+  #set( $documentNodeDao = $applicationContext.getBean("documentNodeDao"))
+  #set( $attachmentDao = $applicationContext.getBean("attachmentDao"))
+  #set( $attachmentService = $applicationContext.getBean("attachmentService"))
+  #set( $relDao = $applicationContext.getBean("relationshipDao") )
+  #set( $versionDao = $applicationContext.getBean("versionDao") )
+  #set( $testRunDao = $applicationContext.getBean("testRunDao") )
+  #set( $testPlanDao = $applicationContext.getBean("testPlanDao"))
+  #set( $testSetDao = $applicationContext.getBean("testSetDao"))
+  #set( $testCycleDao = $applicationContext.getBean("testCycleDao"))
+  #set( $userDao = $applicationContext.getBean("userDao"))
+  #set( $baselineDao = $applicationContext.getBean("baseLineDao") )
+##
+#end
+##
+
+## Report Parameters
+##-------------------------------------------
+
+#if($!contextType && $contextType.toUpperCase().contains("BASELINE") )
+  #set( $baselineMode = true)
+  #set( $baselineId = $mathTool.toInteger($contextId))
+  #set( $reportBaseline = $baselineDao.getBaseLine( $baselineId ))
+#else
+  #if( $reportBaseline )
+    #set( $baselineMode = $reportBaseline )
+  #else
+    #set( $baselineMode = false )
+  #end
+#end
+
+
+#if( $reportTestRuns )
+  #set( $testRunMode = $reportTestRuns )
+#else
+  #set( $testRunMode = false )
+#end
+##
+##
+##
+## Report Constants 
+## -------------------------------------------
+#set( $cmpKey = "CMP") ##
+#set( $setKey = "SET") ##
+#set( $fldKey = "FLD") ##
+#set( $txtKey = "TXT") ##
+#set( $objectTypeField = "object_type" ) ##
+#set( $timeZone = "America/Los_Angeles" ) ##
+##
+## 
+#########################################################################################################################
+
+
+#########################################################################################################################
+##
+##  HEAD 
+##
+#########################################################################################################################
+
+## Replace below with the equivalent from your .mhtml mockup file, delete the Tab x:Worksheet.../x:Worksheet ## 
+
+------=_NextPart_01D8DBD5.4D8FB410
+Content-Location: file:///C:/116BA2D4/MultisheetTest.htm
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+
+<head>
+<meta name="Excel Workbook Frameset">
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link rel=File-List href="MultisheetTest_files/filelist.xml">
+<![if !supportTabStrip]>
+<link id="shLink" href="MultisheetTest_files/sheet001.htm">
+<link id="shLink" href="MultisheetTest_files/sheet002.htm">
+
+<link id="shLink">
+
+
+<![endif]><!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>Item Types</x:Name>
+    <x:WorksheetOptions>
+      <FreezePanes/>
+      <FrozenNoSplit/>
+      <SplitHorizontal>2</SplitHorizontal> 
+      <TopRowBottomPane>2</TopRowBottomPane> 
+    </x:WorkshetOptions>
+    <x:WorksheetSource HRef="MultisheetTest_files/sheet001.htm"/>
+   </x:ExcelWorksheet>
+   <x:ExcelWorksheet>
+    <x:Name>Pick Lists</x:Name>
+    <x:WorksheetOptions>
+      <FreezePanes/>
+      <FrozenNoSplit/>
+      <SplitHorizontal>2</SplitHorizontal>
+      <TopRowBottomPane>2</TopRowBottomPane>
+    </x:WorksheetOptions>
+    <x:WorksheetSource HRef="MultisheetTest_files/sheet002.htm"/>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:Stylesheet HRef="MultisheetTest_files/stylesheet.css"/>
+  <x:WindowHeight>12165</x:WindowHeight>
+  <x:WindowWidth>25890</x:WindowWidth>
+  <x:WindowTopX>930</x:WindowTopX>
+  <x:WindowTopY>32767</x:WindowTopY>
+  <x:ActiveSheet>0</x:ActiveSheet>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+</xml><![endif]-->
+</head>
+
+</html>
+
+
+#########################################################################################################################
+##
+##  STYLES 
+##
+#########################################################################################################################
+
+## Replace below with the equivalent from your .mhtml mockup file (you do not need <style></style> tags) ## 
+
+------=_NextPart_01D8DBD5.4D8FB410
+Content-Location: file:///C:/116BA2D4/MultisheetTest_files/stylesheet.css
+Content-Type: text/css; charset="utf-8"
+
+table {mso-displayed-decimal-separator:"\.";
+   mso-displayed-thousand-separator:"\,";}
+tr
+  {mso-height-source:auto;}
+col
+  {mso-width-source:auto;}
+br
+  {mso-data-placement:same-cell;}
+.style0
+  {mso-number-format:General;
+  text-align:general;
+  vertical-align:bottom;
+  white-space:nowrap;
+  mso-rotate:0;
+  mso-background-source:auto;
+  mso-pattern:auto;
+  color:black;
+  font-size:12.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:none;
+  font-family:"Aptos Narrow", sans-serif;
+  mso-font-charset:0;
+  border:none;
+  mso-protection:locked visible;
+  mso-style-name:Normal;
+  mso-style-id:0;}
+td
+  {mso-style-parent:style0;
+  padding-top:1px;
+  padding-right:1px;
+  padding-left:1px;
+  mso-ignore:padding;
+  color:black;
+  font-size:12.0pt;
+  font-weight:400;
+  font-style:normal;
+  text-decoration:none;
+  font-family:"Aptos Narrow", sans-serif;
+  mso-font-charset:0;
+  mso-number-format:General;
+  text-align:general;
+  vertical-align:bottom;
+  border:none;
+  mso-background-source:auto;
+  mso-pattern:auto;
+  mso-protection:locked visible;
+  white-space:nowrap;
+  mso-rotate:0;}
+.xl65
+  {mso-style-parent:style0;
+  font-weight:700;
+  font-family:"Aptos Narrow";
+  mso-generic-font-family:auto;
+  mso-font-charset:0;
+  white-space:normal;}
+.xl66
+  {mso-style-parent:style0;
+  color:white;
+  font-weight:700;
+  font-family:"Aptos Narrow";
+  mso-generic-font-family:auto;
+  mso-font-charset:0;
+  border:.5pt solid windowtext;
+  background:#A6C9EC;
+  mso-pattern:black none;
+  white-space:normal;}
+.xl67
+  {mso-style-parent:style0;
+  border:.5pt solid windowtext;
+  white-space:normal;
+  vertical-align:middle}
+.xl68
+  {mso-style-parent:style0;  
+  vertical-align:top
+  white-space:normal;}
+.xl69
+  {mso-style-parent:style0;
+  border-top:.5pt solid windowtext;
+  border-right:.5pt solid windowtext;
+  border-bottom:.5pt solid windowtext;
+  border-left:none;
+  vertical-align:middle;
+  white-space:normal;}
+.xl70
+  {mso-style-parent:style0;
+  border-top:.5pt solid windowtext;
+  border-right:.5pt solid windowtext;
+  border-bottom:1.5pt solid windowtext;
+  border-left:.5pt solid windowtext;
+  white-space:normal;}
+.xl71
+  {mso-style-parent:style0;
+  font-weight:700;
+  font-family:"Aptos Narrow";
+  mso-generic-font-family:auto;
+  mso-font-charset:0;
+  border:.5pt solid windowtext;
+  background:#ADADAD;
+  mso-pattern:black none;
+  white-space:normal;
+  vertical-align:middle;}
+.xl72
+  {mso-style-parent:style0;
+  font-weight:700;
+  font-family:"Aptos Narrow";
+  mso-generic-font-family:auto;
+  mso-font-charset:0;
+  border:.5pt solid windowtext;
+  background:yellow;
+  mso-pattern:black none;
+  white-space:normal;}
+.xl73
+  {mso-style-parent:style0;
+  font-weight:700;
+  font-family:"Aptos Narrow";
+  mso-generic-font-family:auto;
+  mso-font-charset:0;
+  border:.5pt solid windowtext;
+  background:#83CCEB;
+  mso-pattern:black none;
+  white-space:normal;}
+.xl74
+  {mso-style-parent:style0;
+  font-weight:700;
+  font-family:"Aptos Narrow";
+  mso-generic-font-family:auto;
+  mso-font-charset:0;
+  border-top:.5pt solid windowtext;
+  border-right:.5pt solid windowtext;
+  border-bottom:1.5pt solid windowtext;
+  border-left:.5pt solid windowtext;
+  background:#83E28E;
+  mso-pattern:black none;
+  white-space:normal;}
+.xl75
+  {mso-style-parent:style0;
+  border-top:.5pt solid windowtext;
+  border-right:.5pt solid windowtext;
+  border-bottom:1.5pt solid windowtext;
+  border-left:none;
+  white-space:normal;}
+.xl76
+  {mso-style-parent:style0;
+  color:white;
+  font-weight:700;
+  font-family:"Aptos Narrow";
+  mso-generic-font-family:auto;
+  mso-font-charset:0;
+  text-align:left;
+  border:.5pt solid windowtext;
+  background:#4D93D9;
+  mso-pattern:black none;
+  white-space:normal;}
+.xl77
+  {mso-style-parent:style0;
+  text-align:left;
+  vertical-align:middle;
+  border:.5pt solid windowtext;
+  white-space:normal;}
+.xl78
+  {mso-style-parent:style0;
+  text-align:left;
+  vertical-align:middle;
+  border-top:.5pt solid windowtext;
+  border-right:.5pt solid windowtext;
+  border-bottom:1.5pt solid windowtext;
+  border-left:.5pt solid windowtext;
+  white-space:normal;}
+.xl79
+  {mso-style-parent:style0;
+  color:white;
+  font-weight:700;
+  font-family:"Aptos Narrow";
+  mso-generic-font-family:auto;
+  mso-font-charset:0;
+  border-top:none;
+  border-right:none;
+  border-bottom:.5pt solid windowtext;
+  border-left:.5pt solid windowtext;
+  background:#4D93D9;
+  mso-pattern:black none;
+  white-space:normal;}
+.xl80
+  {mso-style-parent:style0;
+  color:white;
+  font-weight:700;
+  font-family:"Aptos Narrow";
+  mso-generic-font-family:auto;
+  mso-font-charset:0;
+  border-top:none;
+  border-right:none;
+  border-bottom:.5pt solid windowtext;
+  border-left:none;
+  background:#4D93D9;
+  mso-pattern:black none;
+  white-space:normal;}
+.xl81
+  {mso-style-parent:style0;
+  color:white;
+  font-weight:700;
+  border:.5pt solid windowtext;
+  background:#A6C9EC;
+  mso-pattern:black none;
+  white-space:normal;}
+.xl82
+  {mso-style-parent:style0;
+  color:white;
+  font-weight:700;
+  font-family:"Aptos Narrow";
+  mso-generic-font-family:auto;
+  mso-font-charset:0;
+  text-align:left;
+  border:.5pt solid windowtext;
+  background:#E97132;
+  mso-pattern:black none;
+  white-space:normal;}
+.xl83
+  {mso-style-parent:style0;
+  color:white;
+  font-weight:700;
+  font-family:"Aptos Narrow";
+  mso-generic-font-family:auto;
+  mso-font-charset:0;
+  text-align:left;
+  border-top:.5pt solid windowtext;
+  border-right:.5pt solid windowtext;
+  border-bottom:.5pt solid windowtext;
+  border-left:none;
+  background:#E97132;
+  mso-pattern:black none;
+  white-space:normal;}
+.xl84
+  {mso-style-parent:style0;
+  color:white;
+  font-weight:700;
+  font-family:"Aptos Narrow";
+  mso-generic-font-family:auto;
+  mso-font-charset:0;
+  border:.5pt solid windowtext;
+  background:#F1A983;
+  mso-pattern:black none;
+  white-space:normal;}
+.xl85
+  {mso-style-parent:style0;
+  color:white;
+  font-weight:700;
+  font-family:"Aptos Narrow";
+  mso-generic-font-family:auto;
+  mso-font-charset:0;
+  border-top:.5pt solid windowtext;
+  border-right:.5pt solid windowtext;
+  border-bottom:.5pt solid windowtext;
+  border-left:none;
+  background:#F1A983;
+  mso-pattern:black none;
+  white-space:normal;}
+	
+
+#########################################################################################################################
+##
+##  MACROS
+##
+#########################################################################################################################
+##
+#########################################################################################################################
+#########################################################################################################################
+##          Macro: formatRichTextCell
+##          Desc: Use on purely textual Rich Text Fields (I.e use directly in Cells)
+##          Input: $inString - input string
+##          Return: string, ready for opening in Word
+#########################################################################################################################
+#macro( formatRichTextCell $inString )
+  #if( $inString )
+    #set( $string = $inString.toString() )
+    
+    #set( $string = $string.replaceAll("<div.*?>|<\/div>",""))
+    #set( $string = $string.replaceAll("<html.*?>|<html>", ""))
+    #set( $string = $string.replaceAll("<span.*?>|<\/span>", ""))
+
+    ## remove images ## 
+    #set( $string = $string.replaceAll("<p.*?><img.*?><\/p>", ""))
+    #set( $string = $string.replaceAll("<img.*?>",""))
+    #set( $string = $string.replaceAll("<figure.*?>|</figure>", ""))
+    #set( $string = $string.replaceAll("<svg.*?>|<\/svg", ""))
+    ## figure captions should not cause issue, replace at user discretion
+    #set( $string = $string.replaceAll("<figcaption.*?>|<\/figcaption>",""))
+
+    ## remove tables ## 
+    #set( $string = $string.replaceAll("<table.*?>|<\/table>",""))
+    #set( $string = $string.replaceAll("<col.*?>|<\/col>", ""))
+    #set( $string = $string.replaceAll("<tbody.*?>|<\/tbody>",""))
+    #set( $string = $string.replaceAll("<thead.*?>|<\/thead>",""))
+    #set( $string = $string.replaceAll("<th.*?>(?:.|\s)*?<\/th>", ""))
+    #set( $string = $string.replaceAll("<th.*?>|</th>", ""))
+    #set( $string = $string.replaceAll("<tr.*?>|<\/tr>",""))
+    #set( $string = $string.replaceAll("<td.*?>(?:.|\s)*?<\/td>", ""))
+    #set( $string = $string.replaceAll("<td.*?>|<\/td>", ""))
+    #set( $string = $string.replaceAll("<tfoot.*?>|<\/tfoot>",""))
+    #set( $string = $string.replaceAll("<caption.*?>|<\/caption>",""))
+
+    ## remove link tags
+    #set( $string = $string.replaceAll("<\/?(a).*?>",""))
+
+    ## replace list tags with a restructured list via <br>s and the bullet html entity
+    #set( $string = $string.replaceAll("<ul.*?>","<br>"))
+    #set( $string = $string.replaceAll("<ol>","<br>"))
+    #set( $string = $string.replaceAll("<\/ol>|<\/ul>",""))
+    #set( $string = $string.replaceAll("<li.*?>","&#x2022; "))
+    #set( $string = $string.replaceAll("<\/li>","<br>"))
+
+    ## Misc edge cases
+    #set( $string = $string.replaceAll("\xA0",""))
+
+    $string
+  #end
+#end
+#########################################################################################################################
+#########################################################################################################################
+##          Macro: formatPlainText
+##          Desc: Remove all possibly present html tags from text box field content
+#########################################################################################################################
+#macro( formatPlainText $inString)
+  #if( $inString )
+    #set( $string = $inString.toString() )
+    #set( $string = $string.replaceAll("<(.|\n)*?>", ""))
+
+    $string
+  #end
+#end
+
+#########################################################################################################################
+#macro( stripPlainText $text )
+  #set($text = $text.replaceAll("<"," &lt;"))
+  #set($text = $text.replaceAll(">"," &gt;"))
+  $text
+#end
+#########################################################################################################################
+##
+
+#########################################################################################################################
+##          lookupPickListColor
+##          Input: item, the unique custom field name, the fetched picklist item
+##          Output: String type hex code color 
+##          Note: see example at base of template
+##          Call Example: #lookupPickListColor($doc "<unique field name>" $<item variable with item data> )
+##          Apply to cell: style='background:#$color;mso-pattern:#$color none;''
+#########################################################################################################################
+#macro( lookupPickListColor $doc $uniqueFieldName $fetchedFieldValue )
+              
+  #set( $docTypeField = $docTypeFieldDao.getDocumentTypeFieldByName( $uniqueFieldName, $doc.documentType.id ))
+  #set( $lookupTypeId = $docTypeField.getLookupTypeId())
+  #set( $fieldId = $docTypeField.documentField.id)
+  #set( $lookupTypeList = [])
+  #if( $lookupTypeList.add( $lookupTypeId ))#end
+  #set( $getLookupIdsReturn = $lookupDao.getLookupIdsByLookupTypes($lookupTypeList))
+  #set( $lookupValues = [])
+  
+  #foreach( $l in $getLookupIdsReturn)
+  #set( $lookup = $lookupDao.getLookup($mathTool.toInteger($l)))
+    #if( $lookupValues.add( $lookup)) #end
+  #end
+  #set( $color = 'FFFFFF')
+  #foreach( $l in $lookupValues)
+    #if( $l.name == $fetchedFieldValue )
+      #set( $color = $l.color)
+      #break
+    #end
+  #end
+
+#end 
+##
+#########################################################################################################################
+##          Macro: getHierarchyLevel
+##          Input: $doc - document object
+##                 $baselineMode - true: export was from a baseline, false: export was from the project
+##                 $baselineId   - ID of the baseline that the items are part of, if in baseline mode
+##          Output: $hierarchyLevel - number, which heading level this item is in Jama relative to the container
+#########################################################################################################################
+#macro( getHierarchyLevel $doc $baselineMode $baselineId )
+  #set( $seqSubStrings = [] )
+  #set( $hierarchyLevel = 1)
+  ## Get hierarchy from the baseline
+  #if( $baselineMode )
+    #set( $docNode = $documentNodeDao.getDocumentNodeForBaseLine(5, $doc.id, $baselineId))
+  ## Get hierarchy from the project
+  #else
+    #set( $docNode = $documentNodeDao.getDocumentNode(5, $doc.id))
+  #end
+  ##Debug: $docNode
+  #set( $seqSubStrings = $docNode.sequence.split("\."))
+  ##Debug: $seqSubStrings
+  #set( $hierarchyLevel = $seqSubStrings.size())
+  #if( !$hierarchyLevelTop )
+    #set($hierarchyLevelTop = $hierarchyLevel)
+  #end
+
+  #set($hierarchyLevel = $hierarchyLevel - $hierarchyLevelTop + 1)
+#end
+
+
+#########################################################################################################################
+##           Macro: getStatus
+##           Input: $doc - document object
+##           Output: $docStatus - status of the item
+#########################################################################################################################
+#macro( getStatus $doc )
+  #set( $docStatus = false )
+  #foreach( $docTypeField in $doc.documentType.documentTypeFields )
+    #if( $docTypeField.documentField.name == "status" )
+      #set ( $docStatus = $doc.status.name )
+      #break
+    #end
+  #end
+#end
+##
+
+#########################################################################################################################
+##
+
+#########################################################################################################################
+##          Macro: getDate
+##          Input: Java Time Zone ID to determine which timezone to display the date in
+##          Output: Formatted date in the desired timezone
+#########################################################################################################################
+#macro( getDate $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  $dateTool.format( 'MM/dd/yyyy', $inputDate, $locale, $outTz )
+#end
+
+#########################################################################################################################
+#########################################################################################################################
+##          Macro: getBaselineRelationships
+##          Input: $currentVersionId - ID of the currentVersion of an item 
+##                 $baselineId - ID of a baseline   
+##                 $inDoc - current item
+##                 $inDownstream - true provides downstream relationships, false provides upstream relationships    
+##          Creates: $returnBaselineRels list of upstream Or downstream baseline relationships 
+#########################################################################################################################
+#macro( getBaselineRelationships $currentVersionId $baselineId $inDoc $inDownstream )
+  #set( $start = 0 )
+  #set( $count = 20 )
+  #set( $versionedRelationships = [] )
+  #set( $returnBaselineRels = [])
+  #set( $pageSize = 20)
+  #set( $relatedIds = [] )
+  ##
+  #set($baseRelsPage = $documentSource.getRelationships($currentVersionId,$baselineId,$start,$count))
+  ##
+  #set( $totalRels = [])
+  #set( $totalRels = $baseRelsPage.getPageInfo().getTotalResults())
+  ## DEBUG Baseline Page Info: $baseRelsPage.getPageInfo() <br><br>
+  ## DEBUG Baseline Relationship Count: $baseRelsPage.getPageInfo().getTotalResults()<br><br>
+  ## DEBUG Baseline Results: $baseRelsPage.getResults() 
+  #if( $totalRels && $totalRels > 0)
+    #set( $page_count = $mathTool.floor($mathTool.div($totalRels,$pageSize)) )
+    #foreach( $page in [0..$page_count])
+      #set( $baseRelsPage = $documentSource.getRelationships($currentVersionId,$baselineId,$start,$count))
+      #set( $baseRelsPageResults = $baseRelsPage.getResults())
+      #if( $baseRelsPageResults )
+       #set( $success = $versionedRelationships.addAll($baseRelsPageResults ))
+      #end 
+      #set( $start = $start + $count)
+    #end
+  #end
+  ##
+  #foreach( $versionedRelationship in $versionedRelationships )
+    #if( $inDownstream ) ## Get Downstream Relationships
+      #set( $upItemId = $versionedRelationship.getFromItem().getValue().get(0) )
+      #set( $upItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
+      
+      ## Get CountourItem by Id and Version ## 
+      #set( $upDocVersion = $documentSource.getVersionByDocAndVersionNumber($upItemId,$upItemVersion))
+      #set( $upDoc = $upDocVersion.document)
+
+      #if( $inDoc.id == $upDoc.id ) 
+        #set( $dnItemId = $versionedRelationship.getToItem().getValue().get(0) )
+        #set( $dnItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
+    
+        ## Get CountourItem by Id and Version ##  
+        #set( $dnVersion = $documentSource.getVersionByDocAndVersionNumber($dnItemId,$dnItemVersion))
+        #set( $dnDoc = $dnVersion.document ) 
+
+        #if( !$relatedIds.contains($dnDoc.id) )
+          #set( $success = $relatedIds.add($dnDoc.id) )
+          #set( $success = $returnBaselineRels.add( {"fromDocument":$inDoc,"toDocument":$dnDoc} ) )
+        #end
+      #end 
+    #else
+      #set( $dnItemId = $versionedRelationship.getToItem().getValue().get(0) )
+      #set( $dnItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
+      
+      ## Get CountourItem by Id and Version ## 
+      #set( $dnDocVersion = $documentSource.getVersionByDocAndVersionNumber($dnItemId,$dnItemVersion))
+      #set( $dnDoc = $dnDocVersion.document)
+    
+
+      #if( $inDoc.id == $dnDoc.id ) ## Get Upstream Relationships
+        #set( $upItemId = $versionedRelationship.getFromItem().getValue().get(0) )
+        #set( $upItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
+  
+        ## Get CountourItem by Id and Version ##  
+        #set( $upVersion = $documentSource.getVersionByDocAndVersionNumber($upItemId,$upItemVersion))
+        #set( $upDoc = $upVersion.document )
+ 
+
+        #if( !$relatedIds.contains( $upDoc.id) )
+          #set( $success = $relatedIds.add( $upDoc.id) )
+          #set( $success = $returnBaselineRels.add( {"fromDocument":$upDoc,"toDocument":$inDoc} ) )
+        #end
+      #end
+
+    #end 
+  #end
+#end
+#########################################################################################################################
+##          Macro: getRelationships
+##          Inputs: $baselineMode - GLOBAL, tells the report if the export was from a baseline or not 
+##                  $baselineId - GLOBAL, ID of a baseline       
+##                  $inDoc - current item
+##                  $inDownstream - true provides downstream relationships, false provides upstream relationships
+##          Creates: $returnRels - list of relationships with sub-elements of "fromItem" and "toItem" each of type 
+##                   item
+#########################################################################################################################
+#macro( getRelationships $inDoc $inDownstream )
+  #set( $returnRels = [] )
+
+  #if( $baselineMode && $baselineId )
+      #set( $inDocId = $inDoc.id )
+      #* If the item is active then we have the most recent version of the item. 
+      * The $inDoc.id is equivalent to the $inDoc.currentVersion.originDocument.id. 
+      * Thus we utilize the $inDoc.id as it is the more efficient retrieval of that id. 
+      * This 'current version' id will be utilized as the first argument in the method
+      * getRelationships($currentVersionId,$baselineId,$start,$count)) in the #getBaselineRelationships macro. 
+            *
+      * If the item is not active, then we have a prior version of the item or the item has been deleted, 
+      * but we still want it to show up in the baselined trace - we want to show every related 
+      * item that existed when the baseline snapshot was made. In this case, to get the current version id of the 
+      * non-active item we utilize $inDoc.currentVersion.originDocument.id.
+      *#
+      #if( !$inDoc.active )
+        #set( $currentVersion = $inDoc.currentVersion ) 
+        #set( $inDocId = $currentVersion.originDocument.id ) 
+      #end 
+      #getBaselineRelationships( $inDocId, $baselineId, $inDoc, $inDownstream ) ## Creates $returnBaselineRels 
+      #set( $returnRels = $returnBaselineRels )
+  #else
+
+    #set( $rels = [] )
+    #set ( $rels = $documentSource.getRelationshipsForDocument($inDoc.id, $inDownstream) )
+    #foreach( $rel in $rels )
+      #if( $inDownstream )  ## Get Downstream Relationships
+        #if ( $rel.toDocument.active )
+          #set( $success = $returnRels.add( $rel ) )
+        #end
+      #else                 ## Get Upstream Relationships
+        #if ( $rel.fromDocument.active )
+          #set( $success = $returnRels.add( $rel ) )
+        #end
+      #end
+    #end
+  #end
+#end
+##
+######################################################################################################################
+######################################################################################################################
+#macro( getOrgPickListTypes )
+  #set( $docTypes = $documentSource.getDocumentTypeListForOrganization($project.getOrganizationId()) )
+  #set( $pickListTypeIds = [] )
+  #set( $pickListTypes = [] )
+  #set( $lookupMatrixNames = [] )
+  #set( $pickListType = {} )
+  #foreach( $docType in $docTypes )
+    #set( $docTypeFields = $docType.getDocumentTypeFields() )
+    #foreach( $field in $docTypeFields )
+      #set( $lookupTypeId = $field.getLookupTypeId() )
+      #if( $lookupTypeId )
+        #if( !$pickListTypeIds.contains($lookupTypeId) )
+          #set( $success = $pickListTypeIds.add($lookupTypeId) )
+          #set( $pickListType = $documentSource.getLookupType($lookupTypeId) )
+          #set( $success = $pickListTypes.add($pickListType) )
+        #end
+
+      #else
+        #getLookupMatrix($field)
+        #if( $lookupTypeName && !$lookupMatrixNames.contains($lookupTypeName) )
+          #set( $success = $lookupMatrixNames.add($lookupTypeName) )
+        #end
+      #end
+
+    #end
+  #end
+#end
+##
+######################################################################################################################
+######################################################################################################################a
+#macro( getEveryPickList $pickListTypes $pickListTypeIds )
+  #if( $pickListTypeIds.size() > 0 )
+    #set( $sortedIds = $sortTool.sort($pickListTypeIds) )
+    #set( $min = $pickListTypeIds[0] )
+    #set( $max = $pickListTypeIds[$pickListTypeIds.size() - 1] )
+    #foreach( $i in [$min..$max] )
+      #set( $pickListType = $documentSource.getLookupType($i) )
+      #if( $pickListType && !$pickListTypes.contains($pickListType) )
+        #set( $success = $pickListTypes.add($pickListType) )
+      #end
+    #end
+  #end
+#end
+##
+######################################################################################################################
+######################################################################################################################
+#macro( getSortedPickListTypes $pickListTypes )
+  #set( $pickListTypeNames = [] )
+  #set( $sortedPickListTypes = [] )
+  #foreach( $pickListType in $pickListTypes )
+    #set( $success = $pickListTypeNames.add($pickListType.getName()) )
+  #end
+
+  #foreach( $name in $sortTool.sort($pickListTypeNames) )
+    #foreach( $type in $pickListTypes )
+      #if( $name == $type.getName() )
+        #if( !$sortedPickListTypes.contains($type) )
+          #set( $success = $sortedPickListTypes.add($type) )
+        #end
+      #end
+    #end
+  #end
+#end
+##
+######################################################################################################################
+######################################################################################################################
+#macro( getLookupMatrix $docFieldType )
+  #set( $lookupTypeId = $docFieldType.getLookupTypeId() )
+  #set( $lookupTypeName = $documentSource.getLookupType($lookupTypeId).getName() )  
+  #if( !$lookupTypeId )
+    #set( $controlStyle = $docFieldType.getControlStyle() )
+    #if( $controlStyle.contains("LOOKUP_MATRIX") )
+      #set( $dto = $documentSource.getDocumentFieldDtoFor( $docFieldType.id, $project.id ).toString())
+      #set( $lookupTypeName = $dto.replaceAll(".*LookupMatrixImpl.*name='([^']+)'.*", "$1") )
+    #end
+  #end
+#end
+##
+######################################################################################################################
+######################################################################################################################
+#macro( buildCalculationString $docFieldType $controlStyle )
+  #set( $calculationString = "" )
+  #set( $controlStyle = $docFieldType.getControlStyle() )
+  #if( $controlStyle )
+    #set( $controlFieldsList = $controlStyle.split(',')) 
+    #set( $calculationType = "" )
+    #set( $operandIdsIndex = -1 )
+    #set( $containsOperandId = false )
+    #set( $operandIds = [] )
+
+    ## Isolate calculation operator and operands
+    #foreach( $field in $controlFieldsList )
+      #if( $field.contains('calculationType') )
+        #set( $calculationType = $field.replaceAll(':"(.*)"|[^*]', '$1'))
+
+      #elseif( $field.contains('primaryOperandIds'))
+        #set( $containsOperandId = true )
+        #set( $idString = $field.replaceAll('.*\[(\d+)', '$1') )
+        #set( $success = $operandIds.add($numberTool.toNumber($idString).intValue()) )
+
+      #elseif( $containsOperandId )
+        #if( $field.contains('"') )
+          #set( $containsOperandId = false )
+        #else
+          #set( $idString = $field.replaceAll('(\d+)]?', '$1') )
+          #set( $success = $operandIds.add($numberTool.toNumber($idString).intValue()) )
+        #end
+
+      #end
+    #end 
+   
+    ## Adjust delimiter based on operator 
+    #set( $calculationDelimiter = 'and' ) 
+    #if( $calculationType == 'MUL' ) 
+      #set( $calculationDelimiter = '*' ) 
+    #end
+
+    ## Build calculation string
+    #set( $sortedIds = $sortTool.sort($operandIds) )
+    #foreach( $id in $sortedIds )
+      #set( $fieldName = $documentSource.getDocumentTypeField($id).getLabel() )
+      #if( $sortedIds.indexOf($id) == 0 )
+        #set( $calculationString = "$fieldName")
+      #else
+        #set( $calculationString = "$calculationString $calculationDelimiter $fieldName")
+      #end
+    #end 
+  #end
+#end
+##
+######################################################################################################################
+######################################################################################################################
+#macro( buildFieldRows $docFieldType $bottomBorderStyle )
+  #set( $docField = $docFieldType.getDocumentField() ) 
+  #set( $dataType = $docField.getDataType() )
+  #set( $controlType = $docFieldType.getControlType() )
+
+  #set( $dataTypeEnumMap = {"INTEGER": "Integer", 
+                            "STRING": "Text Field", 
+                            "TEXT": "Text Box", 
+                            "LOOKUP": "Pick List", 
+                            "DATE": "Date", 
+                            "USER": "User", 
+                            "RELEASE": "Release", 
+                            "BOOLEAN": "Flag", 
+                            "GROUP": "Group", 
+                            "MULTI_LOOKUP": "Multi Select", 
+                            "DOCUMENT_TYPE_ITEM_LOOKUP": "Item of Type", 
+                            "URL_STRING": "URL", 
+                            "DOCUMENT_TYPE": "Item Type", 
+                            "PROJECT": "Project", 
+                            "STEPS": "Steps", 
+                            "TIME": "Time", 
+                            "TEST_RUN_STATUS": "Test Run Status", 
+                            "DOCUMENT_TYPE_CATEGORY_ITEM_LOOKUP": "Item of Category", 
+                            "TEST_CASE_STATUS": "Test Case Status", 
+                            "ACTIONS": "Actions", 
+                            "ROLLUP": "Rollup", 
+                            "RELATIVE_DATE_RANGE": "Relative Date Range", 
+                            "CALCULATED": "Calculated", 
+                            "RELATIONSHIP_STATUS": "Relationship Status", 
+                            "FLOAT": "Float",
+                            "TEST_RUN_RESULTS": "Test Run Results" } )
+
+  #set( $controlEnumMap =    {"TEXTAREA": "Text Box",
+                            "RICHTEXT": "Rich Text",
+                            "KEY": "Key",
+                            "ATTACHMENT": "Attachment" } )
+
+  <td class=xl67 style='border-bottom:$bottomBorderStyle;border-top:none;border-left:none;'>$docFieldType.getLabel()</td>
+  <td class=xl67 style='border-bottom:$bottomBorderStyle;border-top:none;border-left:none;'>$docField.getName()</td>
+
+  #set( $fieldType = $dataTypeEnumMap.get("$dataType") )
+  #if( !$fieldType )
+    #set( $fieldType = $dataType )
+  #end
+  <td class=xl67 style='border-bottom:$bottomBorderStyle;border-top:none;border-left:none;'>$fieldType</td>
+  <td class=xl67 style='border-bottom:$bottomBorderStyle;border-top:none;border-left:none;'>$!controlEnumMap.get("$controlType")</td>
+
+  #set( $lookupTypeName = "" )
+  #getLookupMatrix($docFieldType)
+  <td class=xl67 style='border-bottom:$bottomBorderStyle;border-top:none;border-left:none;'>$!lookupTypeName</td>
+
+  #buildCalculationString($docFieldType) 
+  <td class=xl67 style='word-wrap:break-word;border-bottom:$bottomBorderStyle;border-top:none;border-left:none;'>$!calculationString</td>
+#end
+##
+######################################################################################################################
+######################################################################################################################
+#macro( buildValueRows $pickListValueType $bottomBorderStyle )
+  <td class=xl69 style='text-align:left;border-top:none;border-bottom:$bottomBorderStyle'>$!pickListValueType.getName()</td>
+
+  #extractInfoTip($pickListValueType)
+  <td class=xl67 style='text-align:left;border-top:none;border-left:none;border-bottom:$bottomBorderStyle'>$!infoTipString</td>
+
+  <td class=xl67 style='text-align:left;border-top:none;border-left:none;border-bottom:$bottomBorderStyle'>$!pickListValueType.getDataValue()</td>
+
+  #set( $backgroundColor = $null )
+  #set( $color = $pickListValueType.color )
+  #if( $color && $color.length() > 0 )
+    #set( $color = "#$color")
+    #set( $backgroundColor = $color )
+  #end
+  <td class=xl71 style='text-align:left;border-top:none;border-left:none;border-bottom:$bottomBorderStyle;background:$backgroundColor'>$!color</td>
+#end
+##
+######################################################################################################################
+######################################################################################################################
+#macro( extractInfoTip $pickListValueType )
+  #set( $valueString = $pickListValueType.toString() )
+  #set( $infoTipString = "" )
+  #if( !$valueString.contains("infotip=null") && !$valueString.contains("infotip=, replacementLookup=") )
+    #set( $infoTipString = $valueString.replaceAll('.*infotip=(.*), replacementLookup.*', '$1') ) 
+  #end
+#end
+##
+######################################################################################################################
+######################################################################################################################
+#########################################################################################################################
+##
+##  BODY
+##
+#########################################################################################################################
+
+#* Replace the content in this section with every Worksheet from your .mhtml Mockup
+ ( delete the "Tabs" sheet, you do not need it ) *#
+
+
+#### Example What to Include Worksheet 1 ####
+
+------=_NextPart_01D8DBD5.4D8FB410
+Content-Location: file:///C:/116BA2D4/MultisheetTest_files/sheet001.htm
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link id=Main-File rel=Main-File href="../MultisheetTest.htm">
+<link rel=File-List href=filelist.xml>
+<![if IE]>
+<base href="file:///C:/116BA2D4/MultisheetTest_files/sheet001.htm"
+id="webarch_temp_base_tag">
+<![endif]>
+<link rel=Stylesheet href=stylesheet.css>
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:.75in .7in .75in .7in;
+	mso-header-margin:.3in;
+	mso-footer-margin:.3in;}
+-->
+
+</style>
+
+<body link="#467886" vlink="#96607D">
+
+<table border=0 cellpadding=0 cellspacing=0 width=1680 style='border-collapse:
+  collapse;table-layout:fixed'>
+  <col width=80 style='mso-width-source:userset;mso-width-alt:2272'>
+  <col width=240 style='mso-width-source:userset;mso-width-alt:5344'>
+  <col width=80 style='mso-width-source:userset;mso-width-alt:2272'>
+  <col width=240 span=2 style='mso-width-source:userset;mso-width-alt:5344'>
+  <col width=160 span=2 style='mso-width-source:userset;mso-width-alt:4064'>
+  <col width=240 span=2 style='mso-width-source:userset;mso-width-alt:5344'>
+  <tr class=xl65 height=21>
+    <td colspan=3 height=21 class=xl76 width=400>Item Type</td>
+    <td class=xl79 width=240 style='border-left:none'>Fields</td>
+    <td class=xl80 width=240>&nbsp;</td>
+    <td class=xl80 width=160>&nbsp;</td>
+    <td class=xl80 width=160>&nbsp;</td>
+    <td class=xl80 width=240>&nbsp;</td>
+    <td class=xl80 width=240>&nbsp;</td>
+  </tr>
+
+
+  <tr class=xl65 height=21 style='height:15.75pt'>
+    <td height=21 class=xl66 style='height:15.75pt;border-top:none;'>ID</td>
+    <td class=xl66 style='border-top:none;border-left:none'>Name</td>
+    <td class=xl66 style='border-top:none;border-left:none'>Key</td>
+    <td class=xl66 style='border-top:none;border-left:none'>Label</td>
+    <td class=xl66 style='border-top:none;border-left:none'>Unique Field Name</td>
+    <td class=xl66 style='border-top:none;border-left:none'>Field Type</td>
+    <td class=xl66 style='border-top:none;border-left:none'>Control</td>
+    <td class=xl66 style='border-top:none;border-left:none'>Pick List</td>
+    <td class=xl81 style='border-top:none;border-left:none'>Calculation</td>
+  </tr>
+
+  #set( $docTypes = $documentSource.getDocumentTypeListForOrganization($project.getOrganizationId()) )
+  #foreach( $docType in $sortTool.sort($docTypes, "display:asc") )
+    #set( $docFields = $docType.getDocumentTypeFields() )
+    #set( $spanHeight = $docFields.size() )
+    <tr class=xl68>
+      <td rowspan=$spanHeight class=xl77 style='border-bottom:3.0pt solid black;border-top:none'>$docType.getId()</td>
+      <td rowspan=$spanHeight class=xl77 style='border-bottom:3.0pt solid black;border-top:none'>$docType.getDisplay()</td>
+      <td rowspan=$spanHeight class=xl77 style='border-bottom:3.0pt solid black;border-top:none'>$docType.getDocumentTypeKey()</td>
+
+      #set( $firstField = $docFields[0] )
+      #buildFieldRows( $firstField "")
+    </tr>
+
+    #set( $spanHeight = $spanHeight - 1 )
+    #foreach( $index in [1..$spanHeight] )
+      #set( $docField = $docFields[$index] )
+      #set( $bottomBorderStyle = "")
+      #if( $index == $spanHeight )
+        #set( $bottomBorderStyle = "3.0pt solid black" ) 
+      #end
+
+      <tr class=xl68> #buildFieldRows( $docField $bottomBorderStyle ) </tr>
+    #end
+    <![if supportMisalignedColumns]>
+    <tr height=0 style='display:none'>
+      <td width=80></td>
+      <td width=240></td>
+      <td width=80></td>
+      <td width=240></td>
+      <td width=240></td>
+      <td width=160></td>
+      <td width=160></td>
+      <td width=240></td>
+      <td width=240></td>
+    </tr>
+    <![endif]> 
+  #end
+</table>
+
+</body>
+
+</html>
+
+#### Example What to Include Worksheet 2 ####
+
+------=_NextPart_01D8DBD5.4D8FB410
+Content-Location: file:///C:/116BA2D4/MultisheetTest_files/sheet002.htm
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link id=Main-File rel=Main-File href="../MultisheetTest.htm">
+<link rel=File-List href=filelist.xml>
+<![if IE]>
+<base href="file:///C:/116BA2D4/MultisheetTest_files/sheet002.htm"
+id="webarch_temp_base_tag">
+<![endif]>
+<link rel=Stylesheet href=stylesheet.css>
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:.75in .7in .75in .7in;
+	mso-header-margin:.3in;
+	mso-footer-margin:.3in;}
+-->
+</style>
+</head>
+
+<body link="#0563C1" vlink="#954F72">
+
+<table border=0 cellpadding=0 cellspacing=0 width=1164 style='border-collapse:collapse;table-layout:fixed'>
+  <col width=300 style='mso-width-source:userset;mso-width-alt:5344'>
+  <col width=88>
+  <col width=300 style='mso-width-source:userset;mso-width-alt:5344'>
+  <col width=300 style='mso-width-source:userset;mso-width-alt:4064'>
+  <col width=88 style='mso-width-source:userset;mso-width-alt:4064'>
+  <col width=88>
+  <tr height=21 style='height:15.75pt'>
+    <td colspan=2 height=21 class=xl82 width=388 style='height:15.75pt'>Pick List</td>
+    <td colspan=4 class=xl83 width=776 style='width:381pt'>Values</td>
+  </tr>
+
+  <tr height=21 style='height:15.75pt'>
+    <td height=21 class=xl84 width=300 style='height:15.75pt;border-top:none'>Name</td>
+    <td class=xl84 width=88 style='border-top:none;border-left:none'>Type</td>
+    <td class=xl85 width=300 style='border-top:none'>Display Value</td>
+    <td class=xl84 width=300 style='border-top:none;border-left:none'>Infotip</td>
+    <td class=xl84 width=88 style='border-top:none;border-left:none'>Numeric Value</td>
+    <td class=xl84 width=88 style='border-top:none;border-left:none'>Color</td>
+  </tr>
+
+  #getOrgPickListTypes()
+  #foreach( $lookupMatrixName in $sortTool.sort($lookupMatrixNames) )
+    <tr>
+      <td class=xl77 style='border-bottom:3.0pt solid black;border-top:none'>$lookupMatrixName</td>
+      <td class=xl77 style='border-bottom:3.0pt solid black;border-top:none'>Lookup Matrix</td>
+      <td colspan=4 class=x171 style='border-bottom:3.0pt solid black;border-top:none;border-right:.5pt solid windowtext;text-align:center;color:#FF0000'><i>Requires Manual Lookup</i></td>
+    </tr>
+  #end
+
+  #getEveryPickList( $pickListTypes $pickListTypeIds )
+  #getSortedPickListTypes( $pickListTypes )
+  #foreach( $pickListType in $sortedPickListTypes )
+    #set( $values = $documentSource.getLookupList($pickListType.getId()) )
+    #set( $spanHeight = $values.size() )
+    #if( $spanHeight > 0 )
+      <tr>
+        <td rowspan=$spanHeight class=xl77 style='border-bottom:3.0pt solid black;border-top:none'>$pickListType.getName()</td>
+
+        #set( $type = "Standard")
+        #if( $pickListType.getType() == 4)
+          #set( $type = "Lookup Matrix" )
+        #end
+        <td rowspan=$spanHeight class=xl77 style='border-bottom:3.0pt solid black;border-top:none'>$type</td>
+       
+        #set( $firstValue = $values[0] )
+        #set( $bottomBorderStyle = "" )
+        #if( $spanHeight == 1 )
+          #set( $bottomBorderStyle = "3.0pt solid black" )
+        #end 
+
+        #buildValueRows( $firstValue $bottomBorderStyle ) 
+      </tr>
+
+      #if( $spanHeight > 1 ) 
+        #set( $spanHeight = $spanHeight - 1 )
+        #foreach( $index in [1..$spanHeight] )
+          #set( $value = $values[$index] )
+          #set( $bottomBorderStyle = "")
+          #if( $index == $spanHeight )
+            #set( $bottomBorderStyle = "3.0pt solid black" ) 
+          #end
+
+          <tr> #buildValueRows( $value $bottomBorderStyle ) </tr>
+        #end
+      #end
+    #end
+    <![if supportMisalignedColumns]>
+    <tr height=0 style='display:none'>
+     <td width=300></td>
+     <td width=88></td>
+     <td width=300></td>
+     <td width=300></td>
+     <td width=88></td>
+     <td width=88></td>
+    </tr>
+    <![endif]>
+  #end
+</table>
+
+</body>
+
+</html>
+
+#########################################################################################################################
+##
+##  FILE LIST 
+##
+#########################################################################################################################
+#### Replace everything below with the matching content from your Mockup. Remember to remove the tab sheet link ####
+
+------=_NextPart_01D8DBD5.4D8FB410
+Content-Location: file:///C:/116BA2D4/MultisheetTest_files/filelist.xml
+Content-Type: text/xml; charset="utf-8"
+
+<xml xmlns:o="urn:schemas-microsoft-com:office:office">
+ <o:MainFile HRef="../MultisheetTest.htm"/>
+ <o:File HRef="stylesheet.css"/>
+ <o:File HRef="sheet001.htm"/>
+ <o:File HRef="sheet002.htm"/>
+ <o:File HRef="filelist.xml"/>
+</xml>
+------=_NextPart_01D8DBD5.4D8FB410--
