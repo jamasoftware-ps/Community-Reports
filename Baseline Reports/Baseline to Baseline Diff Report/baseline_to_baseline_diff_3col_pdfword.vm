@@ -64,7 +64,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01DA8992.E7786AB0"
 ## 2025-02-11   3.12       Shawnna Williams  - Updated to new master word_pdf tempalate version 3.1.7 for better image handling.
 ## 2025-02-26   3.12.1     Liam Rotchford    - Adjusted #createLink() macro to have proper handling for hyperlink creation to container items and baseline items.
 ##                                           - Resolved minor hyperlink creation inconsistencies.
-##
+## 2025-03-19   3.13       Shawnna Williams  - Test Runs, plans and cycles were causing the report to fail with a popup error. Added code to get specific item.
 ##======================================================================================================================
 ## REPORT CRITERIA
 ## Type:       Display Name:           Report Global Variable:         Function:
@@ -5171,7 +5171,7 @@ $string
 
         #foreach( $baseline1Item in $baseline1Items)
 
-        #set( $baseDoc = $documentSource.getVersionByDocumentId($baseline1Item.id).document)
+          #set( $baseDoc = $documentSource.getVersionByDocumentId($baseline1Item.id).document)
         
           #set( $baseOrigin = $documentSource.getVersionByDocumentId($baseDoc.id).originDocument.id)
 
@@ -5179,17 +5179,40 @@ $string
             #set( $compareItemIndex = $baseline2Ids.indexOf( $baseline1Item.globalId ))
 
             #if($compareDocs.size() > $compareItemIndex)
-              #set( $compareDoc = $compareDocs[$compareItemIndex])
+              #set( $compareItem = $compareDocs[$compareItemIndex])
           
-          ##Not sure why, but using the above document object doesn't give us testCaseSteps. So 
-          ## have to actually get the document
-          #set( $compareDoc = $documentSource.getDocument( $compareDoc.id) )
+              ##Not sure why, but using the above document object doesn't give us testCaseSteps. So 
+              ## have to actually get the document
+              ##set( $compareDoc = $documentSource.getDocument( $compareItem.id) )
+              #set( $compareDoc = $testSource.getTestCycle( $mathTool.toInteger($compareItem.id)))
+              ##not a document, so see if it's a test cycle
+              #if( !$compareDoc.id)
+                #set( $compareDoc = $testSource.getTestCycle( $mathTool.toInteger($compareItem.id)))
+                ##COMPAREDOC: $compareDoc.name<br>
+              #end
+              ##not a test cycle either so see if it's a test run (and there is an error using .getTestRun())
+              #if( !$compareDoc.id)
+                #set( $trs = [])
+                #set( $success = $trs.add( $mathTool.toInteger($compareItem.id)))
+                #set( $trDocs = $testSource.getTestRuns( $trs) )
+                #if( $trDocs.size() > 0)
+                  #set( $compareDoc = $trDocs.get(0))
+                #end
+              #end
+              
+              ##COMPARE: $compareItem<br><br> $compareItem.id, $compareDoc.id, $baseDoc.id<br>      
+              ##not test run, check testplan
+              #if( !$compareDoc.id)
+                #set( $compareDoc = $testSource.getTestPlan( $mathTool.toInteger($compareItem.id)))
+              #end
 
             #end
-       
+      
             #set( $bVer = $documentSource.getVersionByDocumentId( $baseDoc.id) )
-            #set( $aVer = $documentSource.getVersionByDocumentId( $compareDoc.id) )
-
+             
+            #if($compareDoc.id)
+              #set( $aVer = $documentSource.getVersionByDocumentId( $compareDoc.id) )
+            #end
             #set( $relsMatch = true )
 
             ##------ Check for relationships changes ------##
@@ -5198,6 +5221,7 @@ $string
               ## returns $base1RelsSize, $base2RelsSize, $relsMatch, $base1Rels $base2Rels
              
             #end ##if( $includeRelationships == true)
+
 
             ##Basedoc: $baseDoc.id Compare: $compareDoc.id<br> 
             #if( $baseDoc.id != $compareDoc.id || $relsMatch == false)
@@ -5220,85 +5244,85 @@ $string
 
                 ##------ once you have the item type, check field values and build comparison btwn baseDoc and compareDoc------##
 
-                  #foreach($f in $fields)
+                #foreach($f in $fields)
                   #set( $b = $f.fieldName)
                     ##if( $spot != 0 )
-                      #if( ($report_excludeStatus == false) || ( $report_excludeStatus == true && $b != "status" && $b != "modifiedDate" ))
-                #if( $baseDoc.documentType.display == "Test Run" || $baseDoc.documentType.display == "Test Cycle" || 
-                  $baseDoc.documentType.display == "Test Plan")
-                
-                #if( $baseDoc.documentType.display == "Test Run")
-                  #set( $baseDoc = $testSource.getTestRun( $baseDoc.id))
-                  #set( $compareDoc = $testSource.getTestRun( $compareDoc.id))
-                #elseif( $baseDoc.documentType.display == "Test Cycle")
-                  #set( $baseDoc = $testSource.getTestCycle( $baseDoc.id))
-                  #set( $compareDoc = $testSource.getTestCycle( $compareDoc.id))
-                #elseif( $baseDoc.documentType.display == "Test Plan")
-                  #set( $baseDoc = $testSource.getTestPlan( $baseDoc.id))
-                  #set( $compareDoc = $testSource.getTestPlan( $compareDoc.id))
-                #end
-                
-                #set( $baseDocValue = "")
-                #set( $compareDocValue = "")
+                  #if( ($report_excludeStatus == false) || ( $report_excludeStatus == true && $b != "status" && $b != "modifiedDate" ))
+                    #if( $baseDoc.documentType.display == "Test Run" || $baseDoc.documentType.display == "Test Cycle" || 
+                      $baseDoc.documentType.display == "Test Plan")
 
-                #if( $b == "description")
-                  #set( $baseDocValue = $baseDoc.description)
-                  #set( $compareDocValue = $compareDoc.description)
-                #elseif( $b == "testRunSteps" || $b == "testCaseSteps")
-                  ##set( $baseDocValue = $baseDoc.testRunSteps)
-                  ##set( $compareDocValue = $compareDoc.testRunSteps)
-                  
-                  #formatTestSteps( $b $baseDoc $compareDoc)
-                  #set( $baseDocValue = $beforeStepText)
-                  #set( $compareDocValue = $afterStepText)
-                  ##BASEDOC: $baseDocValue<br>
-                  ##COMPARE: $compareDocValue<br>
-                #elseif( $b == "actualResults")
-                  #set( $baseDocValue = $baseDoc.actualResults)
-                  #set( $compareDocValue = $compareDoc.actualResults)
-                  ##BASE: $baseDocValue, Actual:$compareDocValue<br>
-                #elseif( $b == "assignedTo")
-                  #set( $baseDocValue = $baseDoc.assignedTo.fullName)
-                  #set( $compareDocValue = $compareDoc.assignedTo.fullName)
-                #elseif( $b == "duration")
-                  #set( $baseDocValue = $baseDoc.duration)
-                  #set( $compareDocValue = $compareDoc.duration)
-                #elseif( $b == "executionDate")
-                  #set( $baseDocValue = $baseDoc.executionDate)
-                  #set( $compareDocValue = $compareDoc.executionDate)
-                #elseif( $b == "forcePassed")
-                  #set( $baseDocValue = $baseDoc.forcePassed)
-                  #set( $compareDocValue = $compareDoc.forcePassed)
-                #else
-                  #set( $baseDocValue = $velocityReportUtil.getValueForField( $baseDoc, $b, $dateFormat))
-                  #set( $compareDocValue = $velocityReportUtil.getValueForField( $compareDoc, $b, $dateFormat ))
-                #end
-                ##B: $b, BASEDOCVALUE: $baseDocValue, $baseDoc.description<br>COMP VALUE: $compareDocValue<br>
-                #else
-                #if( $b == "testCaseSteps")
-                  #set( $compareDocValue = $velocityReportUtil.getValueForField( $compareDoc, $b, $dateFormat ))
-              
-                  #formatTestSteps( $b $baseDoc $compareDoc)
-                  #set( $baseDocValue = $beforeStepText)
-                  #set( $compareDocValue = $afterStepText)
+                      #if( $baseDoc.documentType.display == "Test Run")
+                        #set( $baseDoc = $testSource.getTestRun( $baseDoc.id))
+                        #set( $compareDoc = $testSource.getTestRun( $compareDoc.id))
+                      #elseif( $baseDoc.documentType.display == "Test Cycle")
+                        #set( $baseDoc = $testSource.getTestCycle( $baseDoc.id))
+                        #set( $compareDoc = $testSource.getTestCycle( $compareDoc.id))
+                      #elseif( $baseDoc.documentType.display == "Test Plan")
+                        #set( $baseDoc = $testSource.getTestPlan( $baseDoc.id))
+                        #set( $compareDoc = $testSource.getTestPlan( $compareDoc.id))
+                      #end
+                      
+                      #set( $baseDocValue = "")
+                      #set( $compareDocValue = "")
 
-                #else
-                  #set( $baseDocValue = $velocityReportUtil.getValueForField( $baseDoc, $b, $dateFormat))
-                  #set( $compareDocValue = $velocityReportUtil.getValueForField( $compareDoc, $b, $dateFormat ))
-                #end
-                #if( $b == "name")
-                  #set( $baseName = $baseDocValue )
-                  #encodeText( $baseName)
-                  #set( $baseDocValue = $encodeTextReturn)
-                  #set( $compareName = $compareDocValue )
-                  #encodeText( $compareName)
-                  #set( $compareDocValue = $encodeTextReturn)
-                #end
-                #end
+                      #if( $b == "description")
+                        #set( $baseDocValue = $baseDoc.description)
+                        #set( $compareDocValue = $compareDoc.description)
+                      #elseif( $b == "testRunSteps" || $b == "testCaseSteps")
+                        ##set( $baseDocValue = $baseDoc.testRunSteps)
+                        ##set( $compareDocValue = $compareDoc.testRunSteps)
+                        
+                        #formatTestSteps( $b $baseDoc $compareDoc)
+                        #set( $baseDocValue = $beforeStepText)
+                        #set( $compareDocValue = $afterStepText)
+                        ##BASEDOC: $baseDocValue<br>
+                        ##COMPARE: $compareDocValue<br>
+                      #elseif( $b == "actualResults")
+                        #set( $baseDocValue = $baseDoc.actualResults)
+                        #set( $compareDocValue = $compareDoc.actualResults)
+                        ##BASE: $baseDocValue, Actual:$compareDocValue<br>
+                      #elseif( $b == "assignedTo")
+                        #set( $baseDocValue = $baseDoc.assignedTo.fullName)
+                        #set( $compareDocValue = $compareDoc.assignedTo.fullName)
+                      #elseif( $b == "duration")
+                        #set( $baseDocValue = $baseDoc.duration)
+                        #set( $compareDocValue = $compareDoc.duration)
+                      #elseif( $b == "executionDate")
+                        #set( $baseDocValue = $baseDoc.executionDate)
+                        #set( $compareDocValue = $compareDoc.executionDate)
+                      #elseif( $b == "forcePassed")
+                        #set( $baseDocValue = $baseDoc.forcePassed)
+                        #set( $compareDocValue = $compareDoc.forcePassed)
+                      #else
+                        #set( $baseDocValue = $velocityReportUtil.getValueForField( $baseDoc, $b, $dateFormat))
+                        #set( $compareDocValue = $velocityReportUtil.getValueForField( $compareDoc, $b, $dateFormat ))
+                      #end
+                      ##B: $b, BASEDOCVALUE: $baseDocValue, $baseDoc.description<br>COMP VALUE: $compareDocValue<br>
+                    #else
+                      #if( $b == "testCaseSteps")
+                        #set( $compareDocValue = $velocityReportUtil.getValueForField( $compareDoc, $b, $dateFormat ))
+                    
+                        #formatTestSteps( $b $baseDoc $compareDoc)
+                        #set( $baseDocValue = $beforeStepText)
+                        #set( $compareDocValue = $afterStepText)
+
+                      #else
+                        #set( $baseDocValue = $velocityReportUtil.getValueForField( $baseDoc, $b, $dateFormat))
+                        #set( $compareDocValue = $velocityReportUtil.getValueForField( $compareDoc, $b, $dateFormat ))
+                      #end
+                      #if( $b == "name")
+                        #set( $baseName = $baseDocValue )
+                        #encodeText( $baseName)
+                        #set( $baseDocValue = $encodeTextReturn)
+                        #set( $compareName = $compareDocValue )
+                        #encodeText( $compareName)
+                        #set( $compareDocValue = $encodeTextReturn)
+                      #end
+                    #end
                       ##------ check to see if field for b1 is different than same field for b2 ------##
               
                       ##if( $velocityReportUtil.getValueForField( $baseDoc, $b, $dateFormat) != $velocityReportUtil.getValueForField( $compareDoc, $b, $dateFormat ))
-              #if( $baseDocValue != $compareDocValue)
+                      #if( $baseDocValue != $compareDocValue)
                         #set( $foundChg = 1 )
 
                         <tr style='page-break-inside:avoid;'>
@@ -5308,7 +5332,7 @@ $string
                           </td>
 
                           #if( $report_showFinText == true )
-                          #formatFieldOrTestStepsBaseDoc( $b $baseDoc )
+                            #formatFieldOrTestStepsBaseDoc( $b $baseDoc )
                           #end ##if( $report_showFinText == true )
 
                           #showComparisonForFields( $b $baseDoc $compareDoc )
@@ -5319,8 +5343,8 @@ $string
                           #end ##if( $report_showFinText == true)
                         </tr>
 
-                        #end ##if( $velocityReportUtil.getValueForField( $baseDoc, $b, $dateFormat) !=
-                      #end ##if( ($report_excludeStatus == false) || ( $report_excludeStatus == true && $b != "status" && $b != "modifiedDate" ))
+                      #end ##if( $velocityReportUtil.getValueForField( $baseDoc, $b, $dateFormat) !=
+                    #end ##if( ($report_excludeStatus == false) || ( $report_excludeStatus == true && $b != "status" && $b != "modifiedDate" ))
                     ##end ##if( $spot != 0 )
 
                     #set( $spot = 1 )
