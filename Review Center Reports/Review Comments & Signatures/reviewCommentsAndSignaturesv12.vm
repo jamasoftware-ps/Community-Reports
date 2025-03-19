@@ -52,6 +52,9 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D506B0.1F52D2B0"
 ## 2025-01-09     3.4.5    Liam Rotchford     - Resolved SOS-DEF-8704 to omit empty highlighted quote static '*' when a null highlighted quote return is supplied. 
 ##                                            - Resolved SOS-DEF-8702 revised review 'Finalized / Not Finalized' determination logic to ensure
 ##                                              the latest finalization action event is used to determine review 'Finalized' status on title page summary table.
+## 2025-03-05     3.4.6    Liam Rotchford     - Adjusted logic for determination of 'Finalized / Not Finalized' determination in the event that an empty array return 
+##                                              .getAllEventsForObjectsByAction(...) is supplied from the API due to the review moderator closing the review prior to 
+##                                              finalized / not finalized actions occur. 
 ##
 ##
 ## ======================================================================================================================
@@ -4904,7 +4907,7 @@ Review Comments
     #if( $reviewReopened && $eventDate.compareTo($reviewReopenDate) > 0 || !$reviewReopened ) 
 
       ## Check if this event occurred after any 'Review marked as not finalized events'
-      #if( $reviewMarkedAsNotFinalized  && $eventDate.compareTo( $reviewMarkedNotFinalDate ) > 0 || !$reviewMarkedAsNotFinalized)        
+      #if( $reviewMarkedAsNotFinalized && $eventDate.compareTo( $reviewMarkedNotFinalDate ) > 0 || !$reviewMarkedAsNotFinalized)        
         #set( $printEvent = true )
       #end 
 
@@ -5162,19 +5165,23 @@ Review Comments & Signatures
 #set($finalizationUser = false)
 #set($finalizeationDate = false)
 
-#set( $reviewMarkedAsNotFinalized = $eventSource.getAllEventsForObjectsByAction([4],[$revisionForComments.review.id],18,"Review marked as not finalized"))
-#set( $reviewMarkedAsFinalized = $eventSource.getAllEventsForObjectsByAction([4],[$revisionForComments.review.id],18,"Review marked as finalized")) 
+#set($reviewMarkedAsNotFinalized = $eventSource.getAllEventsForObjectsByAction([4],[$revisionForComments.review.id],18,"Review marked as not finalized"))
+#set($reviewMarkedAsFinalized = $eventSource.getAllEventsForObjectsByAction([4],[$revisionForComments.review.id],18,"Review marked as finalized")) 
 
-#set( $reviewMarkedNotFinalDate = false)
-#if( $reviewMarkedAsNotFinalized.size() > 0 )
-  #set( $id_nf = $reviewMarkedAsNotFinalized.size() - 1 )
-  #set( $reviewMarkedNotFinalDate = $reviewMarkedAsNotFinalized[$id_nf].getEventDate())
+#if($reviewMarkedAsNotFinalized.size() > 0 )
+  #set($id_nf = $reviewMarkedAsNotFinalized.size() - 1 )
+  #set($reviewMarkedNotFinalDate = $reviewMarkedAsNotFinalized[$id_nf].getEventDate())
+#else
+  #set($reviewMarkedNotFinalDate = false)
+  #set($reviewMarkedAsNotFinalized = false)
 #end 
 
-#set( $revMarkedFinalDate = false)
-#if( $reviewMarkedAsFinalized.size() > 0 )
-  #set( $id_f = $reviewMarkedAsFinalized.size() - 1 )
-  #set( $revMarkedFinalDate = $reviewMarkedAsFinalized[$idx_f].getEventDate())
+#if($reviewMarkedAsFinalized.size() > 0 )
+  #set($id_f = $reviewMarkedAsFinalized.size() - 1 )
+  #set($revMarkedFinalDate = $reviewMarkedAsFinalized[$idx_f].getEventDate())
+#else
+  #set($revMarkedFinalDate = false)
+  #set($reviewMarkedAsFinalized = false)
 #end 
 
 ## Determine the latest finialization event action
@@ -5183,7 +5190,6 @@ Review Comments & Signatures
   #set($finalizationUser = $reviewMarkedAsFinalized[$idx_f].eventUser)
   #set($finalizeationDate = $revMarkedFinalDate)
 #end
-
 
 
 
