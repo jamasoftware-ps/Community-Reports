@@ -66,6 +66,10 @@ Content-Type: multipart/related; boundary="----=_NextPart_01DA8992.E7786AB0"
 ##                                           - Resolved minor hyperlink creation inconsistencies.
 ## 2025-03-19   3.13       Shawnna Williams  - Test Runs, plans and cycles were causing the report to fail with a popup error. Added code to get specific item type.
 ## 2025-03-20   3.13.1     Shawnna Williams  - Fixed regular items (accidentally had code commenting regular documents out)
+## 2025-03-27   3.13.2     Liam Rotchford    - Adjusted #formatAdded() macro to properly handle Test Plans, Test Cycles, and Test Run items based on original code 
+##                                             implementation defined in version 3.13
+##
+##
 ##======================================================================================================================
 ## REPORT CRITERIA
 ## Type:       Display Name:           Report Global Variable:         Function:
@@ -4791,9 +4795,30 @@ $string
   #if( $showAdded.size() > 0 )
 
     #foreach($cDocDTO in $showAdded)
+
       <h2>
         #set( $lk = "")
         #set( $cDoc = $documentSource.getDocument( $cDocDTO.id))
+        
+        ##not a document, so see if it's a test cycle
+        #if( !$cDoc.id)
+          #set( $cDoc = $testSource.getTestCycle( $mathTool.toInteger($cDocDTO.id)))
+        #end
+        ##not a test cycle either so see if it's a test run (and there is an error using .getTestRun())
+        #if( !$cDoc.id)
+          #set( $trs = [])
+          #set( $success = $trs.add( $mathTool.toInteger($cDocDTO.id)))
+          #set( $trDocs = $testSource.getTestRuns( $trs) )
+          #if( $trDocs.size() > 0)
+            #set( $cDoc = $trDocs.get(0))
+          #end
+        #end
+        ##COMPARE: $cDoc<br><br> $cDoc.id, $cDoc.id<br>      
+        ##not test run, check testplan
+        #if( !$cDoc.id)
+          #set( $cDoc = $testSource.getTestPlan( $mathTool.toInteger($cDocDTO.id)))
+        #end
+
         #createLink( $cDoc, $cDoc.currentVersion.versionNumber.toString(), $r2)
         #set( $lk = $createLinkReturn)
       
@@ -5185,9 +5210,6 @@ $string
               ##Not sure why, but using the above document object doesn't give us testCaseSteps. So 
               ## have to actually get the document
               #set( $compareDoc = $documentSource.getDocument( $compareItem.id) )
-              #if( !$compareDoc.id)
-                #set( $compareDoc = $testSource.getTestCycle( $mathTool.toInteger($compareItem.id)))
-              #end
               ##not a document, so see if it's a test cycle
               #if( !$compareDoc.id)
                 #set( $compareDoc = $testSource.getTestCycle( $mathTool.toInteger($compareItem.id)))
