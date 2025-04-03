@@ -68,6 +68,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01DA8992.E7786AB0"
 ## 2025-03-20   3.13.1     Shawnna Williams  - Fixed regular items (accidentally had code commenting regular documents out)
 ## 2025-03-27   3.13.2     Liam Rotchford    - Adjusted #formatAdded() macro to properly handle Test Plans, Test Cycles, and Test Run items based on original code 
 ##                                             implementation defined in version 3.13
+## 2025-04-03   3.14       Anna FitzGerald   - Updated formatting of Test Steps to be processed through #formatTableCell
+##                                           - Updated #formatText macro to catch invalid img replacements for invalid src and no src definitions
 ##
 ##
 ##======================================================================================================================
@@ -109,7 +111,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01DA8992.E7786AB0"
 ##     *    RICH TEXT: formatRichText,formatTableCell,formatText,covertHyperlinks 
 ##     *    RICH TEXT IMAGE: convertFigures,buildBase64ImgContent,getImgDimensions,
 ##                           formatEquation_DOC,formatImgWithOptionForCaptions_DOC, 
-##                           formatEquation_PDF,formatImgInTable_PDF,formatImgWithOptionForCaptions_PDF     
+##                           formatEquation_PDF,formatImgWithOptionForCaptions_PDF     
 ##     *    RICH TEXT TABLE: formatTables,covertWidths,buildTableCaptions_DOC,buildTableCaptions_PDF
 ##     *    RELATIONSHIPS: getRelationships,getBaselineRelationships
 ##     *    CONTEXT: getContainer,getReferenceableDocIds,printApproversTable
@@ -2102,26 +2104,28 @@ div.totCounterContainer
 ##          Return: $string, ready for opening in Word
 #####################################################################################################################
 #macro( formatText $inString )
-#set( $string = $inString )
-## Remove divs for pdf so that there are no unexpected formatting containers
-#set( $string = $string.replaceAll("<div.*?>|<\/div>", ""))
-### COMMENTED OUT FOR FORMAT TESTING ## 
-## clear all span satements to remove character formatting
-##set( $string = $string.replaceAll("<span.*?>",""))
-##set( $string = $string.replaceAll("<\/span>",""))
-## clear all embedded headings from rich text fields
-#set( $string = $string.replaceAll("<h\d*?.*?>","<p><strong>"))
-#set( $string = $string.replaceAll("<\/h\d*?>","</strong></p>"))
-## remove any empty image strings
-#set( $string = $string.replaceAll("<img alt=[\x27\x22][\x27\x22] />", ""))
-#set( $string = $string.replaceAll("<img \/>",""))
-## replace Micro aka Legacy Symbol to prevent overlapping characters, issue with pdf
-#set( $string = $string.replaceAll("µsec", "&mu;sec"))
-#set( $string = $string.replaceAll("", "&#9744;"))
-## table edge cases 
-#set( $string = $string.replaceAll("(nowrap)(=)([\s*|\x27\x22|])?(nowrap)[\x27\x22]", ""))
-#set( $string = $string.replaceAll("(scope)(=)([\s*|\x27\x22|])?(col)[\x27\x22]",""))
-$string
+
+  #set( $string = $inString )
+  ## clear all span satements to remove character formatting
+  ##set( $string = $string.replaceAll("<span.*?>|<\/span>",""))
+  ## clear all embedded headings from rich text fields
+  #set( $string = $string.replaceAll("<h\d*?.*?>","<p><strong>"))
+  #set( $string = $string.replaceAll("<\/h\d*?>","</strong></p>"))
+  ## remove imgs that do not have src 
+  #set( $string = $string.replaceAll("<img(?![^>]*\s+src=)[^>]*?>", ""))
+  ## remove imgs with invalid src 
+  #set( $string = $string.replaceAll("<img[^<]*?\bsrc=[\x27\x22](?![^\x27\x22<]*?attachment|diagram)[^\x27\x22<]*[\x27\x22][^<]*?>", ""))
+  ## replace Micro aka Legacy Symbol to prevent overlapping characters, issue with pdf
+  #set( $string = $string.replaceAll("µsec", "&mu;sec"))
+  #set( $string = $string.replaceAll("", "&#9744;"))
+  ## table edge cases 
+  #set( $string = $string.replaceAll("(nowrap)(=)([\s*|\x27\x22|])?(nowrap)[\x27\x22]", ""))
+  #set( $string = $string.replaceAll("(scope)(=)([\s*|\x27\x22|])?(col)[\x27\x22]",""))
+  #if( $format == 'pdf')
+    #set( $string = $string.replaceAll("<div.*?>|<\/div>", ""))
+  #end 
+
+  $string
 #end
 #######################################################################################################################
 ##          Macro: convertHyperlinks
@@ -4102,8 +4106,7 @@ $string
       ##$baseTS.action 
       #set( $print = "")
       #set( $print = $baseTS.action)
-      #set( $print = "#convertFigures($print, 150)" )
-      #set( $print = "#formatText($print)")
+      #set( $print = "#formatTableCell($print, 'left', 150)" )
       $!print
     #end ##if( $baseTS.action.length() > 0)  
     </p>
@@ -4112,8 +4115,7 @@ $string
       ##$baseTS.expectedResult 
       #set( $print = "")
       #set( $print = $baseTS.expectedResult)
-      #set( $print = "#convertFigures($print, 150)" )
-      #set( $print = "#formatText($print)")
+      #set( $print = "#formatTableCell($print, 'left', 150)" )
       $!print
     #end ##if( $baseTS.expectedResult.length() > 0) 
     </p>
@@ -4122,8 +4124,7 @@ $string
       ##$baseTS.notes 
       #set( $print = "")
       #set( $print = $baseTS.notes)
-      #set( $print = "#convertFigures($print, 150)" )
-      #set( $print = "#formatText($print)")
+      #set( $print = "#formatTableCell($print, 'left', 150)" )
       $!print
     #end ##if( $baseTS.notes.length() > 0) 
     </p>
@@ -4133,8 +4134,7 @@ $string
       ##$baseTS.result 
       #set( $print = "")
       #set( $print = $baseTS.result)
-      #set( $print = "#convertFigures($print, 150)" )
-      #set( $print = "#formatText($print)")
+      #set( $print = "#formatTableCell($print, 'left', 150)" )
       $!print
     #end ##if( $baseTS.result.length() > 0) 
     </p>
@@ -4143,8 +4143,7 @@ $string
       ##$baseTS.testRunStatus.name 
       #set( $print = "")
       #set( $print = $baseTS.testRunStatus.name)
-      #set( $print = "#convertFigures($print, 150)" )
-      #set( $print = "#formatText($print)")
+      #set( $print = "#formatTableCell($print, 'left', 150)" )
       $!print
     #end ##if( $baseTS.testRunStatus.name.length() > 0) 
     </p>
@@ -4279,13 +4278,7 @@ $string
       #else
         #set( $imageWid = 175)
       #end
-      #*#set( $print = "#convertFigures($print, $imageWid)" )
-      #set( $print = "#formatText($print)")
-      #set( $print = "#formatTables($print, $maxPageWidth, 'left')")
-
-      #set( $print = $print.trim())
-      $!print*#
-      #formatTableCell( $print 'left' 250)
+      #formatTableCell( $!print 'left' $imageWid)
     #end ##if($beforeVal.length() > $maxDiff || $afterVal.length() > $maxDiff)
     #end ###if( $velocityReportUtil.getValueForField($baseDoc, $b, $dateFormat))
 
@@ -4303,8 +4296,7 @@ $string
         #else
           #set( $imageWid = 175)
         #end
-        #set( $print = "#convertFigures($print, $imageWid)" )
-        $!print
+        #formatTableCell( $!print 'left' $imageWid)
     #end
     #end ##if( $beforeStepText.length() > $maxDiff || $afterStepText.length() > $maxDiff)
   #end ##if( $b != "testCaseSteps" )
