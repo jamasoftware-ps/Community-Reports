@@ -25,15 +25,18 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D8DBD5.4D8FB410"
 ## 
 ## Date         Revision   Person            Comments 
 ## -----------  ---------  ----------------  -------------------------------------------------------------------------
-## 13-JUL-2016  A          Shawnna Williams  - Created. 
-## 28-JAN-2019  B          Shawnna Williams  - Modified    
-## 03-APR-2019  C          Shawnna Williams                                      
-## 08-APR-2019  D          Shawnna Williams  - Fix Approval status on second page                                    
-## 02-OCT-2019  E          Shawnna Williams  - Modify for new velocity
-## 21-AUG-2023  F          Liam Rotchford    - Resolved "Time Spent" column value bug by implementing #getDuration() macro.
-## 11-OCT-2023  G          Shawnna Williams  - Fix broken hyperlinks
-## 08-FEB-2024  H          Liam Rotchford    - Updated report to Excel Multisheet Master Template version 1.2.1
+## 2016-07-13   1.0        Shawnna Williams  - Created.          
+## 2019-01-28   1.1        Shawnna Williams  - Modified    
+## 2019-04-03   1.2        Shawnna Williams                                      
+## 2019-04-08   1.3        Shawnna Williams  - Fix Approval status on second page                                    
+## 2019-10-02   1.4        Shawnna Williams  - Modify for new velocity
+## 2023-08-21   1.5        Liam Rotchford    - Resolved "Time Spent" column value bug by implementing #getDuration() macro.
+## 2023-10-11   1.6        Shawnna Williams  - Fix broken hyperlinks
+## 2024-02-08   2.0        Liam Rotchford    - Updated report to Excel Multisheet Master Template version 1.2.1
 ##                                           - Applied additional indentation cleaning and removal of commented out / unused code. 
+## 2025-04-14   2.1        Liam Rotchford    - Resolved minor bug for review tab 'Review Status' column to prevent 'Approved' status
+##                                             being marked for reviews with only reviewer users assigned. 
+##                                           - Updated in file documentation modification history date formatting to align with standard. 
 ##
 ##
 ##
@@ -1669,8 +1672,7 @@ id="webarch_temp_base_tag">
             #if( $finishDates.add( $!app.latestActivity)) #end
           #end
         #end
-        #if( $finishDates.size() == $approvers.size())
-          #set( $allApproved = true)
+        #if($allApproved)
           #foreach( $d in $sortTool.sort( $finishDates, "desc"))
             #set( $finishDate = $d)
             #break
