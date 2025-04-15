@@ -37,6 +37,9 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D8DBD5.4D8FB410"
 ## 2025-04-14   2.1        Liam Rotchford    - Resolved minor bug for review tab 'Review Status' column to prevent 'Approved' status
 ##                                             being marked for reviews with only reviewer users assigned. 
 ##                                           - Updated in file documentation modification history date formatting to align with standard. 
+## 2025-04-15   2.2        Liam Rotchford    - Resolved invalid Review hyperlink references. 
+##                                           - Resolved 'Review' tab 'Review Status' determination by including conditional adjustments
+##                                             to prevent 'Approved' status for reviews that do not have any assigned approver users. 
 ##
 ##
 ##
@@ -1249,7 +1252,7 @@ id="webarch_temp_base_tag">
                 
                 ## Review ID
                 #set( $link = "")
-                #set( $link = $jamaURL + $r.sequence.toString())
+                #set( $link = $baseUrl + "/review.req#/r:REV-" + $r.sequence.toString())
                 <td class=xl70 width=112 style='width:84pt'><a href='$link'><span style='text-decoration:none'>REV-$r.sequence</span></a></td>
 
                 ## Revision
@@ -1339,7 +1342,7 @@ id="webarch_temp_base_tag">
                 
                 ## Review ID
                 #set( $link = "")
-                #set( $link = $jamaURL + $r.sequence.toString())
+                #set( $link = $baseUrl + "/review.req#/r:REV-" + $r.sequence.toString())
                 <td class=xl70 width=112 style='width:84pt'><a href='$link'><span style='text-decoration:none'>REV-$r.sequence</span></a></td>
                 
                 ## Revision
@@ -1650,7 +1653,7 @@ id="webarch_temp_base_tag">
       <tr>
         ## Title
         #set( $link = "")
-        #set( $link = $jamaURL + $r.sequence.toString())
+        #set( $link = $baseUrl + "/review.req#/r:REV-" + $r.sequence.toString())
         <td class=xl65 width=136 style="border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext"><a href='$link'>$r.name</a></td>
         
         ## Author
@@ -1666,23 +1669,26 @@ id="webarch_temp_base_tag">
         ## Review Status
         #set( $allApproved = false)
         #set( $finishDates = [])
-        #foreach( $app in $approvers)
-          ## not going to check to see if they are "finished" but will count it if they have approved all
-          #if( $app.approvedRevision == 'true')
-            #if( $finishDates.add( $!app.latestActivity)) #end
+        #if($approvers.size() != 0)
+          #foreach( $app in $approvers)
+            ## not going to check to see if they are "finished" but will count it if they have approved all
+            #if( $app.approvedRevision == 'true')
+              #if( $finishDates.add( $!app.latestActivity)) #end
+            #end
           #end
-        #end
-        #if($allApproved)
-          #foreach( $d in $sortTool.sort( $finishDates, "desc"))
-            #set( $finishDate = $d)
-            #break
+          #if($finishDates.size() == $approvers.size())
+            #set( $allApproved = true)
+            #foreach( $d in $sortTool.sort( $finishDates, "desc"))
+              #set( $finishDate = $d)
+              #break
+            #end
           #end
         #end
                             
         ## Getting the finishDate also gets whether all have approved
         ## the revision is considered closed if all approvers have approved it. Doesn't matter about the reviewers.
         #set( $class = "69") ## not colored
-        #if( $allApproved == true)
+        #if( $allApproved == true && $approvers.size() != 0)
           #set( $revisionStatus = "Approved")
           #set( $class = 100)
         #elseif( ($allApproved == false) && ($!currentRevision.status.name == "Completed"))
@@ -1692,6 +1698,7 @@ id="webarch_temp_base_tag">
           #set( $revisionStatus = "In progress")
           #set( $class = 101)
         #end
+ 
         <td class=xl$class width=154 style='width:112pt;border-top:.5pt solid windowtext;border-right:.5pt solid windowtext;border-bottom:.5pt solid windowtext;border-left:.5pt solid windowtext'>$!revisionStatus</td>
          
         ## Approved by
