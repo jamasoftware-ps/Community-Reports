@@ -11,6 +11,7 @@
 ## Date         Revision   Person            Comments 
 ## -----------  ---------  ----------------  ---------------------------------- 
 ## 2022-07-05   1.0        Liam Rotchford    - Master Template Header added
+## 2025-08-12   1.1        Shawnna Williams  - Add ! before status variables so the variable doesn't show if the item doesn't have a status field.
 ##
 ## ======================================================================================================================
 ##
@@ -171,7 +172,7 @@
 																		#elseif($docDao.getDocument($h1).documentType.display == 'Folder')
 																			n/a
 																		#else
-																			$docDao.getDocument($h1).status.name
+																			$!docDao.getDocument($h1).status.name
 																		#end
 																	</td>
 																	<td><a href="perspective.req?projectId=$docDao.getDocument($h2).project.id&docId=$h2" >$docDao.getDocument($h2).documentKey</a></td>
@@ -182,7 +183,7 @@
 																		#elseif($docDao.getDocument($h2).documentType.display == 'Folder')
 																			n/a
 																		#else
-																			$docDao.getDocument($h2).status.name
+																			$!docDao.getDocument($h2).status.name
 																		#end
 																	</td>
 																	<td><a href="perspective.req?projectId=$docDao.getDocument($h3).project.id&docId=$h3" >$docDao.getDocument($h3).documentKey</a></td>
@@ -193,7 +194,7 @@
 																		#elseif($docDao.getDocument($h3).documentType.display == 'Folder')
 																			n/a
 																		#else
-																			$docDao.getDocument($h3).status.name
+																			$!docDao.getDocument($h3).status.name
 																		#end
 																	</td>
 																	<td><a href="perspective.req?projectId=$docDao.getDocument($h4).project.id&docId=$h4" >$docDao.getDocument($h4).documentKey</a></td>
@@ -204,7 +205,7 @@
 																		#elseif($docDao.getDocument($h4).documentType.display == 'Folder')
 																			n/a
 																		#else
-																			$docDao.getDocument($h4).status.name
+																			$!docDao.getDocument($h4).status.name
 																		#end
 																	</td>
 																	<td><a href="perspective.req?projectId=$docDao.getDocument($h5).project.id&docId=$h5" >$docDao.getDocument($h5).documentKey</a></td>
@@ -215,7 +216,7 @@
 																		#elseif($docDao.getDocument($h5).documentType.display == 'Folder')
 																			n/a
 																		#else
-																			$docDao.getDocument($h5).status.name
+																			$!docDao.getDocument($h5).status.name
 																		#end
 																	</td>
 																	<td><a href="perspective.req?projectId=$docDao.getDocument($h6).project.id&docId=$h6" >$docDao.getDocument($h6).documentKey</a></td>
@@ -226,7 +227,7 @@
 																		#elseif($$docDao.getDocument($h6).documentType.display == 'Folder')
 																			n/a
 																		#else
-																			$docDao.getDocument($h6).status.name
+																			$!docDao.getDocument($h6).status.name
 																		#end
 																	</td>
 																	<td><a href="perspective.req?projectId=$docDao.getDocument($h7).project.id&docId=$h7" >$docDao.getDocument($h7).documentKey</a></td>
@@ -237,7 +238,7 @@
 																		#elseif($docDao.getDocument($h7).documentType.display == 'Folder')
 																			n/a
 																		#else
-																			$docDao.getDocument($h7).status.name
+																			$!docDao.getDocument($h7).status.name
 																		#end
 																	</td>
 																	#if($eightsize > 0)
@@ -256,7 +257,7 @@
 																#elseif($vDoc.document.documentType.display == 'Folder')
 																	n/a
 																#else
-																	$vDoc.document.status.name
+																	$!vDoc.document.status.name
 																#end
 															</td>															
 															<td><a href="perspective.req?projectId=$docDao.getDocument($h1).project.id&docId=$h1" >$docDao.getDocument($h1).documentKey</a></td>
@@ -267,7 +268,7 @@
 																#elseif($docDao.getDocument($h1).documentType.display == 'Folder')
 																	n/a
 																#else
-																	$docDao.getDocument($h1).status.name
+																	$!docDao.getDocument($h1).status.name
 																#end
 															</td>
 															<td><a href="perspective.req?projectId=$docDao.getDocument($h2).project.id&docId=$h2" >$docDao.getDocument($h2).documentKey</a></td>
@@ -278,7 +279,7 @@
 																#elseif($docDao.getDocument($h2).documentType.display =='Folder')
 																	n/a
 																#else
-																	$docDao.getDocument($h2).status.name
+																	$!docDao.getDocument($h2).status.name
 																#end
 															</td>
 															<td><a href="perspective.req?projectId=$docDao.getDocument($h3).project.id&docId=$h3" >$docDao.getDocument($h3).documentKey</a></td>
@@ -289,7 +290,7 @@
 																#elseif($docDao.getDocument($h3).documentType.display == 'Folder')
 																	n/a
 																#else
-																	$docDao.getDocument($h3).status.name
+																	$!docDao.getDocument($h3).status.name
 																#end
 															</td>
 															<td><a href="perspective.req?projectId=$docDao.getDocument($h4).project.id&docId=$h4" >$docDao.getDocument($h4).documentKey</a></td>
@@ -300,7 +301,7 @@
 																#elseif($docDao.getDocument($h4).documentType.display == 'Folder')
 																	n/a
 																#else
-																	$docDao.getDocument($h4).status.name
+																	$!docDao.getDocument($h4).status.name
 																#end
 															</td>
 															<td><a href="perspective.req?projectId=$docDao.getDocument($h5).project.id&docId=$h5" >$docDao.getDocument($h5).documentKey</a></td>
@@ -311,7 +312,7 @@
 																#elseif($docDao.getDocument($h5).documentType.display == 'Folder')
 																	n/a
 																#else
-																	$docDao.getDocument($h5).status.name
+																	$!docDao.getDocument($h5).status.name
 																#end
 															</td>
 															<td><a href="perspective.req?projectId=$docDao.getDocument($h6).project.id&docId=$h6" >$docDao.getDocument($h6).documentKey</a></td>
@@ -322,7 +323,7 @@
 																#elseif($docDao.getDocument($h6).documentType.display == 'Folder')
 																	n/a
 																#else
-																	$docDao.getDocument($h6).status.name
+																	$!docDao.getDocument($h6).status.name
 																#end
 															</td>
 														</tr>									
@@ -339,7 +340,7 @@
 														#elseif($vDoc.document.documentType.display == 'Folder')
 															n/a
 														#else
-															$vDoc.document.status.name
+															$!vDoc.document.status.name
 														#end
 													</td>															
 													<td><a href="perspective.req?projectId=$docDao.getDocument($h1).project.id&docId=$h1" >$docDao.getDocument($h1).documentKey</a></td>
@@ -350,7 +351,7 @@
 														#elseif($docDao.getDocument($h1).documentType.display == 'Folder')
 															n/a
 														#else
-															$docDao.getDocument($h1).status.name
+															$!docDao.getDocument($h1).status.name
 														#end
 													</td>
 													<td><a href="perspective.req?projectId=$docDao.getDocument($h2).project.id&docId=$h2" >$docDao.getDocument($h2).documentKey</a></td>
@@ -361,7 +362,7 @@
 														#elseif($docDao.getDocument($h2).documentType.display == 'Folder')
 															n/a
 														#else
-															$docDao.getDocument($h2).status.name
+															$!docDao.getDocument($h2).status.name
 														#end
 													</td>
 													<td><a href="perspective.req?projectId=$docDao.getDocument($h3).project.id&docId=$h3" >$docDao.getDocument($h3).documentKey</a></td>
@@ -372,7 +373,7 @@
 														#elseif($docDao.getDocument($h3).documentType.display == 'Folder')
 															n/a
 														#else
-															$docDao.getDocument($h3).status.name
+															$!docDao.getDocument($h3).status.name
 														#end
 													</td>
 													<td><a href="perspective.req?projectId=$docDao.getDocument($h4).project.id&docId=$h4" >$docDao.getDocument($h4).documentKey</a></td>
@@ -383,7 +384,7 @@
 														#elseif($docDao.getDocument($h4).documentType.display == 'Folder')
 															n/a
 														#else
-															$docDao.getDocument($h4).status.name
+															$!docDao.getDocument($h4).status.name
 														#end
 													</td>
 													<td><a href="perspective.req?projectId=$docDao.getDocument($h5).project.id&docId=$h5" >$docDao.getDocument($h5).documentKey</a></td>
@@ -394,7 +395,7 @@
 														#elseif($docDao.getDocument($h5).documentType.display == 'Folder')
 															n/a
 														#else
-															$docDao.getDocument($h5).status.name
+															$!docDao.getDocument($h5).status.name
 														#end
 													</td>
 												</tr>									
@@ -411,7 +412,7 @@
 												#elseif($vDoc.document.documentType.display == 'Folder')
 													n/a
 												#else
-													$vDoc.document.status.name
+													$!vDoc.document.status.name
 												#end
 											</td>															
 											<td><a href="perspective.req?projectId=$docDao.getDocument($h1).project.id&docId=$h1" >$docDao.getDocument($h1).documentKey</a></td>
@@ -422,7 +423,7 @@
 												#elseif($docDao.getDocument($h1).documentType.display == 'Folder')
 													n/a
 												#else
-													$docDao.getDocument($h1).status.name
+													$!docDao.getDocument($h1).status.name
 												#end
 											</td>
 											<td><a href="perspective.req?projectId=$docDao.getDocument($h2).project.id&docId=$h2" >$docDao.getDocument($h2).documentKey</a></td>
@@ -433,7 +434,7 @@
 												#elseif($docDao.getDocument($h2).documentType.display == 'Folder')
 													n/a
 												#else
-													$docDao.getDocument($h2).status.name
+													$!docDao.getDocument($h2).status.name
 												#end
 											</td>
 											<td><a href="perspective.req?projectId=$docDao.getDocument($h3).project.id&docId=$h3" >$docDao.getDocument($h3).documentKey</a></td>
@@ -444,7 +445,7 @@
 												#elseif($docDao.getDocument($h3).documentType.display == 'Folder')
 													n/a
 												#else
-													$docDao.getDocument($h3).status.name
+													$!docDao.getDocument($h3).status.name
 												#end
 											</td>
 											<td><a href="perspective.req?projectId=$docDao.getDocument($h4).project.id&docId=$h4" >$docDao.getDocument($h4).documentKey</a></td>
@@ -455,7 +456,7 @@
 												#elseif($docDao.getDocument($h4).documentType.display == 'Folder')
 													n/a
 												#else
-													$docDao.getDocument($h4).status.name
+													$!docDao.getDocument($h4).status.name
 												#end
 											</td>
 										</tr>									
@@ -472,7 +473,7 @@
 										#elseif($vDoc.document.documentType.display == 'Folder')
 											n/a
 										#else
-											$vDoc.document.status.name
+											$!vDoc.document.status.name
 										#end
 									</td>															
 									<td><a href="perspective.req?projectId=$docDao.getDocument($h1).project.id&docId=$h1" >$docDao.getDocument($h1).documentKey</a></td>
@@ -483,7 +484,7 @@
 										#elseif($docDao.getDocument($h1).documentType.display == 'Folder')
 											n/a
 										#else
-											$docDao.getDocument($h1).status.name
+											$!docDao.getDocument($h1).status.name
 										#end
 									</td>
 									<td><a href="perspective.req?projectId=$docDao.getDocument($h2).project.id&docId=$h2" >$docDao.getDocument($h2).documentKey</a></td>
@@ -494,7 +495,7 @@
 										#elseif($docDao.getDocument($h2).documentType.display == 'Folder')
 											n/a
 										#else
-											$docDao.getDocument($h2).status.name
+											$!docDao.getDocument($h2).status.name
 										#end
 									</td>
 									<td><a href="perspective.req?projectId=$docDao.getDocument($h3).project.id&docId=$h3" >$docDao.getDocument($h3).documentKey</a></td>
@@ -505,7 +506,7 @@
 										#elseif($docDao.getDocument($h3).documentType.display == 'Folder')
 											n/a
 										#else
-											$docDao.getDocument($h3).status.name
+											$!docDao.getDocument($h3).status.name
 										#end
 									</td>
 								</tr>										
@@ -522,7 +523,7 @@
 								#elseif($vDoc.document.documentType.display == 'Folder')
 									n/a
 								#else
-									$vDoc.document.status.name
+									$!vDoc.document.status.name
 								#end
 							</td>															
 							<td><a href="perspective.req?projectId=$docDao.getDocument($h1).project.id&docId=$h1" >$docDao.getDocument($h1).documentKey</a></td>
@@ -533,7 +534,7 @@
 								#elseif($docDao.getDocument($h1).documentType.display == 'Folder')
 									n/a
 								#else
-									$docDao.getDocument($h1).status.name
+									$!docDao.getDocument($h1).status.name
 								#end
 							</td>
 							<td><a href="perspective.req?projectId=$docDao.getDocument($h2).project.id&docId=$h2" >$docDao.getDocument($h2).documentKey</a></td>
@@ -544,7 +545,7 @@
 								#elseif($docDao.getDocument($h2).documentType.display == 'Folder')
 									n/a
 								#else
-									$docDao.getDocument($h2).status.name
+									$!docDao.getDocument($h2).status.name
 								#end
 							</td>
 
@@ -562,7 +563,7 @@
 						#elseif($vDoc.document.documentType.display == 'Folder')
 							n/a
 						#else
-							$vDoc.document.status.name
+							$!vDoc.document.status.name
 						#end
 					</td>															
 					<td><a href="perspective.req?projectId=$docDao.getDocument($h1).project.id&docId=$h1" >$docDao.getDocument($h1).documentKey</a></td>
@@ -573,7 +574,7 @@
 						#elseif($docDao.getDocument($h1).documentType.display == 'Folder')
 							n/a
 						#else
-							$docDao.getDocument($h1).status.name
+							$!docDao.getDocument($h1).status.name
 						#end
 					</td>
 				</tr>			
@@ -590,7 +591,7 @@
 				#elseif($vDoc.document.documentType.display == 'Folder')
 					n/a
 				#else
-					$vDoc.document.status.name
+					$!vDoc.document.status.name
 				#end
 			</td>															
 		</tr>
