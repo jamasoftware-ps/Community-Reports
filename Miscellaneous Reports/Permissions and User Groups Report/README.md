@@ -41,7 +41,8 @@ This Velocity report generates a context-insensitive Excel `.xlsx` file with two
 ### Report Run Instructions
 
 - From a project go to Reports > Run report 
-- Choose 1 parameter per run. 
-- The output Excel file will contain permissions and user group information as described.
+- Select 1 parameter from the 3 options
+- Run 
+
 
 
