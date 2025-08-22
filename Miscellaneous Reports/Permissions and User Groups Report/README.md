@@ -1,5 +1,6 @@
-###### Permissions and User Groups Velocity Report
+# Permissions and User Groups Velocity Report
 Get the User and User Group permissions for one project, all projects, or a user selected item location. 
+
 
 ## Overview
 This Velocity report generates a context-insensitive Excel `.xlsx` file with two sheets:
@@ -11,11 +12,11 @@ This Velocity report generates a context-insensitive Excel `.xlsx` file with two
 
 - **Sheet 2:** Lists unique user groups found on Sheet 1.
 
-## Example Output 
+### Example Output 
 
 ![permissions-report-example-output](https://github.com/user-attachments/assets/e343bba6-bff4-4a58-adca-cf521a204b5b)
 
-## Installation Configuration 
+### Installation Configuration 
 
 
 1. Upload the file `Permissions_and_User_Groups.vm`.
@@ -28,7 +29,7 @@ This Velocity report generates a context-insensitive Excel `.xlsx` file with two
 
 
 
-## Report Criteria
+###### Report Criteria
 
 | Type    | Display              | Name                   |
 |---------|----------------------|------------------------|
@@ -37,7 +38,7 @@ This Velocity report generates a context-insensitive Excel `.xlsx` file with two
 | Location| Item Location        | report_C_ItemLocation  |
 
 
-## Report Run Instructions
+### Report Run Instructions
 
 - From a project go to Reports > Run report 
 - Choose 1 parameter per run. 
