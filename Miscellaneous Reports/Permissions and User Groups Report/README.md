@@ -1,7 +1,7 @@
-# Permissions_and_User_Groups Velocity Report
+###### Permissions and User Groups Velocity Report
 Get the User and User Group permissions for one project, all projects, or a user selected item location. 
 
-###### Overview
+## Overview
 This Velocity report generates a context-insensitive Excel `.xlsx` file with two sheets:
 
 - **Sheet 1:** Lists permissions for the selected object/s (only one of these selections is optional per report run):
