@@ -1,0 +1,708 @@
+MIME-Version: 1.0
+X-Document-Type: Workbook
+Content-Type: multipart/related; boundary="----=_NextPart_01DAFEF3.F292B5A0"
+## ======================================================================================================================
+## * Name: Permissions_and_User_Groups.vm
+##-----------------------------------------------------------
+## * Description: Context Insensitive 2 sheet Excel .xlsx report. 
+##
+##                + First sheet outputs the permissions for the user chosen object/s
+##                   > 'This Project Only', the active export project 
+##                   OR
+##                   > 'Include All Projects', all active projects of the organization
+##                   OR
+##                   > 'Item Location', a singular active item found in the project tree
+##
+## 
+##                + Second sheet outputs the unique user groups found on the first sheet. 
+## 
+## ======================================================================================================================
+## MODIFICATION HISTORY 
+## 
+## Date         Revision   Person            Comments 
+## -----------  ---------  ----------------  ---------------------------------- 
+## 2024-09-05   1.0        Anna FitzGerald   Initial Build 
+## 2025-08-09   1.1        Anna FitzGerald   Customized for Community Reports 
+##
+## ======================================================================================================================
+##
+## Report Criteria:
+## ---------------------------    
+##  * Note: If being used this criteria will need to be added to the report configuration.  
+##
+##      Type:       Display Name:           Report Global Variable:   Function:
+##      -----------------------------------------------------------------------------------------------------------------
+##     Boolean       This Project Only        report_A_Project         Report will get permissions for Export Project 
+##     Boolean       Include All Projects     report_B_AllProjects     Report will get permissions for All Projects   
+##     Location      Item Location            report_C_ItemLocation    Report will get permissions for a Location 
+##     
+## 
+## ======================================================================================================================
+#########################################################################################################################
+##
+##  1. DATA_SOURCES
+##
+#########################################################################################################################
+#set( $cmpKey = "CMP") ##
+#set( $setKey = "SET") ##
+#set( $fldKey = "FLD") ##
+#set( $txtKey = "TXT") ##
+
+## Stores the configured TimezoneId from the jama instance, expect it to be UTC most of the time.
+#set( $timeZone = $dateTool.getTimeZone().ID ) ##
+
+
+## Custom Report Parameters
+##-----------------------------------------------------------------------------------------##
+#set( $finalLocation = false )
+#set( $projectKey = false )
+
+
+
+## If user selected a location to get permissions for
+## -----------------------------
+#if( $report_C_ItemLocation )
+  #set( $report_C_ItemLocation = $report_C_ItemLocation.replaceAll("^[^\d]*(\d*)[^\d]*$","$1") )
+  #set( $finalLocation = $documentSource.getContourItem($mathTool.toInteger($report_C_ItemLocation )))
+  #set( $getPermissionsFor = [$finalLocation])
+  #set( $title = $finalLocation.name )
+#end 
+
+
+## If user select the export project to get permissions for
+## -----------------------------
+#if( $report_A_Project )
+  #set( $getPermissionsFor = [$project])
+  #set( $projectKey = true )
+  #set( $title = $project.name )
+#end 
+
+
+## If user selected all projects to get permissions for
+## -----------------------------
+#if( $report_B_AllProjects )  ## User selected to get permissions for all projects 
+  #set( $getPermissionsFor = [] )
+  #set( $allProjects = $projectSource.getProjects(true)) ## all active projects 
+  #foreach( $proj in $allProjects )
+    #if( !$proj.isFolder )
+      #set( $success = $getPermissionsFor.add($proj))
+    #end 
+  #end 
+  #set( $projectKey = true)
+  #set( $title = "All Active Projects")
+#end 
+
+
+## Validation Error Handling: If user has not select a parameter show error message
+## -----------------------------
+#if( !$finalLocation && !$report_B_AllProjects && !$report_A_Project )
+  #set( $printValidationMessage = "Select one parameter before exporting to inform the template of what to get permissions for." )
+#else 
+  #set( $printValidationMessage = false )
+#end 
+#########################################################################################################################
+
+
+
+
+
+
+
+------=_NextPart_01DAFEF3.F292B5A0
+Content-Location: file:///C:/2D664A33/Mockup_Permissions.htm
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta name="Excel Workbook Frameset">
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link rel=File-List href="Mockup_Permissions_files/filelist.xml">
+<![if !supportTabStrip]>
+<link id="shLink" href="Mockup_Permissions_files/sheet001.htm">
+<link id="shLink" href="Mockup_Permissions_files/sheet002.htm">
+
+<link id="shLink">
+
+<![endif]><!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>Permissions</x:Name>
+    <x:WorksheetSource HRef="Mockup_Permissions_files/sheet001.htm"/>
+   </x:ExcelWorksheet>
+   <x:ExcelWorksheet>
+    <x:Name>User Groups</x:Name>
+    <x:WorksheetSource HRef="Mockup_Permissions_files/sheet002.htm"/>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:Stylesheet HRef="Mockup_Permissions_files/stylesheet.css"/>
+  <x:WindowHeight>15720</x:WindowHeight>
+  <x:WindowWidth>29040</x:WindowWidth>
+  <x:WindowTopX>32767</x:WindowTopX>
+  <x:WindowTopY>32767</x:WindowTopY>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+</xml><![endif]-->
+</head>
+</html>
+
+#########################################################################################################################
+##
+#########################################################################################################################
+##          Macro: getDate
+##          Input: Java Time Zone ID to determine which timezone to display the date in
+##          Output: Formatted date in the desired timezone
+#########################################################################################################################
+#macro( getDate $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  $dateTool.format( 'MM/dd/yyyy', $inputDate, $locale, $outTz )
+#end
+
+#########################################################################################################################
+#macro( getLicenseType $userLicenseType )
+
+  #if( $userLicenseType == "NAMED")
+    #set( $userLicenseDisplay = "Creator")
+  #elseif( $userLicenseType == "FLOATING")
+    #set( $userLicenseDisplay = "Creator (Float)")
+  #elseif( $userLicenseType == "STAKEHOLDER")
+    #set( $userLicenseDisplay = "Stakeholder")
+  #elseif( $userLicenseType == "REVIEWER")
+    #set( $userLicenseDisplay = "Reviewer")
+  #elseif( $userLicenseType == "TEST_RUNNER")
+    #set( $userLicenseDisplay = "Test runner")
+  #else 
+    #set( $userLicenseDisplay = $userLicenseType)
+  #end 
+
+  $userLicenseDisplay
+
+#end 
+######################################################################################################################
+#macro( getUserLicense $user ) 
+  #set( $user = $user.toString())
+  #set( $userString = $user.replaceAll("\[|\{|\}|\]", ""))
+  #set( $extractedKeyValuePairs = $userString.split(','))
+  ##set( $licenseObj = {} )
+  #foreach( $keyValuePairStr in $extractedKeyValuePairs )
+  ##<p>*$keyValuePairStr</p>
+    #set( $keyValuePairArray = $keyValuePairStr.split('='))
+    #if( $keyValuePairArray.size() == 2 )
+      #set( $key = $keyValuePairArray[0])
+      #set( $key = $key.trim().replaceAll('^"|"$', '')) 
+      #set( $value = $keyValuePairArray[1])
+      #set( $value = $value.trim().replaceAll('^"|"$', ''))
+      #if( $key == "licenseType")
+        #getLicenseType($value )
+        ##set($success = $licenseObj.put($key, $value))
+      #end 
+      
+    #end 
+  #end
+#end
+##
+#################################################################################################
+##  getAccessControlList Macro
+##  
+##  Macro: getAccessControlList 
+##  Input: $obj ( any DomainObject)
+##  Output: Permission entries for the given ACL node, aka permissions for the input object 
+##
+################################################################################################
+#macro( getAccessControlList $obj )
+    
+  #set( $aclObjIdentity = $obj.obtainAclObjectIdentity()) 
+  #set( $aclDto = $adminSource.getAclDTO($aclObjIdentity) ) 
+  #set( $aclEntries = $aclDto.getAclEntries() )
+
+  ## Loop through each permission entry on the node
+  ## ------------------------------------------------------
+  #foreach( $aclEntry in $aclEntries)
+
+    ## Mask 
+    ## ------------------------------------------------------
+    #set( $mask = $aclEntry.getMask())
+    #set( $permissionsFound = [] ) 
+  
+    #set( $mask = $mathTool.toInteger($mask))
+
+    #if( $mask >= 131072 )
+        #set( $success = $permissionsFound.add("Project Invite Admin"))
+        #set( $mask = $mask - 131072 )
+    #end
+    #if( $mask >= 65536 )
+        #set( $success = $permissionsFound.add("OSLC"))
+        #set( $mask = $mask - 65536 )
+    #end 
+    #if( $mask >= 32768 )
+        #set( $success = $permissionsFound.add("REST API"))
+        #set( $mask = $mask - 32768 )
+    #end 
+    #if( $mask >= 16384 )
+        #set( $success = $permissionsFound.add("Add Project"))
+        #set( $mask = $mask - 16384 )
+    #end 
+    #if( $mask >= 8192 )
+        #set( $success = $permissionsFound.add("Reports Admin"))
+        #set( $mask = $mask - 8192 )
+    #end
+    #if( $mask >= 4096 )
+        #set( $success = $permissionsFound.add("Process Admin"))
+        #set( $mask = $mask - 4096 )
+    #end
+    #if( $mask >= 2048 )
+        #set( $success = $permissionsFound.add("User Admin"))
+        #set( $mask = $mask - 2048 )
+    #end
+    #if( $mask >= 1024 )
+        #set( $success = $permissionsFound.add("Math Type"))
+        #set( $mask = $mask - 1024 )
+    #end
+    #if( $mask >=  512 )
+        #set( $success = $permissionsFound.add("Reuse Admin"))
+        #set( $mask = $mask - 512 )
+    #end
+    #if( $mask >= 256 )
+        #set( $success = $permissionsFound.add("Review Admin"))
+        #set( $mask = $mask - 256 )
+    #end
+    #if( $mask >= 128 )
+        #set( $success = $permissionsFound.add("Org Browse"))
+        #set( $mask = $mask - 128 )
+    #end
+    #if( $mask >= 64 )
+        #set( $success = $permissionsFound.add("Org Admin"))
+        #set( $mask = $mask - 64 )
+    #end
+    #if( $mask >= 4 )
+        #set( $success = $permissionsFound.add("Write"))
+        #set( $mask = $mask - 4 )
+    #end
+    #if( $mask >= 2 )
+        #set( $success = $permissionsFound.add("Read"))
+        #set( $mask = $mask - 2 )
+    #end
+    #if( $mask >= 1 )
+        #set( $success = $permissionsFound.add("Administration"))
+        #set( $mask = $mask - 1 )
+    #end
+    
+
+    ##  to whom this permission entry is associated
+    ## ------------------------------------------------------
+    ### a unique user id or user group id - ( not object type )
+    #set( $sidId = $aclEntry.getSid().getSid())
+
+    ##  the display name of the individual User or User Group (Project Type or Organization Type) 
+    ## to which the permission applies. 
+    ## ------------------------------------------------------
+    #set( $sidName = $aclEntry.getSid().getSidName())
+
+
+    ## If this permission corresponds with a Project permission is
+    ## the User Group of 'Project' Type ?... or false the User Group is 'Organization' Type.
+    ## or false this is a User permission
+    #set( $isProjectGroup = $aclEntry.isProjectGroup() )
+
+
+    ## sidType - indicates whether the sid refers to a User or User Group:
+    ## ------------------------------------------------------
+    #set( $sidType = $aclEntry.getSid().getSidType())
+    #if( $sidType == 1 )
+        #set( $securityIdentifier = "Anyone")
+    #elseif( $sidType == 2 )
+        #set( $securityIdentifier = "Logged In")
+    #elseif( $sidType == 3 )
+        #set( $securityIdentifier = "Single User")
+    #elseif( $sidType == 4 )
+        #set( $securityIdentifier = "User Role") ## User Group 
+    #end ###if( $sidType == 1 )
+
+    ##<p>Sid Type and Security Identifier: $!sidType - $!securityIdentifier</p>
+
+    #if( $sidType == 4 && $isProjectGroup ) ## if this is a project group 
+        #set( $userGroup = $userSource.getRole( $mathTool.toInteger($sidId)))
+        #set( $userGroupProjectId = $userGroup.projectId)
+        #set( $userGroupUsers = $userGroup.users )
+        #set( $name = $userGroup.name)
+        #if( !$userGroupUniqueId.contains($sidId))
+          #set( $success = $userGroups.add({"name":$name,"userGroup":$userGroup,"users":$userGroupUsers}))
+          #set( $success = $userGroupUniqueId.add($sidId))
+        #end 
+
+    #elseif( $sidType == 4 && !$isProjectGroup ) ## its an organization type group 
+        #set( $userGroup = $userSource.getRole( $mathTool.toInteger($sidId)))
+        #set( $userGroupProjectId = 'false')
+        #set( $userGroupUsers = $userGroup.users )
+        #set( $name = $userGroup.name)
+        #if( !$userGroupUniqueId.contains($userGroup.id))
+          #set( $success = $userGroups.add({"name":$name,"userGroup":$userGroup,"users":$userGroupUsers}))
+          #set( $success = $userGroupUniqueId.add($sidId))
+        #end
+
+    #else 
+      #set( $userGroup = false )
+    #end  ##if( $sidType == 4 && $isProjectGroup ) 
+
+
+    ## Is the permission an inherited permission?
+    ## ------------------------------------------------------
+    #set( $isInheritedPermission = $aclEntry.isInherited())
+
+
+    #if( !$userGroup )
+      #set( $userPermission = $sidName ) 
+      #if( !$uniquePermissions.contains($userPermission))
+      ##<tr> <td colspan=8>User $uniquePermissions, $userPermission</td></tr>
+        ## Add permission entry to list 
+        ## ------------------------------------------------------
+        #set( $success = $objPermissions.add({ "sort":$userPermission, "group":$userGroup,"userPermission":$userPermission, "isInherited":$isInheritedPermission,"isProjectGroup":$isProjectGroup,"permissionsFound":$permissionsFound}))
+        #set( $success = $uniquePermissions.add($userPermission))
+      #end 
+    #else 
+      #set( $userPermission = false )  ## the display name of the individual User or User Group (Project Type or Organization Type) 
+       
+      #if( !$uniquePermissions.contains($userGroup.name ))
+       ## <tr> <td colspan=8> Group $uniquePermissions, $userGroup.name</td></tr>
+        ## Add permission entry to list 
+        ## ------------------------------------------------------
+        #set( $success = $objPermissions.add({ "sort":$userGroup.name, "group":$userGroup,"userPermission":$userPermission, "isInherited":$isInheritedPermission,"isProjectGroup":$isProjectGroup,"permissionsFound":$permissionsFound}))
+        #set( $success = $uniquePermissions.add($userGroup.name))
+      #end 
+    #end ##if( !$userGroup )
+
+  #end ##foreach( $aclEntry in $aclEntries)
+#end 
+##
+################################################################################################
+
+------=_NextPart_01DAFEF3.F292B5A0
+Content-Location: file:///C:/2D664A33/Mockup_Permissions_files/stylesheet.css
+Content-Type: text/css; charset="utf-8"
+
+tr
+	{mso-height-source:auto;}
+col
+	{mso-width-source:auto;}
+br
+	{mso-data-placement:same-cell;}
+.style0
+	{mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	mso-rotate:0;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	color:black;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:"Aptos Narrow", sans-serif;
+	mso-font-charset:0;
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:Normal;
+	mso-style-id:0;}
+td
+	{mso-style-parent:style0;
+	padding-top:1px;
+	padding-right:1px;
+	padding-left:1px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:"Aptos Narrow", sans-serif;
+	mso-font-charset:0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	border:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	mso-protection:locked visible;
+	white-space:nowrap;
+	mso-rotate:0;}
+.xl65
+	{mso-style-parent:style0;
+	font-weight:700;}
+.xl66
+	{mso-style-parent:style0;
+	text-align:right;}
+.xl67
+	{mso-style-parent:style0;
+	font-size:12.0pt;
+	font-weight:700;
+	text-align:center;
+	background:#D9D9D9;
+	mso-pattern:black none;}
+.xl68
+	{mso-style-parent:style0;
+	font-weight:700;
+	background:#D9D9D9;
+	mso-pattern:black none;}
+.xl69
+	{mso-style-parent:style0;
+	background:#DEE3E9;
+	mso-pattern:black none;}
+
+
+
+
+
+
+
+
+
+######################################################################################################
+## 
+##                                             PERMISSIONS 
+##
+######################################################################################################
+------=_NextPart_01DAFEF3.F292B5A0
+Content-Location: file:///C:/2D664A33/Mockup_Permissions_files/sheet001.htm
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link id=Main-File rel=Main-File href="../Mockup_Permissions.htm">
+<link rel=File-List href=filelist.xml>
+<![if IE]>
+<base href="file:///C:/2D664A33/Mockup_Permissions_files/sheet001.htm"
+id="webarch_temp_base_tag">
+<![endif]>
+<link rel=Stylesheet href=stylesheet.css>
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:.75in .7in .75in .7in;
+	mso-header-margin:.3in;
+	mso-footer-margin:.3in;}
+-->
+</style>
+</head>
+
+<body link="#467886" vlink="#96607D">
+
+
+  <table border=0 cellpadding=0 cellspacing=0 width=1261 style='border-collapse:collapse;table-layout:fixed;width:947pt'>
+
+  #if( $printValidationMessage  )
+    <tr height=20 style='height:15.0pt'>
+      <td colspan=11 height=20 style='height:15.0pt;color:red'>$!printValidationMessage</td>
+    </tr>
+
+  #else 
+
+    <tr height=20 style='height:15.0pt'>
+      <td height=20 width=302 style='height:15.0pt;width:227pt'>Export Date:#getDate($dateTool.date, $timeZone)</td>
+      <td class=xl65 width=240 style='width:180pt'>PERMISSIONS REPORT</td>
+      <td width=95 style='width:71pt'></td>
+      <td width=98 style='width:74pt'></td>
+      <td width=108 style='width:81pt'></td>
+      <td class=xl66 width=162 style='width:122pt'></td>
+      <td colspan=4 width=256 style='width:192pt'>Export Location: $!title</td>
+    </tr>
+    <tr height=20 style='height:15.0pt'>
+      <td height=20 style='height:15.0pt'></td>
+      <td class=xl65></td>
+      <td colspan=3></td>
+      <td class=xl66></td>
+      <td colspan=4></td>
+    </tr>
+    <tr height=21 style='height:15.75pt'>
+      <td height=21 class=xl67 style='height:15.75pt'>Location</td>
+      <td class=xl67>User/ Group</td>
+      <td class=xl67>Inherited</td>
+      <td class=xl67>Project</td>
+      <td class=xl67>Read &amp; Write</td>
+      <td class=xl67>Read Only</td>
+      <td colspan=4></td>
+    </tr>
+
+
+    ## Get the Access Control List node on each obj and print each permission entry
+    ## This corresponds with the permissions visiible in Admin > Organization > Permissions > select the project and see the permissions 
+    ## or Admin > Project > select the project > Permissions 
+    #set( $userGroups= [])
+    #set( $userGroupUniqueId = [] )
+
+    #foreach( $obj in $getPermissionsFor )
+      #set( $uniquePermissions = [] )
+      #set( $objPermissions = [] )
+      ##<tr><td colspan=7>Obj Count $getPermissionsFor.size()  Obj Name $obj.name</td></tr>
+      #getAccessControlList($obj)
+
+      #foreach( $permission in $sortTool.sort($objPermissions,"sort:asc"))
+        #set( $group = $permission.group )
+        #set( $userPermission = $permission.userPermission)
+        #set( $isInherited = $permission.isInherited)
+        #set( $isProjectGroup = $permission.isProjectGroup )
+        #set( $thesePermissions = $permission.permissionsFound )
+
+        #if( $group )
+          #set( $userGroup = $group.name )
+        #else 
+          #set( $userGroup = $userPermission )
+        #end 
+
+        #if( $isInherited )
+          #set( $isInherited = "X")
+        #else 
+          #set( $isInherited = "")
+        #end 
+        
+        #if( $isProjectGroup )
+          #set( $isProjectGroup = "X")
+        #else 
+          #set( $isProjectGroup = "")
+        #end 
+
+        #if( $thesePermissions.contains("Read") && $thesePermissions.contains("Write"))
+          #set( $readWrite = "X")
+        #else 
+          #set( $readWrite = "")
+        #end
+
+        #if( $thesePermissions.contains("Read") && !$thesePermissions.contains("Write"))
+          #set( $read = "X")
+        #else 
+          #set( $read = "")
+        #end
+        <tr>
+          <td>#if( $projectKey ) $!obj.projectKey #else $!obj.documentKey #end $!obj.name</td>
+          <td>$!userGroup</td>
+          <td>$!isInherited</td>
+          <td>$!isProjectGroup</td>
+          <td>$!readWrite</td>
+          <td>$!read</td>
+        </tr>
+      #end  ##foreach( $permission in $sortTool.sort($objPermissions,"sort:asc"))
+    #end ##foreach( $obj in $getPermissionsFor )
+  #end ##if( $printValidationMessage  )
+  </table>
+</body>
+</html>
+
+
+
+
+
+
+######################################################################################################
+## 
+##                                             USER GROUPS 
+##
+######################################################################################################
+
+------=_NextPart_01DAFEF3.F292B5A0
+Content-Location: file:///C:/2D664A33/Mockup_Permissions_files/sheet002.htm
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link id=Main-File rel=Main-File href="../Mockup_Permissions.htm">
+<link rel=File-List href=filelist.xml>
+<link rel=Stylesheet href=stylesheet.css>
+<style>
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+@page
+	{margin:.75in .7in .75in .7in;
+	mso-header-margin:.3in;
+	mso-footer-margin:.3in;}
+-->
+</style>
+</head>
+
+<body link="#467886" vlink="#96607D">
+
+  <table border=0 cellpadding=0 cellspacing=0 style='border-collapse:collapse;table-layout:fixed;'>
+
+  #if( $printValidationMessage  )
+    <tr height=20 style='height:15.0pt'>
+      <td colspan=11 height=20 style='height:15.0pt;color:red'>$!printValidationMessage</td>
+    </tr>
+
+  #else 
+     <tr height=20 style='height:15.0pt'>
+      <td height=20 class=xl68 width=200 style='height:15.0pt;'>User Group</td>
+      <td class=xl68 width=50>Project Id</td>
+      <td class=xl68 width=50>User Id</td>
+      <td class=xl68 width=200>Full Name</td>
+      <td class=xl68 width=200>Title</td>
+      <td class=xl68 width=200>Email</td>
+      <td class=xl68 width=200>License Type</td>
+     </tr>
+
+    #foreach( $group in $sortTool.sort($userGroups, "name:asc"))
+      #set( $userGroup = $group.userGroup )
+      #set( $users = $group.users )
+      #set( $projectGroup = $group.projectGroup )
+       <tr height=20 style='height:15.0pt'>
+          <td height=20 class=xl69 style='height:15.0pt'>$!userGroup.name</td>
+          <td class=xl69>&nbsp;</td>
+          <td class=xl69>&nbsp;</td>
+          <td class=xl69>&nbsp;</td>
+          <td class=xl69>&nbsp;</td>
+          <td class=xl69>&nbsp;</td>
+          <td class=xl69>&nbsp;</td>
+       </tr>
+        #foreach( $user in $users)
+        <tr>
+           <td style='text-align:left'>$!userGroup.name</td>
+           <td style='text-align:left'>$!userGroup.projectId</td>
+           <td style='text-align:left'>$!user.id</td>
+           <td style='text-align:left'>$!user.fullName</td>
+           <td style='text-align:left'>$!user.title</td>
+           <td style='text-align:left'>$!user.email</td>
+           <td style='text-align:left'>#getUserLicense($user)</td>
+        </tr>
+        #end 
+      
+     #end ##foreach( $group in $userGroups )
+  #end ##if( $printValidationMessage  )
+  </table>
+</body>
+</html>
+
+------=_NextPart_01DAFEF3.F292B5A0
+Content-Location: file:///C:/2D664A33/Mockup_Permissions_files/filelist.xml
+Content-Type: text/xml; charset="utf-8"
+<xml xmlns:o="urn:schemas-microsoft-com:office:office">
+ <o:MainFile HRef="../Mockup_Permissions.htm"/>
+ <o:File HRef="stylesheet.css"/>
+ <o:File HRef="sheet001.htm"/>
+ <o:File HRef="sheet002.htm"/>
+ <o:File HRef="filelist.xml"/>
+</xml>
+------=_NextPart_01DAFEF3.F292B5A0--
