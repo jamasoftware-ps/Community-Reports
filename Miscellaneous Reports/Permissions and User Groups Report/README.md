@@ -13,7 +13,7 @@ This Velocity report generates a context-insensitive Excel `.xlsx` file with two
 
 ## Example Output 
 
-![permissions-report-example-output]("https://github.com/user-attachments/assets/e343bba6-bff4-4a58-adca-cf521a204b5b")
+![permissions-report-example-output](https://github.com/user-attachments/assets/e343bba6-bff4-4a58-adca-cf521a204b5b)
 
 ## Installation Configuration 
 
@@ -24,7 +24,7 @@ This Velocity report generates a context-insensitive Excel `.xlsx` file with two
 
 
 
-![permissions-report-installation-configuration]("https://github.com/user-attachments/assets/65bee8e6-4302-4231-9264-b7bc1ae9cba5")
+![permissions-report-installation-configuration](https://github.com/user-attachments/assets/65bee8e6-4302-4231-9264-b7bc1ae9cba5)
 
 
 
