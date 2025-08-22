@@ -43,5 +43,4 @@ This Velocity report generates a context-insensitive Excel `.xlsx` file with two
 - Choose 1 parameter per run. 
 - The output Excel file will contain permissions and user group information as described.
 
----
-**Note:** The report uses the Jama Software Velocity API and standard Velocity macros for data retrieval and formatting.
+
