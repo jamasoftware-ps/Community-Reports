@@ -1,0 +1,1536 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+#########################################################################################################################
+##
+## Report Summary Details
+##
+## ======================================================================================================================
+## ======================================================================================================================
+##
+##
+## * Name: 
+######################################################
+## - Generic Trace Report.vm
+##
+##
+## * Description: 
+######################################################
+## - This trace report provides a generic 3 levels Upstream or Downstream trace output as a Community repository report
+##   for the Jama Connect custome base.
+##
+##
+## ======================================================================================================================
+## ======================================================================================================================
+##
+## * MODIFICATION HISTORY 
+######################################################
+## 
+## Date         Revision   Person            Comments 
+## ----------------------------------------------------------------------------------------------------------------------
+## 2022-09-06   1.0        Liam Rotchford    - Initial generic community report version based on the Jama Generic Trace Matrix Report
+##                                             version 3.4.3 but cleaned for community utilization.
+## 
+##                                            
+## 
+## ======================================================================================================================
+## ======================================================================================================================
+##
+##
+## * Report Criteria / Parameters: 
+######################################################
+##
+##  Type:     Display Name:              Report Global Variable:     Function:
+##  ---------------------------------------------------------------------------------------------------------------------
+##  Boolean   Merge Rows                 reportMergeCells            - Output report in merge cell trace format.
+##  Boolean   Output Upstream Trace      reportUpstream              - Output 3 levels upstream trace output.
+##
+##
+## ======================================================================================================================
+#########################################################################################################################
+
+
+
+#########################################################################################################################
+##
+##  Report Table of Contents
+##
+## ======================================================================================================================
+## 
+## 1. Global Variables
+##
+## 2. Trace Report Configuration Settings
+##
+## 3. Style Classes
+##
+## 4. Macros 
+##
+## 5. Trace Data Gathering Macros
+##
+## 6. Trace Building Control Macros
+##    6.1 Non-Merge Row Building Control
+##    6.2 Merge Row Building Control
+##    6.3 Row Building Support Macros
+##
+## 7. Trace Report Content Macros
+##    7.1 Header Grouping Row
+##    7.2 Header Columns Row
+##    7.3 Trace Data Cells
+##    7.4 Test Run Cells
+##    
+## 8. Report Body / Table Definition
+##
+##
+## ======================================================================================================================
+#########################################################################################################################
+
+
+
+
+
+#########################################################################################################################
+##
+##  1. Global Variables
+##
+#########################################################################################################################
+
+
+#if( $documentSource )
+  ## Jama 8.44 or greater. Jama 8.42 if New Velocity Feature Flag Enabled
+  #set( $docDao = $documentSource )
+  #set( $contourItemDao = $documentSource)
+  #set( $documentTypeFieldDao = $documentSource)
+  #set( $lookupDao = $documentSource)
+  #set( $documentNodeDao = $documentSource )
+  #set( $attachmentDao = $documentSource )
+  #set( $attachmentService = $documentSource )
+  #set( $relDao = $documentSource )
+  #set( $versionDao = $documentSource )
+  #set( $testRunDao = $testSource )
+  #set( $velocityServiceWrapper = $documentSource )
+  #set( $baselineDao = $baselineSource )
+
+#else
+  ## Jama 8.43 or older
+  #set( $docDao = $applicationContext.getBean("documentDao"))
+  #set( $contourItemDao = $applicationContext.getBean("documentDao"))
+  #set( $documentTypeFieldDao = $applicationContext.getBean("documentDao"))
+  #set( $lookupDao = $applicationContext.getBean("documentDao"))
+  #set( $documentNodeDao = $applicationContext.getBean("documentNodeDao"))
+  #set( $attachmentDao = $applicationContext.getBean("attachmentDao"))
+  #set( $attachmentService = $applicationContext.getBean("attachmentService"))
+  #set( $relDao = $applicationContext.getBean("relationshipDao") )
+  #set( $versionDao = $applicationContext.getBean("versionDao") )
+  #set( $testRunDao = $applicationContext.getBean("testRunDao") )
+  ## $velocityServiceWrapper is already available
+  #set( $baselineDao = $applicationContext.getBean("baseLineDao") )
+#end
+
+
+#set($cmpKey = "CMP")
+#set($setKey = "SET")
+#set($fldKey = "FLD")
+#set($txtKey = "TXT") 
+## Stores the configured TimezoneId from the jama instance, expect it to be UTC most of the time.
+#set( $timeZone = $dateTool.getTimeZone().ID )
+
+#set( $primaryFont = "Calibri")
+#set( $primaryFontSize = "11pt")
+
+
+
+
+## Baseline Context? 
+## -------------------------
+#if( $documentList && $documentList.size() > 0 ) ## if this is a Context Sensitive export with export items 
+  #if( $contextType && $contextType.toUpperCase().contains("BASELINE") )
+    #set( $baseline = $baselineSource.getBaseLine($mathTool.toInteger($contextId)))
+    #set( $baselineId = $baseline.id)
+    #set( $baselineMode = true)
+  #end 
+#end
+
+
+
+
+
+
+
+
+
+#########################################################################################################################
+##
+##  2. Trace Report Configuration Settings
+##
+#########################################################################################################################
+
+
+## * Trace Direction (Down = true) (Up = false)
+#######################################################
+#if($reportUpstream)
+  #set($traceDirection = false)
+#else
+  #set($traceDirection = true)
+#end
+
+## * Trace Section Mapping For Cell Creation
+#######################################################
+#set($tracePathAccessStrings = ["Source", "Level1", "Level2", "Level3"])
+
+
+## * Number of Instance Data Trace Levels Downstream
+#######################################################
+#set($traceRange = 3) 
+
+
+##########################################################################################
+## * Report Cell Configuration Settings
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##########################################################################################
+## - This section allows you to define specifications about the report cells such as colors, style classes, column widths, column labels, etc...
+
+
+## * Content Cell Style Class
+#######################################################
+#set($contentStyle = "xl90")
+
+
+#######################################################################
+## * Trace Level Group Header Configurations
+#######################################################################
+## - This section defines row 1 header grouping cells (I.e Source, Level 1, etc...) 
+## - Please note that proper order of all data arrays must follow the SRC, Level 1, Level 2, etc... order
+
+
+## * Trace Level Group Header Style Classes 
+#######################################################
+## - These Hex color values are utilized in the report style classes.
+
+#set($src_GroupHeaderColor = "#8EA9DB")
+#set($lvl1_GroupHeaderColor = "#A9D08E")
+#set($lvl2_GroupHeaderColor = "#F4B084")
+#set($lvl3_GroupHeaderColor = "#FFD966")
+
+#set($groupHeaderStyleClasses = ["xl70", "xl71", "xl72", "xl73"]) 
+
+
+## * Trace Level Group Header Labels
+#######################################################
+#set($src_GroupHeaderLBL = "Source Items")
+#set($lvl1_GroupHeaderLBL = "Level 1 Items")
+#set($lvl2_GroupHeaderLBL = "Level 2 Items")
+#set($lvl3_GroupHeaderLBL = "Level 3 Items")
+
+#set($groupingHeaderLabels = [$src_GroupHeaderLBL, $lvl1_GroupHeaderLBL, $lvl2_GroupHeaderLBL, $lvl3_GroupHeaderLBL])
+
+
+
+#######################################################################
+## * Header Columns Configurations
+#######################################################################
+## - This section defines row 2 header column cells (I.e the level data field column label cells)
+
+
+## * Trace Level Column Header Style Classes
+#######################################################
+## - These Hex color values are utilized in the report style classes.
+
+#set($src_HeaderColColor = "#D9E1F2")
+#set($lvl1_HeaderColColor = "#E2EFDA")
+#set($lvl2_HeaderColColor = "#FCE4D6")
+#set($lvl3_HeaderColColor = "#FFF2CC")
+
+#set($headerColumnsStyleClasses = ["xl80", "xl81", "xl82", "xl83"])
+
+
+## * Trace Level Column Header Labels
+#######################################################
+#set($src_ColLabels = ["ID", "Name", "Status"])
+#set($lvl1_ColLabels = ["ID", "Name", "Status"])
+#set($lvl2_ColLabels = ["ID", "Name", "Status"])
+#set($lvl3_ColLabels = ["ID", "Name", "Status"])
+
+#set($colLabelSets = [$src_ColLabels, $lvl1_ColLabels, $lvl2_ColLabels, $lvl3_ColLabels])
+
+
+
+#######################################################################
+## * Column Width Definitions
+#######################################################################
+## - The report supports 3 column width definitions which can be modified here. 
+## - Assign each column based on column label given above to assign a column width to it. 
+## - If a column is missing a specified width from this section then the $defaultWidth is used. 
+
+#set($smallWidth = "95pt")
+#set($mediumWidth = "185pt")
+#set($largeWidth = "250pt")
+
+#set($defaultWidth = "185pt")
+
+#set($smallWidthCols = ["ID", "Status", "Test Run Status"])
+#set($mediumWidthCols = ["Name"])
+#set($largeWidthCols = [])
+
+
+
+
+
+#########################################################################################################################
+##
+##	3. Style Classes
+##
+#########################################################################################################################
+
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link id="shLink">
+<![endif]><!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>Generic Trace Report</x:Name>
+    <x:WorksheetSource HRef="Single_Sheet_Mockup_files/sheet001.htm"/>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+  <x:Stylesheet HRef="Single_Sheet_Mockup_files/stylesheet.css"/>
+  <x:WindowHeight>12165</x:WindowHeight>
+  <x:WindowWidth>27435</x:WindowWidth>
+  <x:WindowTopX>930</x:WindowTopX>
+  <x:WindowTopY>32767</x:WindowTopY>
+  <x:ProtectStructure>False</x:ProtectStructure>
+  <x:ProtectWindows>False</x:ProtectWindows>
+ </x:ExcelWorkbook>
+</xml><![endif]-->
+
+<style id="KeywordLocator_11435_Styles">
+@page {
+    margin:.75in .7in .75in .7in;
+}
+
+col {
+    mso-width-source:auto;
+}
+
+br {
+    mso-data-placement:same-cell;
+}
+
+A {
+    text-decoration:none;
+    color:#000000;
+    font-size: 9pt;
+}
+
+table {
+   mso-displayed-decimal-separator:"\.";
+   mso-displayed-thousand-separator:"\,";
+}
+
+tr {
+    mso-height-source:auto;
+    height: auto;
+}
+
+
+/* Use this td parent as your base style for td cells, 
+  and then use classes to modify the type hierarchy, as in the 
+  example of header styles below.  
+*/
+
+td
+  { 
+   color:black;
+   font-weight:400;
+   font-style:normal;
+   text-decoration:none;
+   font-family:"${primaryFont}",sans-serif;
+   font-size:${primaryFontSize};
+   text-align:left;
+   vertical-align:middle;
+   border-top:0pt solid windowtext;
+   border-right:0.5pt solid windowtext;
+   border-bottom:0.5pt solid windowtext;
+   border-left:0pt solid windowtext;
+   white-space:normal;
+}
+
+
+
+/* Cell Classes */
+.style0
+  {mso-number-format:General;
+  text-align:general;
+  vertical-align:middle;
+  white-space:normal;
+  mso-rotate:0;
+  mso-background-source:auto;
+  mso-pattern:auto;
+  color:black;
+  font-style:normal;
+  text-decoration:none;
+  font-family:"${primaryFont}",sans-serif;
+  font-size:${primaryFontSize};
+  mso-font-charset:0;
+  border:none;
+  mso-protection:locked visible;
+  mso-style-name:Normal;
+  mso-style-id:0;}
+
+/* Trace Level Label Cell Styles */ 
+.xl70
+  {mso-style-parent:style0;
+  font-weight:bold;
+  vertical-align:middle;
+  text-align:left;
+  border-top:0pt solid windowtext;
+  border-right:0.5pt solid windowtext;
+  border-bottom:0.5pt solid windowtext;
+  border-left:0pt solid windowtext;
+  background:${src_GroupHeaderColor};
+  mso-pattern:black none;
+  font-family:"${primaryFont}",sans-serif;
+  font-size:${primaryFontSize};
+  white-space:normal;
+  }
+.xl71
+  {mso-style-parent:style0;
+  font-weight:bold;
+  vertical-align:middle;
+  text-align:left;
+  border-top:0pt solid windowtext;
+  border-right:0.5pt solid windowtext;
+  border-bottom:0.5pt solid windowtext;
+  border-left:0pt solid windowtext;
+  background:${lvl1_GroupHeaderColor};
+  font-family:"${primaryFont}",sans-serif;
+  font-size:${primaryFontSize};
+  mso-pattern:black none;
+  }
+.xl72
+  {mso-style-parent:style0;
+  color:windowtext;
+  font-weight:bold;
+  vertical-align:middle;
+  text-align:left;
+  border-top:0pt solid windowtext;
+  border-right:0.5pt solid windowtext;
+  border-bottom:0.5pt solid windowtext;
+  border-left:0pt solid windowtext;
+  background:${lvl2_GroupHeaderColor};
+  font-family:"${primaryFont}",sans-serif;
+  font-size:${primaryFontSize};
+  mso-pattern:black none;
+  white-space:normal;
+  }
+.xl73
+  {mso-style-parent:style0;
+  color:windowtext;
+  font-weight:bold;
+  vertical-align:middle;
+  text-align:left;
+  border-top:0pt solid windowtext;
+  border-right:0.5pt solid windowtext;
+  border-bottom:0.5pt solid windowtext;
+  border-left:0pt solid windowtext;
+  background:${lvl3_GroupHeaderColor};
+  font-family:"${primaryFont}",sans-serif;
+  font-size:${primaryFontSize};
+  mso-pattern:black none;
+  white-space:normal;
+  }
+
+
+/* Column Header Cell Styles */
+.xl80
+  {mso-style-parent:style0;
+  color:windowtext;
+  font-weight:bold;
+  vertical-align:middle;
+  text-align:left;
+  border-top:0pt solid windowtext;
+  border-right:0.5pt solid windowtext;
+  border-bottom:0.5pt solid windowtext;
+  border-left:0pt solid windowtext;
+  background:${src_HeaderColColor};
+  font-family:"${primaryFont}",sans-serif;
+  font-size:${primaryFontSize};
+  mso-pattern:black none;
+  white-space:normal;
+  }
+.xl81
+  {mso-style-parent:style0;
+  color:windowtext;
+  font-weight:bold;
+  vertical-align:middle;
+  text-align:left;
+  border-top:0pt solid windowtext;
+  border-right:0.5pt solid windowtext;
+  border-bottom:0.5pt solid windowtext;
+  border-left:0pt solid windowtext;
+  background:${lvl1_HeaderColColor};
+  font-family:"${primaryFont}",sans-serif;
+  font-size:${primaryFontSize};
+  mso-pattern:black none;
+  white-space:normal;
+  }
+.xl82
+  {mso-style-parent:style0;
+  color:windowtext;
+  font-weight:bold;
+  vertical-align:middle;
+  text-align:left;
+  border-top:0pt solid windowtext;
+  border-right:0.5pt solid windowtext;
+  border-bottom:0.5pt solid windowtext;
+  border-left:0pt solid windowtext;
+  background:${lvl2_HeaderColColor};
+  font-family:"${primaryFont}",sans-serif;
+  font-size:${primaryFontSize};
+  mso-pattern:black none;
+  white-space:normal;
+  }
+.xl83
+  {mso-style-parent:style0;
+  color:windowtext;
+  font-weight:bold;
+  vertical-align:middle;
+  text-align:left;
+  border-top:0pt solid windowtext;
+  border-right:0.5pt solid windowtext;
+  border-bottom:0.5pt solid windowtext;
+  border-left:0pt solid windowtext;
+  background:${lvl3_HeaderColColor};
+  font-family:"${primaryFont}",sans-serif;
+  font-size:${primaryFontSize};
+  mso-pattern:black none;
+  white-space:normal;
+  }
+
+
+/* Normal Cell Style */
+
+.xl90
+  {mso-style-parent:style0;
+  color: black;
+  font-family:"${primaryFont}",sans-serif;
+  font-size:${primaryFontSize};
+  vertical-align:middle;
+  text-align:left;
+  border-top:0pt solid windowtext;
+  border-right:0.5pt solid windowtext;
+  border-bottom:0.5pt solid windowtext;
+  border-left:0pt solid windowtext;
+  mso-pattern:black none;
+  white-space:normal;
+  }
+
+
+/* Hyperlinks */
+
+a:link {
+   color:#0563C1;
+   text-decoration:underline;
+}
+
+a:visited {
+  color:#954F72;
+  text-decoration:underline;
+}
+
+-->
+</style>
+</head>
+
+
+
+
+#########################################################################################################################
+##                                                                                                                    
+##  4. Macros                                                                                                       
+##                                                                                                                    
+#########################################################################################################################
+
+
+
+
+
+#########################################################################################################################
+##          Macro: formatRichTextCell
+##          Desc: Use on purely textual Rich Text Fields (I.e use directly in Cells)
+##          Input: $inString - input string
+##          Return: string, ready for opening in Word
+#########################################################################################################################
+#macro( formatRichTextCell $inString )
+  #if( $inString )
+    #set( $string = $inString.toString() )
+    
+    #set( $string = $string.replaceAll("<div.*?>|<\/div>",""))
+    #set( $string = $string.replaceAll("<html.*?>|<html>", ""))
+    #set( $string = $string.replaceAll("<span.*?>|<\/span>", ""))
+
+    ## remove images ## 
+    #set( $string = $string.replaceAll("<p.*?><img.*?><\/p>", ""))
+    #set( $string = $string.replaceAll("<img.*?>",""))
+    #set( $string = $string.replaceAll("<figure.*?>|</figure>", ""))
+    #set( $string = $string.replaceAll("<svg.*?>|<\/svg", ""))
+    ## figure captions should not cause issue, replace at user discretion
+    #set( $string = $string.replaceAll("<figcaption.*?>|<\/figcaption>",""))
+
+    ## remove tables ## 
+    #set( $string = $string.replaceAll("<table.*?>|<\/table>",""))
+    #set( $string = $string.replaceAll("<col.*?>|<\/col>", ""))
+    #set( $string = $string.replaceAll("<tbody.*?>|<\/tbody>",""))
+    #set( $string = $string.replaceAll("<thead.*?>|<\/thead>",""))
+    #set( $string = $string.replaceAll("<th.*?>(?:.|\s)*?<\/th>", ""))
+    #set( $string = $string.replaceAll("<th.*?>|</th>", ""))
+    #set( $string = $string.replaceAll("<tr.*?>|<\/tr>",""))
+    #set( $string = $string.replaceAll("<td.*?>(?:.|\s)*?<\/td>", ""))
+    #set( $string = $string.replaceAll("<td.*?>|<\/td>", ""))
+    #set( $string = $string.replaceAll("<tfoot.*?>|<\/tfoot>",""))
+    #set( $string = $string.replaceAll("<caption.*?>|<\/caption>",""))
+
+    ## remove link tags
+    #set( $string = $string.replaceAll("<\/?(a).*?>",""))
+
+    ## replace list tags with a restructured list via <br>s and the bullet html entity
+    #set( $string = $string.replaceAll("<ul.*?>","<br>"))
+    #set( $string = $string.replaceAll("<ol>","<br>"))
+    #set( $string = $string.replaceAll("<\/ol>|<\/ul>",""))
+    #set( $string = $string.replaceAll("<li.*?>","&#x2022; "))
+    #set( $string = $string.replaceAll("<\/li>","<br>"))
+
+    ## Misc edge cases
+    #set( $string = $string.replaceAll("\xA0",""))
+
+    $string
+  #end
+#end
+#########################################################################################################################
+##          Macro: pickListColorFetch
+##          Input: item, the unique custom field name, the fetched picklist item
+##          Output: String type hex code color 
+##          Call Example: #pickListColorFetch($doc "<unique field name>" $<item variable with item data> )
+##          Apply to cell: style='background:#$color;mso-pattern:#$color none;''
+#########################################################################################################################
+#macro( pickListColorFetch $doc $fieldName $pickListItem)
+
+  ## Get the color it displays in Jama
+  #set( $newItem = $contourItemDao.getContourItem($doc.id))
+  #set( $customFields = $newItem.getCustomFields())
+  #set( $docTypeField = $documentTypeFieldDao.getDocumentTypeFieldByName( $fieldName, $doc.documentType.id))
+  #set( $lookupTypeId = $docTypeField.getLookupTypeId())
+  #set( $fieldId = $docTypeField.documentField.id)
+
+  #set( $lookupTypeList = [])
+  #if( $lookupTypeList.add($lookupTypeId)) #end
+  #set( $getLookupIdsReturn = $lookupDao.getLookupIdsByLookupTypes($lookupTypeList))
+  #set( $lookupValues = [])
+  #foreach( $lookUpId in $getLookupIdsReturn)
+    #set( $lookup = $lookupDao.getLookup($mathTool.toInteger($lookUpId)))
+    #if( $lookupValues.add( $lookup)) #end
+  #end
+  
+  #set( $color = '')
+  #foreach( $lookUpVal in $lookupValues)
+    #if( $lookUpVal.name == $pickListItem.trim())
+      #set( $color = $lookUpVal.color)
+      #break
+    #end
+  #end
+
+  ## Returns color
+
+#end
+#########################################################################################################################
+##          Macro: getHierarchyLevel
+##          Input: $doc - document object
+##                 $baselineMode - true: export was from a baseline, false: export was from the project
+##                 $baselineId   - ID of the baseline that the items are part of, if in baseline mode
+##          Output: $hierarchyLevel - number, which heading level this item is in Jama relative to the container
+#########################################################################################################################
+#macro( getHierarchyLevel $doc $baselineMode $baselineId )
+  #set( $seqSubStrings = [] )
+  #set( $hierarchyLevel = 1)
+  
+  ## Get hierarchy from the baseline
+  #if( $baselineMode )
+    #set( $docNode = $documentNodeDao.getDocumentNodeForBaseLine(5, $doc.id, $baselineId))
+  ## Get hierarchy from the project
+  #else
+    #set( $docNode = $documentNodeDao.getDocumentNode(5, $doc.id))
+  #end
+
+  #set( $seqSubStrings = $docNode.sequence.split("\."))
+  #set( $hierarchyLevel = $seqSubStrings.size())
+
+  #if( !$hierarchyLevelTop )
+    #set($hierarchyLevelTop = $hierarchyLevel)
+  #end
+
+  #set($hierarchyLevel = $hierarchyLevel - $hierarchyLevelTop + 1)
+
+  ## Returns hierarchyLevel
+#end
+#########################################################################################################################
+##          Macro: getDate
+##          Input: Java Time Zone ID to determine which timezone to display the date in
+##          Output: Formatted date in the desired timezone
+#########################################################################################################################
+#macro( getDate $inputDate $inputTimeZone )
+  #set( $outTz = $dateTool.getTimeZone().getTimeZone($inputTimeZone) )
+  #set( $locale = $dateTool.getLocale() )
+  $dateTool.format( 'MM/dd/yyyy', $inputDate, $locale, $outTz )
+#end
+#########################################################################################################################
+##          Macro: getBaselineRelationships
+##          Input: $currentVersionId - ID of the currentVersion of an item 
+##                 $baselineId - ID of a baseline   
+##                 $inDoc - current item
+##                 $inDownstream - true provides downstream relationships, false provides upstream relationships    
+##          Creates: $returnBaselineRels list of upstream Or downstream baseline relationships 
+#########################################################################################################################
+#macro( getBaselineRelationships $currentVersionId $baselineId $inDoc $inDownstream )
+  #set( $start = 0 )
+  #set( $count = 20 )
+  #set( $versionedRelationships = [] )
+  #set( $returnBaselineRels = [])
+  #set( $pageSize = 20)
+  #set( $relatedIds = [] )
+  ##
+  #set($baseRelsPage = $documentSource.getRelationships($currentVersionId,$baselineId,$start,$count))
+  ##
+  #set( $totalRels = [])
+  #set( $totalRels = $baseRelsPage.getPageInfo().getTotalResults())
+  ## DEBUG Baseline Page Info: $baseRelsPage.getPageInfo() <br><br>
+  ## DEBUG Baseline Relationship Count: $baseRelsPage.getPageInfo().getTotalResults()<br><br>
+  ## DEBUG Baseline Results: $baseRelsPage.getResults() 
+  #if( $totalRels && $totalRels > 0)
+    #set( $page_count = $mathTool.floor($mathTool.div($totalRels,$pageSize)) )
+    #foreach( $page in [0..$page_count])
+      #set( $baseRelsPage = $documentSource.getRelationships($currentVersionId,$baselineId,$start,$count))
+      #set( $baseRelsPageResults = $baseRelsPage.getResults())
+      #if( $baseRelsPageResults )
+       #set( $success = $versionedRelationships.addAll($baseRelsPageResults ))
+      #end 
+      #set( $start = $start + $count)
+    #end
+  #end
+  ##
+  #foreach( $versionedRelationship in $versionedRelationships )
+    #if( $inDownstream ) ## Get Downstream Relationships
+      #set( $upItemId = $versionedRelationship.getFromItem().getValue().get(0) )
+      #set( $upItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
+      
+      ## Get CountourItem by Id and Version ## 
+      #set( $upDocVersion = $documentSource.getVersionByDocAndVersionNumber($upItemId,$upItemVersion))
+      #set( $upDoc = $upDocVersion.document)
+
+      #if( $inDoc.id == $upDoc.id ) 
+        #set( $dnItemId = $versionedRelationship.getToItem().getValue().get(0) )
+        #set( $dnItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
+		
+      	## Get CountourItem by Id and Version ##  
+        #set( $dnVersion = $documentSource.getVersionByDocAndVersionNumber($dnItemId,$dnItemVersion))
+        #set( $dnDoc = $dnVersion.document ) 
+        ##<tr><td colspan=20>$dnDoc.documentKey, $dnItemId, $dnDoc.id, $dnItemVersion, $dnDoc.currentVersion.versionNumber</td></tr>
+
+        #if( !$relatedIds.contains($dnDoc.id) )
+          #set( $success = $relatedIds.add($dnDoc.id) )
+          #set( $success = $returnBaselineRels.add( {"fromDocument":$inDoc,"toDocument":$dnDoc} ) )
+        #end
+      #end 
+    #else
+      #set( $dnItemId = $versionedRelationship.getToItem().getValue().get(0) )
+      #set( $dnItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
+      
+      ## Get CountourItem by Id and Version ## 
+      #set( $dnDocVersion = $documentSource.getVersionByDocAndVersionNumber($dnItemId,$dnItemVersion))
+      #set( $dnDoc = $dnDocVersion.document)
+    
+
+      #if( $inDoc.id == $dnDoc.id ) ## Get Upstream Relationships
+        #set( $upItemId = $versionedRelationship.getFromItem().getValue().get(0) )
+        #set( $upItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
+	
+				## Get CountourItem by Id and Version ##  
+				#set( $upVersion = $documentSource.getVersionByDocAndVersionNumber($upItemId,$upItemVersion))
+        #set( $upDoc = $upVersion.document )
+ 
+
+        #if( !$relatedIds.contains( $upDoc.id) )
+          #set( $success = $relatedIds.add( $upDoc.id) )
+          #set( $success = $returnBaselineRels.add( {"fromDocument":$upDoc,"toDocument":$inDoc} ) )
+        #end
+      #end
+
+    #end 
+  #end
+#end
+#########################################################################################################################
+##          Macro: getRelationships
+##          Inputs: $baselineMode - GLOBAL, tells the report if the export was from a baseline or not 
+##                  $baselineId - GLOBAL, ID of a baseline       
+##                  $inDoc - current item
+##                  $inDownstream - true provides downstream relationships, false provides upstream relationships
+##          Creates: $returnRels - list of relationships with sub-elements of "fromItem" and "toItem" each of type 
+##                   item
+#########################################################################################################################
+#macro( getRelationships $inDoc $inDownstream )
+  #set( $returnRels = [] )
+
+  #if( $baselineMode && $baselineId )
+  		#set( $inDocId = $inDoc.id )
+  		#* If the item is active then it we have the most recent version of the document. 
+  		* The $inDoc.id is equivalent to the $inDoc.currentVersion.originDocument.id. 
+  		* Thus we utilize the $inDoc.id as it is the more efficient retrieval of that id. 
+  		* This 'current version' id will be utilized as the first argument in the method
+  		* getRelationships($currentVersionId,$baselineId,$start,$count)) in the #getBaselineRelationships macro. 
+  	        *
+  		* If the item is not active, then we have a prior version of the item or the item has been deleted, 
+  		* but we still want it to show up in the baselined trace - we want to show every related 
+  		* item that existed when the baseline snapshot was made. In this case, to get the current version id of the 
+  		* non-active item we utilize $inDoc.currentVersion.originDocument.id.
+  		*#
+  		#if( !$inDoc.active )
+  			#set( $currentVersion = $inDoc.currentVersion ) 
+  			#set( $inDocId = $currentVersion.originDocument.id ) 
+  		#end 
+      #getBaselineRelationships( $inDocId, $baselineId, $inDoc, $inDownstream ) ## Creates $returnBaselineRels 
+      #set( $returnRels = $returnBaselineRels )
+  #else
+
+    #set( $rels = [] )
+    #set ( $rels = $documentSource.getRelationshipsForDocument($inDoc.id, $inDownstream) )
+    #foreach( $rel in $rels )
+      #if( $inDownstream )  ## Get Downstream Relationships
+        #if ( $rel.toDocument.active )
+          #set( $success = $returnRels.add( $rel ) )
+        #end
+      #else                 ## Get Upstream Relationships
+        #if ( $rel.fromDocument.active )
+          #set( $success = $returnRels.add( $rel ) )
+        #end
+      #end
+    #end
+  #end
+#end
+
+
+
+
+
+
+
+#########################################################################################################################
+##
+## 5. Trace Data Gathering Macros
+##
+#########################################################################################################################
+
+
+
+#########################################################################################################################
+##          Macro: gatherTraceContent
+##          Inputs: $traceItem $traceRange $levelDepth $tempStorage $rowContent
+##          Desc: 
+##                - Recursively gathers all upstream/downstream items stored in Non-Merge Format into $rowContent
+##                - This report builds a single data row stored in a array of objects for each trace item one at a time
+##                  at each level effectively building the non-merge trace format in an array of objects which can be 
+##                  used to create the merge cell format.
+#########################################################################################################################
+#macro (gatherTraceContent $traceItem $traceRange $levelDepth $tempStorage $rowContent $traceDirection)
+  
+  ## Gather 1 level of downstream or upstream items from the supplied trace item
+  #getRelationships($!traceItem, $traceDirection) 
+  #set($rels = $returnRels)
+  #set($itemCount = 0)
+
+  #foreach($rel in $rels)
+    #if($traceDirection)
+      #set($relDoc = $rel.toDocument)
+    #else
+      #set($relDoc = $rel.fromDocument)
+    #end
+ 
+    ## Store Each gathered item into a temporary storage array
+    #set($success = $tempStorage.add($relDoc))
+    
+    ##  If our current depth level is below the maximum trace depth level defined then recursively call this macro again supplying the downstream/upstream item we are presently on. Increase both the tracked trace depth level and the item count
+    #if($levelDepth < $traceRange)
+      #set($levelDepth = $levelDepth + 1)
+      #gatherTraceContent($relDoc $traceRange $levelDepth $tempStorage $rowContent $traceDirection)
+      #set($itemCount = $itemCount + 1)
+
+    #else
+      ## If we are passed the maximum trace level then store the gathered items for this trace path to the array of objects holding the final data gathering array of objects.
+      #storeTraceData($tempStorage $levelDepth $rowContent true) ## Store Trace Data that has reached lowest trace range depth
+      #set($itemCount = $itemCount + 1)
+    #end
+
+    ## If we have reached the lowest trace level then remove one value from the end of the temp storage array to allow the next item row to be created using all previous path values. This maintains the full non-merge data trace gathering structure properly.
+    #set($success = $tempStorage.remove($mathTool.toInteger($tempStorage.size() - 1)))
+
+  #end ## #foreach($relRel in $relRels )
+
+
+  ## If no downstream/upstream items have been found at the present depth level then we have reach the end of a trace path for the current data item. 
+  ## Of which may not be the lowest depth level so we must store the presently gathered temporary storage data array to the final data trace array objects to ensure all data has been properly gathered and represented in the report. 
+  #if($itemCount == 0)  
+    #storeTraceData($tempStorage $levelDepth $rowContent false) ## Store Trace Data that has reached the end of it's trace path but is not the lowest trace range depth
+  #end
+
+  ## Reduce depth level on recursive return to ensure depth level is properly tracked on each macro pass
+  #set($levelDepth = $levelDepth - 1)
+   
+#end
+
+
+
+
+#########################################################################################################################
+##          Macro: storeTraceData
+##          Inputs: $tempStorage $levelDepth $rowContent $lowestTraceDepthReached
+##          Desc: 
+##            - Store the currently gather trace path items and based on the $lowestTraceDepthReached boolean value determine
+##              how this data is stored in the $rowContent array of objects. 
+##            - If we have reached the lowest trace depth then store all trace path items to their corresponding trace level 
+##              section key value pairs. 
+##            - If this is a early trace halt (I.e a path that does not reach the lowest trace depth specified by the global 
+##              $traceRange value) then store the availble trace items and fill the remaining object key value pair slots with 
+##              the value of false based on the reached $levelDepth.
+##
+#########################################################################################################################
+#macro (storeTraceData $tempStorage $levelDepth $rowContent $lowestTraceDepthReached)
+  #set($source = '')
+  #set($level1Item = '')
+  #set($level2Item = '')
+  #set($level3Item = '')
+
+  ## Extract the data values presently stored in the temporary storage array containing the trace data
+  #foreach($item in $tempStorage)
+    #if($foreach.index <= $traceRange)
+      
+      #if($foreach.index == 0)
+        #set($source = $item)
+      #elseif($foreach.index == 1)
+        #set($level1Item = $item)
+      #elseif($foreach.index == 2)
+        #set($level2Item = $item)
+      #elseif($foreach.index == 3)
+        #set($level3Item = $item)
+      #end
+      
+    #end
+  #end
+  
+
+  #if($lowestTraceDepthReached)
+    ## Store extracted trace data into the final trace data storage array of objects representing the report data rows in non-merge format.
+    #set($success = $rowContent.add({"Source": $source, "Level1": $level1Item, "Level2": $level2Item, "Level3": $level3Item})) 
+
+  #else
+    ## Store extracted trace data into the final trace data storage array of objects representing the report data rows in non-merge format.
+    ## Depending on the depth level the macro was called with determines the data row added to the final storage array of objects for the present trace path. Since this macro is used for when we do not reach the lowest trace level we place 'false' for the data storage levels not reached.
+    ## Each depth level will store the level item value that is -1 value to it's current depth level.
+   
+    #if($levelDepth == 1)
+      #set($success = $rowContent.add({"Source": $source, "Level1": false, "Level2": false, "Level3": false}))
+    #elseif($levelDepth == 2)
+      #set($success = $rowContent.add({"Source": $source, "Level1": $level1Item, "Level2": false, "Level3": false}))
+    #elseif($levelDepth == 3)
+      #set($success = $rowContent.add({"Source": $source, "Level1": $level1Item, "Level2": $level2Item, "Level3": false}))
+    #end
+  #end
+
+#end
+
+
+
+
+
+
+
+#########################################################################################################################
+##
+## 6. Trace Building Control Macros
+##
+#########################################################################################################################
+
+
+
+
+##====================================================================================================
+    ## 6.1 Non-Merge Row Building Control
+##====================================================================================================
+
+
+#########################################################################################################################
+##          Macro: buildNonMergeRows
+##          Inputs: $rowContent
+##          Desc: 
+##            - Constructs report dynamic data rows without Cell Merging by calling each trace grouping section cell
+##              building columns in order per row.
+##            - We sent the cell building columns a span value of 1 since we are not performing cell merging.
+##
+##          * Documentation: https://www.jamaland.com/perspective.req#/items/6656111?projectId=24331
+##          * Additional Levels Modification Documentation: https://www.jamaland.com/perspective.req#/items/6671239?projectId=24331
+#########################################################################################################################
+#macro (buildNonMergeRows $rowContent)
+  
+  ## Cycle through the gathered trace data and extract the data value for each trace location
+  #foreach($rowObj in $rowContent)
+    #set($levelDepth = 0)
+
+    #set($source = $rowObj.get("Source"))
+    #set($L1Item = $rowObj.get("Level1"))
+    #set($L2Item = $rowObj.get("Level2"))
+    #set($L3Item = $rowObj.get("Level3"))
+
+    ## Create new table row and call each trace level section for cell creation
+    <tr>
+
+      ## Source
+      #if($levelDepth <= $traceRange)
+        #buildSourceCols($!source $levelDepth 1)
+        #set($levelDepth = $levelDepth + 1)
+      #end
+
+      ## Level 1
+      #if($levelDepth <= $traceRange)
+        #buildLevel1Cols($L1Item $levelDepth 1)
+        #set($levelDepth = $levelDepth + 1)
+      #end
+
+      ## Level 2
+      #if($levelDepth <= $traceRange)
+        #buildLevel2Cols($L2Item $levelDepth 1)
+        #set($levelDepth = $levelDepth + 1)
+      #end
+
+      ## Level 3
+      #if($levelDepth <= $traceRange)
+        #buildLevel3Cols($L3Item $levelDepth 1)
+        #set($levelDepth = $levelDepth + 1)
+      #end
+
+    </tr>
+
+  #end ## #foreach($itemObj in $rowContent)
+
+#end
+
+
+
+
+##====================================================================================================
+    ## 6.2 Merge Row Building Control
+##====================================================================================================
+
+
+
+#########################################################################################################################
+##          Macro: buildMergeRows
+##          Inputs: $rowContent
+##          Desc: 
+##            - Constructs report dynamic data rows with Cell Merging by calling each trace grouping section cell
+##              building columns in trace level order per row.
+##            - Using the trace items extracted for each trace path the macro verifies the content to build per trace level.
+##            - The verification process ensures that once a trace item has been encountered for the first time the proper
+##              row span value is applied to create the merged cells format. 
+#########################################################################################################################
+#macro (buildMergeRows $rowContent)
+  #set($prevRowIds = [])
+
+  ## Cycle through the gathered trace data and extract the data value for each trace location
+  #foreach($rowObj in $rowContent)
+    #set($levelDepth = 0)
+    #set($currRowIds = [])
+    #set($createdBlankCells = false)
+
+    #set($source = $rowObj.get("Source"))
+    #set($L1Item = $rowObj.get("Level1"))
+    #set($L2Item = $rowObj.get("Level2"))
+    #set($L3Item = $rowObj.get("Level3"))
+
+    #set($tracePathItems = [$source, $L1Item, $L2Item, $L3Item])
+    #set($currRowIds = [$source.id, $L1Item.id, $L2Item.id, $L3Item.id])
+
+    #set($nextRowIds = [])
+    #if($foreach.hasNext )
+      #set($nextIndex = $foreach.index + 1 )
+      #set($nextObj = $rowContent.get($nextIndex))
+    #else
+      #set($nextObj = false )
+    #end
+
+    #if($!nextObj)
+      #set($nextSource = $nextObj.get("Source"))
+      #set($nextL1Item = $nextObj.get("Level1"))
+      #set($nextL2Item = $nextObj.get("Level2"))
+      #set($nextL3Item = $nextObj.get("Level3"))
+
+      #set($nextRowIds = [$nextSource.id, $nextL1Item.id, $nextL2Item.id, $nextL3Item.id])
+    #end
+
+    #####################################################################
+    ## Row Creation:
+    #####################################################################
+    <tr>
+ 
+      ## Cycle through each trace item in the present trace path object from $rowContent
+      #foreach($currTraceItem in $tracePathItems)
+        
+        ## Ensure that our present trace level depth does not exceed the specified trace range
+        #if($levelDepth <= $traceRange)
+
+          ## Create Sublists of the current trace row and previous trace row object item ids 
+          ##  - This process allows us to check the entire trace path up to the current trace item
+          ##    to ensure that each path is properly seperated and not improperly merged together
+          #set($fromIndex = 0)
+          #set($toIndex = $mathTool.toInteger($levelDepth + 1)) 
+
+          #set($currIdsSubList = $currRowIds.subList($fromIndex, $toIndex))
+          #if($foreach.parent.index != 0)
+            #set($prevIdsSubList = $prevRowIds.subList($fromIndex, $toIndex))
+          #else
+            #set($prevIdsSubList = false)
+          #end
+
+          #if($nextRowIds.size() > $toIndex)
+            #set($nextIdsSubList = $nextRowIds.subList($fromIndex, $toIndex))
+          #else
+            #set($nextIdsSubList = false)
+          #end
+
+          ## Test Sublist ids and the current trace item to verify that we shoud create cell content
+          ##  - If the sublists of the ids do not match then we know this is the first encounter of the 
+          ##    current trace item and should be created with an applied calculated rowspan value. 
+          ##  - If the sublists do match then we know this trace item has already had it's first encounter
+          ##    and is presently in the report process with the proper merged cell row span. 
+          ##  - If this is the very first object item then bypass as no previous object exists at that time.
+          #if(($currIdsSubList != $prevIdsSubList && $!currTraceItem != false) || $foreach.parent.index == 0)
+            
+            ## Determine Current Trace Item Access String to be used for Span value calculation & Trace Section To Build
+            #set($currAccessString = $tracePathAccessStrings[$levelDepth])
+          
+            ## Get Cell Row Span
+            ################################
+            ## - Ensure that the final trace level section is always of span = 1 to retain proper structure formatting. 
+            #if($levelDepth == $traceRange)
+              #set($span = 1)
+            #else
+              #if($foreach.parent.index == 0 && ($currIdsSubList == $nextIdsSubList || $nextIdsSubList == false))
+                #getSpan($foreach.parent.index $!currTraceItem $!rowContent $currAccessString $levelDepth) 
+              #elseif($foreach.parent.index != 0 && $!currTraceItem.id && $currIdsSubList == $nextIdsSubList)
+                #getSpan($foreach.parent.index $!currTraceItem $!rowContent $currAccessString $levelDepth)
+              #else
+                #set($span = 1)
+              #end
+            #end
+
+            #####################################################################
+            ## Cell Content Creation
+            #####################################################################
+            ## Build cell column content using the current trace level section
+            #if($!currTraceItem != false)
+              #if($!currAccessString == "Source")
+                #buildSourceCols($currTraceItem $levelDepth $span)
+              #elseif($!currAccessString == "Level1")
+                #buildLevel1Cols($currTraceItem $levelDepth $span)
+              #elseif($!currAccessString == "Level2")
+                #buildLevel2Cols($currTraceItem $levelDepth $span)
+              #elseif($!currAccessString == "Level3")
+                #buildLevel3Cols($currTraceItem $levelDepth $span)
+
+              ## Mod Location
+              #end
+            #end
+
+            ## Empty Cell Handling
+            ################################
+            ## Extract Next Trace Level Item
+            ## - This is used to determine if we have reached the end of this current trace path
+            ##   and if we need to create additional empty cells to "complete the table".
+            #if($foreach.hasNext )
+              #set($nextIndex = $foreach.index + 1 )
+              #set($nextLevelItem = $tracePathItems.get($nextIndex))
+            #else
+              #set($nextLevelItem = false )
+            #end
+
+            ## If span value is 1 and the next level item is false then trace path ends here and empty cells may need to be created.
+            #if($span == 1 && $nextLevelItem == false)    
+              #if( $createdBlankCells == false)
+                #mergedEmptyCellsCalc($levelDepth $span)
+                #set( $createdBlankCells = true)
+              #end
+            #end 
+
+          #end ## #if(($currIdsSubList != $prevIdsSubList && $!currTraceItem != false) || $foreach.parent.index == 0)
+
+          ## Increment level depth for accurate tracking and utilization
+          #set($levelDepth = $levelDepth + 1)
+
+        #end ## #if($levelDepth <= $traceRange)
+      #end ## #foreach($currTraceItem in $tracePathItems)
+
+    </tr>
+
+    ## Update "Previous" ID values
+    #set($prevRowIds = [])
+    #set($prevRowIds = $currRowIds)
+
+  #end ## #foreach($rowObj in $rowContent)
+
+#end
+
+
+
+
+
+##====================================================================================================
+    ## 6.3 Row Building Support Macros
+##====================================================================================================
+
+
+
+
+#########################################################################################################################
+##          Macro: getSpan
+##          Inputs: $rowContentFromIndex $spanSrc $rowContent $currLevelAccessStr $levelDepth
+##          Desc: Used to determine how many rows to span down the table for the merge cell blocks
+#########################################################################################################################
+#macro (getSpan $rowContentFromIndex $spanSrc $rowContent $currLevelAccessStr $levelDepth)
+  #set($span = 0)
+
+  ## Inclusive (index included)
+  #set($rowContentFromIndex = $mathTool.toInteger($rowContentFromIndex))
+  ## Exclusive (end of the list)
+  #set($toIndex = $mathTool.toInteger($rowContent.size())) 
+  
+  ## Determine cycle range to minimize overhead
+  #set($rowContentSubList = $rowContent.subList($rowContentFromIndex, $toIndex))
+
+  ## Determine number of same id items until we find a new item to calculate row span for merge cells
+  #foreach($rowSubListObj in $rowContentSubList)
+    #set($currCellItem = $rowSubListObj.get($currLevelAccessStr))
+
+    #set($subListSource = $rowSubListObj.get("Source"))
+    #set($subListL1Item = $rowSubListObj.get("Level1"))
+    #set($subListL2Item = $rowSubListObj.get("Level2"))
+    #set($subListL3Item = $rowSubListObj.get("Level3"))
+    #set($rowSubListIds = [$subListSource.id, $subListL1Item.id, $subListL2Item.id, $subListL3Item.id])
+
+    #set($subListFromIndex = 0)
+    #set($subListToIndex = $mathTool.toInteger($levelDepth)) 
+    #set($currIdsSubListForSpanCalc = $rowSubListIds.subList($subListFromIndex, $subListToIndex))
+    
+    #if($rowContentFromIndex != 0)
+      #set($prevIdsSubListForSpanCalc = $prevSubListIds.subList($subListFromIndex, $subListToIndex))
+    #else
+      #set($prevIdsSubListForSpanCalc = $currIdsSubListForSpanCalc)
+    #end
+
+    ## Increment Span value for each sublist branch row match
+    #if($currIdsSubListForSpanCalc == $prevIdsSubListForSpanCalc && $spanSrc.id == $currCellItem.id)
+      #set($span = $span + 1)
+    #else
+      #break
+    #end
+
+    ## Update "Previous" ID values
+    #set($prevSubListIds = [])
+    #set($prevSubListIds = $rowSubListIds)
+  #end
+
+  ## Return $span
+#end
+#########################################################################################################################
+##          Macro: widthValueFetch
+##          Inputs: $label
+##          Desc: determines the appropriate column width value to apply to provided column label
+#########################################################################################################################
+#macro (widthValueFetch $label)
+
+  #set($width = '')
+
+  #if($smallWidthCols.contains($!label))
+    #set($width = $smallWidth)
+  #elseif($mediumWidthCols.contains($!label))
+    #set($width = $mediumWidth)
+  #elseif($largeWidthCols.contains($!label))
+    #set($width = $largeWidth)
+  #else
+    #set($width = $defaultWidth)
+  #end
+
+#end
+#########################################################################################################################
+##          Macro: mergedEmptyCellsCalc
+##          Inputs: $levelDepth $span
+##          Desc: 
+##            - The #mergedEmptyCellsCalc macro utilizes the $levelDepth variable to determine the current location 
+##              of which trace level the report is presently at in combination with the global config vars to determine
+##              the exact number of empty cells that should be created based on trace level columns and test run columns.
+#########################################################################################################################
+#macro( mergedEmptyCellsCalc $levelDepth $span)
+  #set($emptyColsNum = 0)
+  
+  ## Determine the number of empty cells to create based on the current level section being built to reach the end of the defined columns.
+  #set($fromIndex = $mathTool.toInteger($levelDepth + 1))
+  #set($toIndex = $mathTool.toInteger($traceRange + 1)) 
+  #set($colLblSubList = $colLabelSets.subList($fromIndex, $toIndex))
+
+  #foreach($colLblSet in $colLblSubList)
+    #set($emptyColsNum = $emptyColsNum + $colLblSet.size())
+  #end
+
+  ## If test runs are included for the requested level determine the number of additional empty cells to create
+  #if($reportLatestTestRun)
+    #set($fromIndex = $mathTool.toInteger($levelDepth + 1))
+    #set($toIndex = $mathTool.toInteger($traceRange + 1)) 
+    #set($tstrnFlagsSubList = $testRunLvlFlags.subList($fromIndex, $toIndex))
+   
+    #foreach($flag in $tstrnFlagsSubList)
+      #if($flag == true)
+        #set($emptyColsNum = $emptyColsNum + $testRun_ColLabels.size())
+      #end
+    #end
+  #end
+
+  ## Create empty cells based on the calculated value of the number of cells to create to reach the end of the defined columns with the determined row span applied.
+  #createEmptyCells($emptyColsNum $span)  
+
+#end
+
+#########################################################################################################################
+##          Macro: createEmptyCells
+##          Inputs: $numberOfCells $span
+##          Desc: Created the supplied number of empty cells to properly represent trace paths and create a complete trace table.
+#########################################################################################################################
+#macro( createEmptyCells $numberOfCells $span)
+  
+  #if($numberOfCells != 0)
+    #foreach($i in [1..$numberOfCells])
+      <td rowspan=$span class=$contentStyle></td>
+    #end
+  #end
+
+#end
+
+
+
+
+
+#########################################################################################################################
+##
+## 7. Trace Report Content Macros
+##
+#########################################################################################################################
+
+
+
+##====================================================================================================
+    ## 7.1 Header Grouping Row
+##====================================================================================================
+
+
+#########################################################################################################################
+##          Macro: headerGroupings
+##          Inputs: 
+##          Desc: Using the defined Trace Report Configuration Settings variables construct the first row trace level
+##                group cells with column merging.
+#########################################################################################################################
+#macro (headerGroupings)
+  
+  ## Build first table row of trace level group cells using defined labels and style classes
+  <tr height=35>
+    ## Cycle through each defined group heading labels array
+    #foreach($levelLabel in $groupingHeaderLabels)
+      #if($foreach.index <= $traceRange)
+        ## Determined group header style class to apply
+        #if($groupHeaderStyleClasses.size() > $foreach.index)
+          #set($styleClass = $groupHeaderStyleClasses[$foreach.index])
+        #else
+          #set($styleClass = $contentStyle)
+        #end
+
+        ## Determine header grouping column span based on the Column Label definition array size
+        #if($colLabelSets.size() > $foreach.index)
+          #set($headerLabelGroup = $colLabelSets[$foreach.index])
+          #set($colSpan = $headerLabelGroup.size())
+        #else
+          #set($colSpan = 0)
+        #end
+
+        ## Create group header cell
+        <td colspan=$colSpan height=35 class=$styleClass>$levelLabel</td>
+
+      #end ## #if($foreach.index <= $traceRange)
+    #end ## #foreach($levelLabel in $groupingHeaderLabels)
+  </tr>
+
+#end
+
+
+
+##====================================================================================================
+    ## 7.2 Header Columns Row
+##====================================================================================================
+
+
+#########################################################################################################################
+##          Macro: headerColumns
+##          Inputs: 
+##          Desc: Using the defined Trace Report Configuration Settings variables construct the second row trace level
+##                header columns labels with defined style classes.
+#########################################################################################################################
+#macro (headerColumns)
+
+  ## Build second table row of trace level header column cells using defined labels and style classes
+  <tr height=25>
+
+    ## Cycle through each defined trace level header labels array
+    #foreach($levelColLabels in $colLabelSets)
+      #if($foreach.index <= $traceRange)
+        ## Determine header style class to apply
+        #if($headerColumnsStyleClasses.size() > $foreach.index)
+          #set($styleClass = $headerColumnsStyleClasses[$foreach.index])
+        #else
+          #set($styleClass = $contentStyle)
+        #end
+
+        ## Create column header column label cells with assigned column widths-->
+        #foreach($label in $levelColLabels)
+          #widthValueFetch($!label) 
+          <td height=25 class=$styleClass style='width:${width}'>$!label</td>
+        #end
+
+      #end ## #if($foreach.index <= $traceRange)
+    #end ## #foreach($levelColLabels in $colLabelSets)
+
+  </tr>
+
+#end
+
+
+
+
+##====================================================================================================
+    ## 7.3 Trace Data Cells
+##====================================================================================================
+
+
+#########################################################################################################################
+##          Macro: buildSourceCols
+##          Inputs: $source $levelDepth $span
+##          Creates: Constructs cell merged source data columns
+##
+##          * Documentation: https://www.jamaland.com/perspective.req#/items/6656287?projectId=24331
+#########################################################################################################################
+#macro( buildSourceCols $source $levelDepth $span)
+  
+  ## Create data field cells per column in defined trace level section
+  <td rowspan=$span class=$contentStyle>$!source.documentKey</td>
+  <td rowspan=$span class=$contentStyle>$!source.name</td>
+  <td rowspan=$span class=$contentStyle>$!source.status.name</td>
+
+#end
+#########################################################################################################################
+##          Macro: buildLevel1Cols
+##          Inputs: $L1Item $levelDepth $span
+##          Creates: Constructs cell merged level1 data columns
+##
+##          * Documentation: https://www.jamaland.com/perspective.req#/items/6656287?projectId=24331
+#########################################################################################################################
+#macro( buildLevel1Cols $L1Item $levelDepth $span)
+  
+  ## Create data field cells per column in defined trace level section
+  <td rowspan=$span class=$contentStyle>$!L1Item.documentKey</td>
+  <td rowspan=$span class=$contentStyle>$!L1Item.name</td>
+  <td rowspan=$span class=$contentStyle>$!L1Item.status.name</td>
+
+#end
+#########################################################################################################################
+##          Macro: buildLevel2Cols
+##          Inputs: $L2Item $levelDepth $span
+##          Creates: Constructs cell merged Level 2 data columns
+##
+##          * Documentation: https://www.jamaland.com/perspective.req#/items/6656287?projectId=24331
+#########################################################################################################################
+#macro( buildLevel2Cols $L2Item $levelDepth $span)
+  
+  ## Create data field cells per column in defined trace level section
+  <td rowspan=$span class=$contentStyle>$!L2Item.documentKey</td>
+  <td rowspan=$span class=$contentStyle>$!L2Item.name</td>
+  <td rowspan=$span class=$contentStyle>$!L2Item.status.name</td>
+
+#end
+#########################################################################################################################
+##          Macro: buildLevel3Cols
+##          Inputs: $L3Item $levelDepth $span
+##          Creates: Constructs cell merged Level 3 data columns
+##
+##          * Documentation: https://www.jamaland.com/perspective.req#/items/6656287?projectId=24331
+#########################################################################################################################
+#macro( buildLevel3Cols $L3Item $levelDepth $span)
+  
+  ## Create data field cells per column in defined trace level section
+  <td rowspan=$span class=$contentStyle>$!L3Item.documentKey</td>
+  <td rowspan=$span class=$contentStyle>$!L3Item.name</td>
+  <td rowspan=$span class=$contentStyle>$!L3Item.status.name</td>
+
+#end
+
+
+
+
+
+
+#########################################################################################################################
+##
+## 8. Report Body / Table Definition
+##
+#########################################################################################################################
+
+
+
+<body link=blue vlink=purple>
+
+  ## Table Definition
+  <table border=0 cellpadding=0 cellspacing=0 style='border-collapse:collapse;table-layout:fixed;width:4000pt'>
+
+    ## Row 1 Trace Level Grouping Header Labels
+    #headerGroupings()
+    
+    ## Row 2 Header Column Labels
+    #headerColumns()
+    
+    ## Trace path data gathering
+    ## All trace data from source items is stored in $rowContent in non-merge format structure
+    #set($rowContent = [])
+    #foreach($vDoc in $documentList )
+      #set($sourceItem = $vDoc.document )
+      #set($tempStorage = [])
+      #set($levelDepth = 1)
+      #set($success = $tempStorage.add($sourceItem))
+      #gatherTraceContent($sourceItem $traceRange $levelDepth $tempStorage $rowContent $traceDirection)
+    #end
+    
+    ## Dynamic trace data row building macro calls 
+    #if($reportMergeCells)
+      #buildMergeRows($rowContent)
+    #else
+      #buildNonMergeRows($rowContent)
+    #end
+
+  </table>
+
+</body>
+
+</html>
