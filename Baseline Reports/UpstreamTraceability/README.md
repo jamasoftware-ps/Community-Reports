@@ -1,7 +1,7 @@
 # Upstream Traceability Report
 
 ## Report Summary
-There are two upstream traceability reports offered of which differ in the number of traversal levels populated on the report. The UpstreamTrace.vm file will extract up to 8 levels upstream while the UpstreamTrace Two Levels_8_42.vm will strictly retrieve only two levels. Keep in mind that each relationship level traversal will increase report generation processing time exponentially. 
+The UpstreamTrace Two Levels_8_42.vm will strictly retrieve only two levels. Keep in mind that each relationship level traversal will increase report generation processing time exponentially. 
 
 ## Preview Image
 ![alt tag](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Trace%20Reports/UpstreamTraceability/UpstreamTracePreviewImage.png)
