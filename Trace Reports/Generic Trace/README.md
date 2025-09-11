@@ -5,9 +5,10 @@ This report constructs a single sheet excel trace report that can trace up to 3 
 
 ## Preview Images
 Merged row trace report format:
+![merged row trace preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Trace%20Reports/Generic%20Trace/Merged%20Preview.png)
 
 Non-merged row trace report format:
-
+![non merged row trace preview](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Trace%20Reports/Generic%20Trace/Non%20Merged%20Preview.png)
 
 ## Installation Instructions
 1. Go to the Admin section of Jama
@@ -16,7 +17,7 @@ Non-merged row trace report format:
 1. Fill in the Add/Edit Report form as shown below.
 1. Click Save
 
-
+![config](https://github.com/jamasoftware-ps/Community-Reports/blob/master/Trace%20Reports/Generic%20Trace/Config.png)
 
 ## NOTES: 
 - Your Organization field will have a different value.  
