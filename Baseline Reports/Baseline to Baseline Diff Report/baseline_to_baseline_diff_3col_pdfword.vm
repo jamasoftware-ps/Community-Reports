@@ -70,7 +70,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01DA8992.E7786AB0"
 ##                                             implementation defined in version 3.13
 ## 2025-04-03   3.14       Anna FitzGerald   - Updated formatting of Test Steps to be processed through #formatTableCell
 ##                                           - Updated #formatText macro to catch invalid img replacements for invalid src and no src definitions
-##
+## 2025-12-02   3.15       Liam Rotchford    - Applied default value for $maxImageWidth variable to resolve missing redline output results when $report_showFinText is false.
 ##
 ##======================================================================================================================
 ## REPORT CRITERIA
@@ -232,6 +232,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01DA8992.E7786AB0"
 #set($r2 = $mathTool.toInteger($report_baseline2))
 #set($maxDiff = 50000)
 #set($maxedOut="Field is too large for comparison. Maximum number of characters is")
+#set($maxImageWidth = 645)
 #if($r1 > $r2)
     #set($r1 = $r2)
     #set($r2 = $mathTool.toInteger($report_baseline1))

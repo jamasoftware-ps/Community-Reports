@@ -60,7 +60,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01DA8992.E7786AB0"
 ##                                           - Resolved minor hyperlink creation inconsistencies.
 ## 2025-04-03   3.13       Anna FitzGerald   - Updated formatting of Test Steps to be processed through #formatTableCell
 ##                                           - Updated #formatText macro to catch invalid img replacements for invalid src and no src definitions
-
+## 2025-12-02   3.14       Liam Rotchford    - Applied default value for $maxImageWidth variable to resolve missing redline output results when $report_showFinText is false.
+##
 ## ======================================================================================================================
 #########################################################################################################################
 ## Report Criteria:
@@ -231,7 +232,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01DA8992.E7786AB0"
 #set($r1 = $mathTool.toInteger($report_baseline))
 #set($maxDiff = 50000)
 #set($maxedOut="Field is too large for comparison. Maximum number of characters is")
-
+#set($maxImageWidth = 645)
 #if( $report_showFinText != true)
   #set( $report_showFinText = false)
 #end
@@ -2056,33 +2057,33 @@ div.totCounterContainer
 ##          Output: $string, ready for opening in Word
 ########################################################################################################################
 #macro( formatTableCell $inString $justification $maxImageWidth)
-  #if( $inString && $justification && $maxImageWidth )
-    #set( $string = $inString.toString() )
-    ## Re-format text for consistent look and feel
-    #set( $string = "#formatText($string)" )
-    ## First re-format tables for consistent look and feel, and fixed column widths
-    #set( $string = "#formatTables($string, $maxImageWidth, 'left')" )
-    ## Then prep figures to base64 after formatting tables
-    #set( $string = "#convertFigures($string, $maxImageWidth)" )
-    ## Convert hyperlinks in Jama Connect to Word cross-references if Master Template global variable is true
-    #if($includeCrossReferences)
-      #set( $string = "#convertHyperlinks($string)" )
-    #end
-    ## format lists appropriately
-    #set( $string = $string.replaceAll('<li>','<li class=TableCell>') )
-    #set( $string = $string.replaceAll('<li\s([^c].*?)>','<li class=TableCell $1>') )
-    ## Make sure all cells are contained in a paragraph with the appropriate style
-    #if( !$string.contains("<p"))
-      #set( $string = "<p class=TableCell style='text-align:$justification'>$string</p>" )
-    #else
-      #set( $string = $string.replaceAll("<p>","<p class=TableCell style='text-align:$justification'>") )
-      #set( $string = $string.replaceAll("<p\s([^c].*?)>","<p class=TableCell $1 style='text-align:$justification'>") )
-    #end
-    ##set( $debug = $string.replaceAll( "<", "<br>-"))
-    ###Debug formatTableCell string $debug<br><br>
+	#if( $inString && $justification && $maxImageWidth )
+		#set( $string = $inString.toString() )
+		## Re-format text for consistent look and feel
+		#set( $string = "#formatText($string)" )
+		## First re-format tables for consistent look and feel, and fixed column widths
+		#set( $string = "#formatTables($string, $maxImageWidth, 'left')" )
+		## Then prep figures to base64 after formatting tables
+		#set( $string = "#convertFigures($string, $maxImageWidth)" )
+		## Convert hyperlinks in Jama Connect to Word cross-references if Master Template global variable is true
+		#if($includeCrossReferences)
+		#set( $string = "#convertHyperlinks($string)" )
+		#end
+		## format lists appropriately
+		#set( $string = $string.replaceAll('<li>','<li class=TableCell>') )
+		#set( $string = $string.replaceAll('<li\s([^c].*?)>','<li class=TableCell $1>') )
+		## Make sure all cells are contained in a paragraph with the appropriate style
+		#if( !$string.contains("<p"))
+			#set( $string = "<p class=TableCell style='text-align:$justification'>$string</p>" )
+		#else
+			#set( $string = $string.replaceAll("<p>","<p class=TableCell style='text-align:$justification'>") )
+			#set( $string = $string.replaceAll("<p\s([^c].*?)>","<p class=TableCell $1 style='text-align:$justification'>") )
+		#end
+		##set( $debug = $string.replaceAll( "<", "<br>-"))
+		###Debug formatTableCell string $debug<br><br>
 
-    $string
-  #end
+		$string
+	#end
 #end
 #####################################################################################################################
 ##          Macro: formatText
@@ -4164,7 +4165,7 @@ div.totCounterContainer
     #else
       #set( $imageWid = 175)
     #end
-    #formatTableCell( $print 'left' $imageWid)
+		#formatTableCell( $print 'left' $imageWid)
   #end
 
   #end ##if( $beforeStepText.length() > $maxDiff || $afterStepText.length() > $maxDiff)
