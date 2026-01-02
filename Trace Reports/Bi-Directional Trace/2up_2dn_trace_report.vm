@@ -30,11 +30,17 @@ xmlns="http://www.w3.org/TR/REC-html40">
 ## Modification History
 ## Date         Revision    Person            Comments
 ##-----------  ---------   ----------------  ----------------------------------
-## 2022_09_09   1.0         Anna FitzGerald   Rebuilt with further optimization for XLSX
-## 2023_05_19   1.1         Anna FitzGerald   Replace html comments with velocity comments																			
-## 2023_06_05   1.2         Anna FitzGerald   Commented out a comment
-## 2025_06_25   1.3         Anna FitzGerald   Ensured that the return of #stripPlainText macro $text is now a quiet reference $!text
-##                                            and added quiet references where missing. 
+## 2022_09_09   1.0         Anna FitzGerald   - Rebuilt with further optimization for XLSX
+## 2023_05_19   1.1         Anna FitzGerald   - Replace html comments with velocity comments
+## 2023_06_05   1.2         Anna FitzGerald   - Commented out a comment
+## 2025_06_25   1.3         Anna FitzGerald   - Ensured that the return of #stripPlainText macro $text is now a quiet reference $!text
+##                                              and added quiet references where missing.
+## 2026_01_02   1.4         Liam Rotchford    - Added latest #getRelationships and #getBaselineRelationships macros.
+##																						- Updated logic for identifying Baseline export context.
+##																					  - Updated test run extraction logic for baseline context to ensure proper test case version
+##																							is supplied for test run data pull.
+##																						- Implemented logic for $baselineMode to only pull test runs created prior or on baseline creation date.
+##
 ########################################################################################
 ## 
 ## Report Criteria
@@ -93,20 +99,13 @@ xmlns="http://www.w3.org/TR/REC-html40">
 
 ########################################################################################
 
-#if( $contextType.contains("baseline") || $contextType.contains("BASELINE") )
-  #set( $baselineMode = true )
-  #set( $baselineId = $contextId )
-  #set( $reportBaseline = $baselineDao.getBaseLine( $baselineId ))
+#if( $!contextType && $contextType.toUpperCase().contains("BASELINE") )
+	#set( $baseline = $baselineSource.getBaseLine($mathTool.toInteger($contextId)))
+	#set( $baselineId = $baseline.id)
+	#set( $baselineMode = true)
 #else
-  #set( $baselineMode = false )
+	#set( $baselineMode = false )
 #end
-
-#if( $reportTestRuns )
-  #set( $testRunMode = $reportTestRuns )
-#else
-  #set( $testRunMode = false )
-#end
-
 
 #set($cmpKey = "CMP")
 #set($setKey = "SET")
@@ -263,6 +262,142 @@ a:visited {
                                                  
 ########################################################################################
 
+##----------------------------------------------------------------------------------###
+##   Macro: getRelationships
+##   Inputs: $baselineMode - Global, tells the report if the export was from a baseline or not
+##           $baselineId - Global, ID of a baseline
+##           $inDoc - current item
+##           $inDownstream - true provides downstream relationships, false provides upstream relationships
+##   Output: $returnRels - list of relationships with sub-elements of "fromItem" and "toItem" each of type item
+##
+##----------------------------------------------------------------------------------###
+#macro( getRelationships $inDoc $inDownstream )
+	#set( $returnRels = [] )
+
+	#if( $baselineMode && $baselineId )
+		#set( $inDocId = $inDoc.id )
+		#* If the item is active then it is the most recent version of the item.
+		* The $inDoc.id is equivalent to the $inDoc.currentVersion.originDocument.id.
+		* Thus we utilize the $inDoc.id as it is the more efficient retrieval of that id.
+		* This 'current version' id will be utilized as the first argument in the method
+		* getRelationships($currentVersionId,$baselineId,$start,$count)) in the #getBaselineRelationships macro.
+		*
+		* If the item is not active, then we have a prior version of the item or the item has been deleted,
+		* but we still want it to show up in the baselined trace - we want to show every related
+		* item that existed when the baseline snapshot was made. In this case, to get the current version id of the
+		* non-active item we utilize $inDoc.currentVersion.originDocument.id.
+		*#
+		#if( !$inDoc.active )
+			#set( $currentVersion = $inDoc.currentVersion )
+			#set( $inDocId = $currentVersion.originDocument.id )
+		#end
+		#getBaselineRelationships( $inDocId, $baselineId, $inDoc, $inDownstream ) ## Creates $returnBaselineRels
+		#set( $returnRels = $returnBaselineRels )
+
+	#else
+		#set( $rels = [] )
+		#set ( $rels = $documentSource.getRelationshipsForDocument($inDoc.id, $inDownstream) )
+		#foreach( $rel in $rels )
+			#if( $inDownstream )  ## Get Downstream Relationships
+				#if ( $rel.toDocument.active )
+					#set( $success = $returnRels.add( $rel ) )
+				#end
+			#else                 ## Get Upstream Relationships
+				#if ( $rel.fromDocument.active )
+					#set( $success = $returnRels.add( $rel ) )
+				#end
+			#end
+		#end
+	#end
+
+#end
+
+##----------------------------------------------------------------------------------###
+##  Macro: getBaselineRelationships
+##  Input: $currentVersionId - ID of the currentVersion of an item
+##         $baselineId - ID of a baseline
+##         $inDoc - item in hand ( may be active, may not be active if its a prior version item or deleted )
+##         $inDownstream - true provides downstream relationships, false provides upstream relationships
+##  Output: $returnBaselineRels list of upstream Or downstream baseline relationships
+##----------------------------------------------------------------------------------###
+#macro( getBaselineRelationships $currentVersionId $baselineId $inDoc $inDownstream )
+	#set( $start = 0 )
+	#set( $count = 20 )
+	#set( $versionedRelationships = [] )
+	#set( $returnBaselineRels = [])
+	#set( $pageSize = 20)
+	#set( $relatedIds = [] )
+	##
+	#set($baseRelsPage = $documentSource.getRelationships($currentVersionId,$baselineId,$start,$count))
+	##
+	#set( $totalRels = [])
+	#set( $totalRels = $baseRelsPage.getPageInfo().getTotalResults())
+	## DEBUG Baseline Page Info: $baseRelsPage.getPageInfo() <br><br>
+	## DEBUG Baseline Relationship Count: $baseRelsPage.getPageInfo().getTotalResults()<br><br>
+	## DEBUG Baseline Results: $baseRelsPage.getResults()
+	#if( $totalRels && $totalRels > 0)
+		#set( $page_count = $mathTool.floor($mathTool.div($totalRels,$pageSize)) )
+		#foreach( $page in [0..$page_count])
+			#set( $baseRelsPage = $documentSource.getRelationships($currentVersionId,$baselineId,$start,$count))
+			#set( $baseRelsPageResults = $baseRelsPage.getResults())
+			#if( $baseRelsPageResults )
+				#set( $success = $versionedRelationships.addAll($baseRelsPageResults ))
+			#end
+			#set( $start = $start + $count)
+		#end
+	#end
+	##
+	#foreach( $versionedRelationship in $versionedRelationships )
+		#if( $inDownstream ) ## Get Downstream Relationships
+			#set( $upItemId = $versionedRelationship.getFromItem().getValue().get(0) )
+			#set( $upItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
+
+			## Get CountourItem by Id and Version ##
+			#set( $upDocVersion = $documentSource.getVersionByDocAndVersionNumber($upItemId,$upItemVersion))
+			#set( $upDoc = $upDocVersion.document)
+
+			#if( $inDoc.id == $upDoc.id )
+				#set( $dnItemId = $versionedRelationship.getToItem().getValue().get(0) )
+				#set( $dnItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
+
+				## Get CountourItem by Id and Version ##
+				#set( $dnVersion = $documentSource.getVersionByDocAndVersionNumber($dnItemId,$dnItemVersion))
+				#set( $dnDoc = $dnVersion.document )
+				##<tr><td colspan=20>$dnDoc.documentKey, $dnItemId, $dnDoc.id, $dnItemVersion, $dnDoc.currentVersion.versionNumber</td></tr>
+
+				#if( !$relatedIds.contains($dnDoc.id) )
+					#set( $success = $relatedIds.add($dnDoc.id) )
+					#set( $success = $returnBaselineRels.add( {"fromDocument":$inDoc,"toDocument":$dnDoc} ) )
+				#end
+			#end
+
+		#else
+			#set( $dnItemId = $versionedRelationship.getToItem().getValue().get(0) )
+			#set( $dnItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
+
+			## Get CountourItem by Id and Version ##
+			#set( $dnDocVersion = $documentSource.getVersionByDocAndVersionNumber($dnItemId,$dnItemVersion))
+			#set( $dnDoc = $dnDocVersion.document)
+
+
+			#if( $inDoc.id == $dnDoc.id ) ## Get Upstream Relationships
+				#set( $upItemId = $versionedRelationship.getFromItem().getValue().get(0) )
+				#set( $upItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
+
+				## Get CountourItem by Id and Version ##
+				#set( $upVersion = $documentSource.getVersionByDocAndVersionNumber($upItemId,$upItemVersion))
+				#set( $upDoc = $upVersion.document )
+
+
+				#if( !$relatedIds.contains( $upDoc.id) )
+					#set( $success = $relatedIds.add( $upDoc.id) )
+					#set( $success = $returnBaselineRels.add( {"fromDocument":$upDoc,"toDocument":$inDoc} ) )
+				#end
+			#end
+
+		#end
+	#end
+#end
 
 ########################################################################################
 ##----------------------------------------------------------------------------------###
@@ -454,7 +589,8 @@ a:visited {
 
 #set ( $upDocs = [] )
 
-#set ( $up1Rels = $relDao.getRelationshipsForDocument($doc.id, false) )
+#getRelationships($doc, false)
+#set($up1Rels = $returnRels )
 
 #foreach ( $up1Rel in $up1Rels )
 	#if ( $up1Rel.fromDocument.active )
@@ -485,8 +621,9 @@ a:visited {
 #set ( $dnDocs = [] )
 
 ## Gathers all one level downstream items except defects/bugs ##
+#getRelationships($doc, true)
+#set($dn1Rels = $returnRels )
 
-#set ( $dn1Rels = $relDao.getRelationshipsForDocument($doc.id, true) )
 #foreach ( $dn1Rel in $dn1Rels )
 	#if ( $dn1Rel.toDocument.active && 
 			  $dn1Rel.toDocument.documentType.documentTypeKey != "BUG" && 
@@ -507,15 +644,23 @@ a:visited {
 			#end
 
 			## Gathers all 2 level downstream test runs ##
+			#if($baselineMode)
+				#set( $latestTestCaseDoc = $dn1Rel.toDocument.currentVersion.originDocument)
+				#set( $dn2testRunIds = $testRunDao.getTestRunIdsForTestCases([$latestTestCaseDoc.id]) )
+			#else
+				#set( $dn2testRunIds = $testRunDao.getTestRunIdsForTestCases([$dn1Rel.toDocument.id]) )
+			#end
 
-			#set( $dn2testRunIds = $testRunDao.getTestRunIdsForTestCases([$dn1Rel.toDocument.id]) )
 			#foreach( $dn2testRunId in $dn2testRunIds )
 				#set( $dn2testRun = $testRunDao.getTestRun($dn2testRunId) )
-				#if ( $dn2testRun.active )
+				#if($baselineMode && $dn2testRun.active && $dn2testRun.createdDate.compareTo($baseline.createdDate) <= 0)
+					#set( $success = $dn2Docs.add( $dn2testRun ) )
+				#elseif(!$baselineMode && $dn2testRun.active )
 					#set( $success = $dn2Docs.add( $dn2testRun ) )
 				#end
 			#end
 		#end
+
 		#set( $success = $dnDocs.add( [$dn1Rel.toDocument, $dn2Docs] ) )
 	#end ##if ( $traceLevels == 2 )
 

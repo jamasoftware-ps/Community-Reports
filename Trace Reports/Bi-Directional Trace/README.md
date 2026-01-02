@@ -3,6 +3,8 @@
 ## Description
 This report constructs a single sheet excel trace report that can trace up to 2 levels both upstream and downstream from your exported source items. This report support merged cells for items with multiple relationships and will include test runs if encountered. Report only supplies generic fields of ID, Project ID, Item Name, and Item Status. 
 
+For baseline context exports the report will ensure trace output is based upon relationship paths at the time of selected baseline creation. In addition, only test runs created prior or at the time of baseline created will be presented.
+
 ## Preview Image
 If Two Levels parameter is checked at export:
 ![2up_2d_mergeCells](https://user-images.githubusercontent.com/99203913/189504820-f58f5a56-b15d-4c4f-9279-4c70aa8a00b2.png)
