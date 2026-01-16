@@ -1,9 +1,15 @@
 # All Projects Report
 
 ## Description 
-The All Projects Report is a context insensitive report that provides a Excel output list of all projects present on your Jama Connect instance. When ran the report will generate a Excel table output that provides the Project ID, Key, Name, Hyperlink, Manager, Created Date, and Project Hierarchy Path. The hierarchy path provides insight into which project folder containers each project may be organized into in which projects not contained by folders are listed as top level projects to the instance organization. 
+The All Projects Report is a context insensitive report that provides a Excel output with two worksheets:
 
-The report additionally provides a boolean parameter that allows you to include inactive projects that may have been deleted and or archived. This will create an additional data column called Active/Inactive that provides the project state with cell coloring designation. 
+### Worksheet 1: All Projects
+This worksheet provides a comprehensive list of all projects present on your Jama Connect instance. The table includes Project ID, Key, Name, Hyperlink, Manager, Created Date, and Project Hierarchy Path. The hierarchy path provides insight into which project folder containers each project may be organized into in which projects not contained by folders are listed as top level projects to the instance organization. 
+
+The report additionally provides a boolean parameter that allows you to include inactive projects that may have been deleted and or archived. This will create an additional data column called Active/Inactive that provides the project state with cell coloring designation.
+
+### Worksheet 2: Item Type Project Matrix
+This worksheet displays a matrix showing which item types are used in which active projects. Projects are listed as rows, and item types are listed as columns. An "X" mark indicates that a project uses a particular item type, while empty cells indicate the item type is not used in that project. This matrix helps identify which projects utilize specific item types across your organization. 
 
 
 ## Preview
