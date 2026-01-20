@@ -119,12 +119,12 @@ This report employs error handling in the following cases in which the generate 
 ### Report Criteria
 Ensure that no typos, leading, or trailing spaces are present in the *Name* field for the reports installation criteria.
 
-| Type          | Display                               | Name                       |
-| ------------- | ------------------------------------- | -------------------------- |
-| Location      | Same Project Sync Target              | report1SPTargetId          |
-| String        | Cross Project Sync Target API ID      | report2CPTargetId          |
-| Boolean       | Project Sync Comparison               | report3Project             |
-| Boolean       | Include Relationships                 | report4IncludeRels         |
-| Boolean       | Include Attachments                   | report5IncludeAttachments  |
-| Boolean       | Include Only Items With Differences   | report6OnlyDiffItems       |
+| Type          | Display                          | Name                       |
+| ------------- |----------------------------------| -------------------------- |
+| Location      | Same Project Sync Target         | report1SPTargetId          |
+| String        | Cross Project Sync Target API ID | report2CPTargetId          |
+| Boolean       | Project Sync Comparison          | report3Project             |
+| Boolean       | Include Relationships            | report4IncludeRels         |
+| Boolean       | Include Attachments              | report5IncludeAttachments  |
+| Boolean       | Include Only Unsynced Items      | report6OnlyDiffItems       |
 

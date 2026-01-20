@@ -50,7 +50,9 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D8DFBE.2078AF30"
 ##                                             DocumentNode .refId value. 
 ##                                           - This adjustment still ensures the proper return value result from .areItemsInSync()
 ##                                             in addition to a noted performance improvement as the associated DocumentNode object
-##                                             no longer needs to be retrieved.                                           
+##                                             no longer needs to be retrieved.
+## 2026-01-20   2.2.1      Liam Rotchford    - Updated 'Include Only Items With Differences' parameter label to adhear to Jama 30 
+##                                             character limit. 
 ##
 ##
 ##
@@ -65,7 +67,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D8DFBE.2078AF30"
 ##      Boolean     Project Sync Comparison                 report3Project
 ##      Boolean     Include Relationships                   report4IncludeRels
 ##      Boolean     Include Attachments                     report5IncludeAttachments
-##      Boolean     Include Only Items With Differences     report6OnlyDiffItems
+##      Boolean     Include Only Unsynced Items             report6OnlyDiffItems
 ##
 ##
 #########################################################################################################################
