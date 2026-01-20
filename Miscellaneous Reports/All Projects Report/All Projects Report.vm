@@ -1,6 +1,21 @@
 MIME-Version: 1.0
 X-Document-Type: Workbook
-Content-Type: multipart/related; boundary="----=_NextPart_01D8DFBE.2078AF30"
+Content-Type: multipart/related; boundary="----=_NextPart_01D8DBD5.4D8FB410"
+
+#########################################################################################################################
+## ======================================================================================================================
+##
+##  Boundaries are necessary deliminators for a Multisheet .xlsx report. In the conversion 
+##  of .mht to .xlsx, the file is parsed to distinguish and separate sheets, i.e:
+##
+##  1. Check Content-Type: multipart/related; boundary="----=_NextPart_01D8D1DD.28209070" to get "boundary"
+##  2. Split .mht to HTML files by boundary and name each HTML file with the value of "Content-Location"
+##  3. Parse "x:ExcelWorkbook" xml section to get HREF of "x:WorksheetSource",
+##  4. Gets the HTML stream of the worksheet by comparing HREF of "x:WorksheetSource" and "Content-Location"
+##  5. Read the data of the worksheet.
+##
+#########################################################################################################################
+
 
 #########################################################################################################################
 ## ======================================================================================================================
@@ -18,6 +33,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D8DFBE.2078AF30"
 ##    - The report additionally provides a boolean parameter that allows you to include inactive projects that may have been deleted and or archived. 
 ##      - This will create an additional data column called Active/Inactive that provides the project state with cell coloring designation. 
 ## 
+##    - The report now includes a second worksheet "Item Type Project Matrix" that shows which item types are used in which active projects.
+##
 ## Context Sensitive: F
 ## 
 ##
@@ -28,6 +45,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D8DFBE.2078AF30"
 ## -----------  ---------  ----------------  -------------------------------------------------------------------------
 ## 2024-07-18   1.0        Liam Rotchford    - Initial build based on single sheet xlsx template version 1.3 and community
 ##                                             report proposal specifications. 
+## 2025-01-02   2.0        Andres Garcia    - Switched to multisheet template (Excel_XLSX_Multisheet_Template.vm) and 
+##                                             added Item Type Project Matrix as second worksheet
 ##
 ##
 ##
@@ -51,12 +70,15 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D8DFBE.2078AF30"
 ##     o Remove any JS <script>...</script> tags and content between tags
 ##     o Remove <frameset>...</frameset> tags and content between tags
 ##     o Remove all "Content-Transfer-Encoding: quoted-printable" (this is important because it can ruin styles if present)
-##  2. Copy and paste the styles from the Mockup to this template, replacing the styles in the "STYLES" section 
-##  3. Copy and paste the entire table from the Mockup to this template, replacing the table in the "BODY" section
-##  4. Replace the ExcelWorksheet x:Name to correspond with your tab name in the HEAD of this template
-##  5. Do not place comments above the opening code of the file "MIME-Version: 1.0..."
-##  6. Do not delete the boundaries or xml file lists
-##
+##     o Remove the entire Tab Sheet ( you only will need the xml in the "HEAD" for the tabs )
+##  2. Find the HEAD section of this template, and from you Mockup copy and paste all the content that matches to the HEAD section 
+##  3. Find the STYLES section, and from your Mockup copy and paste all the content that matches to the STYLES section 
+##  4. Find the BODY section, and from your Mockup copy and paste all the Worksheets to the BODY section
+##  5. Find the FILE LIST section, and from your Mockup copy and paste the content that matches to the FILE LIST section
+##  6. Replace the initial boundary in this template, "Content-Type: multipart/related; boundary="----=_NextPart_01D8DBD5.4D8FB410""
+##      with the initial boundary from your mockup. 
+##  7. Do not place comments above the opening code of the file "MIME-Version: 1.0..."
+## 
 ## ======================================================================================================================
 #########################################################################################################################
 #########################################################################################################################
@@ -120,11 +142,11 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D8DFBE.2078AF30"
 ##-------------------------------------------
 
 #set($activeOnly = true)
-#set($filterRange = "$A$1:$F$1")
+#set($filterRange = "$A$1:$G$1")
 
 #if($reportIncInactive)
   #set($activeOnly = false)
-  #set($filterRange = "$A$1:$G$1")
+  #set($filterRange = "$A$1:$H$1")
 #end
 
 
@@ -138,13 +160,11 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D8DFBE.2078AF30"
 #set( $fldKey = "FLD") ##
 #set( $txtKey = "TXT") ##
 #set( $objectTypeField = "object_type" ) ##
-#set( $timeZone = "UTC" ) ##
+## Stores the configured TimezoneId from the jama instance, expect it to be UTC most of the time.
+#set( $timeZone = $dateTool.getTimeZone().ID ) ##
 ##
 ## 
 #########################################################################################################################
-
-
-
 
 
 #########################################################################################################################
@@ -153,11 +173,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D8DFBE.2078AF30"
 ##
 #########################################################################################################################
 
-#* Replace the ExcelWorksheet x:Name "Report Name" to correspond with the name of your worksheet Tab
-That is all you need to change within the head tags *#
-
-------=_NextPart_01D8DFBE.2078AF30
-Content-Location: file:///C:/61233B10/Single_Sheet_Mockup.htm
+------=_NextPart_01D8DBD5.4D8FB410
+Content-Location: file:///C:/61233B10/AllProjectsReport.htm
 Content-Type: text/html; charset="utf-8"
 
 <html xmlns:v="urn:schemas-microsoft-com:vml"
@@ -165,16 +182,20 @@ xmlns:o="urn:schemas-microsoft-com:office:office"
 xmlns:x="urn:schemas-microsoft-com:office:excel"
 xmlns="http://www.w3.org/TR/REC-html40">
 
+
 <head>
 <meta name="Excel Workbook Frameset">
 <meta http-equiv=Content-Type content="text/html; charset=utf-8">
 <meta name=ProgId content=Excel.Sheet>
 <meta name=Generator content="Microsoft Excel 15">
-<link rel=File-List href="Single_Sheet_Mockup_files/filelist.xml">
+<link rel=File-List href="AllProjectsReport_files/filelist.xml">
 <![if !supportTabStrip]>
-<link id="shLink" href="Single_Sheet_Mockup_files/sheet001.htm">
+<link id="shLink" href="AllProjectsReport_files/sheet001.htm">
+<link id="shLink" href="AllProjectsReport_files/sheet002.htm">
 
 <link id="shLink">
+
+
 <![endif]><!--[if gte mso 9]><xml>
  <x:ExcelWorkbook>
   <x:ExcelWorksheets>
@@ -186,28 +207,41 @@ xmlns="http://www.w3.org/TR/REC-html40">
       <SplitHorizontal>1</SplitHorizontal> 
       <TopRowBottomPane>1</TopRowBottomPane>
     </x:WorksheetOptions>
-    <x:WorksheetSource HRef="Single_Sheet_Mockup_files/sheet001.htm"/>
+    <x:WorksheetSource HRef="AllProjectsReport_files/sheet001.htm"/>
+   </x:ExcelWorksheet>
+   <x:ExcelWorksheet>
+    <x:Name>Item Type Project Matrix</x:Name>
+    <x:WorksheetOptions>
+      <FreezePanes/>
+      <FrozenNoSplit/>
+      <SplitHorizontal>1</SplitHorizontal> 
+      <TopRowBottomPane>1</TopRowBottomPane>
+    </x:WorksheetOptions>
+    <x:WorksheetSource HRef="AllProjectsReport_files/sheet002.htm"/>
    </x:ExcelWorksheet>
   </x:ExcelWorksheets>
-  <x:Stylesheet HRef="Single_Sheet_Mockup_files/stylesheet.css"/>
+  <x:Stylesheet HRef="AllProjectsReport_files/stylesheet.css"/>
   <x:WindowHeight>12165</x:WindowHeight>
   <x:WindowWidth>27435</x:WindowWidth>
   <x:WindowTopX>930</x:WindowTopX>
   <x:WindowTopY>32767</x:WindowTopY>
+  <x:ActiveSheet>0</x:ActiveSheet>
   <x:ProtectStructure>False</x:ProtectStructure>
   <x:ProtectWindows>False</x:ProtectWindows>
  </x:ExcelWorkbook>
 </xml><![endif]-->
 </head>
+
 </html>
+
 
 #########################################################################################################################
 ##
 ##  STYLES 
 ##
 #########################################################################################################################
-------=_NextPart_01D8DFBE.2078AF30
-Content-Location: file:///C:/61233B10/Single_Sheet_Mockup_files/stylesheet.css
+------=_NextPart_01D8DBD5.4D8FB410
+Content-Location: file:///C:/61233B10/AllProjectsReport_files/stylesheet.css
 Content-Type: text/css; charset="utf-8"
 
 #* Paste your styles here, replacing the styles in this template. You do not need the opening and closing style tags. 
@@ -300,7 +334,7 @@ td
 .xl69
   {mso-style-parent:style0;
   color:black;
-  font-size:14.0pt;
+  font-size:12.0pt;
   font-weight:700;
   font-family:Calibri, sans-serif;
   mso-font-charset:0;
@@ -334,6 +368,160 @@ td
 ##
 #########################################################################################################################
 ##
+#########################################################################################################################
+#########################################################################################################################
+##          Macro: formatRichTextCell
+##          Desc: Use on purely textual Rich Text Fields (I.e use directly in Cells)
+##          Input: $inString - input string
+##          Return: string, ready for opening in Word
+#########################################################################################################################
+#macro( formatRichTextCell $inString )
+  #if( $inString )
+    #set( $string = $inString.toString() )
+    
+    #set( $string = $string.replaceAll("<div.*?>|<\/div>",""))
+    #set( $string = $string.replaceAll("<html.*?>|<html>", ""))
+    #set( $string = $string.replaceAll("<span.*?>|<\/span>", ""))
+
+    ## remove images ## 
+    #set( $string = $string.replaceAll("<p.*?><img.*?><\/p>", ""))
+    #set( $string = $string.replaceAll("<img.*?>",""))
+    #set( $string = $string.replaceAll("<figure.*?>|<\/figure>", ""))
+    #set( $string = $string.replaceAll("<svg.*?>|<\/svg>", ""))
+    ## figure captions should not cause issue, replace at user discretion
+    #set( $string = $string.replaceAll("<figcaption.*?>|<\/figcaption>",""))
+
+    ## remove tables ## 
+    #set( $string = $string.replaceAll("<table.*?>|<\/table>",""))
+    #set( $string = $string.replaceAll("<col.*?>|<\/col>", ""))
+    #set( $string = $string.replaceAll("<tbody.*?>|<\/tbody>",""))
+    #set( $string = $string.replaceAll("<thead.*?>|<\/thead>",""))
+    #set( $string = $string.replaceAll("<th.*?>(?:.|\s)*?<\/th>", ""))
+    #set( $string = $string.replaceAll("<th.*?>|<\/th>", ""))
+    #set( $string = $string.replaceAll("<tr.*?>|<\/tr>",""))
+    #set( $string = $string.replaceAll("<td.*?>(?:.|\s)*?<\/td>", ""))
+    #set( $string = $string.replaceAll("<td.*?>|<\/td>", ""))
+    #set( $string = $string.replaceAll("<tfoot.*?>|<\/tfoot>",""))
+    #set( $string = $string.replaceAll("<caption.*?>|<\/caption>",""))
+
+    ## remove link tags
+    #set( $string = $string.replaceAll("<\/?(a).*?>",""))
+
+    ## replace list tags with a restructured list via <br>s and the bullet html entity
+    #set( $string = $string.replaceAll("<ul.*?>","<br>"))
+    #set( $string = $string.replaceAll("<ol>","<br>"))
+    #set( $string = $string.replaceAll("<\/ol>|<\/ul>",""))
+    #set( $string = $string.replaceAll("<li.*?>","&#x2022; "))
+    #set( $string = $string.replaceAll("<\/li>","<br>"))
+
+    ## Misc edge cases
+    #set( $string = $string.replaceAll("\xA0",""))
+
+    $string
+  #end
+#end
+#########################################################################################################################
+#########################################################################################################################
+##          Macro: formatPlainText
+##          Desc: Remove all possibly present html tags from text box field content
+#########################################################################################################################
+#macro( formatPlainText $inString)
+  #if( $inString )
+    #set( $string = $inString.toString() )
+    #set( $string = $string.replaceAll("<(.|\n)*?>", ""))
+
+    $string
+  #end
+#end
+
+#########################################################################################################################
+#macro( stripPlainText $text )
+  #set($text = $text.replaceAll("<"," &lt;"))
+  #set($text = $text.replaceAll(">"," &gt;"))
+  $text
+#end
+#########################################################################################################################
+##
+
+#########################################################################################################################
+##          lookupPickListColor
+##          Input: item, the unique custom field name, the fetched picklist item
+##          Output: String type hex code color 
+##          Note: see example at base of template
+##          Call Example: #lookupPickListColor($doc "<unique field name>" $<item variable with item data> )
+##          Apply to cell: style='background:#$color;mso-pattern:#$color none;''
+#########################################################################################################################
+#macro( lookupPickListColor $doc $uniqueFieldName $fetchedFieldValue )
+              
+  #set( $docTypeField = $docTypeFieldDao.getDocumentTypeFieldByName( $uniqueFieldName, $doc.documentType.id ))
+  #set( $lookupTypeId = $docTypeField.getLookupTypeId())
+  #set( $fieldId = $docTypeField.documentField.id)
+  #set( $lookupTypeList = [])
+  #if( $lookupTypeList.add( $lookupTypeId ))#end
+  #set( $getLookupIdsReturn = $lookupDao.getLookupIdsByLookupTypes($lookupTypeList))
+  #set( $lookupValues = [])
+  
+  #foreach( $l in $getLookupIdsReturn)
+  #set( $lookup = $lookupDao.getLookup($mathTool.toInteger($l)))
+    #if( $lookupValues.add( $lookup)) #end
+  #end
+  #set( $color = 'FFFFFF')
+  #foreach( $l in $lookupValues)
+    #if( $l.name == $fetchedFieldValue )
+      #set( $color = $l.color)
+      #break
+    #end
+  #end
+
+#end 
+##
+#########################################################################################################################
+##          Macro: getHierarchyLevel
+##          Input: $doc - document object
+##                 $baselineMode - true: export was from a baseline, false: export was from the project
+##                 $baselineId   - ID of the baseline that the items are part of, if in baseline mode
+##          Output: $hierarchyLevel - number, which heading level this item is in Jama relative to the container
+#########################################################################################################################
+#macro( getHierarchyLevel $doc $baselineMode $baselineId )
+  #set( $seqSubStrings = [] )
+  #set( $hierarchyLevel = 1)
+  ## Get hierarchy from the baseline
+  #if( $baselineMode )
+    #set( $docNode = $documentNodeDao.getDocumentNodeForBaseLine(5, $doc.id, $baselineId))
+  ## Get hierarchy from the project
+  #else
+    #set( $docNode = $documentNodeDao.getDocumentNode(5, $doc.id))
+  #end
+  ##Debug: $docNode
+  #set( $seqSubStrings = $docNode.sequence.split("\."))
+  ##Debug: $seqSubStrings
+  #set( $hierarchyLevel = $seqSubStrings.size())
+  #if( !$hierarchyLevelTop )
+    #set($hierarchyLevelTop = $hierarchyLevel)
+  #end
+
+  #set($hierarchyLevel = $hierarchyLevel - $hierarchyLevelTop + 1)
+#end
+
+
+#########################################################################################################################
+##           Macro: getStatus
+##           Input: $doc - document object
+##           Output: $docStatus - status of the item
+#########################################################################################################################
+#macro( getStatus $doc )
+  #set( $docStatus = false )
+  #foreach( $docTypeField in $doc.documentType.documentTypeFields )
+    #if( $docTypeField.documentField.name == "status" )
+      #set ( $docStatus = $doc.status.name )
+      #break
+    #end
+  #end
+#end
+##
+
+#########################################################################################################################
+##
 
 #########################################################################################################################
 ##          Macro: getDate
@@ -346,7 +534,140 @@ td
   $dateTool.format( 'MM/dd/yyyy', $inputDate, $locale, $outTz )
 #end
 
+#########################################################################################################################
+#########################################################################################################################
+##          Macro: getBaselineRelationships
+##          Input: $currentVersionId - ID of the currentVersion of an item 
+##                 $baselineId - ID of a baseline   
+##                 $inDoc - current item
+##                 $inDownstream - true provides downstream relationships, false provides upstream relationships    
+##          Creates: $returnBaselineRels list of upstream Or downstream baseline relationships 
+#########################################################################################################################
+#macro( getBaselineRelationships $currentVersionId $baselineId $inDoc $inDownstream )
+  #set( $start = 0 )
+  #set( $count = 20 )
+  #set( $versionedRelationships = [] )
+  #set( $returnBaselineRels = [])
+  #set( $pageSize = 20)
+  #set( $relatedIds = [] )
+  ##
+  #set($baseRelsPage = $documentSource.getRelationships($currentVersionId,$baselineId,$start,$count))
+  ##
+  #set( $totalRels = [])
+  #set( $totalRels = $baseRelsPage.getPageInfo().getTotalResults())
+  ## DEBUG Baseline Page Info: $baseRelsPage.getPageInfo() <br><br>
+  ## DEBUG Baseline Relationship Count: $baseRelsPage.getPageInfo().getTotalResults()<br><br>
+  ## DEBUG Baseline Results: $baseRelsPage.getResults() 
+  #if( $totalRels && $totalRels > 0)
+    #set( $page_count = $mathTool.floor($mathTool.div($totalRels,$pageSize)) )
+    #foreach( $page in [0..$page_count])
+      #set( $baseRelsPage = $documentSource.getRelationships($currentVersionId,$baselineId,$start,$count))
+      #set( $baseRelsPageResults = $baseRelsPage.getResults())
+      #if( $baseRelsPageResults )
+       #set( $success = $versionedRelationships.addAll($baseRelsPageResults ))
+      #end 
+      #set( $start = $start + $count)
+    #end
+  #end
+  ##
+  #foreach( $versionedRelationship in $versionedRelationships )
+    #if( $inDownstream ) ## Get Downstream Relationships
+      #set( $upItemId = $versionedRelationship.getFromItem().getValue().get(0) )
+      #set( $upItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
+      
+      ## Get CountourItem by Id and Version ## 
+      #set( $upDocVersion = $documentSource.getVersionByDocAndVersionNumber($upItemId,$upItemVersion))
+      #set( $upDoc = $upDocVersion.document)
 
+      #if( $inDoc.id == $upDoc.id ) 
+        #set( $dnItemId = $versionedRelationship.getToItem().getValue().get(0) )
+        #set( $dnItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
+    
+        ## Get CountourItem by Id and Version ##  
+        #set( $dnVersion = $documentSource.getVersionByDocAndVersionNumber($dnItemId,$dnItemVersion))
+        #set( $dnDoc = $dnVersion.document ) 
+
+        #if( !$relatedIds.contains($dnDoc.id) )
+          #set( $success = $relatedIds.add($dnDoc.id) )
+          #set( $success = $returnBaselineRels.add( {"fromDocument":$inDoc,"toDocument":$dnDoc} ) )
+        #end
+      #end 
+    #else
+      #set( $dnItemId = $versionedRelationship.getToItem().getValue().get(0) )
+      #set( $dnItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
+      
+      ## Get CountourItem by Id and Version ## 
+      #set( $dnDocVersion = $documentSource.getVersionByDocAndVersionNumber($dnItemId,$dnItemVersion))
+      #set( $dnDoc = $dnDocVersion.document)
+    
+
+      #if( $inDoc.id == $dnDoc.id ) ## Get Upstream Relationships
+        #set( $upItemId = $versionedRelationship.getFromItem().getValue().get(0) )
+        #set( $upItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
+  
+        ## Get CountourItem by Id and Version ##  
+        #set( $upVersion = $documentSource.getVersionByDocAndVersionNumber($upItemId,$upItemVersion))
+        #set( $upDoc = $upVersion.document ) 
+
+
+        #if( !$relatedIds.contains( $upDoc.id) )
+          #set( $success = $relatedIds.add( $upDoc.id) )
+          #set( $success = $returnBaselineRels.add( {"fromDocument":$upDoc,"toDocument":$inDoc} ) )
+        #end
+      #end
+
+    #end 
+  #end
+#end
+#########################################################################################################################
+##          Macro: getRelationships
+##          Inputs: $baselineMode - GLOBAL, tells the report if the export was from a baseline or not 
+##                  $baselineId - GLOBAL, ID of a baseline       
+##                  $inDoc - current item
+##                  $inDownstream - true provides downstream relationships, false provides upstream relationships
+##          Creates: $returnRels - list of relationships with sub-elements of "fromItem" and "toItem" each of type 
+##                   item
+#########################################################################################################################
+#macro( getRelationships $inDoc $inDownstream )
+  #set( $returnRels = [] )
+
+  #if( $baselineMode && $baselineId )
+      #set( $inDocId = $inDoc.id )
+      #* If the item is active then we have the most recent version of the item. 
+      * The $inDoc.id is equivalent to the $inDoc.currentVersion.originDocument.id. 
+      * Thus we utilize the $inDoc.id as it is the more efficient retrieval of that id. 
+      * This 'current version' id will be utilized as the first argument in the method
+      * getRelationships($currentVersionId,$baselineId,$start,$count)) in the #getBaselineRelationships macro. 
+            *
+      * If the item is not active, then we have a prior version of the item or the item has been deleted, 
+      * but we still want it to show up in the baselined trace - we want to show every related 
+      * item that existed when the baseline snapshot was made. In this case, to get the current version id of the 
+      * non-active item we utilize $inDoc.currentVersion.originDocument.id.
+      *#
+      #if( !$inDoc.active )
+        #set( $currentVersion = $inDoc.currentVersion ) 
+        #set( $inDocId = $currentVersion.originDocument.id ) 
+      #end 
+      #getBaselineRelationships( $inDocId, $baselineId, $inDoc, $inDownstream ) ## Creates $returnBaselineRels 
+      #set( $returnRels = $returnBaselineRels )
+  #else
+
+    #set( $rels = [] )
+    #set ( $rels = $documentSource.getRelationshipsForDocument($inDoc.id, $inDownstream) )
+    #foreach( $rel in $rels )
+      #if( $inDownstream )  ## Get Downstream Relationships
+        #if ( $rel.toDocument.active )
+          #set( $success = $returnRels.add( $rel ) )
+        #end
+      #else                 ## Get Upstream Relationships
+        #if ( $rel.fromDocument.active )
+          #set( $success = $returnRels.add( $rel ) )
+        #end
+      #end
+    #end
+  #end
+#end
+##
 ######################################################################################################################
 ######################################################################################################################
 
@@ -356,9 +677,10 @@ td
 ##
 #########################################################################################################################
 
+#### Sheet 1: All Projects ####
 
-------=_NextPart_01D8DFBE.2078AF30
-Content-Location: file:///C:/61233B10/Single_Sheet_Mockup_files/sheet001.htm
+------=_NextPart_01D8DBD5.4D8FB410
+Content-Location: file:///C:/61233B10/AllProjectsReport_files/sheet001.htm
 Content-Type: text/html; charset="utf-8"
 
 <html xmlns:v="urn:schemas-microsoft-com:vml"
@@ -370,9 +692,14 @@ xmlns="http://www.w3.org/TR/REC-html40">
 <meta http-equiv=Content-Type content="text/html; charset=utf-8">
 <meta name=ProgId content=Excel.Sheet>
 <meta name=Generator content="Microsoft Excel 15">
-<link id=Main-File rel=Main-File href="../Single_Sheet_Mockup.htm">
+<link id=Main-File rel=Main-File href="../AllProjectsReport.htm">
 <link rel=File-List href=filelist.xml>
-<<style>
+<![if IE]>
+<base href="file:///C:/61233B10/AllProjectsReport_files/sheet001.htm"
+id="webarch_temp_base_tag">
+<![endif]>
+<link rel=Stylesheet href=stylesheet.css>
+<style>
 <!--table
   {mso-displayed-decimal-separator:"\.";
   mso-displayed-thousand-separator:"\,";}
@@ -382,6 +709,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
   mso-footer-margin:.3in;}
 -->
 </style>
+
 </head>
 
   
@@ -481,17 +809,156 @@ xmlns="http://www.w3.org/TR/REC-html40">
 </html>
 
 
+#### Sheet 2: Item Type Project Matrix ####
 
-## Leave boundaries and file list as is ## 
+------=_NextPart_01D8DBD5.4D8FB410
+Content-Location: file:///C:/61233B10/AllProjectsReport_files/sheet002.htm
+Content-Type: text/html; charset="utf-8"
 
-------=_NextPart_01D8DFBE.2078AF30
-Content-Location: file:///C:/61233B10/Single_Sheet_Mockup_files/filelist.xml
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link id=Main-File rel=Main-File href="../AllProjectsReport.htm">
+<link rel=File-List href=filelist.xml>
+<![if IE]>
+<base href="file:///C:/61233B10/AllProjectsReport_files/sheet002.htm"
+id="webarch_temp_base_tag">
+<![endif]>
+<link rel=Stylesheet href=stylesheet.css>
+<style>
+<!--table
+  {mso-displayed-decimal-separator:"\.";
+  mso-displayed-thousand-separator:"\,";}
+@page
+  {margin:.75in .7in .75in .7in;
+  mso-header-margin:.3in;
+  mso-footer-margin:.3in;}
+-->
+</style>
+</head>
+
+  
+<body link="#0563C1" vlink="#954F72" class=xl65>
+
+
+## 1) All item types for this organization (same as Data Dictionary)
+#set( $orgId    = $project.getOrganizationId() )
+#set( $docTypes = $documentSource.getDocumentTypeListForOrganization($orgId) )
+
+## 2) All ACTIVE, non-folder projects in the SAME org (no inactive, no deleted)
+#set($allProjects = $projectSource.getProjects($activeOnly))
+#set($projects = [])
+#foreach($p in $allProjects)
+  #if(!$p.isFolder && $p.getOrganizationId() == $orgId)
+    #set($void = $projects.add($p))
+  #end
+#end
+
+## 3) Cache type-count map for each project: projectId -> Map<docTypeId, count>
+#set($projectTypeCount = {})
+#foreach($proj in $projects)
+  #set($pid = $proj.id)
+  #set($typeCountMap = $documentSource.getAllItemTypesCount($pid))
+  #if(!$typeCountMap)
+    #set($typeCountMap = {})
+  #end
+  #set($void = $projectTypeCount.put($pid, $typeCountMap))
+#end
+
+## Calculate filter range for Worksheet 2: Use A:ZZ range to cover all possible columns
+## Excel will show filters on all columns in the range, including empty ones
+#set($filterRange2 = "$$A$$1:$$ZZ$$1")
+
+<table border=0 cellpadding=0 cellspacing=0 style='border-collapse:collapse;table-layout:fixed;width:1563pt'>
+  <col class=xl63 width=71 style='mso-width-source:userset;mso-width-alt:2261;width:53pt'>
+  <col class=xl64 width=127 style='mso-width-source:userset;mso-width-alt:4053;width:95pt'>
+  <col width=287 style='mso-width-source:userset;mso-width-alt:9173;width:215pt'>
+  <tr>
+    <td class="xl69" x:autofiltervalue=all x:autofilterrange=$filterRange2 style='border:.5pt solid windowtext;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>ID</td>
+    <td class="xl69" style='border:.5pt solid windowtext;border-left:none;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>Project Key</td>
+    <td class="xl69" style='border:.5pt solid windowtext;border-left:none;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>Name</td>
+    #if(!$docTypes || $docTypes.isEmpty())
+      <td class="xl69" style='border:.5pt solid windowtext;border-left:none;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>Item Type ID</td>
+      <td class="xl69" style='border:.5pt solid windowtext;border-left:none;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>Item Type Key</td>
+      <td class="xl69" style='border:.5pt solid windowtext;border-left:none;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>Item Type Name</td>
+    #else
+      #foreach($docType in $docTypes)
+        <td class="xl69" style='border:.5pt solid windowtext;border-left:none;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>
+          $docType.getDocumentTypeKey()<br/>
+          <span style="font-size:9.0pt;">$docType.getDisplay()</span>
+        </td>
+      #end
+    #end
+  </tr>
+
+  #if($projects.isEmpty())
+    <tr>
+      <td colspan="3" style='border:.5pt solid windowtext;'>No projects found for this organization.</td>
+      #if(!$docTypes || $docTypes.isEmpty())
+        <td colspan="3" style='border:.5pt solid windowtext;border-left:none;'>No item types found for this organization.</td>
+      #end
+    </tr>
+  #else
+    #foreach($proj in $projects)
+      <tr>
+        <td class="xl65" style='border:.5pt solid windowtext;text-align:center;'>$proj.id</td>
+        <td class="xl65" style='border:.5pt solid windowtext;border-left:none;text-align:center;'>$proj.projectKey</td>
+        <td class="xl66" style='border:.5pt solid windowtext;border-left:none;'>$proj.name</td>
+
+        #if(!$docTypes || $docTypes.isEmpty())
+          <td colspan="3" style='border:.5pt solid windowtext;border-left:none;'>No item types found for this organization.</td>
+        #else
+          #set($pid = $proj.id)
+          #set($typeCountMap = $projectTypeCount.get($pid))
+          
+          #foreach($docType in $docTypes)
+            #set($count = 0)
+            #if($typeCountMap)
+              #set($tmp = $typeCountMap.get($docType.getId()))
+              #if($tmp)
+                #set($count = $tmp)
+              #end
+            #end
+
+            #if($count && $count > 0)
+              <td class="xl65" style='border:.5pt solid windowtext;border-left:none;text-align:center;'>X</td>
+            #else
+              <td class="xl65" style='border:.5pt solid windowtext;border-left:none;'>&nbsp;</td>
+            #end
+          #end
+        #end
+      </tr>
+    #end
+  #end
+</table>
+
+
+</body>
+
+
+</html>
+
+#########################################################################################################################
+##
+##  FILE LIST 
+##
+#########################################################################################################################
+
+------=_NextPart_01D8DBD5.4D8FB410
+Content-Location: file:///C:/61233B10/AllProjectsReport_files/filelist.xml
 Content-Type: text/xml; charset="utf-8"
 
 <xml xmlns:o="urn:schemas-microsoft-com:office:office">
- <o:MainFile HRef="../Single_Sheet_Mockup.htm"/>
+ <o:MainFile HRef="../AllProjectsReport.htm"/>
  <o:File HRef="stylesheet.css"/>
  <o:File HRef="sheet001.htm"/>
+ <o:File HRef="sheet002.htm"/>
  <o:File HRef="filelist.xml"/>
 </xml>
-------=_NextPart_01D8DFBE.2078AF30--
+------=_NextPart_01D8DBD5.4D8FB410--
