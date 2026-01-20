@@ -334,7 +334,7 @@ td
 .xl69
   {mso-style-parent:style0;
   color:black;
-  font-size:14.0pt;
+  font-size:12.0pt;
   font-weight:700;
   font-family:Calibri, sans-serif;
   mso-font-charset:0;
@@ -871,17 +871,25 @@ id="webarch_temp_base_tag">
   #set($void = $projectTypeCount.put($pid, $typeCountMap))
 #end
 
-<table border=0 cellpadding=0 cellspacing=0 style='border-collapse:collapse;'>
+## Calculate filter range for Worksheet 2: Use A:ZZ range to cover all possible columns
+## Excel will show filters on all columns in the range, including empty ones
+#set($filterRange2 = "$$A$$1:$$ZZ$$1")
+
+<table border=0 cellpadding=0 cellspacing=0 style='border-collapse:collapse;table-layout:fixed;width:1563pt'>
+  <col class=xl63 width=71 style='mso-width-source:userset;mso-width-alt:2261;width:53pt'>
+  <col class=xl64 width=127 style='mso-width-source:userset;mso-width-alt:4053;width:95pt'>
+  <col width=287 style='mso-width-source:userset;mso-width-alt:9173;width:215pt'>
   <tr>
-    <td class="xl67" style='border:.5pt solid windowtext;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>Project Key</td>
-    <td class="xl67" style='border:.5pt solid windowtext;border-left:none;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>Project Name</td>
+    <td class="xl69" x:autofiltervalue=all x:autofilterrange=$filterRange2 style='border:.5pt solid windowtext;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>ID</td>
+    <td class="xl69" style='border:.5pt solid windowtext;border-left:none;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>Project Key</td>
+    <td class="xl69" style='border:.5pt solid windowtext;border-left:none;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>Name</td>
     #if(!$docTypes || $docTypes.isEmpty())
-      <td class="xl67" style='border:.5pt solid windowtext;border-left:none;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>Item Type ID</td>
-      <td class="xl67" style='border:.5pt solid windowtext;border-left:none;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>Item Type Key</td>
-      <td class="xl67" style='border:.5pt solid windowtext;border-left:none;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>Item Type Name</td>
+      <td class="xl69" style='border:.5pt solid windowtext;border-left:none;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>Item Type ID</td>
+      <td class="xl69" style='border:.5pt solid windowtext;border-left:none;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>Item Type Key</td>
+      <td class="xl69" style='border:.5pt solid windowtext;border-left:none;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>Item Type Name</td>
     #else
       #foreach($docType in $docTypes)
-        <td class="xl67" style='border:.5pt solid windowtext;border-left:none;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>
+        <td class="xl69" style='border:.5pt solid windowtext;border-left:none;background:#A6C9EC;font-weight:700;text-align:center;font-size:12.0pt;'>
           $docType.getDocumentTypeKey()<br/>
           <span style="font-size:9.0pt;">$docType.getDisplay()</span>
         </td>
@@ -891,7 +899,7 @@ id="webarch_temp_base_tag">
 
   #if($projects.isEmpty())
     <tr>
-      <td colspan="2" style='border:.5pt solid windowtext;'>No projects found for this organization.</td>
+      <td colspan="3" style='border:.5pt solid windowtext;'>No projects found for this organization.</td>
       #if(!$docTypes || $docTypes.isEmpty())
         <td colspan="3" style='border:.5pt solid windowtext;border-left:none;'>No item types found for this organization.</td>
       #end
@@ -899,8 +907,9 @@ id="webarch_temp_base_tag">
   #else
     #foreach($proj in $projects)
       <tr>
-        <td class="xl65" style='border:.5pt solid windowtext;text-align:center;'>$proj.projectKey</td>
-        <td class="xl65" style='border:.5pt solid windowtext;border-left:none;'>$proj.name</td>
+        <td class="xl65" style='border:.5pt solid windowtext;text-align:center;'>$proj.id</td>
+        <td class="xl65" style='border:.5pt solid windowtext;border-left:none;text-align:center;'>$proj.projectKey</td>
+        <td class="xl66" style='border:.5pt solid windowtext;border-left:none;'>$proj.name</td>
 
         #if(!$docTypes || $docTypes.isEmpty())
           <td colspan="3" style='border:.5pt solid windowtext;border-left:none;'>No item types found for this organization.</td>
