@@ -142,11 +142,11 @@ Content-Type: multipart/related; boundary="----=_NextPart_01D8DBD5.4D8FB410"
 ##-------------------------------------------
 
 #set($activeOnly = true)
-#set($filterRange = "$A$1:$F$1")
+#set($filterRange = "$A$1:$G$1")
 
 #if($reportIncInactive)
   #set($activeOnly = false)
-  #set($filterRange = "$A$1:$G$1")
+  #set($filterRange = "$A$1:$H$1")
 #end
 
 
