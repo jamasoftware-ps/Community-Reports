@@ -71,6 +71,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01DA8992.E7786AB0"
 ## 2025-04-03   3.14       Anna FitzGerald   - Updated formatting of Test Steps to be processed through #formatTableCell
 ##                                           - Updated #formatText macro to catch invalid img replacements for invalid src and no src definitions
 ## 2025-12-02   3.15       Liam Rotchford    - Applied default value for $maxImageWidth variable to resolve missing redline output results when $report_showFinText is false.
+## 2026-03-16   3.16       Shawnna Williams  - 9.34 Connect broke $documentSource.getContourItemDTOsForBaseline. Changed getBaselineItems to call $baselineSource.getDocumentIds instead.
 ##
 ##======================================================================================================================
 ## REPORT CRITERIA
@@ -3948,24 +3949,54 @@ div.totCounterContainer
 #########################################################################################################################
 #macro( getBaselineItems $baselineId) 
 
-  #set($baselineItems = [])
+ #* #set($baselineItems = [])
   #set($baselineTotalItems = $mathTool.toDouble($documentSource.getContourItemDTOsForBaseline($baselineId, 0, 1, 'sequence ASC').getPageInfo().getTotal()))
   #set($extractionCalls = $mathTool.ceil($mathTool.toDouble($baselineTotalItems / 50.0)))
 
   #foreach($cycle in [1..$extractionCalls])
     #set($pageIndex = $baselineItems.size()) 
-  #if( $pageIndex && $pageIndex >= 0) 
-    #set($baselinePagedResults = $documentSource.getContourItemDTOsForBaseline($baselineId, $pageIndex, 50, 'sequence ASC') )
-    #set($success = $baselineItems.addAll($baselinePagedResults.results))
+    #if( $pageIndex && $pageIndex >= 0) 
+      #set($baselinePagedResults = $documentSource.getContourItemDTOsForBaseline($baselineId, $pageIndex, 50, 'sequence ASC') )
+      #set($success = $baselineItems.addAll($baselinePagedResults.results))
 
-    #if($baselineItems.size() == $baselineTotalItems)
+      #if($baselineItems.size() == $baselineTotalItems)
+        #break
+      #end
+    #else 
       #break
     #end
-  #else 
-    #break
   #end
+*#
+  #set( $baselineItems = [])
+  #set( $baselineIds = $baselineSource.getDocumentIds( $baselineId))
+  ##BASELINEIDS: $baselineIds<br>
+  #foreach( $base in $baselineIds)
+  
+    #set( $baseItem = $documentSource.getDocument( $mathTool.toInteger($base)))
+    #if( !$baseItem.id)
+      #set( $baseItem = $testSource.getTestCycle( $mathTool.toInteger($base)))
+      ##COMPAREDOC: $compareDoc.name<br>
+    #end
+    ##not a test cycle either so see if it's a test run (and there is an error using .getTestRun())
+    #if( !$baseItem.id)
+      #set( $trs = [])
+      #set( $success = $trs.add( $mathTool.toInteger($base)))
+      #set( $trDocs = $testSource.getTestRuns( $trs) )
+      #if( $trDocs.size() > 0)
+        #set( $baseItem = $trDocs.get(0))
+      #end
+    #end
+    
+    ##COMPARE: $compareItem<br><br> $compareItem.id, $compareDoc.id, $baseDoc.id<br>      
+    ##not test run, check testplan
+    #if( !$baseItem.id)
+      #set( $baseItem = $testSource.getTestPlan( $mathTool.toInteger($base)))
+    #end
+
+    #set( $success = $baselineItems.add( $baseItem))
+
+    ##B: $baseItem.documentKey, $baseItem.id, $baseItem.currentVersion.versionNumber<br>
   #end
- 
   ## return populated $baselineItems
 #end
 

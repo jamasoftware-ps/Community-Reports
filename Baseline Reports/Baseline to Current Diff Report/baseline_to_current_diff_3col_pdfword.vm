@@ -61,6 +61,7 @@ Content-Type: multipart/related; boundary="----=_NextPart_01DA8992.E7786AB0"
 ## 2025-04-03   3.13       Anna FitzGerald   - Updated formatting of Test Steps to be processed through #formatTableCell
 ##                                           - Updated #formatText macro to catch invalid img replacements for invalid src and no src definitions
 ## 2025-12-02   3.14       Liam Rotchford    - Applied default value for $maxImageWidth variable to resolve missing redline output results when $report_showFinText is false.
+## 2026-03-15   3.15       Shawnna Williams  - 9.34 Connect broke $documentSource.getContourItemDTOsForBaseline. Changed getBaselineItems to call $baselineSource.getDocumentIds instead.
 ##
 ## ======================================================================================================================
 #########################################################################################################################
@@ -2057,6 +2058,32 @@ div.totCounterContainer
 ##          Output: $string, ready for opening in Word
 ########################################################################################################################
 #macro( formatTableCell $inString $justification $maxImageWidth)
+<<<<<<< HEAD
+  #if( $inString && $justification && $maxImageWidth )
+    #set( $string = $inString.toString() )
+    ## Re-format text for consistent look and feel
+    #set( $string = "#formatText($string)" )
+    ## First re-format tables for consistent look and feel, and fixed column widths
+    #set( $string = "#formatTables($string, $maxImageWidth, 'left')" )
+    ## Then prep figures to base64 after formatting tables
+    #set( $string = "#convertFigures($string, $maxImageWidth)" )
+    ## Convert hyperlinks in Jama Connect to Word cross-references if Master Template global variable is true
+    #if($includeCrossReferences)
+    #set( $string = "#convertHyperlinks($string)" )
+    #end
+    ## format lists appropriately
+    #set( $string = $string.replaceAll('<li>','<li class=TableCell>') )
+    #set( $string = $string.replaceAll('<li\s([^c].*?)>','<li class=TableCell $1>') )
+    ## Make sure all cells are contained in a paragraph with the appropriate style
+    #if( !$string.contains("<p"))
+      #set( $string = "<p class=TableCell style='text-align:$justification'>$string</p>" )
+    #else
+      #set( $string = $string.replaceAll("<p>","<p class=TableCell style='text-align:$justification'>") )
+      #set( $string = $string.replaceAll("<p\s([^c].*?)>","<p class=TableCell $1 style='text-align:$justification'>") )
+    #end
+    ##set( $debug = $string.replaceAll( "<", "<br>-"))
+    ###Debug formatTableCell string $debug<br><br>
+=======
 	#if( $inString && $justification && $maxImageWidth )
 		#set( $string = $inString.toString() )
 		## Re-format text for consistent look and feel
@@ -2081,6 +2108,7 @@ div.totCounterContainer
 		#end
 		##set( $debug = $string.replaceAll( "<", "<br>-"))
 		###Debug formatTableCell string $debug<br><br>
+>>>>>>> 63fce94dc5fa13de1b65b614784dc0544890f2f6
 
 		$string
 	#end
@@ -4744,24 +4772,54 @@ div.totCounterContainer
 #########################################################################################################################
 #macro( getBaselineItems $baselineId) 
 
-  #set($baselineItems = [])
+ #* #set($baselineItems = [])
   #set($baselineTotalItems = $mathTool.toDouble($documentSource.getContourItemDTOsForBaseline($baselineId, 0, 1, 'sequence ASC').getPageInfo().getTotal()))
   #set($extractionCalls = $mathTool.ceil($mathTool.toDouble($baselineTotalItems / 50.0)))
 
   #foreach($cycle in [1..$extractionCalls])
     #set($pageIndex = $baselineItems.size()) 
-  #if( $pageIndex && $pageIndex >= 0) 
-    #set($baselinePagedResults = $documentSource.getContourItemDTOsForBaseline($baselineId, $pageIndex, 50, 'sequence ASC') )
-    #set($success = $baselineItems.addAll($baselinePagedResults.results))
+    #if( $pageIndex && $pageIndex >= 0) 
+      #set($baselinePagedResults = $documentSource.getContourItemDTOsForBaseline($baselineId, $pageIndex, 50, 'sequence ASC') )
+      #set($success = $baselineItems.addAll($baselinePagedResults.results))
 
-    #if($baselineItems.size() == $baselineTotalItems)
+      #if($baselineItems.size() == $baselineTotalItems)
+        #break
+      #end
+    #else 
       #break
     #end
-  #else
-    #break
   #end
+*#
+  #set( $baselineItems = [])
+  #set( $baselineIds = $baselineSource.getDocumentIds( $baselineId))
+  ##BASELINEIDS: $baselineIds<br>
+  #foreach( $base in $baselineIds)
+  
+    #set( $baseItem = $documentSource.getDocument( $mathTool.toInteger($base)))
+    #if( !$baseItem.id)
+      #set( $baseItem = $testSource.getTestCycle( $mathTool.toInteger($base)))
+      ##COMPAREDOC: $compareDoc.name<br>
+    #end
+    ##not a test cycle either so see if it's a test run (and there is an error using .getTestRun())
+    #if( !$baseItem.id)
+      #set( $trs = [])
+      #set( $success = $trs.add( $mathTool.toInteger($base)))
+      #set( $trDocs = $testSource.getTestRuns( $trs) )
+      #if( $trDocs.size() > 0)
+        #set( $baseItem = $trDocs.get(0))
+      #end
+    #end
+    
+    ##COMPARE: $compareItem<br><br> $compareItem.id, $compareDoc.id, $baseDoc.id<br>      
+    ##not test run, check testplan
+    #if( !$baseItem.id)
+      #set( $baseItem = $testSource.getTestPlan( $mathTool.toInteger($base)))
+    #end
+
+    #set( $success = $baselineItems.add( $baseItem))
+
+    ##B: $baseItem.documentKey, $baseItem.id, $baseItem.currentVersion.versionNumber<br>
   #end
- 
   ## return populated $baselineItems
 #end
 
