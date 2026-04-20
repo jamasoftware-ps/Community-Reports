@@ -28,7 +28,7 @@ Each Test Run result across all Test Cycles grouped by Test Cycle. Select 'Inclu
 ##### Test Plan Summary 
 
 
-![testPlanSummary_1]("https://github.com/user-attachments/assets/6e115cc4-2728-4e00-9916-d996572f4153)
+![testPlanSummary_1](https://github.com/user-attachments/assets/6e115cc4-2728-4e00-9916-d996572f4153)
 
 
 ##### Test Cycle Summary 
