@@ -1,3 +1,4 @@
+<img width="890" height="476" alt="Screenshot 2026-04-20 at 9 14 21 AM" src="https://github.com/user-attachments/assets/31deb807-329c-479a-897e-c5b4815b86b8" />
 # Test Details Grouped by Test Cycle 
 This is a context insensitive test results report that outputs data from the user selected test plan. This report can output to PDF or Word format with the option to show a data visual Test Plan Summary and Test Cycle Summary. The visuals for these summaries are different considering PDF or Word format. The time zone for the dates output is UTC. To modify time zone change the TZ identifier string on line 192 of the template.
 
@@ -26,14 +27,16 @@ Each Test Run result across all Test Cycles grouped by Test Cycle. Select 'Inclu
 
 ##### Test Plan Summary 
 
-![testPlanSummary_1](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/7339b80e-12be-46a7-b0fd-d4bbf2e0fb92)
+![testPlanSummary_1]("https://github.com/user-attachments/assets/6e115cc4-2728-4e00-9916-d996572f4153)
+
 
 
 ##### Test Cycle Summary 
 
-![executionDefectsCyclePDF](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/8638a6f1-46a1-4592-8e8a-02811ab70853)
+![executionDefectsCyclePDF](https://github.com/user-attachments/assets/5248095b-1413-42ed-8bb8-ebfa10fcb1af)
 
-![statusesCyclesPDF](https://github.com/jamasoftware-ps/Community-Reports/assets/99203913/f9579c0d-0291-4925-b5d0-866672acf83c)
+
+![statusesCyclesPDF](https://github.com/user-attachments/assets/f899581a-f9ff-42d1-9e42-c0db9d4e8d11)
 
 
 ### Summary Tables Export to WORD
