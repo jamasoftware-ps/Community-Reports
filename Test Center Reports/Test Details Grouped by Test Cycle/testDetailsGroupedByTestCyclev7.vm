@@ -41,6 +41,8 @@ Content-Type: multipart/related; boundary="----=_NextPart_01DA8992.E7786AB0"
 ## 2024-10-17  3.4.3       Anna FitzGerald   Updated the .xAxisTick padding-right from .4em to .1em due to iText v8 upgrade as em measurement was impacted.
 ## 2024-11-08  4.0         Anna FitzGerald   Upgraded to v3.1.6 of the Word PDF Master 
 ##                                           Updated all em measurements to points and pdf data chart table to 100% width of page 
+## 2026-04-20  4.0.1       Anna FitzGerald   Updated the data visuals for PDF so when 500+ Test Runs the bar per stacked bar stats stay within page bounds 
+##                                           Rotated numbers per stack in the stacked bar stats so that labels fit.
 ##======================================================================================================================
 ## REPORT CRITERIA
 ## Type:       Display Name:           Report Global Variable:         Function:
@@ -1753,10 +1755,23 @@ div.totCounterContainer
     .categoryDataViz {
       bottom:0;
       border: none;
-      padding-top:6pt;
-      padding-bottom:6pt;
+      padding-top:8pt;
+      padding-bottom:8pt;
+      text-align:center;
       vertical-align:middle;
-      padding-right:3pt;
+    }
+    .barLabel,
+    .barLabelRotate {
+      display:inline-block;
+      white-space:nowrap;
+      line-height:1;
+    }
+    .barLabelRotate {
+      font-size:7pt;
+      transform:rotate(-90deg);
+      -webkit-transform:rotate(-90deg);
+      transform-origin:center center;
+      -webkit-transform-origin:center center;
     }
      .xAxisTick {
       top:0;
@@ -3755,7 +3770,6 @@ div.totCounterContainer
 ########  CUSTOM MACROS: INSERT/BUILD CUSTOM MACROS HERE                                       ##
 ########                                                                                       ## 
 #################################################################################################
-#########################################################################################################################
 ## **********************************************************************************************************************
 ##   Test Report Macro
 ##   getTestRunStatusColor
@@ -4253,7 +4267,6 @@ $!failedTestPlan
   #set( $tick5ForDivision = $mathTool.toDouble($tick5))
   #set( $totalPercent = $mathTool.toDouble( 100 ))
   #set( $percentPerRun = $totalPercent / $tick5ForDivision )
-  #set( $percentPerRun = $mathTool.roundTo( 2, $percentPerRun ))
   #set( $xTicks = [$tick1,$tick2,$tick3,$tick4,$tick5])
 #else 
   #set( $percentPerRun = 20 )
@@ -4286,27 +4299,27 @@ $!failedTestPlan
 
         #if( $notRunTestPlan > 0 )
           #set( $percentWidth = $notRunTestPlan * $percentPerRun)
-          <div class="categoryDataViz notRun" style='width:${percentWidth}%'>$notRunTestPlan</div>
+          <div class="categoryDataViz notRun" style='width:${percentWidth}%;'><span class='barLabelRotate'>$notRunTestPlan</span></div>
         #end 
         #if( $notApplicableTestPlan > 0 )
           #set( $percentWidth = $notApplicableTestPlan * $percentPerRun)
-          <div class="categoryDataViz notApplicable" style='width:${percentWidth}%;'>$notApplicableTestPlan</div>
+          <div class="categoryDataViz notApplicable" style='width:${percentWidth}%;'><span class='barLabelRotate'>$notApplicableTestPlan</span></div>
         #end 
         #if( $blockedTestPlan > 0 )
           #set( $percentWidth = $blockedTestPlan * $percentPerRun)
-          <div class="categoryDataViz blocked" style='width:${percentWidth}%'>$blockedTestPlan</div>
+          <div class="categoryDataViz blocked" style='width:${percentWidth}%;'><span class='barLabelRotate'>$blockedTestPlan</span></div>
         #end
         #if( $inProgressTestPlan > 0 )
           #set( $percentWidth = $inProgressTestPlan * $percentPerRun)
-          <div class="categoryDataViz inProgress" style='width:${percentWidth}%'>$inProgressTestPlan</div>
+          <div class="categoryDataViz inProgress" style='width:${percentWidth}%;'><span class='barLabelRotate'>$inProgressTestPlan</span></div>
         #end 
         #if( $failedTestPlan > 0 )
           #set( $percentWidth = $failedTestPlan * $percentPerRun)
-          <div class="categoryDataViz failed" style='width:${percentWidth}%'>$failedTestPlan</div>
+          <div class="categoryDataViz failed" style='width:${percentWidth}%;'><span class='barLabelRotate'>$failedTestPlan</span></div>
         #end 
         #if( $passedTestPlan > 0 )
           #set( $percentWidth = $passedTestPlan * $percentPerRun)
-          <div class="categoryDataViz passed" style='width:${percentWidth}%'>$passedTestPlan</div>
+          <div class="categoryDataViz passed" style='width:${percentWidth}%;'><span class='barLabelRotate'>$passedTestPlan</span></div>
         #end 
       </li>
     </ul>
@@ -4370,7 +4383,6 @@ $!failedTestPlan
     #set( $tick5ForDivision = $mathTool.toDouble($tick5))
     #set( $totalPercent = $mathTool.toDouble( 100 ))
     #set( $percentPerRun = $totalPercent / $tick5ForDivision )
-    #set( $percentPerRun = $mathTool.roundTo( 2, $percentPerRun ))
     #set( $xTicks = [$tick1,$tick2,$tick3,$tick4,$tick5])
   #else 
     #set( $percentPerRun = 20 )
@@ -4396,19 +4408,19 @@ $!failedTestPlan
           <li style='list-style-type:none;'> 
             #if( $cycleUnassigned > 0 )
               #set( $percentWidth = $cycleUnassigned * $percentPerRun)
-              <div class="categoryDataViz unassigned" style='width:${percentWidth}%'>$cycleUnassigned</div>
+              <div class="categoryDataViz unassigned" style='width:${percentWidth}%;'><span class='barLabelRotate'>$cycleUnassigned</span></div>
             #end 
             #if( $cyclePending > 0 )
               #set( $percentWidth = $cyclePending * $percentPerRun)
-              <div class="categoryDataViz pending" style='width:${percentWidth}%'>$cyclePending</div>
+              <div class="categoryDataViz pending" style='width:${percentWidth}%;'><span class='barLabelRotate'>$cyclePending</span></div>
             #end 
             #if( $cycleExecuted > 0 )
               #set( $percentWidth = $cycleExecuted * $percentPerRun)
-              <div class="categoryDataViz executed" style='width:${percentWidth}%'>$cycleExecuted</div>
+              <div class="categoryDataViz executed" style='width:${percentWidth}%;'><span class='barLabelRotate'>$cycleExecuted</span></div>
             #end 
             #if( $cycleDefect > 0 )
               #set( $percentWidth = $cycleDefect * $percentPerRun)
-              <div class="categoryDataViz defects" style='width:${percentWidth}%'>$cycleDefect</div>
+              <div class="categoryDataViz defects" style='width:${percentWidth}%;'><span class='barLabelRotate'>$cycleDefect</span></div>
             #end 
           </li>
         </ul>
@@ -4490,7 +4502,6 @@ $!failedTestPlan
     #set( $tick5ForDivision = $mathTool.toDouble($tick5))
     #set( $totalPercent = $mathTool.toDouble( 100 ))
     #set( $percentPerRun = $totalPercent / $tick5ForDivision )
-    #set( $percentPerRun = $mathTool.roundTo( 2, $percentPerRun ))
     #set( $xTicks = [$tick1,$tick2,$tick3,$tick4,$tick5])
   #else 
     #set( $percentPerRun = 20 )
@@ -4519,27 +4530,27 @@ $!failedTestPlan
 
               #if( $notRunTestCycle > 0 )
                 #set( $percentWidth = $notRunTestCycle * $percentPerRun)
-                <div class="categoryDataViz notRun" style='width:${percentWidth}%'>$notRunTestCycle</div>
+                <div class="categoryDataViz notRun" style='width:${percentWidth}%;'><span class='barLabelRotate'>$notRunTestCycle</span></div>
               #end 
               #if( $notApplicableTestCycle > 0 )
                 #set( $percentWidth = $notApplicableTestCycle * $percentPerRun)
-                <div class="categoryDataViz notApplicable" style='width:${percentWidth}%;'>$notApplicableTestCycle</div>
+                <div class="categoryDataViz notApplicable" style='width:${percentWidth}%;'><span class='barLabelRotate'>$notApplicableTestCycle</span></div>
               #end
               #if( $blockedTestCycle > 0 )
                 #set( $percentWidth = $blockedTestCycle * $percentPerRun)
-                <div class="categoryDataViz blocked" style='width:${percentWidth}%'>$blockedTestCycle</div>
+                <div class="categoryDataViz blocked" style='width:${percentWidth}%;'><span class='barLabelRotate'>$blockedTestCycle</span></div>
               #end
               #if( $inProgressTestCycle > 0 )
                 #set( $percentWidth = $inProgressTestCycle * $percentPerRun)
-                <div class="categoryDataViz inProgress" style='width:${percentWidth}%'>$inProgressTestCycle</div>
+                <div class="categoryDataViz inProgress" style='width:${percentWidth}%;'><span class='barLabelRotate'>$inProgressTestCycle</span></div>
               #end 
               #if( $failedTestCycle > 0 )
                 #set( $percentWidth = $failedTestCycle * $percentPerRun)
-                <div class="categoryDataViz failed" style='width:${percentWidth}%'>$failedTestCycle</div>
+                <div class="categoryDataViz failed" style='width:${percentWidth}%;'><span class='barLabelRotate'>$failedTestCycle</span></div>
               #end 
               #if( $passedTestCycle > 0 )
                 #set( $percentWidth = $passedTestCycle * $percentPerRun)
-                <div class="categoryDataViz passed" style='width:${percentWidth}%'>$passedTestCycle</div>
+                <div class="categoryDataViz passed" style='width:${percentWidth}%;'><span class='barLabelRotate'>$passedTestCycle</span></div>
               #end 
             </li>
           </ul>
