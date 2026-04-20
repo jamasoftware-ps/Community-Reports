@@ -1,4 +1,4 @@
-<img width="890" height="476" alt="Screenshot 2026-04-20 at 9 14 21 AM" src="https://github.com/user-attachments/assets/31deb807-329c-479a-897e-c5b4815b86b8" />
+
 # Test Details Grouped by Test Cycle 
 This is a context insensitive test results report that outputs data from the user selected test plan. This report can output to PDF or Word format with the option to show a data visual Test Plan Summary and Test Cycle Summary. The visuals for these summaries are different considering PDF or Word format. The time zone for the dates output is UTC. To modify time zone change the TZ identifier string on line 192 of the template.
 
@@ -27,8 +27,8 @@ Each Test Run result across all Test Cycles grouped by Test Cycle. Select 'Inclu
 
 ##### Test Plan Summary 
 
-![testPlanSummary_1]("https://github.com/user-attachments/assets/6e115cc4-2728-4e00-9916-d996572f4153)
 
+![testPlanSummary_1]("https://github.com/user-attachments/assets/6e115cc4-2728-4e00-9916-d996572f4153)
 
 
 ##### Test Cycle Summary 
