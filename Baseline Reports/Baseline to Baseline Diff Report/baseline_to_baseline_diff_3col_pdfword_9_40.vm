@@ -4699,9 +4699,13 @@ div.totCounterContainer
       #set($toItemId = $versionedRelationship.getToItem().getValue().get(0))
       #set($toItemVersion = $versionedRelationship.getToItem().getValue().get(1))
 
-      #set($fromItem = $documentSource.getItem($fromItemId, $fromItemVersion))
-      #set($toItem = $documentSource.getItem( $toItemId, $toItemVersion ))
-      
+
+      #set( $fromItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($fromItemId),$fromItemVersion.toString()))
+      #set( $fromItem = $fromItemVersion.document)
+
+      #set( $toItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($toItemId),$toItemVersion.toString()))
+      #set( $toItem = $toItemVersion.document)
+
       #set( $fromName = $fromItem.name )
       #encodeText( $fromName)
       #set( $fromName = $encodeTextReturn)
@@ -4743,8 +4747,11 @@ div.totCounterContainer
         #set($toItemId = $versionedRelationship.getToItem().getValue().get(0))
         #set($toItemVersion = $versionedRelationship.getToItem().getValue().get(1))
 
-        #set($fromItem = $documentSource.getItem($fromItemId, $fromItemVersion))
-        #set($toItem = $documentSource.getItem( $toItemId, $toItemVersion ))
+       #set( $fromItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($fromItemId),$fromItemVersion.toString()))
+       #set( $fromItem = $fromItemVersion.document)
+
+       #set( $toItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($toItemId),$toItemVersion.toString()))
+       #set( $toItem = $toItemVersion.document)
 
         #set( $fromName = $fromItem.name ) 
     #encodeText( $fromName)
@@ -4789,8 +4796,11 @@ div.totCounterContainer
         #set($toItemId = $versionedRelationship.getToItem().getValue().get(0))
         #set($toItemVersion = $versionedRelationship.getToItem().getValue().get(1))
 
-        #set($fromItem = $documentSource.getItem($fromItemId, $fromItemVersion))
-        #set($toItem = $documentSource.getItem( $toItemId, $toItemVersion ))
+       #set( $fromItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($fromItemId),$fromItemVersion.toString()))
+       #set( $fromItem = $fromItemVersion.document)
+
+       #set( $toItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($toItemId),$toItemVersion.toString()))
+       #set( $toItem = $toItemVersion.document)
        
         #set( $fromName = $fromItem.name )
         #encodeText( $fromName)
@@ -5040,8 +5050,11 @@ div.totCounterContainer
                   #set($toItemId = $versionedRelationship.getToItem().getValue().get(0))
                   #set($toItemVersion = $versionedRelationship.getToItem().getValue().get(1))
 
-                  #set($fromItem = $documentSource.getItem($fromItemId , $fromItemVersion))
-                  #set($toItem = $documentSource.getItem($toItemId , $toItemVersion))
+                 #set( $fromItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($fromItemId),$fromItemVersion.toString()))
+                 #set( $fromItem = $fromItemVersion.document)
+
+                 #set( $toItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($toItemId),$toItemVersion.toString()))
+                 #set( $toItem = $toItemVersion.document)
 
                   #*<a href="perspective.req?projectId=$fromItem.project.id&docId=$fromItem.id">$fromItem.documentKey</a>
                   &#8594; <a href="perspective.req?projectId=$toItem.project.id&docId=$toItem.id">$toItem.documentKey</a>
