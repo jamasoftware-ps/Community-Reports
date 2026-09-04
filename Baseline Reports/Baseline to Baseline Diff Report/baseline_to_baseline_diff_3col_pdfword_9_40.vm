@@ -97,6 +97,7 @@ Content-Type: text/html; charset="utf-8"
 ## 2026-03-16   3.16       Shawnna Williams  - 9.34 Connect broke $documentSource.getContourItemDTOsForBaseline. Changed getBaselineItems to call $baselineSource.getDocumentIds instead.
 ## 2026-08-14   3.17       Shawnna Williams  - Update for new velocity flag handling originDocumentId, changes in getBaselineItems, added sortBaselineItems macro
 ## 2026-08-18   3.17.1     Shawnna Williams  - Check that the user has entered a baseline and stop the report if no baseline has been entered
+## 2026-09-04   3.18       Shawnna Williams  - Fix getting related items so that we get versioned docs
 ##======================================================================================================================
 ## REPORT CRITERIA
 ## Type:       Display Name:           Report Global Variable:         Function:

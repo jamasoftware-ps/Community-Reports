@@ -88,6 +88,7 @@ Content-Type: text/html; charset="utf-8"
 ##                                           - Changed getBaselineItems to call $baselineSource.getDocumentIds instead.
 ## 2026-08-14   3.16       Shawnna Williams  - Update for new velocity flag handling originDocumentId, changes in getBaselineItems, added sortBaselineItems macro
 ## 2026-08-18   3.16.1     Shawnna Williams  - Added error handling if a baseline isn't chosen
+## 2026-09-04   3.17       Shawnna Williams  - Fix versioned relationships to get versioned document
 ## ======================================================================================================================
 #########################################################################################################################
 ## Report Criteria:
