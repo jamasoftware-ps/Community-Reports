@@ -3557,18 +3557,18 @@ div.totCounterContainer
   #foreach( $versionedRelationship in $versionedRelationships )
     #if( $inDownstream ) ## Get Downstream Relationships
       #set( $upItemId = $versionedRelationship.getFromItem().getValue().get(0) )
-      #set( $upItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
+      #set( $upItemVersionNumber = $versionedRelationship.getFromItem().getValue().get(1) )
       
       ## Get CountourItem by Id and Version ## 
-      #set( $upDocVersion = $documentSource.getVersionByDocAndVersionNumber($upItemId,$upItemVersion))
+      #set( $upDocVersion = $documentSource.getVersionByDocAndVersionNumber($upItemId,$upItemVersionNumber))
       #set( $upDoc = $upDocVersion.document)
 
       #if( $inDoc.id == $upDoc.id ) 
         #set( $dnItemId = $versionedRelationship.getToItem().getValue().get(0) )
-        #set( $dnItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
+        #set( $dnItemVersionNumber = $versionedRelationship.getToItem().getValue().get(1) )
     
         ## Get CountourItem by Id and Version ##  
-        #set( $dnVersion = $documentSource.getVersionByDocAndVersionNumber($dnItemId,$dnItemVersion))
+        #set( $dnVersion = $documentSource.getVersionByDocAndVersionNumber($dnItemId,$dnItemVersionNumber))
         #set( $dnDoc = $dnVersion.document ) 
         ##<tr><td colspan=20>$dnDoc.documentKey, $dnItemId, $dnDoc.id, $dnItemVersion, $dnDoc.currentVersion.versionNumber</td></tr>
 
@@ -3580,19 +3580,19 @@ div.totCounterContainer
 
     #else
       #set( $dnItemId = $versionedRelationship.getToItem().getValue().get(0) )
-      #set( $dnItemVersion = $versionedRelationship.getToItem().getValue().get(1) )
+      #set( $dnItemVersionNumber = $versionedRelationship.getToItem().getValue().get(1) )
       
       ## Get CountourItem by Id and Version ## 
-      #set( $dnDocVersion = $documentSource.getVersionByDocAndVersionNumber($dnItemId,$dnItemVersion))
+      #set( $dnDocVersion = $documentSource.getVersionByDocAndVersionNumber($dnItemId,$dnItemVersionNumber))
       #set( $dnDoc = $dnDocVersion.document)
     
 
       #if( $inDoc.id == $dnDoc.id ) ## Get Upstream Relationships
         #set( $upItemId = $versionedRelationship.getFromItem().getValue().get(0) )
-        #set( $upItemVersion = $versionedRelationship.getFromItem().getValue().get(1) )
+        #set( $upItemVersionNumber = $versionedRelationship.getFromItem().getValue().get(1) )
   
         ## Get CountourItem by Id and Version ##  
-        #set( $upVersion = $documentSource.getVersionByDocAndVersionNumber($upItemId,$upItemVersion))
+        #set( $upVersion = $documentSource.getVersionByDocAndVersionNumber($upItemId,$upItemVersionNumber))
         #set( $upDoc = $upVersion.document )
  
 
@@ -4668,7 +4668,7 @@ div.totCounterContainer
    none;border-bottom:solid #404040 1.0pt;border-right:solid windowtext 1.0pt;
    mso-border-top-alt:solid windowtext .5pt;background:#D9D9D9;padding:0in 5.4pt 0in 5.4pt'>
       #set( $baselineVersion = "")
-      #set( $baselineVersion = "<b>Baselined Item v" + $bVer.versionNumber.toString() + "</b>")
+      #set( $baselineVersion = "<b>Baselined Item v" + $bVer.currentVersion.versionNumber.toString() + "</b>")
       #formatTableCell( $baselineVersion, "left", 30)
    </td>
   
@@ -4686,7 +4686,7 @@ div.totCounterContainer
    none;border-bottom:solid #404040 1.0pt;border-right:solid windowtext 1.0pt;
    mso-border-top-alt:solid windowtext .5pt;background:#D9D9D9;padding:0in 5.4pt 0in 5.4pt'>
     #set( $baselineVersion = "")
-    #set( $baselineVersion = "<b>Baselined Item v" + $aVer.versionNumber.toString() + "</b>")
+    #set( $baselineVersion = "<b>Baselined Item v" + $aVer.currentVersion.versionNumber.toString() + "</b>")
     #formatTableCell( $baselineVersion, "left", 30)
    </td>
   </tr>
@@ -4696,15 +4696,15 @@ div.totCounterContainer
     #foreach( $versionedRelationship in $uniqueBase1Rels )
       #set( $base1ID = $versionedRelationship.id.toString())
       #set($fromItemId = $versionedRelationship.getFromItem().getValue().get(0))
-      #set($fromItemVersion = $versionedRelationship.getFromItem().getValue().get(1))
+      #set($fromItemVersionNumber = $versionedRelationship.getFromItem().getValue().get(1))
       #set($toItemId = $versionedRelationship.getToItem().getValue().get(0))
-      #set($toItemVersion = $versionedRelationship.getToItem().getValue().get(1))
+      #set($toItemVersionNumber = $versionedRelationship.getToItem().getValue().get(1))
 
 
-      #set( $fromItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($fromItemId),$fromItemVersion.toString()))
+      #set( $fromItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($fromItemId),$fromItemVersionNumber.toString()))
       #set( $fromItem = $fromItemVersion.document)
 
-      #set( $toItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($toItemId),$toItemVersion.toString()))
+      #set( $toItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($toItemId),$toItemVersionNumber.toString()))
       #set( $toItem = $toItemVersion.document)
 
       #set( $fromName = $fromItem.name )
@@ -4715,23 +4715,20 @@ div.totCounterContainer
       #set( $toName = $encodeTextReturn)
       #set( $fromDocumentKey = $fromItem.documentKey )
       #set( $toDocumentKey = $toItem.documentKey )
-      #set( $fromVersion = $fromItem.documentVersionNumber)
-      #set( $toVersion = $toItem.documentVersionNumber)
-
       #if( $removedRelationship.contains( $base1ID ))
         ##set( $rel1String = $rel1String.concat("$fromName ($fromDocumentKey) &#8594; $toName ($toDocumentKey)<br>") )
         #set( $rel1String = "$fromName ($fromDocumentKey) &#8594; $toName ($toDocumentKey)<br>")
         #set( $success = $rel1Strings.add( $rel1String))
       #end 
-    
-      #set( $fromItemDoc = $documentSource.getDocumentVersion($fromItemId, $fromItemVersion))
-      #set( $toItemDoc = $documentSource.getDocumentVersion($toItemId, $toItemVersion))
+
+      #set( $fromItemDoc = $documentSource.getDocument( $fromItem.id))
+      #set( $toItemDoc = $documentSource.getDocument( $toItem.id))
       #set( $lk = "")
-      #createLink( $fromItemDoc, $fromVersion, false)
+      #createLink( $fromItemDoc, $fromItemVersionNumber, false)
       #set( $lk = $createLinkReturn)
            &#8226; <a href="$lk">$!fromName ($!fromDocumentKey)</a>
       #set( $lk = "")
-      #createLink( $toItemDoc, $toVersion, false)
+      #createLink( $toItemDoc, $toItemVersionNumber, false)
       #set( $lk = $createLinkReturn)
         &#8594; <a href="$lk">$!toName ($!toDocumentKey)</a>
         <br><br>
@@ -4744,22 +4741,22 @@ div.totCounterContainer
         #set( $base2ID = $versionedRelationship.id.toString())
 
         #set($fromItemId = $versionedRelationship.getFromItem().getValue().get(0))
-        #set($fromItemVersion = $versionedRelationship.getFromItem().getValue().get(1))
+        #set($fromItemVersionNumber = $versionedRelationship.getFromItem().getValue().get(1))
         #set($toItemId = $versionedRelationship.getToItem().getValue().get(0))
-        #set($toItemVersion = $versionedRelationship.getToItem().getValue().get(1))
+        #set($toItemVersionNumber = $versionedRelationship.getToItem().getValue().get(1))
 
-       #set( $fromItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($fromItemId),$fromItemVersion.toString()))
+       #set( $fromItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($fromItemId),$fromItemVersionNumber.toString()))
        #set( $fromItem = $fromItemVersion.document)
 
-       #set( $toItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($toItemId),$toItemVersion.toString()))
+       #set( $toItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($toItemId),$toItemVersionNumber.toString()))
        #set( $toItem = $toItemVersion.document)
 
         #set( $fromName = $fromItem.name ) 
-    #encodeText( $fromName)
-    #set( $fromName = $encodeTextReturn)    
+        #encodeText( $fromName)
+        #set( $fromName = $encodeTextReturn)
         #set( $toName = $toItem.name ) 
-    #encodeText( $toName)
-    #set( $toName = $encodeTextReturn)
+        #encodeText( $toName)
+        #set( $toName = $encodeTextReturn)
         #set( $fromDocumentKey = $fromItem.documentKey )
         #set( $toDocumentKey = $toItem.documentKey )
 
@@ -4793,33 +4790,34 @@ div.totCounterContainer
       #foreach( $versionedRelationship in $uniqueBase2Rels )
         
         #set($fromItemId = $versionedRelationship.getFromItem().getValue().get(0))
-        #set($fromItemVersion = $versionedRelationship.getFromItem().getValue().get(1))
+        #set($fromItemVersionNumber = $versionedRelationship.getFromItem().getValue().get(1))
         #set($toItemId = $versionedRelationship.getToItem().getValue().get(0))
-        #set($toItemVersion = $versionedRelationship.getToItem().getValue().get(1))
+        #set($toItemVersionNumber = $versionedRelationship.getToItem().getValue().get(1))
 
-       #set( $fromItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($fromItemId),$fromItemVersion.toString()))
+       #set( $fromItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($fromItemId),$fromItemVersionNumber.toString()))
        #set( $fromItem = $fromItemVersion.document)
 
-       #set( $toItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($toItemId),$toItemVersion.toString()))
+       #set( $toItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($toItemId),$toItemVersionNumber.toString()))
        #set( $toItem = $toItemVersion.document)
        
         #set( $fromName = $fromItem.name )
         #encodeText( $fromName)
         #set( $fromName = $encodeTextReturn)  
-            #set( $toName = $toItem.name )
+        #set( $toName = $toItem.name )
         #encodeText( $toName)
         #set( $toName = $encodeTextReturn)
-            #set( $fromDocumentKey = $fromItem.documentKey )
-            #set( $toDocumentKey = $toItem.documentKey )
+        #set( $fromDocumentKey = $fromItem.documentKey )
+        #set( $toDocumentKey = $toItem.documentKey )
 
-        #set( $fromItemDoc = $documentSource.getDocumentVersion($fromItemId, $fromItemVersion))
-          #set( $toItemDoc = $documentSource.getDocumentVersion($toItemId, $toItemVersion))
+
+        #set( $fromItemDoc = $documentSource.getDocument( $fromItem.id))
+        #set( $toItemDoc = $documentSource.getDocument( $toItem.id))
         #set( $lk = "")
-        #createLink( $fromItemDoc, $fromItemVersion, false)
+        #createLink( $fromItemDoc, $fromItemVersionNumber, false)
         #set( $lk = $createLinkReturn)
             &#8226; <a href="$!lk">$!fromName ($!fromDocumentKey)</a>
         #set( $lk = "")
-        #createLink( $toItemDoc, $toItemVersion, false)
+        #createLink( $toItemDoc, $toItemVersionNumber, false)
         #set( $lk = $createLinkReturn)
             &#8594; <a href="$!lk">$!toName ($!toDocumentKey)</a>
          <br> <br>
