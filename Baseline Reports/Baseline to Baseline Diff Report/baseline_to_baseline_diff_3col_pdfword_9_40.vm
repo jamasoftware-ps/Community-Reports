@@ -98,6 +98,7 @@ Content-Type: text/html; charset="utf-8"
 ## 2026-08-14   3.17       Shawnna Williams  - Update for new velocity flag handling originDocumentId, changes in getBaselineItems, added sortBaselineItems macro
 ## 2026-08-18   3.17.1     Shawnna Williams  - Check that the user has entered a baseline and stop the report if no baseline has been entered
 ## 2026-09-04   3.18       Shawnna Williams  - Fix getting related items so that we get versioned docs
+## 2026-09-17   3.19       Shawnna Williams  - Send originDocumentId into createLink macro, fix formatVersionComments so they receive originDocumentId, cleanup formatRelationshipRow
 ##======================================================================================================================
 ## REPORT CRITERIA
 ## Type:       Display Name:           Report Global Variable:         Function:
@@ -4721,8 +4722,8 @@ div.totCounterContainer
         #set( $success = $rel1Strings.add( $rel1String))
       #end 
 
-      #set( $fromItemDoc = $documentSource.getDocument( $fromItem.id))
-      #set( $toItemDoc = $documentSource.getDocument( $toItem.id))
+      #set( $fromItemDoc = $documentSource.getDocumentVersion( $mathTool.toInteger($fromItemId), $fromItemVersionNumber.toString()))
+      #set( $toItemDoc = $documentSource.getDocumentVersion( $mathTool.toInteger($toItemId), $toItemVersionNumber.toString()))
       #set( $lk = "")
       #createLink( $fromItemDoc, $fromItemVersionNumber, false)
       #set( $lk = $createLinkReturn)
@@ -4810,8 +4811,8 @@ div.totCounterContainer
         #set( $toDocumentKey = $toItem.documentKey )
 
 
-        #set( $fromItemDoc = $documentSource.getDocument( $fromItem.id))
-        #set( $toItemDoc = $documentSource.getDocument( $toItem.id))
+        #set( $fromItemDoc = $documentSource.getDocumentVersion( $mathTool.toInteger($fromItemId), $fromItemVersionNumber.toString()))
+        #set( $toItemDoc = $documentSource.getDocumentVersion( $mathTool.toInteger($toItemId), $toItemVersionNumber.toString()))
         #set( $lk = "")
         #createLink( $fromItemDoc, $fromItemVersionNumber, false)
         #set( $lk = $createLinkReturn)
@@ -4835,10 +4836,10 @@ div.totCounterContainer
 
 #########################################################################################################################
 ##          formatVersionComments
-##          Input: $next $total $baseOrigin
+##          Input: $next $total baseOriginId
 ##          Return: Version Details Row for section Updtate Items 1.0 ready for opening in word
 #########################################################################################################################
-#macro( formatVersionCommentRow $next $total $baseOrigin )
+#macro( formatVersionCommentRow $next $total $baseOriginId )
   #set( $colSpan = 3)
   #if( $report_showFinText == true || $includeRelationships == true)
     #set( $colSpan = 4)
@@ -4866,7 +4867,9 @@ div.totCounterContainer
     
     #foreach( $n in [1..$total] )
       <p class=MsoNormal style='margin-left:0.0in;'>
-      #set($v = $documentSource.getVersionByDocAndVersionNumber($baseOrigin, $next.toString()))
+      #set($v = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($baseOriginId), $next.toString()))
+
+
       #if( $v )
         <b>Version: </b>v$v.versionNumber
         - $userSource.getUserFullName($v.createdBy)
@@ -4905,40 +4908,40 @@ div.totCounterContainer
     
 
       #foreach($k in $deleted)
-    #set( $kName = $k.name )
-    #encodeText( $kName)
-    #set( $kName = $encodeTextReturn)
+        #set( $kName = $k.name )
+        #encodeText( $kName)
+        #set( $kName = $encodeTextReturn)
         <h2>$k.documentKey $kName</h2>
 
-    <table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
-     style='border-collapse:collapse;border:none;mso-border-alt:solid #404040 .5pt;
-     mso-border-themecolor:text1;mso-border-themetint:191;mso-yfti-tbllook:1184;mso-border-insideh:.5pt solid #404040;
-     mso-border-insideh-themecolor:text1;mso-border-insideh-themetint:191;
-     mso-border-insidev:.5pt solid #404040;mso-border-insidev-themecolor:text1;
-     mso-border-insidev-themetint:191;width:100%;margin:0'>
-      #if( $k.description.length() > 0)
-    <tr>
-        <td width="100%" valign="top"style='border:solid windowtext 1.0pt;mso-border-alt:solid windowtext .5pt;padding:5.4pt 5.4pt 5.4pt 5.4pt'>
-      <p class=MsoNormal style='margin-left:0in'>
-              <b>Description</b>
-      </p>
-      #if( $k.description) #formatTableCell( $k.description, "left", 300) #end
-    </td>
-    </tr>
-    #end
-    <tr>
-    <td width="100%" valign="top"style='border:solid windowtext 1.0pt;mso-border-alt:solid windowtext .5pt;padding:5.4pt 5.4pt 5.4pt 5.4pt'>
-      <p class=MsoNormal style='margin-left:0in'>
-              <b>Relationships</b>
-      </p>
-    <p class=MsoNormal style='margin-left:0in'>
-
-            Deleted items may have had relationships before deletion, but those relationships are not accessible upon deletion.
-
+        <table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+         style='border-collapse:collapse;border:none;mso-border-alt:solid #404040 .5pt;
+         mso-border-themecolor:text1;mso-border-themetint:191;mso-yfti-tbllook:1184;mso-border-insideh:.5pt solid #404040;
+         mso-border-insideh-themecolor:text1;mso-border-insideh-themetint:191;
+         mso-border-insidev:.5pt solid #404040;mso-border-insidev-themecolor:text1;
+         mso-border-insidev-themetint:191;width:100%;margin:0'>
+          #if( $k.description.length() > 0)
+        <tr>
+            <td width="100%" valign="top"style='border:solid windowtext 1.0pt;mso-border-alt:solid windowtext .5pt;padding:5.4pt 5.4pt 5.4pt 5.4pt'>
+          <p class=MsoNormal style='margin-left:0in'>
+                  <b>Description</b>
           </p>
+          #if( $k.description) #formatTableCell( $k.description, "left", 300) #end
         </td>
-      </tr>
-    </table>
+        </tr>
+        #end
+        <tr>
+        <td width="100%" valign="top"style='border:solid windowtext 1.0pt;mso-border-alt:solid windowtext .5pt;padding:5.4pt 5.4pt 5.4pt 5.4pt'>
+          <p class=MsoNormal style='margin-left:0in'>
+                  <b>Relationships</b>
+          </p>
+            <p class=MsoNormal style='margin-left:0in'>
+
+                Deleted items may have had relationships before deletion, but those relationships are not accessible upon deletion.
+
+              </p>
+            </td>
+          </tr>
+        </table>
       #end ##foreach($k in $deleted)
     
   #else 
@@ -5045,27 +5048,29 @@ div.totCounterContainer
                 <p class=MsoNormal style='margin-left:0in'>
                 #foreach( $versionedRelationship in $addedBase2Rels )
                   #set($fromItemId = $versionedRelationship.getFromItem().getValue().get(0))
-                  #set($fromItemVersion = $versionedRelationship.getFromItem().getValue().get(1))
+                  #set($fromItemVersionNumber = $versionedRelationship.getFromItem().getValue().get(1))
                   #set($toItemId = $versionedRelationship.getToItem().getValue().get(0))
-                  #set($toItemVersion = $versionedRelationship.getToItem().getValue().get(1))
+                  #set($toItemVersionNumber = $versionedRelationship.getToItem().getValue().get(1))
 
-                 #set( $fromItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($fromItemId),$fromItemVersion.toString()))
+                 #set( $fromItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($fromItemId),$fromItemVersionNumber.toString()))
                  #set( $fromItem = $fromItemVersion.document)
 
-                 #set( $toItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($toItemId),$toItemVersion.toString()))
+                 #set( $toItemVersion = $documentSource.getVersionByDocAndVersionNumber($mathTool.toInteger($toItemId),$toItemVersionNumber.toString()))
                  #set( $toItem = $toItemVersion.document)
 
                   #*<a href="perspective.req?projectId=$fromItem.project.id&docId=$fromItem.id">$fromItem.documentKey</a>
                   &#8594; <a href="perspective.req?projectId=$toItem.project.id&docId=$toItem.id">$toItem.documentKey</a>
                   <br> <br>*#
                   #set( $lk = "")
-                  #createLink( $fromItem $fromItemVersion false)
+                  #set( $fromItemDoc = $documentSource.getDocumentVersion( $mathTool.toInteger($fromItemId), $fromItemVersionNumber.toString()))
+                  #createLink( $fromItemDoc $fromItemVersionNumber false)
                   #set( $lk = $createLinkReturn)
                   #encodeText( $fromItem.name)
                   #set( $fromItemName = $encodeTextReturn)
                   <a href='$lk'>$fromItemName ($fromItem.documentKey)</a>
                   #set( $lk = "")
-                  #createLink( $toItem $toItemVersion false)
+                  #set( $toItemDoc = $documentSource.getDocumentVersion( $mathTool.toInteger($toItemId), $toItemVersionNumber.toString()))
+                  #createLink( $toItemDoc $toItemVersionNumber false)
                   #set( $lk = $createLinkReturn)
                   #encodeText( $toItem.name)
                   #set( $toItemName = $encodeTextReturn)
@@ -5377,7 +5382,6 @@ div.totCounterContainer
 
           #set( $baseDoc = $baseline1Item)
 
-          #set( $baseOrigin = $baseDoc.id)
 
           #if( $baseline2Ids.contains( $baseline1Item.globalId ) )
             #set( $compareItemIndex = $baseline2Ids.indexOf( $baseline1Item.globalId ))
@@ -5590,13 +5594,13 @@ div.totCounterContainer
 
             ##------ Build Versioned Comment Row ------##
             #set( $count=0 )
-
            
-              #set($next = $mathTool.toInteger($bVer.versionNumber)+1)
-              #set($total = $mathTool.toInteger($aVer.versionNumber)+1)
+              #set($next = $mathTool.toInteger($baseDoc.currentVersion.versionNumber)+1)
+
+              #set($total = $mathTool.toInteger($compareDoc.currentVersion.versionNumber)+1)
 
               #if($report_showComment == true)
-              #formatVersionCommentRow( $next $total $baseOrigin )
+                  #formatVersionCommentRow( $next $total $baseDoc.currentVersion.originDocument.id)
               #end ##if($report_showComment == true)
 
             </table> ## Closes Updated Items Section 1.0 

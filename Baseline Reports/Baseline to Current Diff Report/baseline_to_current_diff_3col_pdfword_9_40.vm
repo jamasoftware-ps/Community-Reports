@@ -89,6 +89,7 @@ Content-Type: text/html; charset="utf-8"
 ## 2026-08-14   3.16       Shawnna Williams  - Update for new velocity flag handling originDocumentId, changes in getBaselineItems, added sortBaselineItems macro
 ## 2026-08-18   3.16.1     Shawnna Williams  - Added error handling if a baseline isn't chosen
 ## 2026-09-04   3.17       Shawnna Williams  - Fix versioned relationships to get versioned document
+## 2026-09-17   3.18       Shawnna Williams  - Send originDocumentId into createLink macro, fix formatVersionComments so they receive originDocumentId, cleanup formatRelationshipRow
 ## ======================================================================================================================
 #########################################################################################################################
 ## Report Criteria:
@@ -5264,7 +5265,7 @@ div.totCounterContainer
           #if( $activeDoc.documentType.display != "Test Run" && 
             $activeDoc.documentType.display != "Test Cycle" && 
             $activeDoc.documentType.display != "Test Plan")
-          #set( $activeDoc = $documentSource.getDocument( $activeDocId) )
+           #set( $activeDoc = $documentSource.getDocument( $activeDocId) )
           #end
           #set( $activeId = $activeDoc.id)
         
@@ -5476,8 +5477,8 @@ div.totCounterContainer
             ##------ Build Versioned Comment Row ------##
             #set( $count=0 )
 
-            #set($next = $mathTool.toInteger($bVer.versionNumber)+1)
-            #set($total = $mathTool.toInteger($aVer.versionNumber)+1)
+            #set($next = $mathTool.toInteger($baseDoc.currentVersion.versionNumber)+1)
+            #set($total = $mathTool.toInteger($activeDoc.currentVersion.versionNumber)+1)
 
             #if($report_showComment == true)
               #formatVersionCommentRow( $next $total $activeId )
